@@ -55,7 +55,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'urls'
+# The project is packaged under `django_app`, so URLconf must match.
+ROOT_URLCONF = 'django_app.urls'
 
 TEMPLATES = [
     {

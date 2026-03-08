@@ -24,7 +24,8 @@ import os
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('core.urls')),
+    # The `core` app is within the django_app package.
+    path('', include('django_app.core.urls')),
     
 ]
 
