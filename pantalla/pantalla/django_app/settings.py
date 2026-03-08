@@ -35,6 +35,11 @@ ALLOWED_HOSTS = os.environ.get(
     "127.0.0.1,localhost,proyecto-uni-qcgl.onrender.com",
 ).split(",")
 
+# Allow CSRF requests coming from the Render hostname (HTTPS)
+CSRF_TRUSTED_ORIGINS = [
+    "https://proyecto-uni-qcgl.onrender.com",
+]
+
 
 # Application definition
 
