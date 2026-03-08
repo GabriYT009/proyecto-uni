@@ -8,4 +8,4 @@ services:
       - key: PYTHONPATH
         value: /opt/render/project/src/pantalla/pantalla/pantalla
     buildCommand: python -m pip install --upgrade pip setuptools wheel && python -m pip install -r requirements.txt
-    startCommand: waitress-serve --port=$PORT django_app.wsgi:application
+    startCommand: python -c "import os,sys; print('cwd', os.getcwd()); print('ls', os.listdir()); print('sys.path', sys.path); import django_app; print('imported', django_app)" && waitress-serve --port=$PORT django_app.wsgi:application
