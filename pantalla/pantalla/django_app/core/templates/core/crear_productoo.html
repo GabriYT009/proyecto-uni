@@ -1,0 +1,534 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Registrar Producto</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+
+
+        body{
+            position: relative;
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #E1BEE7, #EFEFEF);
+            margin:0;
+            color:#000;
+            min-height:100vh;
+            padding-top:100px; /* leave space for top bar */
+        }
+
+        /* top full-width bar */
+        .top-bar{ position: fixed; top:0; left:0; right:0; height:70px; background:#fff; border-bottom:1px solid rgba(0,0,0,0.06); z-index:10000; transition: all 240ms cubic-bezier(.2,.9,.2,1); box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .top-bar .bar-inner{ max-width:1400px; margin:0 auto; height:70px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; position:relative; }
+        .top-bar .btn{ background:transparent; color:#9932CC; border:1px solid rgba(153,50,204,0.12); padding:8px 14px; border-radius:8px; }
+
+        /* collapsed (minimized) top-bar to corner - only on mobile */
+        .top-bar.collapsed{ left:12px; right:auto; width:56px; height:56px; border-radius:10px; padding:6px; border-bottom: none; box-shadow:0 6px 18px rgba(0,0,0,0.08); }
+        .top-bar.collapsed .bar-inner{ display:none; }
+        .bar-logo-link{ display:flex; align-items:center; font-size:24px; font-weight:700; color:#9932CC; text-decoration:none; }
+        .bar-logo-text{ font-size:24px; font-weight:700; color:#9932CC; }
+
+        /* Search container */
+        .search-container{ display:flex; align-items:center; background:#f5f5f5; border-radius:25px; padding:5px; width:400px; }
+        .search-input{ flex:1; border:none; background:transparent; padding:8px 15px; font-size:16px; outline:none; }
+        .search-btn{ background:#fff; color:#9932CC; border:none; border-radius:20px; width:35px; height:35px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; margin-right:5px; }
+        .cart-link-inline{ margin-left:5px; }
+        .cart-link-inline{ position:relative; display:inline-block; }
+        .cart-link-inline .cart-icon{ width:24px; height:24px; object-fit:contain; display:block; }
+        .cart-count{ position:absolute; top:-5px; right:-5px; background:#9932CC; color:#fff; border-radius:50%; padding:2px 6px; font-size:12px; font-weight:600; }
+
+        /* Main navigation */
+        .main-nav{ display:flex; gap:30px; margin-right:30px; }
+        .nav-link{ color:#333; text-decoration:none; font-weight:600; font-size:16px; padding:8px 12px; border-radius:6px; transition: all 0.3s ease; }
+        .nav-link:hover{ background:#f0f0f0; color:#9932CC; }
+
+        .bar-toggle{ display:none; /* hide on desktop */ }
+        /* cuando la barra está colapsada mostrar logo dentro del contenedor pequeño */
+        .top-bar.collapsed .bar-logo-link{ left:8px; top:8px; z-index:10003; }
+        .top-bar.collapsed .bar-logo-link img.bar-logo{ width:28px; height:28px; border-radius:6px; }
+        /* colocar el toggle a la derecha dentro del contenedor colapsado para poder expandir de nuevo */
+        .top-bar.collapsed .bar-toggle{ left:auto; right:8px; top:8px; z-index:10004; }
+        .bar-toggle .hamburger{ width:20px; height:14px; position:relative; display:inline-block; }
+        .bar-toggle .hamburger span{ position:absolute; left:0; right:0; height:2px; background:#9932CC; border-radius:2px; }
+        .bar-toggle .hamburger span:nth-child(1){ top:0; }
+        .bar-toggle .hamburger span:nth-child(2){ top:6px; }
+        .bar-toggle .hamburger span:nth-child(3){ top:12px; }
+        .top-bar.collapsed .bar-toggle{ display:flex; }
+
+        /* username display: keep positioning only so logout-button styles apply */
+        .user-name{ position:relative; z-index:10002; }
+        /* profile dropdown */
+        .profile-menu{ position:relative; display:inline-block; }
+        .profile-btn{ background: #ffffff; color: #9932CC; padding: 8px 12px; border-radius: 20px; border: none; font-weight:600; display:flex; align-items:center; gap:8px; cursor:pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
+        .profile-btn:focus{ outline:2px solid rgba(153,50,204,0.12); }
+        .profile-dropdown{ position:absolute; right:0; top:calc(100% + 8px); background:#fff; border:1px solid rgba(0,0,0,0.06); border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.08); display:none; min-width:160px; z-index:10005; padding:6px 0; }
+        .profile-dropdown.show{ display:block; }
+        .profile-dropdown .dropdown-item{ display:block; padding:8px 12px; color:#333; text-decoration:none; font-weight:600; font-size:16px; border-radius:6px; transition: all 0.3s ease; }
+        .profile-dropdown .dropdown-item:hover{ background:#f0f0f0; color:#9932CC; }
+        .top-bar.collapsed .user-name{ display:none; }
+        /* nav menu for hamburger (3-line) */
+        .nav-menu{ position:absolute; left:12px; top:64px; background:#fff; border:1px solid rgba(0,0,0,0.06); border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.08); display:none; z-index:10006; min-width:180px; }
+        .nav-menu.show{ display:block; }
+        .nav-menu .nav-item{ display:block; padding:10px 12px; color:#333; text-decoration:none; font-weight:700; }
+        .nav-menu .nav-item:hover{ background:#f7f7f7; }
+        /* groups inside bar-inner */
+        .bar-inner .group{ display:flex; align-items:center; gap:15px; }
+        .bar-inner .bar-left{ flex:0 0 auto; }
+        .bar-inner .bar-center{ flex:1 1 auto; display:flex; justify-content:center; }
+        .bar-inner .bar-right{ flex:0 0 auto; }
+
+        a.logout-button{
+            display:inline-block;
+            background: #ffffff;
+            color: #9932CC;
+            padding: 8px 14px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+        }
+        /* avatar next to username */
+        .avatar{ width:24px; height:24px; border-radius:50%; object-fit:cover; vertical-align:middle; margin-right:8px; }
+        a.logout-button:hover{ box-shadow: 0 4px 10px rgba(0,0,0,0.16); }
+
+        /* Cart page specific styles */
+        .card-body h2 {
+            text-align: center;
+            color: #9932CC;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Form styles */
+        form label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        form input[type="text"],
+        form input[type="number"],
+        form input[type="file"],
+        form textarea,
+        form select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        form input[type="file"] {
+            padding: 5px;
+        }
+
+        .field-error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            background: #9932CC;
+            color: #fff;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #8a2be2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(153, 50, 204, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        /* Image preview styles */
+        #imgPreview {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        #imgHint {
+            font-size: 12px;
+            color: #888;
+            margin-top: 8px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    
+    {% csrf_token %}
+    
+    <!-- Messages -->
+    {% if messages %}
+    <div style="position: fixed; top: 80px; right: 20px; z-index: 10001;">
+        {% for message in messages %}
+        <div style="background: {% if message.tags == 'success' %}#28a745{% else %}#dc3545{% endif %}; color: white; padding: 12px 20px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-weight: 600;">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div id="welcomeAlert" role="status" aria-live="polite" style="display:none">Bienvenido — Has iniciado sesión correctamente.</div>
+
+    <div class="top-bar" id="topBar">
+        <div class="bar-inner">
+            <div class="group bar-left">
+                <a href="{% url 'home' %}" class="bar-logo-link" aria-label="Inicio">
+                    <span class="bar-logo-text">Solucionarte</span>
+                </a>
+            </div>
+
+            <div class="group bar-center">
+                <nav class="main-nav">
+                    <a href="{% url 'catalog' %}" class="nav-link">Catálogo</a>
+                    <div class="clients-menu" style="position:relative;">
+                        <button id="clientsToggle" class="nav-link clients-toggle" aria-haspopup="true" aria-expanded="false">Clientes ▾</button>
+                        <div id="clientsDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
+                            <a href="{% url 'todos_clientes' %}" class="dropdown-item">Ver clientes</a>
+                            {%  if 'admin' in user_groups %}
+                                <!-- Registrar Cliente removed from dropdown -->
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="product-menu" style="position:relative;">
+                        <button id="productToggle" class="nav-link product-toggle" aria-haspopup="true" aria-expanded="false">Producto ▾</button>
+                        <div id="productDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
+                            {% if 'admin' in user_groups %}
+                                <a href="{% url 'registrar_producto' %}" class="dropdown-item">Crear Producto</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {%  if 'admin' in user_groups %}
+                    <!-- Crear Producto removed from top nav -->
+                    <a href="{% url 'inventario' %}" class="nav-link">Inventario</a>
+                    {% endif %}
+                    {% if 'admin' in user_groups or 'cajero' in user_groups %}
+                    <a href="{% url 'caja' %}" class="nav-link">Caja</a>
+                    {% endif %}
+                </nav>
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Buscar productos..." id="searchInput">
+                    <button class="search-btn">🔍</button>
+                    <a href="{% url 'carrito' %}" class="cart-link-inline" aria-label="Carrito">
+                        <img src="{% static 'core/carrito.png' %}" alt="Carrito" class="cart-icon">
+                        <span id="cart-count" class="cart-count">{{ cart_count }}</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="group bar-right">
+                {% if user.is_authenticated %}
+                    <div class="profile-menu">
+                        <button id="profileToggle" class="profile-btn" aria-haspopup="true" aria-expanded="false">
+                            <img src="{% static 'core/avatar.png' %}" alt="Avatar" class="avatar">{{ user.username }}
+                        </button>
+                        <div id="profileDropdown" class="profile-dropdown" role="menu" aria-hidden="true">
+                            <a href="{% url 'perfil' %}" class="dropdown-item">Mi perfil</a>
+                        
+                            <a href="{% url 'historial_compras' %}" class="dropdown-item">Historial de compras</a>
+                            <a href="{% url 'logout' %}" class="dropdown-item">Cerrar sesión</a>
+                        </div>
+                    </div>
+                {% else %}
+                    <a id="profileBtn" class="logout-button" href="{% url 'perfil' %}">Perfil</a>
+                {% endif %}
+            </div>
+        </div>
+        <button id="barToggle" class="bar-toggle" aria-expanded="true" aria-label="Alternar barra">
+            <span class="hamburger">
+                <span></span><span></span><span></span>
+            </span>
+        </button>
+        <div id="barNavMenu" class="nav-menu" role="menu" aria-hidden="true">
+            <a class="nav-item" href="{% url 'catalog' %}">Ver catálogo</a>
+            <a class="nav-item" href="{% url 'todos_clientes' %}">Ver clientes</a>
+            <a class="nav-item" href="{% url 'registrar_producto' %}">Registrar producto</a>
+        </div>
+    </div>
+
+    <script>
+        // mostrar alerta si venimos del login
+        (function(){
+            if (sessionStorage.getItem('showWelcome')) {
+                const a = document.getElementById('welcomeAlert');
+                a.classList.add('show');
+                sessionStorage.removeItem('showWelcome');
+                setTimeout(()=> a.classList.remove('show'), 5000);
+            }
+        })();
+    </script>
+    <script>
+        // Clients dropdown toggle
+        (function(){
+            const toggle = document.getElementById('clientsToggle');
+            const dropdown = document.getElementById('clientsDropdown');
+            if(!toggle || !dropdown) return;
+            function close(){ dropdown.classList.remove('show'); toggle.setAttribute('aria-expanded','false'); dropdown.setAttribute('aria-hidden','true'); }
+            toggle.addEventListener('click', function(e){ e.stopPropagation(); const opened = dropdown.classList.toggle('show'); toggle.setAttribute('aria-expanded', opened ? 'true' : 'false'); dropdown.setAttribute('aria-hidden', opened ? 'false' : 'true'); });
+            document.addEventListener('click', function(e){ if(!toggle.contains(e.target) && !dropdown.contains(e.target)) close(); });
+            document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
+        })();
+    </script>
+    <script>
+        // Hamburger nav menu
+        (function(){
+            const navToggle = document.getElementById('barToggle');
+            const navMenu = document.getElementById('barNavMenu');
+            if(!navToggle || !navMenu) return;
+
+            function closeNav(){
+                navMenu.classList.remove('show');
+                navMenu.setAttribute('aria-hidden','true');
+            }
+
+            navToggle.addEventListener('click', function(e){
+                e.stopPropagation();
+                const opened = navMenu.classList.toggle('show');
+                navMenu.setAttribute('aria-hidden', opened ? 'false' : 'true');
+            });
+
+            document.addEventListener('click', function(e){
+                if(!navToggle.contains(e.target) && !navMenu.contains(e.target)) closeNav();
+            });
+            document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeNav(); });
+        })();
+    </script>
+    <script>
+        // Profile dropdown
+        (function(){
+            const toggle = document.getElementById('profileToggle');
+            const dropdown = document.getElementById('profileDropdown');
+            if(!toggle || !dropdown) return;
+
+            function closeMenu(){
+                dropdown.classList.remove('show');
+                toggle.setAttribute('aria-expanded','false');
+                dropdown.setAttribute('aria-hidden','true');
+            }
+
+            toggle.addEventListener('click', function(e){
+                e.stopPropagation();
+                const opened = dropdown.classList.toggle('show');
+                toggle.setAttribute('aria-expanded', opened ? 'true' : 'false');
+                dropdown.setAttribute('aria-hidden', opened ? 'false' : 'true');
+            });
+
+            document.addEventListener('click', function(e){
+                if(!toggle.contains(e.target) && !dropdown.contains(e.target)){
+                    closeMenu();
+                }
+            });
+            document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeMenu(); });
+        })();
+    </script>
+    <script>
+        // Category dropdown
+        (function(){
+            const catToggle = document.getElementById('categoryToggle');
+            const catDropdown = document.getElementById('categoryDropdown');
+            if(!catToggle || !catDropdown) return;
+
+            function closeCat(){
+                catDropdown.classList.remove('show');
+                catToggle.setAttribute('aria-expanded','false');
+                catDropdown.setAttribute('aria-hidden','true');
+            }
+
+            catToggle.addEventListener('click', function(e){
+                e.stopPropagation();
+                const opened = catDropdown.classList.toggle('show');
+                catToggle.setAttribute('aria-expanded', opened ? 'true' : 'false');
+                catDropdown.setAttribute('aria-hidden', opened ? 'false' : 'true');
+            });
+
+            document.addEventListener('click', function(e){
+                if(!catToggle.contains(e.target) && !catDropdown.contains(e.target)) closeCat();
+            });
+            document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeCat(); });
+        })();
+    </script>
+    <script>
+        // Toggle top-bar
+        (function(){
+            try{ localStorage.removeItem('topBarCollapsed'); }catch(e){}
+            const topBar = document.getElementById('topBar');
+            const toggle = document.getElementById('barToggle');
+
+            function setCollapsed(collapsed){
+                if(collapsed){
+                    topBar.classList.add('collapsed');
+                    toggle.setAttribute('aria-expanded','false');
+                } else {
+                    topBar.classList.remove('collapsed');
+                    toggle.setAttribute('aria-expanded','true');
+                }
+            }
+
+            toggle.addEventListener('click', function(e){
+                topBar.classList.remove('collapsed');
+                toggle.setAttribute('aria-expanded','true');
+            });
+        })();
+    </script>
+
+        <div class="card">
+        <div class="card-body" style="padding:30px;">
+            <h2>Registrar Producto</h2>
+            <form method="post" action="" novalidate enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+
+                <div style="display:flex; gap:18px; align-items:flex-start;">
+                    <div style="flex:1;">
+                        <label for="id_nombre_producto">Nombre de producto</label>
+                        {{ form.nombre_producto }}
+                        <div class="field-error">{{ form.nombre_producto.errors }}</div>
+
+                        <label for="id_marca">Maraca del producto</label>
+                        {{ form.marca_producto }}
+                        <div class="field-error">{{ form.nombre_producto.errors }}</div>
+
+                        <label for="id_precio_venta" style="margin-top:10px;">Precio</label>
+                        {{ form.precio_venta }}
+                        <div class="field-error">{{ form.precio_venta.errors }}</div>
+
+                        <label for="id_imagen_producto" style="margin-top:10px;">Imagen</label>
+                        {{ form.imagen_producto }}
+                        <div class="field-error">{{ form.imagen_producto.errors }}</div>
+
+                        <div style="margin-top:10px; text-align:center;">
+                            <div style="font-size:13px; color:#666; margin-bottom:8px;">Vista previa</div>
+                            <div style="width:100%; max-width:360px; height:200px; margin:0 auto; border:1px solid #ddd; border-radius:8px; overflow:hidden; display:flex; align-items:center; justify-content:center; background:#fafafa;">
+                                <img id="imgPreview" src="" alt="preview" style="max-width:100%; max-height:100%; object-fit:contain; display:none;" />
+                            </div>
+                            <div id="imgHint" style="font-size:12px; color:#888; margin-top:8px;">Selecciona una imagen arriba</div>
+                        </div>
+
+                        <label for="id_descripcion" style="margin-top:10px;">Descripción</label>
+                        {{ form.descripcion }}
+                        <div class="field-error">{{ form.descripcion.errors }}</div>
+
+                         <label for="id_categoria" style="margin-top:10px;">Categoría</label>
+                         {{ form.categoria }}
+                         <div class="field-error">{{ form.categoria.errors }}</div>
+
+                         <label for="id_cantidad_disponible" style="margin-top:10px;">Cantidad Inicial</label>
+                         {{ form.cantidad_disponible }}
+                         <div class="field-error">{{ form.cantidad_disponible.errors }}</div>
+
+                         <div style="margin-top:10px;">
+                            {{ form.status_producto }}
+                            <label for="id_status_producto" style="margin-left:8px; font-weight:500;">Producto activo (visible en catálogo)</label>
+                         </div>
+                         <div class="field-error">{{ form.status_producto.errors }}</div>
+
+                        <div style="margin-top:14px; display:flex; gap:8px;">
+                            <button type="submit" class="btn">Registrar producto</button>
+                            <a href="{% url 'home' %}" class="btn btn-secondary" style="text-decoration:none; padding:8px 12px; display:inline-block;">Cancelar</a>
+                        </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        (function(){
+            // CAMBIO IMPORTANTE: El ID generado por Django ahora es id_imagen_producto
+            const imgField = document.getElementById('id_imagen_producto');
+            const preview = document.getElementById('imgPreview');
+            const hint = document.getElementById('imgHint');
+
+            function updatePreview(){
+                // Si hay un archivo seleccionado (input type=file)
+                if(imgField && imgField.files && imgField.files.length > 0){
+                    const file = imgField.files[0];
+                    if(file && file.type && file.type.startsWith('image/')){
+                        const objectUrl = URL.createObjectURL(file);
+                        preview.src = objectUrl;
+                        preview.style.display = 'block';
+                        hint.textContent = file.name || '';
+
+                        preview.onload = function(){ URL.revokeObjectURL(objectUrl); preview.onload = null; };
+                        return;
+                    } else {
+                        preview.src = '';
+                        preview.style.display = 'none';
+                        hint.textContent = 'Seleccione un archivo de imagen válido';
+                        return;
+                    }
+                }
+
+                // Fallback si no hay archivo
+                preview.src = '';
+                preview.style.display = 'none';
+                hint.textContent = 'Selecciona una imagen del equipo';
+            }
+
+            if(imgField){
+                // Solo necesitamos escuchar el evento change para inputs de tipo file
+                imgField.addEventListener('change', updatePreview);
+            }
+        })();
+
+        // Clear search input when page loads (for navigation)
+        document.getElementById('searchInput').value = '';
+
+        // Handle Enter key to search
+        document.getElementById('searchInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const query = e.target.value.trim();
+                if (query) {
+                    window.location.href = `/catalogo/?search=${encodeURIComponent(query)}`;
+                } else {
+                    window.location.href = '/catalogo/';
+                }
+            }
+        });
+    </script>
+    </script>
+    <script>
+        // Product dropdown toggle (crear_productoo page)
+        (function(){
+            const pt = document.getElementById('productToggle');
+            const pd = document.getElementById('productDropdown');
+            if(!pt || !pd) return;
+            function closeP(){ pd.classList.remove('show'); pt.setAttribute('aria-expanded','false'); pd.setAttribute('aria-hidden','true'); }
+            pt.addEventListener('click', function(e){ e.stopPropagation(); const opened = pd.classList.toggle('show'); pt.setAttribute('aria-expanded', opened ? 'true' : 'false'); pd.setAttribute('aria-hidden', opened ? 'false' : 'true'); });
+            document.addEventListener('click', function(e){ if(!pt.contains(e.target) && !pd.contains(e.target)) closeP(); });
+            document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeP(); });
+        })();
+    </script>
+</body>
+</html>

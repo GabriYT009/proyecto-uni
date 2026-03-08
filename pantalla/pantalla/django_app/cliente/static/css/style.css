@@ -1,0 +1,80 @@
+/* static/css/style.css */
+/* Estilos basados en el diseño púrpura moderno */
+
+:root {
+    --primary-color: #6A1B9A; 
+    --secondary-color: #9C27B0; 
+    --background-color: #EFEFEF;
+    --card-background: #FFFFFF;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #E1BEE7, var(--background-color));
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.container {
+    background-color: var(--card-background);
+    padding: 30px 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); 
+    width: 450px;
+}
+
+h2 {
+    color: var(--primary-color);
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 1.8em;
+}
+
+/* Estilo para todos los campos de entrada y selección */
+input[type="text"], input[type="email"], select {
+    width: 100%; 
+    padding: 12px;
+    margin: 8px 0;
+    border: 1px solid #CCC;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+input:focus, select:focus {
+    border-color: var(--secondary-color);
+    outline: none;
+}
+
+.fieldset {
+    border: 1px solid var(--primary-color);
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 20px;
+}
+
+h4 {
+    color: var(--secondary-color);
+    margin-top: 0;
+}
+
+/* Botón de envío */
+button[type="submit"] {
+    background-color: var(--secondary-color);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    margin-top: 20px;
+    font-size: 1.1em;
+    padding: 12px;
+    width: 100%;
+    border-radius: 8px;
+    transition: background-color 0.3s;
+}
+
+button[type="submit"]:hover {
+    background-color: var(--primary-color);
+}
