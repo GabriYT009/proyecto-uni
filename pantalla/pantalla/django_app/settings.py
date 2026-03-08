@@ -52,6 +52,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # WhiteNoise serves static files directly.
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -129,9 +131,12 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+# In production (Render, etc) we collect all static files into this folder
+# and serve them with WhiteNoise.
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-
 
 STATICFILES_DIRS = [
     str(BASE_DIR / "static"),
@@ -144,6 +149,10 @@ STATICFILES_DIRS = [
     # keep app-level static path
     str(BASE_DIR / 'static'),
 ]
+
+# Use WhiteNoise to serve static files in production (especially when running under Waitress).
+# See https://whitenoise.evans.io/en/stable/
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

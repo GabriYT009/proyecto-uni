@@ -7,5 +7,5 @@ services:
     envVars:
       - key: PYTHONPATH
         value: /opt/render/project/src/pantalla/pantalla/pantalla
-    buildCommand: python -m pip install --upgrade pip setuptools wheel && python -m pip install -r requirements.txt
+    buildCommand: python -m pip install --upgrade pip setuptools wheel && python -m pip install -r requirements.txt && python django_app/manage.py collectstatic --noinput
     startCommand: python start.py
