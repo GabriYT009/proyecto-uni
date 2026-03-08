@@ -9,7 +9,7 @@ import sys
 
 # Aseguramos que Python pueda encontrar el paquete django_app.
 base = os.path.dirname(os.path.abspath(__file__))
-proj = os.path.join(base, "pantalla", "pantalla")
+proj = os.path.join(base, "pantalla", "pantalla", "pantalla")
 if proj not in sys.path:
     sys.path.insert(0, proj)
 
