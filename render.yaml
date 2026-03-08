@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: proyecto-uni
+    env: python
+    plan: free
+    buildCommand: python -m pip install --upgrade pip setuptools wheel && python -m pip install -r requirements.txt
+    startCommand: python -m pip install --upgrade pip setuptools wheel && gunicorn django_app.wsgi:application --bind 0.0.0.0:$PORT
