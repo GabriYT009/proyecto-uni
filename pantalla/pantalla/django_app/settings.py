@@ -29,10 +29,10 @@ SECRET_KEY = 'django-insecure-@%i@jah3u_9f!b*vpzdx(15!xw9c@9187mt%n&4o994j!to=!s
 DEBUG = True
 
 # Allow Render's hostname (and/or any host via env var) to access the app.
-# Render uses a dynamic hostname, so you can also set the env var ALLOWED_HOSTS.
+# In development, also allow localhost + 127.0.0.1.
 ALLOWED_HOSTS = os.environ.get(
     "ALLOWED_HOSTS",
-    "proyecto-uni-qcgl.onrender.com",
+    "127.0.0.1,localhost,proyecto-uni-qcgl.onrender.com",
 ).split(",")
 
 
