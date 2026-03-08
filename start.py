@@ -15,6 +15,14 @@ if proj not in sys.path:
 
 from waitress import serve
 
+# Debug: print runtime introspection to logs.
+print("cwd:", os.getcwd())
+print("sys.path[0..3]:", sys.path[:4])
+
+import django_app
+print("django_app.__file__", django_app.__file__)
+print("django_app.__path__", list(django_app.__path__))
+
 # Importar después de ajustar sys.path.
 from django_app.wsgi import application
 
