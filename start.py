@@ -26,5 +26,15 @@ print("django_app.__path__", list(django_app.__path__))
 # Importar después de ajustar sys.path.
 from django_app.wsgi import application
 
+# Run migrations on startup so the database schema exists (important for new deployments).
+# This is safe for SQLite and avoids "no such table" errors when the DB file is new.
+from django.core.management import call_command
+try:
+    print("Running migrations...")
+    call_command("migrate", "--noinput")
+except Exception as e:
+    # Log but continue; the server can still start even if migrations fail.
+    print("Migration error:", e)
+
 port = int(os.environ.get("PORT", 8000))
 serve(application, host="0.0.0.0", port=port)
