@@ -16,7 +16,9 @@ El proyecto está preparado para desplegar **backend y frontend en la misma inst
 3. **Build**: Railway detectará el `Dockerfile` y construirá la imagen.
 
 4. **Variables de entorno** (en el dashboard del servicio):
-   - `DATABASE_URL`: si añades un plugin PostgreSQL en Railway, se inyecta solo. Si no, la app usa SQLite (datos efímeros en el contenedor).
+  - Configura MySQL con alguna de estas opciones:
+    - `DATABASE_URL` con formato MySQL, por ejemplo: `mysql://usuario:clave@host:3306/basedatos`
+    - o variables separadas: `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_HOST`, `MYSQL_PORT`
    - Opcionales:
      - `DJANGO_ADMIN_USER` (default: `admin1`)
      - `DJANGO_ADMIN_PASSWORD` (default: `123456`)
@@ -49,4 +51,4 @@ Abre `http://localhost:8000`.
 ## Notas
 
 - **Media (subidas)**: en Railway el disco es efímero. Para persistir archivos subidos usa un almacenamiento externo (S3, etc.) y configura Django para ello.
-- **PostgreSQL**: recomendable en producción; añade el plugin PostgreSQL en Railway y usa la `DATABASE_URL` que te proporciona.
+- **MySQL**: usa un servicio gestionado (Railway, PlanetScale, Aiven, etc.) y configura `DATABASE_URL` o `MYSQL_*`.

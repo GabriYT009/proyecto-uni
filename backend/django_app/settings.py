@@ -104,15 +104,15 @@ WSGI_APPLICATION = 'django_app.wsgi.application'
 
 
 # Database
-# Prioridad: DATABASE_URL (PostgreSQL) -> MYSQL_* (MySQL) -> SQLite
-DATABASE_URL = os.environ.get("DATABASE_URL")
+# Prioridad: MYSQL_* o DATABASE_URL (MySQL) -> SQLite
+DATABASE_URL = os.environ.get("DATABASE_URL", "")
 MYSQL_NAME = os.environ.get("MYSQL_DATABASE") or os.environ.get("MYSQL_NAME")
 MYSQL_USER = os.environ.get("MYSQL_USER")
 MYSQL_PASSWORD = os.environ.get("MYSQL_PASSWORD")
 MYSQL_HOST = os.environ.get("MYSQL_HOST", "127.0.0.1")
 MYSQL_PORT = os.environ.get("MYSQL_PORT", "3306")
 
-if DATABASE_URL:
+if DATABASE_URL.startswith(("mysql://", "mysql2://", "mysql+mysqlconnector://", "mysql+pymysql://")):
     DATABASES = {
         "default": dj_database_url.config(default=DATABASE_URL, conn_max_age=600, ssl_require=True)
     }
