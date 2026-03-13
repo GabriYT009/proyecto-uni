@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Historial de compras</title>
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <style>
+        body{ padding-top:80px; font-family: 'Montserrat', sans-serif; background: linear-gradient(135deg, #E1BEE7, #EFEFEF); }
+        .container{ max-width:900px; margin:40px auto; }
+        .card{ background:#fff; padding:24px; border-radius:12px; box-shadow:0 8px 30px rgba(0,0,0,0.06); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h2 style="color:#9932CC">Historial de compras</h2>
+
+            {% if salidas and salidas|length > 0 %}
+                {% for s in salidas %}
+                    <div style="border-top:1px solid #eee; padding-top:12px; margin-top:12px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+                            <div>
+                                <div style="font-weight:700">Orden #{{ s.pk }}</div>
+                                <div class="muted">Fecha: {{ s.date }}</div>
+                            </div>
+                            <div style="text-align:right;">
+                                <div style="font-weight:700">Total: $ {{ s.total }}</div>
+                            </div>
+                        </div>
+
+                        <ul style="margin-top:8px;">
+                            {% for it in salida_items.s.pk %}
+                                <li>{{ it.producto.nombre_producto }} — Cantidad: {{ it.cantidad_item }} — Subtotal: $ {{ it.sub_total_item }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div style="padding:20px; text-align:center; color:#666">No tienes compras registradas.</div>
+            {% endif %}
+
+            <div style="margin-top:18px; text-align:right;">
+                <a href="{% url 'home' %}" class="btn btn-primary">Volver al inicio</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

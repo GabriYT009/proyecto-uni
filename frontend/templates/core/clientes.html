@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="es">
+<head>
+        <script>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Clientes</title>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+    <!-- Vendor CSS Files -->
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+        <script>
+            // Product dropdown toggle (clientes page)
+            (function(){
+                const pt = document.getElementById('productToggle');
+                const pd = document.getElementById('productDropdown');
+                if(!pt || !pd) return;
+                function closeP(){ pd.classList.remove('show'); pt.setAttribute('aria-expanded','false'); pd.setAttribute('aria-hidden','true'); }
+                pt.addEventListener('click', function(e){ e.stopPropagation(); const opened = pd.classList.toggle('show'); pt.setAttribute('aria-expanded', opened ? 'true' : 'false'); pd.setAttribute('aria-hidden', opened ? 'false' : 'true'); });
+                document.addEventListener('click', function(e){ if(!pt.contains(e.target) && !pd.contains(e.target)) closeP(); });
+                document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeP(); });
+            })();
+        </script>
+    <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+    <link href="{% static 'vendor/aos/aos.css' %}" rel="stylesheet">
+    <link href="{% static 'vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
+    <link href="{% static 'vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
+
+    <!-- Main CSS File -->
+    <link href="{% static 'css/main.css' %}" rel="stylesheet">
+
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <style>
+        body { padding-top: 70px; background: linear-gradient(135deg, #E1BEE7, #EFEFEF); font-family: 'Montserrat', sans-serif; }
+        .giant-frame { border-radius: 25px; margin: 20px; padding: 50px; background: #fff; box-shadow: 0 0 50px rgba(255, 105, 180, 0.3); }
+        .wrap{ max-width:1800px; margin:40px auto; padding:16px 80px; }
+        .inventory-header { background: linear-gradient(135deg, #9932CC, #7B1FA2); color: white; padding: 24px; border-radius: 12px; display:flex; align-items:center; gap:16px; }
+        .inventory-header-icon{ font-size:40px; opacity:0.95; }
+        .table-responsive { background: #ffffff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden; margin-top: 20px; }
+        .mdl-data-table { width:100%; border-collapse: collapse; }
+        .mdl-data-table th { background: #9932CC; color: white; padding: 12px 16px; text-align:left; font-weight:500; }
+        .mdl-data-table td { padding: 12px 16px; border-bottom:1px solid #eee; color:#333; }
+        .pagination.custom-pagination { display:inline-flex; gap:8px; list-style:none; padding:0; margin:16px auto; align-items:center; }
+        .btn { background:#9932CC; color:#fff; padding:8px 12px; border-radius:8px; text-decoration:none; border:none; }
+    </style>
+</head>
+<body>
+    {% csrf_token %}
+
+    {% if messages %}
+    <div style="position: fixed; top: 80px; right: 20px; z-index: 10001;">
+        {% for message in messages %}
+        <div style="background: {% if message.tags == 'success' %}#28a745{% else %}#dc3545{% endif %}; color: white; padding: 12px 20px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-weight: 600;">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% load static %}
+    <style>
+        .top-bar{ position: fixed; top:0; left:0; right:0; height:70px; background:#fff; border-bottom:1px solid rgba(0,0,0,0.06); z-index:10000; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+        .top-bar .bar-inner{ max-width:1400px; margin:0 auto; height:70px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; }
+        .bar-logo-link{ display:flex; align-items:center; font-size:24px; font-weight:700; color:#9932CC; text-decoration:none; }
+        .bar-logo-text{ font-size:24px; font-weight:700; color:#9932CC; }
+        .main-nav{ display:flex; gap:22px; }
+        .nav-link{ color:#333; text-decoration:none; font-weight:600; font-size:15px; padding:6px 10px; border-radius:6px; }
+        .nav-link:hover{ background:#f0f0f0; color:#9932CC; }
+        .search-container{ display:flex; align-items:center; background:#f5f5f5; border-radius:25px; padding:4px; width:360px; }
+        .search-input{ flex:1; border:none; background:transparent; padding:8px 12px; font-size:14px; outline:none; }
+        .search-btn{ background:#fff; color:#9932CC; border:none; border-radius:20px; width:34px; height:34px; display:flex; align-items:center; justify-content:center; cursor:pointer; margin-right:6px; }
+        .profile-menu{ position:relative; display:inline-block; }
+        .profile-btn{ background:#fff; color:#9932CC; padding:6px 10px; border-radius:18px; border:none; display:flex; align-items:center; gap:8px; cursor:pointer; }
+        .profile-dropdown{ position:absolute; right:0; top:calc(100% + 8px); background:#fff; border:1px solid rgba(0,0,0,0.06); border-radius:8px; display:none; min-width:160px; z-index:10005; }
+        .profile-dropdown.show{ display:block; }
+        .avatar{ width:24px; height:24px; border-radius:50%; object-fit:cover; margin-right:8px; }
+        .bar-toggle{ display:none; }
+        @media(max-width:768px){ .bar-toggle{ display:flex; } .bar-inner .bar-center{ display:none; } }
+    </style>
+    <div class="top-bar" id="topBar">
+        <div class="bar-inner">
+            <div class="group bar-left">
+                <a href="{% url 'home' %}" class="bar-logo-link" aria-label="Inicio">
+                    <span class="bar-logo-text">Solucionarte</span>
+                </a>
+            </div>
+
+            <div class="group bar-center">
+                <nav class="main-nav">
+                    <a href="{% url 'catalog' %}" class="nav-link">Catálogo</a>
+                    <div class="clients-menu" style="position:relative;">
+                        <button id="clientsToggle" class="nav-link clients-toggle" aria-haspopup="true" aria-expanded="false">Clientes ▾</button>
+                        <div id="clientsDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
+                            <a href="{% url 'todos_clientes' %}" class="dropdown-item">Ver clientes</a>
+                            {% if 'admin' in user_groups %}
+                                <!-- Registrar Cliente removed from dropdown -->
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if 'admin' in user_groups %}
+                        <!-- Crear Producto removed from top nav -->
+                        <a href="{% url 'inventario' %}" class="nav-link">Inventario</a>
+                    {% endif %}
+                    <div class="product-menu" style="position:relative;">
+                        <button id="productToggle" class="nav-link product-toggle" aria-haspopup="true" aria-expanded="false">Producto ▾</button>
+                        <div id="productDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
+                            {% if 'admin' in user_groups %}
+                                <a href="{% url 'registrar_producto' %}" class="dropdown-item">Crear Producto</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if 'admin' in user_groups or 'cajero' in user_groups %}
+                        <a href="{% url 'caja' %}" class="nav-link">Caja</a>
+                    {% endif %}
+                </nav>
+            </div>
+
+            <div class="group bar-right">
+                {% if user.is_authenticated %}
+                    <div class="profile-menu">
+                        <button id="profileToggle" class="profile-btn" aria-haspopup="true" aria-expanded="false">
+                            <img src="{% static 'core/avatar.png' %}" alt="Avatar" class="avatar">{{ user.username }}
+                        </button>
+                        <div id="profileDropdown" class="profile-dropdown" role="menu" aria-hidden="true">
+                            <a href="{% url 'perfil' %}" class="dropdown-item">Mi perfil</a>
+                        
+                            <a href="{% url 'historial_compras' %}" class="dropdown-item">Historial de compras</a>
+                            <a href="{% url 'logout' %}" class="dropdown-item">Cerrar sesión</a>
+                        </div>
+                    </div>
+                {% else %}
+                    <a id="profileBtn" class="logout-button" href="{% url 'perfil' %}">Perfil</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="giant-frame">
+        <div class="wrap">
+            <div class="inventory-header">
+                <div class="inventory-header-icon"><i class="material-icons">people</i></div>
+                <div class="inventory-header-text">
+                    <h3 style="margin:0; color: #ffffff;">Listado de Clientes</h3>
+                    <p style="margin:0; opacity:0.9;">Gestiona los clientes registrados en el sistema</p>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="mdl-data-table">
+                    <thead>
+                        <tr>
+                            <th>Nº</th>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>Documento / RIF</th>
+                            <th>Teléfono</th>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cliente in clientes %}
+                        <tr> <td>{{ forloop.counter }}</td>
+                            
+                            <td>{{ cliente.nombre_cliente }}</td>
+                            <td>{{ cliente.apellido_cliente }}</td>
+                            <td>{{ cliente.documento|default:cliente.rif_empresarial }}</td>
+                            <td>{{ cliente.telefono_cliente }}</td>
+                            <td>{{ cliente.email }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="6" style="text-align:center;">No hay clientes registrados.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if is_paginated %}
+            <nav aria-label="Paginación clientes" style="margin-top:16px; text-align:center;">
+                <ul class="pagination custom-pagination">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a></li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link">Siguiente</span></li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+
+        <script>
+            // Clients dropdown toggle (clientes page)
+            (function(){
+                const toggle = document.getElementById('clientsToggle');
+                const dropdown = document.getElementById('clientsDropdown');
+                if(!toggle || !dropdown) return;
+                function close(){ dropdown.classList.remove('show'); toggle.setAttribute('aria-expanded','false'); dropdown.setAttribute('aria-hidden','true'); }
+                toggle.addEventListener('click', function(e){ e.stopPropagation(); const opened = dropdown.classList.toggle('show'); toggle.setAttribute('aria-expanded', opened ? 'true' : 'false'); dropdown.setAttribute('aria-hidden', opened ? 'false' : 'true'); });
+                document.addEventListener('click', function(e){ if(!toggle.contains(e.target) && !dropdown.contains(e.target)) close(); });
+                document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
+            })();
+
+            // Category dropdown (clientes page)
+            (function(){
+                const catToggle = document.getElementById('categoryToggle');
+                const catDropdown = document.getElementById('categoryDropdown');
+                if(!catToggle || !catDropdown) return;
+
+                function closeCat(){
+                    catDropdown.classList.remove('show');
+                    catToggle.setAttribute('aria-expanded','false');
+                    catDropdown.setAttribute('aria-hidden','true');
+                }
+
+                catToggle.addEventListener('click', function(e){
+                    e.stopPropagation();
+                    const opened = catDropdown.classList.toggle('show');
+                    catToggle.setAttribute('aria-expanded', opened ? 'true' : 'false');
+                    catDropdown.setAttribute('aria-hidden', opened ? 'false' : 'true');
+                });
+
+                document.addEventListener('click', function(e){
+                    if(!catToggle.contains(e.target) && !catDropdown.contains(e.target)) closeCat();
+                });
+                document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeCat(); });
+            })();
+        </script>
+
+    </body>
+    </html>

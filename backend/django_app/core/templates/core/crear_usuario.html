@@ -1,0 +1,349 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Crear Usuario</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        body{ font-family: motserrat, sans-serif; margin:0; padding:24px; background: linear-gradient(150deg,#9932CC,#1E90FF); color:#fff; min-height:100vh; }
+        .login-page{ display:flex; align-items:center; justify-content:center; min-height:80vh; }
+        .card{ background:#fff; color:#000; padding:24px 32px; border-radius:8px; width:380px; text-align:center; }
+        input{ display:block; width:100%; padding:10px; margin:8px 0; border-radius:6px; border:1px solid #ccc; }
+        button{ background:#9932CC; color:#fff; padding:10px 12px; border-radius:8px; border:none; cursor:pointer; width:100%; }
+        /* 1. El contenedor padre: pone los elementos en línea */
+        .fila-cedula {
+            display: flex;        /* <--- ESTO ES LO MÁS IMPORTANTE */
+            flex-direction: row;  /* Asegura direccion horizontal */
+            gap: 15px;            /* Espacio entre el select y el input */
+            width: 100%;          /* Ocupa todo el ancho disponible */
+            margin-bottom: 15px;  /* Espacio debajo de esta fila */
+        }
+
+        /* 2. La columna del Tipo (V/E/J) */
+        .campo-corto {
+            flex: 0 0 80px;       /* Ancho fijo de 80px, no crece ni encoge */
+        }
+
+        /* 3. La columna de la Cédula */
+        .campo-largo {
+            flex: 1;              /* Ocupa todo el espacio restante automáticamente */
+        }
+
+        /* 4. Estilos para que los inputs se vean bien dentro de sus columnas */
+        .fila-cedula input,
+        .fila-cedula select {
+            width: 100%;          /* Que llenen su pequeña columna al 100% */
+            box-sizing: border-box; 
+            padding: 8px;         /* Un poco de relleno interno */
+            height: 40px;         /* Forzamos misma altura para que se vean alineados */
+        }
+
+        /* 5. Etiquetas (Labels) */
+        .fila-cedula label {
+            display: block;       /* Asegura que el texto esté encima del input */
+            margin-bottom: 5px;   /* Espacio entre la etiqueta y el campo */
+            font-weight: bold;
+        }
+
+        /* (Opcional) Responsividad: En celulares muy pequeños, volver a poner uno encima de otro */
+        @media (max-width: 480px) {
+            .fila-cedula {
+                flex-direction: column;
+                gap: 0;
+            }
+            .campo-corto, .campo-largo {
+                flex: auto;
+                width: 100%;
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+<body class="login-page">
+    {% if user.is_authenticated %}
+        <a href="{% url 'home' %}" class="bar-logo-link" aria-label="Inicio">
+            <img id="logo" src="{% static 'core/logo nuevo.png' %}" alt="Solucionarte">
+        </a>
+    {% else %}
+        <a href="{% url 'home' %}" class="bar-logo-link" aria-label="Inicio">
+            <img id="logo" src="{% static 'core/logo nuevo.png' %}" alt="Solucionarte">
+        </a>
+    {% endif %}
+    <div class="container">
+        <h2>Crear credenciales</h2>
+        {% if error %}
+            <div style="color:crimson; margin-bottom:8px; text-align:center;">{{ error }}</div>
+        {% endif %}
+        <form method="POST" action="">
+            {% csrf_token %}
+            <!-- El email no se muestra en esta pantalla; se toma de la sesión y se envía oculto -->
+            <input type="hidden" name="email" value="{{ email }}">
+
+            <div class="full">
+                <label for="nombre_cliente">Nombre:</label>
+                <input id="nombre_cliente" name="nombre_cliente" type="text" maxlength="45" placeholder="Nombre de usuario" required pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+">
+            </div>
+
+            <div class="full">
+                <label for="apellido_cliente">Apellido:</label>
+                <input id="apellido_cliente" name="apellido_cliente" type="text" placeholder="Apellido" required>
+            </div>
+
+            <div class="fila-cedula">
+                
+                <div class="campo-corto">
+                    <label for="tipo_documento">Tipo:</label>
+                    <select name="tipo_documento" id="tipo_documento">
+                        <option value="V">V</option>
+                        <option value="E">E</option>
+                        <option value="J">J</option>
+                    </select>
+                </div>
+
+                <div class="campo-largo">
+                    <label for="cedula_dni">Cédula / RIF:</label>
+                    <input id="cedula_dni" name="cedula_dni" type="text" placeholder="12345678" required>
+                </div>
+
+            </div>
+
+
+            <div class="full">
+                <label for="direccion">direccion:</label>
+                <input id="direccion" name="direccion" type="text" placeholder="direccion" required>
+            </div>
+
+            <div class="full">
+                <label for="telefono_cliente">Telefono:</label>
+                <input id="telefono_cliente" name="telefono_cliente" type="text" maxlength="11" pattern="[0-9]+" inputmode="numeric" placeholder="Teléfono" required>
+            </div>
+
+            <div class="full">
+                <label for="username">Nombre de usuario</label>
+                <input id="username" name="username" type="text" placeholder="Nombre de usuario" required>
+            </div>
+            <div class="full">
+                <label for="email">correo electrónico</label>
+                <input id="email" name="email" type="text" placeholder="Correo electrónico" required>
+            </div>
+            <div class="full">
+                <label for="password">Crear contraseña</label>
+                <input id="password" name="password" type="password" placeholder="Crear contraseña" required>
+            </div>
+            <div class="full">
+                <label for="password2">Confirmar contraseña</label>
+                <input id="password2" name="password2" type="password" placeholder="Confirmar contraseña" required>
+            </div>
+            <button type="submit">Confirmar</button>
+        </form>
+    </div>
+    <script>
+        // Clear form inputs on load and when page is shown from bfcache
+        (function(){
+            function clearFormFields(){
+                document.querySelectorAll('form input, form textarea, form select').forEach(function(el){
+                    if (el.tagName.toLowerCase() === 'select'){
+                        el.selectedIndex = 0;
+                    } else if (el.type !== 'hidden' && el.type !== 'submit' && el.type !== 'button'){
+                        el.value = '';
+                    }
+                });
+            }
+            window.addEventListener('DOMContentLoaded', clearFormFields);
+            window.addEventListener('pageshow', function(e){ if (e.persisted) clearFormFields(); });
+        })();
+    </script>
+</body>
+</html>
+
+<script>
+(function(){
+        function sanitizeName(value){
+            // eliminar dígitos y limitar a 45 caracteres
+            return value.replace(/\d+/g, '').slice(0,45);
+        }
+
+        function attach(fieldName, errorId){
+            var el = document.querySelector('input[name="'+fieldName+'"]');
+            var err = document.getElementById(errorId);
+            if (!el) return;
+
+            // evitar teclas de dígitos
+            el.addEventListener('keydown', function(e){
+                // permitir control/meta, flechas, borrar, tab
+                var allowed = ['Backspace','Delete','ArrowLeft','ArrowRight','Tab','Home','End'];
+                if (allowed.indexOf(e.key) !== -1) return;
+                // si es número bloqueamos
+                if (/^[0-9]$/.test(e.key)){
+                    e.preventDefault();
+                    if (err){ err.style.display = 'block'; err.textContent = 'No se permiten números.'; }
+                }
+            });
+
+            // limpiar al pegar o al escribir (input)
+            el.addEventListener('input', function(e){
+                var clean = sanitizeName(el.value);
+                if (el.value !== clean){
+                    el.value = clean;
+                    if (err){ err.style.display = 'block'; err.textContent = 'Se eliminaron los números automáticamente.'; }
+                } else if (err){
+                    err.style.display = 'none';
+                }
+            });
+
+            // ocultar mensaje al enfocar
+            el.addEventListener('focus', function(){ if (err) err.style.display = 'none'; });
+        }
+
+        attach('nombre_cliente','nombre_error_client');
+        attach('apellido_cliente','apellido_error_client');
+        // Validación para teléfono: solo dígitos y máximo 11
+        (function(){
+            var el = document.querySelector('input[name="telefono_cliente"]');
+            var err = document.getElementById('telefono_error_client');
+            if (!el) return;
+            el.addEventListener('keydown', function(e){
+                var allowed = ['Backspace','Delete','ArrowLeft','ArrowRight','Tab','Home','End'];
+                if (allowed.indexOf(e.key) !== -1) return;
+                // permitir solo dígitos
+                if (!/^[0-9]$/.test(e.key)){
+                    e.preventDefault();
+                    if (err){ err.style.display = 'block'; err.textContent = 'Sólo se permiten números.'; }
+                }
+                // si ya hay 11 dígitos bloquear más
+                if (el.value && el.value.replace(/\D/g,'').length >= 11 && /^[0-9]$/.test(e.key)){
+                    e.preventDefault();
+                    if (err){ err.style.display = 'block'; err.textContent = 'Máximo 11 dígitos.'; }
+                }
+            });
+            el.addEventListener('input', function(){
+                var only = el.value.replace(/\D/g,'').slice(0,11);
+                if (el.value !== only) {
+                    el.value = only;
+                    if (err){ err.style.display = 'block'; err.textContent = 'Se eliminaron caracteres no numéricos o exceso de dígitos.'; }
+                } else if (err){ err.style.display = 'none'; }
+            });
+            el.addEventListener('focus', function(){ if (err) err.style.display = 'none'; });
+        })();
+    })();
+    // Validación para cédula: solo dígitos y máximo 11
+        (function(){
+            var elc = document.querySelector('input[name="cedula_dni"]');
+            var errc = document.getElementById('cedula_error_client');
+            if (!elc) return;
+            elc.addEventListener('keydown', function(e){
+                var allowed = ['Backspace','Delete','ArrowLeft','ArrowRight','Tab','Home','End'];
+                if (allowed.indexOf(e.key) !== -1) return;
+                if (!/^[0-9]$/.test(e.key)){
+                    e.preventDefault();
+                    if (errc){ errc.style.display = 'block'; errc.textContent = 'Sólo se permiten números en la cédula.'; }
+                }
+                if (elc.value && elc.value.replace(/\D/g,'').length >= 11 && /^[0-9]$/.test(e.key)){
+                    e.preventDefault();
+                    if (errc){ errc.style.display = 'block'; errc.textContent = 'Máximo 11 dígitos.'; }
+                }
+            });
+            elc.addEventListener('input', function(){
+                var only = elc.value.replace(/\D/g,'').slice(0,11);
+                if (elc.value !== only){
+                    elc.value = only;
+                    if (errc){ errc.style.display = 'block'; errc.textContent = 'Se eliminaron caracteres no numéricos.'; }
+                } else if (errc){ errc.style.display = 'none'; }
+            });
+            // prevent non-digit insertion (beforeinput) and sanitize paste
+            elc.addEventListener('beforeinput', function(e){
+                try{
+                    if (e.data && /\D/.test(e.data)){
+                        e.preventDefault();
+                        if (errc){ errc.style.display = 'block'; errc.textContent = 'Sólo se permiten números en la cédula.'; }
+                    }
+                }catch(ex){}
+            });
+            elc.addEventListener('paste', function(e){
+                try{
+                    e.preventDefault();
+                    var txt = (e.clipboardData || window.clipboardData).getData('text') || '';
+                    var only = txt.replace(/\D/g,'').slice(0,11);
+                    // insert sanitized digits at cursor
+                    var start = elc.selectionStart || 0;
+                    var end = elc.selectionEnd || 0;
+                    var newVal = (elc.value.slice(0,start) + only + elc.value.slice(end)).replace(/\D/g,'').slice(0,11);
+                    elc.value = newVal;
+                    if (errc){ errc.style.display = 'none'; }
+                }catch(ex){}
+            });
+            elc.addEventListener('focus', function(){ if (errc) errc.style.display = 'none'; });
+        })();
+
+        (function(){
+        function sanitizeName(value){
+            // eliminar dígitos y limitar a 45 caracteres
+            return value.replace(/\d+/g, '').slice(0,45);
+        }
+
+        function attach(fieldName, errorId){
+            var el = document.querySelector('input[name="'+fieldName+'"]');
+            var err = document.getElementById(errorId);
+            if (!el) return;
+
+            // evitar teclas de dígitos
+            el.addEventListener('keydown', function(e){
+                // permitir control/meta, flechas, borrar, tab
+                var allowed = ['Backspace','Delete','ArrowLeft','ArrowRight','Tab','Home','End'];
+                if (allowed.indexOf(e.key) !== -1) return;
+                // si es número bloqueamos
+                if (/^[0-9]$/.test(e.key)){
+                    e.preventDefault();
+                    if (err){ err.style.display = 'block'; err.textContent = 'No se permiten números.'; }
+                }
+            });
+
+            // limpiar al pegar o al escribir (input)
+            el.addEventListener('input', function(e){
+                var clean = sanitizeName(el.value);
+                if (el.value !== clean){
+                    el.value = clean;
+                    if (err){ err.style.display = 'block'; err.textContent = 'Se eliminaron los números automáticamente.'; }
+                } else if (err){
+                    err.style.display = 'none';
+                }
+            });
+
+            // ocultar mensaje al enfocar
+            el.addEventListener('focus', function(){ if (err) err.style.display = 'none'; });
+        }
+
+        attach('nombre_cliente','nombre_error_client');
+        attach('apellido_cliente','apellido_error_client');
+        // Validación para teléfono: solo dígitos y máximo 11
+        (function(){
+            var el = document.querySelector('input[name="telefono_cliente"]');
+            var err = document.getElementById('telefono_error_client');
+            if (!el) return;
+            el.addEventListener('keydown', function(e){
+                var allowed = ['Backspace','Delete','ArrowLeft','ArrowRight','Tab','Home','End'];
+                if (allowed.indexOf(e.key) !== -1) return;
+                // permitir solo dígitos
+                if (!/^[0-9]$/.test(e.key)){
+                    e.preventDefault();
+                    if (err){ err.style.display = 'block'; err.textContent = 'Sólo se permiten números.'; }
+                }
+                // si ya hay 11 dígitos bloquear más
+                if (el.value && el.value.replace(/\D/g,'').length >= 11 && /^[0-9]$/.test(e.key)){
+                    e.preventDefault();
+                    if (err){ err.style.display = 'block'; err.textContent = 'Máximo 11 dígitos.'; }
+                }
+            });
+            el.addEventListener('input', function(){
+                var only = el.value.replace(/\D/g,'').slice(0,11);
+                if (el.value !== only) {
+                    el.value = only;
+                    if (err){ err.style.display = 'block'; err.textContent = 'Se eliminaron caracteres no numéricos o exceso de dígitos.'; }
+                } else if (err){ err.style.display = 'none'; }
+            });
+            el.addEventListener('focus', function(){ if (err) err.style.display = 'none'; });
+        })();
+    })();
+</script>

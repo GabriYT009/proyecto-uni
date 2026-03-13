@@ -1,0 +1,220 @@
+/* Unified style.css for login and catalog
+   Includes modern container-based layout and legacy .formulario rules for compatibility */
+
+:root {
+    --primary-color: #6A1B9A;
+    --secondary-color: #9C27B0;
+    --background-gradient: linear-gradient(180deg, #ffffff 0%, var(--secondary-color) 100%);
+    --background-color: #EFEFEF;
+    --card-background: #ffffff;
+    --card-opacity: 1;
+}
+
+html, body {
+    height: 100%;
+}
+
+/* Paint the gradient on the root element so it spans the full document
+   and remains visible when the page is scrolled. Use fixed attachment
+   so the gradient does not tile or clip on long pages. */
+html {
+    background: var(--background-gradient);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+body {
+    margin: 0;
+    padding: 24px;
+    font-family: Inter, 'Segoe UI', Roboto, Arial, sans-serif;
+    /* force transparency to let the html gradient show through (overrides inline styles) */
+    background: transparent !important;
+    display: flex;
+    /* align content at the top for long pages instead of centering vertically */
+    align-items: flex-start;
+    justify-content: center;
+}
+
+/* Modern centered card container */
+.container {
+    /* match login container: frosted/translucent so gradient shows through */
+    background: rgba(255,255,255,0.08);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    padding: 30px 36px;
+    border-radius: 16px;
+    box-shadow: 0 18px 40px rgba(25,6,80,0.35);
+    width: 420px;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-top: 3px solid rgba(255,255,255,0.15);
+    transition: transform .12s ease, box-shadow .12s ease;
+}
+.container:hover { transform: translateY(-2px); box-shadow: 0 22px 48px rgba(25,6,80,0.38); }
+
+.container h2 { margin: 0 0 12px; color: #000000; text-align:center; }
+
+.full { width: 100%; margin-bottom:12px; }
+label { display:block; font-size:14px; margin-bottom:6px; color:#222; }
+input[type="text"], input[type="password"], input[type="email"] {
+    width:100%; padding:10px 12px; border:1px solid rgba(255,255,255,0.12); border-radius:8px; box-sizing:border-box; font-size:14px;
+    background: rgba(255,255,255,0.95);
+    color: #111;
+}
+input:focus { outline:none; border-color: rgba(155,39,176,0.6); }
+
+.btn { padding:10px 14px; border-radius:8px; cursor:pointer; }
+button[type="submit"], .btn.primary { background: rgba(155, 39, 176, 0.739); color: #000; border: 1px solid rgba(255,255,255,0.18); }
+.btn.secondary { background:#eef2ff; color:var(--secondary-color); border:1px solid #c7d2fe }
+button[type="submit"]:hover, .btn.primary:hover { background: rgba(255,255,255,0.18); }
+.hint { font-size:13px; color:#444; margin-bottom:12px; }
+
+/* Legacy .formulario rules kept for compatibility with older templates */
+.formulario {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -120%);
+    width: 400px;
+    margin: 50px auto;
+    background: #ffffff;
+    border-radius: 10px;
+}
+.formulario h1 { text-align:center; padding: 0 0 20px 0; border-bottom:1px solid #000 }
+.formulario form { padding:0 40px; box-sizing:border-box }
+.username, .contraseña { position: relative; border-bottom: 2px solid #adadad; margin: 20px 0; }
+.username input, .contraseña input { width:100%; padding:8px 6px; height:40px; border:none; background:none }
+.registrarse { margin:12px 0; display:flex; justify-content:center; align-items:center; gap:8px }
+
+/* Responsive */
+@media (max-width:480px){ .container { width: calc(100% - 48px); padding:20px; } }
+
+/* Catalog specific small helpers */
+.grid { display:grid; grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); gap:16px; }
+.card, .card-prod { background:#fff; color:#111; border-radius:10px; padding:12px; box-shadow:0 6px 18px rgba(0,0,0,.12); display:flex; flex-direction:column }
+.card img, .card-prod img{ width:100%; height:140px; object-fit:cover; border-radius:6px }
+.card h4, .card-prod h4{ margin:10px 0 6px 0; font-size:16px; color: #000000; }
+.card p, .card-prod p{ margin:0 0 10px 0; font-size:14px; color:#444; flex:1 }
+.row{ display:flex; justify-content:space-between; align-items:center; gap:8px }
+
+/* --- Login-specific visual to match catalog background --- */
+body.login-page {
+    /* use the configured vertical gradient (blanco -> morado) */
+    background: var(--background-gradient);
+    color: #000;
+}
+
+body.login-page .container {
+    /* make container fully opaque for readability on the gradient */
+    background: rgba(255,255,255,1);
+    border-top: 3px solid rgba(156,39,176,0.12);
+    box-shadow: 0 12px 30px rgba(15,23,42,0.08);
+}
+
+body.login-page .container h2 {
+    color: #9C27B0; /* purple heading for 'Inicio de sesión' */
+}
+
+body.login-page label { color: #000; }
+
+/* Make username/password labels darker and bolder for better contrast */
+body.login-page .container .full label {
+    color: #000000;
+    font-weight: 700;
+}
+
+body.login-page .hint { color: #000; }
+
+/* Inputs remain light for readability */
+body.login-page input[type="text"],
+body.login-page input[type="password"],
+body.login-page input[type="email"] {
+    background: rgba(255,255,255,0.95);
+    color: #111;
+}
+
+/* Make username and password inputs more visible on the login page */
+body.login-page input[type="text"],
+body.login-page input[type="password"] {
+    border: 1px solid #000000;
+    box-shadow: none;
+}
+body.login-page input[type="text"]:focus,
+body.login-page input[type="password"]:focus {
+    outline: none;
+    border-color: #000000;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+body.login-page button[type="submit"] {
+    /* Purple background by default, white text for contrast */
+    background: var(--secondary-color);
+    color: #ffffff;
+    border: 1px solid rgba(0,0,0,0.06);
+    transition: background .14s ease, color .14s ease, transform .06s ease;
+    /* make it rounded (pill) like before */
+    border-radius: 999px;
+    padding: 10px 22px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+/* On hover/focus/active show white background and purple text (pressed look) */
+body.login-page button[type="submit"]:hover,
+body.login-page button[type="submit"]:focus,
+body.login-page button[type="submit"]:active {
+    background: #ffffff;
+    color: var(--secondary-color);
+    border: 1px solid var(--secondary-color);
+    transform: translateY(0);
+    box-shadow: 0 8px 22px rgba(156,39,176,0.12);
+}
+
+/* Slight pressed transform on active for tactile feedback */
+body.login-page button[type="submit"]:active { transform: translateY(1px); box-shadow: 0 6px 16px rgba(156,39,176,0.10); }
+
+/* Logo positioning for login page */
+body.login-page #logo{
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    width: 140px;
+    max-width: 28vw;
+    height: auto;
+    z-index: 10000;
+    border-radius: 6px;
+}
+
+/* Text logo styles (replace image logo with text) */
+.logo-text {
+    font-weight: 800;
+    font-size: 20px;
+    color: var(--primary-color);
+    text-decoration: none;
+    display: inline-block;
+}
+
+.bar-logo-text{
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--secondary-color);
+    display: inline-block;
+    margin-left: 6px;
+}
+/* Move the 3-line hamburger button to the right so it doesn't overlap the text logo */
+.top-bar .bar-toggle{ left: 140px; }
+
+/* On narrow viewports keep the toggle on the right to avoid overlapping content */
+@media (max-width: 600px){
+    .top-bar .bar-toggle{ left: auto; right: 12px; }
+    .top-bar .bar-inner{ padding: 0 16px 0 64px; }
+}
+
+/* Cart link on the left of the top-bar (visible outside hamburger menu) */
+.top-bar .cart-link{ position: absolute; top: 8px; left: 188px; display:inline-flex; align-items:center; justify-content:center; padding:6px; z-index:10002; }
+.top-bar .cart-icon{ width:28px; height:28px; object-fit:contain; display:block }
+.top-bar .cart-link:hover .cart-icon{ transform:scale(1.06); }
+
+@media (max-width: 600px){
+    /* On small screens, place cart to the left of the toggle (which is on the right) */
+    .top-bar .cart-link{ left: auto; right: 56px; }
+}

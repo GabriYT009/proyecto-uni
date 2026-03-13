@@ -1,0 +1,68 @@
+{% load static %}
+<div class="product-card">
+    <div style="display:flex; gap:24px; align-items:center;">
+        {% if producto.img_url %}
+            <img src="{{ producto.img_url }}" alt="{{ producto.nombre_producto }}" class="product-image">
+        {% else %}
+            <div style="width:180px;height:180px;background:#f4f4f4;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#999;">Sin imagen</div>
+        {% endif %}
+        <div style="flex:1">
+            <h2 style="color:#9932CC">{{ producto.nombre_producto }}</h2>
+            <p class="note">{{ producto.descripcion }}</p>
+            <p style="font-size:20px; font-weight:700;">Precio: $ {{ producto.precio_venta }}</p>
+
+            {% if producto.cantidad_disponible|default:0 > 0 %}
+            <div style="margin-top:12px;">
+                <form method="POST" id="formComprar_{{ producto.pk }}" style="display:flex; gap:12px; align-items:end; flex-wrap:wrap;" action="{% url 'comprar_producto' producto.pk %}">
+                    {% csrf_token %}
+                    <div style="margin-top:8px;">
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <div>
+                                <label for="cantidad_{{ producto.pk }}">Cantidad</label>
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <button type="button" id="decrease_{{ producto.pk }}" class="btn btn-secondary" aria-label="Disminuir">-</button>
+                                    <input type="number" id="cantidad_{{ producto.pk }}" name="cantidad" min="1" value="1" max="{{ producto.cantidad_disponible|default:'0' }}" class="form-control text-center" style="width:100px;" required>
+                                    <button type="button" id="increase_{{ producto.pk }}" class="btn btn-secondary" aria-label="Aumentar">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:10px; width:100%;">
+                        <button type="submit" class="btn btn-primary">Comprar ahora</button>
+                        {% if not single_button %}
+                            <a href="{% url 'catalog' %}" class="btn btn-secondary" style="margin-left:8px;">Seguir comprando</a>
+                        {% endif %}
+                    </div>
+                </form>
+                <script>
+                    (function(){
+                        try{
+                            const inc = document.getElementById('increase_{{ producto.pk }}');
+                            const dec = document.getElementById('decrease_{{ producto.pk }}');
+                            const input = document.getElementById('cantidad_{{ producto.pk }}');
+                            function toInt(v){ return parseInt(v,10)||0; }
+                            const max = toInt(input.max);
+                            input.setAttribute('max', max);
+                            if (inc) inc.addEventListener('click', function(){ let v=toInt(input.value); if (v < max) input.value = v + 1; });
+                            if (dec) dec.addEventListener('click', function(){ let v=toInt(input.value); if (v > 1) input.value = v - 1; });
+
+                            const form = document.getElementById('formComprar_{{ producto.pk }}');
+                            if (form) form.addEventListener('submit', function(e){
+                                const v = toInt(input.value);
+                                if (v <= 0 || v > max) {
+                                    e.preventDefault();
+                                    alert('Cantidad inválida. Debe estar entre 1 y ' + max);
+                                    return false;
+                                }
+                            });
+                        }catch(e){ console.warn('purchase form init failed', e); }
+                    })();
+                </script>
+            </div>
+            {% else %}
+            <div style="margin-top:12px;"><strong class="note" style="color:#dc3545">Producto agotado</strong></div>
+            {% endif %}
+        </div>
+    </div>
+</div>
