@@ -198,6 +198,13 @@
         {% endfor %}
     </div>
     {% endif %}
+
+    {% if debug_error %}
+    <div style="margin: 90px auto 0; color: black; background:#fff1f1; border:1px solid #f5c2c7; padding:12px; max-width:1000px; white-space:pre-wrap; font-size:12px;">
+        <strong>Error de debug:</strong>
+        <pre>{{ debug_error }}</pre>
+    </div>
+    {% endif %}
     
     <div id="welcomeAlert" role="status" aria-live="polite" style="display:none">Bienvenido — Has iniciado sesión correctamente.</div>
 

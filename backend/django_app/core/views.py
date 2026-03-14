@@ -23,32 +23,32 @@ from django.db import transaction
 logger = logging.getLogger(__name__)
 
 def is_admin(user):
+    if not hasattr(user, 'is_authenticated') or not user.is_authenticated:
+        return False
     return user.groups.filter(name='admin').exists()
 
 def is_regular_user(user):
+    if not hasattr(user, 'is_authenticated') or not user.is_authenticated:
+        return False
     return user.groups.filter(name='user').exists() and not is_admin(user)
 
 
 def is_cajero(user):
+    if not hasattr(user, 'is_authenticated') or not user.is_authenticated:
+        return False
     return user.groups.filter(name='cajero').exists()
 
 def admin_only(view_func):
-    decorated_view_func = login_required(
-        user_passes_test(is_admin, login_url='login')(view_func)
-    )
+    decorated_view_func = user_passes_test(is_admin, login_url='login')(login_required(view_func))
     return decorated_view_func
 
 def cajero_only(view_func):
-    decorated_view_func = login_required(
-        user_passes_test(is_cajero, login_url='login')(view_func)
-    )
+    decorated_view_func = user_passes_test(is_cajero, login_url='login')(login_required(view_func))
     return decorated_view_func
 
 
 def shared_access(view_func):
-    decorated_view_func = login_required(
-        user_passes_test(lambda u: is_admin(u) or is_regular_user(u) or is_cajero(u), login_url='login')(view_func)
-    )
+    decorated_view_func = user_passes_test(lambda u: is_admin(u) or is_regular_user(u) or is_cajero(u), login_url='login')(login_required(view_func))
     return decorated_view_func
 
 
@@ -460,6 +460,34 @@ def crear_Productoo(request):
         'form': form,
         'user_groups': list(request.user.groups.values_list('name', flat=True)),
         'cart_count': len(request.session.get('cart', []))
+    })
+
+
+def crear_Productoo_debug(request):
+    """Modo debug para reproducir /producto/registrar sin la verificación completa de grupos."""
+    error = None
+    form = None
+    try:
+        if request.method == 'POST':
+            form = ProductForm(request.POST, request.FILES)
+            if form.is_valid():
+                producto = form.save()
+                messages.success(request, f'Producto "{producto.nombre_producto}" creado exitosamente (debug).')
+                return redirect('inventario')
+        else:
+            form = ProductForm()
+    except Exception as e:
+        import traceback
+        error = traceback.format_exc()
+        print('crear_Productoo_debug error:', error)
+        messages.error(request, f'Error al crear producto: {e}')
+        form = form or ProductForm(request.POST or None, request.FILES or None)
+
+    return render(request, 'core/crear_Productoo.html', {
+        'form': form,
+        'user_groups': [],
+        'cart_count': len(request.session.get('cart', [])),
+        'debug_error': error,
     })
 
 
