@@ -366,7 +366,7 @@
                 <div class="product-grid">
                     <div class="product-image-section">
                         {% if producto.img_url %}
-                            <img src="{{ producto.img_url }}" alt="{{ producto.nombre_producto }}" class="product-image">
+                            <img src="{{ producto.img_url }}" alt="{{ producto.nombre_producto }}" class="product-image" onerror="this.onerror=null;this.src='{% static 'core/no-image.png' %}';">
                         {% else %}
                             <div style="height: 300px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #999; font-size: 16px;" class="product-image">Sin imagen</div>
                         {% endif %}
@@ -436,7 +436,6 @@
     </div>
 
     <script>
-        <script>
             // Product dropdown toggle (producto_detalle page)
             (function(){
                 const pt = document.getElementById('productToggle');
@@ -447,9 +446,7 @@
                 document.addEventListener('click', function(e){ if(!pt.contains(e.target) && !pd.contains(e.target)) closeP(); });
                 document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeP(); });
             })();
-        
-        </script>
-        <!-- producto_detalle: Categoria dropdown removed -->
+
         // Profile dropdown toggle + click-outside to close
         (function(){
             const toggle = document.getElementById('profileToggle');
