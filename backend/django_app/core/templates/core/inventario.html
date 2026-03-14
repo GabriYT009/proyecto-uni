@@ -655,7 +655,7 @@
                             <td class="mdl-data-table__cell--non-numeric">
                                 <div class="product-cell">
                                     {% if producto.img_url %}
-                                        <img src="{{ producto.img_url }}" alt="{{ producto.nombre_producto }}" class="product-image" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='{{ static('assets/img/logo.png') }}';">
+                                        <img src="{{ producto.img_url }}" alt="{{ producto.nombre_producto }}" class="product-image" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='{% static 'assets/img/logo.png' %}';">
                                     {% else %}
                                         <div style="width: 50px; height: 50px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #999; font-size: 10px;" class="product-image">Sin img</div>
                                     {% endif %}
