@@ -31,15 +31,34 @@ DEBUG = os.environ.get("DEBUG", "True").lower() in ("1", "true", "yes")
 
 # Allow host from Railway (RAILWAY_PUBLIC_DOMAIN), Render (RENDER_EXTERNAL_HOSTNAME), or env.
 # In development, also allow localhost + 127.0.0.1.
-railway_host = os.environ.get("RAILWAY_PUBLIC_DOMAIN")
-render_host = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
+def _strip_proto(host: str | None) -> str | None:
+    if not host:
+        return None
+    host = host.strip().replace("https://", "").replace("http://", "")
+    return host.rstrip("/")
+
+def _ensure_scheme(origin: str) -> str:
+    origin = origin.strip()
+    if origin.startswith(("http://", "https://")):
+        return origin
+    return "https://" + origin.lstrip("/")
+
+railway_host = _strip_proto(os.environ.get("RAILWAY_PUBLIC_DOMAIN"))
+render_host = _strip_proto(os.environ.get("RENDER_EXTERNAL_HOSTNAME"))
 base_hosts = ["127.0.0.1", "localhost"]
 if railway_host:
     base_hosts.append(railway_host)
 if render_host:
     base_hosts.append(render_host)
 
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", ",".join(base_hosts)).split(",")
+_env_allowed = os.environ.get("ALLOWED_HOSTS", "")
+if _env_allowed.strip():
+    ALLOWED_HOSTS = [h for h in _env_allowed.split(",") if h]
+else:
+    ALLOWED_HOSTS = base_hosts
+
+if not ALLOWED_HOSTS:
+    ALLOWED_HOSTS = base_hosts
 
 # CSRF trusted origins: Railway, Render, or env.
 csrf_trusted = []
@@ -52,7 +71,7 @@ csrf_env = os.environ.get("CSRF_TRUSTED_ORIGINS", "")
 if csrf_env:
     csrf_trusted += [h.strip() for h in csrf_env.split(",") if h.strip()]
 
-CSRF_TRUSTED_ORIGINS = csrf_trusted
+CSRF_TRUSTED_ORIGINS = [_ensure_scheme(h) for h in csrf_trusted if h]
 
 
 # Application definition

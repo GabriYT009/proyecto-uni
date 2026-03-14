@@ -40,7 +40,7 @@ if User.objects.count() == 0:
 " 2>/dev/null || true
 
 gunicorn django_app.wsgi:application \
-  --bind 127.0.0.1:8000 \
+    --bind 127.0.0.1:8002 \
   --workers 2 \
   --threads 2 \
   --access-logfile - \
