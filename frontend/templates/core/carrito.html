@@ -429,7 +429,7 @@
                             {% for p in Productos %}
                                 <div class="product-row">
                                     {% if p.img_url %}
-                                        <img src="{{ p.img_url }}" alt="{{ p.nombre_producto }}">
+                                        <img src="{{ p.img_url }}" alt="{{ p.nombre_producto }}" loading="lazy" decoding="async">
                                     {% endif %}
                                     <div class="info">
                                         <strong>{{ p.nombre_producto }}</strong>

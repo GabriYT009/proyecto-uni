@@ -90,6 +90,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'django.middleware.gzip.GZipMiddleware',
     # WhiteNoise serves static files directly.
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -144,6 +145,7 @@ elif MYSQL_NAME and MYSQL_USER:
             "PASSWORD": MYSQL_PASSWORD or "",
             "HOST": MYSQL_HOST,
             "PORT": MYSQL_PORT,
+            "CONN_MAX_AGE": 600,
             "OPTIONS": {
                 "charset": "utf8mb4",
                 "init_command": "SET sql_mode='STRICT_TRANS_TABLES', default_storage_engine=InnoDB",
@@ -215,7 +217,12 @@ STATICFILES_DIRS = [d for d in _static_dirs if os.path.exists(d)]
 
 # Use WhiteNoise to serve static files in production (especially when running under Waitress).
 # See https://whitenoise.evans.io/en/stable/
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+STATICFILES_STORAGE = (
+    'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    if not DEBUG else
+    'whitenoise.storage.CompressedStaticFilesStorage'
+)
+WHITENOISE_MAX_AGE = 31536000 if not DEBUG else 0
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

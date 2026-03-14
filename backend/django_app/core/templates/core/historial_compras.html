@@ -31,8 +31,10 @@
                         </div>
 
                         <ul style="margin-top:8px;">
-                            {% for it in salida_items.s.pk %}
+                            {% for it in s.items %}
                                 <li>{{ it.producto.nombre_producto }} — Cantidad: {{ it.cantidad_item }} — Subtotal: $ {{ it.sub_total_item }}</li>
+                            {% empty %}
+                                <li>Sin items registrados para esta compra.</li>
                             {% endfor %}
                         </ul>
                     </div>
