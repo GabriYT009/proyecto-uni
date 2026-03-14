@@ -13,6 +13,9 @@
     <!-- Catalog vendor and main styles to match modal appearance -->
     <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
     <link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
+    <link rel="prefetch" href="{% url 'catalog' %}">
+    <link rel="prefetch" href="{% url 'carrito' %}">
+    <link rel="prefetch" href="{% url 'perfil' %}">
     <meta name="csrf-token" content="{{ csrf_token }}">
     <style>
         body{
@@ -23,7 +26,10 @@
             color:#000;
             min-height:100vh;
             padding-top:80px; /* leave space for top bar */
+            display:flex;
+            flex-direction:column;
         }
+        .main-content{ flex:1; }
         /* Giant frame around everything */
         .giant-frame {
             border-radius: 25px;
@@ -482,6 +488,7 @@
         </div>
     </div>
 
+    <main class="main-content">
     <div class="giant-frame">
         <div class="wrap">
 
@@ -535,7 +542,7 @@
                     {% if product.status_producto %}
                         <div class="card">
                             {% if product.imagen_producto %}
-                                <img src="{{ product.imagen_producto.url }}" alt="{{ product.nombre_producto }}" class="view" data-id="{{ product.pk }}" data-title="{{ product.nombre_producto }}" data-img="{% if product.imagen_producto %}{{ product.imagen_producto.url }}{% endif %}" data-desc="{{ product.descripcion }}" data-price="$ {{ product.precio_venta }}" role="button" tabindex="0" style="cursor:pointer;">
+                                <img src="{{ product.imagen_producto.url }}" alt="{{ product.nombre_producto }}" class="view" loading="lazy" decoding="async" data-id="{{ product.pk }}" data-title="{{ product.nombre_producto }}" data-img="{% if product.imagen_producto %}{{ product.imagen_producto.url }}{% endif %}" data-desc="{{ product.descripcion }}" data-price="$ {{ product.precio_venta }}" role="button" tabindex="0" style="cursor:pointer;">
                             {% else %}
                                 <div style="height: 150px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #999; font-size: 14px;">Sin imagen</div>
                             {% endif %}
@@ -670,33 +677,34 @@
         })();
     </script>
 
-        <!-- Footer -->
-        <footer class="footer">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>Solucionarte</h3>
-                    <p>Tu tienda de confianza.</p>
-                </div>
-                <div class="footer-section">
-                    <h3>Enlaces</h3>
-                    <ul>
-                        <li><a href="{% url 'catalog' %}">Catálogo</a></li>
-                        <li><a href="{% url 'home' %}">Inicio</a></li>
-                        <li><a href="{% url 'perfil' %}">Perfil</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h3>Contacto</h3>
-                    <p>Email: info@solucionarte.com</p>
-                    <p>Tel: +123 456 7890</p>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 Solucionarte. Todos los derechos reservados.</p>
-            </div>
-        </footer>
     </div>
     </div>
+    </main>
+
+    <footer class="footer" role="contentinfo">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Solucionarte</h3>
+                <p>Tu tienda de confianza.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Enlaces</h3>
+                <ul>
+                    <li><a href="{% url 'catalog' %}">Catálogo</a></li>
+                    <li><a href="{% url 'home' %}">Inicio</a></li>
+                    <li><a href="{% url 'perfil' %}">Perfil</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contacto</h3>
+                <p>Email: info@solucionarte.com</p>
+                <p>Tel: +123 456 7890</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Solucionarte. Todos los derechos reservados.</p>
+        </div>
+    </footer>
 
     <!-- Detail modal (same structure as catalog) -->
     <div id="detailModal" role="dialog" aria-hidden="true" style="display:none;">
@@ -717,7 +725,6 @@
         </div>
     </div>
 
-    <script src="{% static 'core/catalog.js' %}"></script>
     <script src="{% static 'js/catalog.js' %}"></script>
     <script>
         // provide the same products array used on catalog page

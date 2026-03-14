@@ -1,4 +1,5 @@
 import logging
+from collections import Counter
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
@@ -10,17 +11,43 @@ from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django.contrib import messages
 from django.db.models import Q, F
+from django.core.cache import cache
 import re
 import os
 import json
 from .models import Producto, Cliente, Categoria, Historial_Inventario, MetodoPago, CarritoDeCompras, OrdenDeDespacho, Salida
 from django.core.paginator import Paginator
 from .forms import ProductForm
-from django.contrib import messages
 from django.utils import timezone
 from django.db import transaction
 
 logger = logging.getLogger(__name__)
+
+HOME_PRODUCTS_LIMIT = 24
+
+
+def _safe_img_url(producto):
+    try:
+        if producto.imagen_producto and producto.imagen_producto.url:
+            return producto.imagen_producto.url
+    except Exception:
+        pass
+    return ''
+
+
+def _cached_categories(timeout=300):
+    cache_key = 'core:categories:list'
+    categories = cache.get(cache_key)
+    if categories is None:
+        categories = list(
+            Categoria.objects.only('id', 'nombre_categoria').order_by('nombre_categoria')
+        )
+        cache.set(cache_key, categories, timeout)
+    return categories
+
+
+def _user_groups(user):
+    return list(user.groups.values_list('name', flat=True))
 
 def is_admin(user):
     return user.groups.filter(name='admin').exists()
@@ -55,50 +82,39 @@ def shared_access(view_func):
 def login_view(request):
     return render(request, 'core/index.html')
 
-
-import json
-from django.shortcuts import render
-from .models import Producto, Categoria
-
 def home(request):
-    # 1. Obtener todas las categorías
-    categories = Categoria.objects.all()
+    categories = _cached_categories()
 
-    # 2. Obtener productos ordenados por el nuevo campo 'precio_venta'
-    # Nota: Django usa 'id' automático (pk) aunque no lo escribas en el modelo.
-    Productos = Producto.objects.all().order_by('precio_venta')
+    productos_qs = (
+        Producto.objects
+        .filter(status_producto=True)
+        .select_related('categoria')
+        .only(
+            'id',
+            'nombre_producto',
+            'precio_venta',
+            'descripcion',
+            'imagen_producto',
+            'categoria__nombre_categoria',
+        )
+        .order_by('precio_venta')[:HOME_PRODUCTS_LIMIT]
+    )
 
-    # Lista auxiliar para preparar el JSON
+    Productos = list(productos_qs)
+
     lista_productos_json = []
-
     for p in Productos:
-        # --- Manejo de la URL de la imagen (Campo: imagen_producto) ---
-        try:
-            if p.imagen_producto and p.imagen_producto.url:
-                img_url = p.imagen_producto.url
-            else:
-                img_url = ''
-        except ValueError:
-            img_url = ''
-        
-        # Asignamos la url al objeto para usarlo en el template HTML (Django Template)
+        img_url = _safe_img_url(p)
         p.img_url = img_url
-
-        # --- Construcción del Diccionario para JSON ---
-
         lista_productos_json.append({
-            'id': p.pk,                         # ID automático
-            'title': p.nombre_producto,         # Antes: title
-            'price': p.precio_venta,            # Antes: price
-            'img': img_url,                     # La url procesada arriba
-            'desc': p.descripcion,              # Antes: desc
-
-
-            # Accedemos a la relación ForeignKey (p.categoria) y su campo nombre (nombre_categoria)
+            'id': p.pk,
+            'title': p.nombre_producto,
+            'price': p.precio_venta,
+            'img': img_url,
+            'desc': p.descripcion,
             'Categoria': p.categoria.nombre_categoria if p.categoria else '',
         })
 
-    # 3. Convertir a JSON
     Productos_json = json.dumps(lista_productos_json, ensure_ascii=False)
 
     return render(request, 'core/home.html', {
@@ -106,7 +122,7 @@ def home(request):
         'Productos': Productos, 
         'Productos_json': Productos_json,
         'cart_count': len(request.session.get('cart', [])),
-        'user_groups': list(request.user.groups.values_list('name', flat=True))
+        'user_groups': _user_groups(request.user)
     })
 
 def login_post(request):
@@ -458,7 +474,20 @@ def catalog(request):
     categoria_obj = None
 
     # Base queryset: solo productos activos
-    Productos = Producto.objects.filter(status_producto=True)
+    Productos = (
+        Producto.objects
+        .filter(status_producto=True)
+        .select_related('categoria')
+        .only(
+            'id',
+            'nombre_producto',
+            'precio_venta',
+            'descripcion',
+            'imagen_producto',
+            'categoria__nombre_categoria',
+            'categoria_id',
+        )
+    )
 
     if categoria_param:
         try:
@@ -479,7 +508,7 @@ def catalog(request):
             Q(descripcion__icontains=search_param)
         )
 
-    categories = Categoria.objects.all()
+    categories = _cached_categories()
 
     # Paginación: mostrar N productos por página
     per_page = 12
@@ -490,10 +519,7 @@ def catalog(request):
     # Construir JSON solo con los productos de la página actual (más eficiente)
     lista_productos_json = []
     for p in page_obj.object_list:
-        try:
-            img_url = p.imagen_producto.url if p.imagen_producto and p.imagen_producto.url else ''
-        except Exception:
-            img_url = ''
+        img_url = _safe_img_url(p)
         lista_productos_json.append({
             'id': p.pk,
             'title': p.nombre_producto,
@@ -510,7 +536,7 @@ def catalog(request):
         'selected_Categoria': categoria_obj.nombre_categoria if categoria_obj else categoria_param,
         'search_query': search_param,
         'cart_count': len(request.session.get('cart', [])),
-        'user_groups': list(request.user.groups.values_list('name', flat=True)),
+        'user_groups': _user_groups(request.user),
         'Productos_json': Productos_json,
         'page_obj': page_obj,
         'paginator': paginator,
@@ -548,41 +574,34 @@ def perfil(request):
 @login_required
 
 def carrito(request):
-    cart = request.session.get('cart', [])
-    carrito_validado = []
-
-    
-    for producto_id in cart:
-        producto_id
+    raw_cart = request.session.get('cart', []) or []
+    cart = []
+    for item in raw_cart:
         try:
-            producto_obj = Producto.objects.filter(pk=producto_id).exclude(status_producto=False).first()
-            if producto_obj:
-                carrito_validado.append(producto_id)
-        except producto_obj.DoesNotExist:
-            pass
-    request.session['cart'] = carrito_validado
-    request.session.modified = True
+            cart.append(int(item))
+        except (TypeError, ValueError):
+            continue
 
-    Productos = Producto.objects.filter(pk__in=cart).exclude(status_producto=False)
-    cart_str = [str(item) for item in cart]
+    unique_ids = set(cart)
+    productos_qs = (
+        Producto.objects
+        .filter(pk__in=unique_ids, status_producto=True)
+        .only('id', 'nombre_producto', 'precio_venta', 'descripcion', 'imagen_producto', 'cantidad_disponible')
+    )
+    productos_map = {p.pk: p for p in productos_qs}
 
-    # Preparar URLs de imágenes
+    carrito_validado = [pid for pid in cart if pid in productos_map]
+    if carrito_validado != raw_cart:
+        request.session['cart'] = carrito_validado
+        request.session.modified = True
+
+    cantidades = Counter(carrito_validado)
+    Productos = list(productos_map.values())
     for p in Productos:
-
-        p.cantidad_en_carrito = cart_str.count(str(p.pk))
-        
-
-        try:
-            #PARA MÁS ADELANTE IMPORTANTE
-            if p.cantidad_disponible <= 0:
-                p.status_producto = False
-        
-                if p.imagen_producto and p.imagen_producto.url:
-                    p.img_url = p.imagen_producto.url
-                else:
-                    p.img_url = ''
-        except ValueError:
-            p.img_url = ''
+        p.cantidad_en_carrito = cantidades.get(p.pk, 0)
+        p.img_url = _safe_img_url(p)
+        if (p.cantidad_disponible or 0) <= 0:
+            p.status_producto = False
     
     # Si se solicita comprar directamente desde el carrito (GET ?buy=ID), obtener el producto
     buy_id = request.GET.get('buy')
@@ -594,13 +613,13 @@ def carrito(request):
     producto_compra = None
     if buy_id:
         try:
-            producto_compra = Producto.objects.filter(pk=buy_id).exclude(status_producto=False).first()
+            buy_id_int = int(buy_id)
+            producto_compra = productos_map.get(buy_id_int)
+            if producto_compra is None:
+                producto_compra = Producto.objects.filter(pk=buy_id_int, status_producto=True).first()
         
             if producto_compra:
-                try:
-                    producto_compra.img_url = producto_compra.imagen_producto.url if producto_compra.imagen_producto and producto_compra.imagen_producto.url else ''
-                except Exception:
-                    producto_compra.img_url = ''
+                producto_compra.img_url = _safe_img_url(producto_compra)
         except Exception:
             producto_compra = None
 
@@ -610,8 +629,8 @@ def carrito(request):
         'Productos': Productos,
         'producto_compra': producto_compra,
         'show_purchase_only': show_purchase_only,
-        'cart_count': len(cart),
-        'user_groups': list(request.user.groups.values_list('name', flat=True))
+        'cart_count': len(carrito_validado),
+        'user_groups': _user_groups(request.user)
     })
 
 
@@ -622,15 +641,11 @@ def carrito(request):
 #DE MOMENTO NO AGREGANDO NI ELIMINANDO PRODUCTOS DEL CARRITO EN LA BASE DE DATOS.
 
 def add_to_cart(request, product_id):
-    # Debug 
-    try:
-        print(f"[add_to_cart] user={getattr(request, 'user', None)} authenticated={getattr(request.user, 'is_authenticated', False)} method={request.method} product_id={product_id}")
-    except Exception:
-        print('[add_to_cart] debug: could not print user info')
     cart = request.session.get('cart', [])
     
     cart.append(product_id)
     request.session['cart'] = cart
+    request.session.modified = True
 
     
     try:
@@ -640,10 +655,6 @@ def add_to_cart(request, product_id):
             request.session['auto_buy'] = product_id
         except Exception:
             pass
-    try:
-        print(f"[add_to_cart] cart now={request.session.get('cart')} count={len(cart)}")
-    except Exception:
-        pass
     return JsonResponse({'count': len(cart), 'auto_buy': request.session.get('auto_buy')})
 
 @login_required
@@ -668,7 +679,12 @@ def logout_view(request):
 @shared_access
 def caja(request):
     # Mostrar interfaz de caja: cliente + factura a la izquierda, lista de productos a la derecha
-    productos = Producto.objects.filter(status_producto=True).order_by('nombre_producto')[:200]
+    productos = (
+        Producto.objects
+        .filter(status_producto=True)
+        .only('id', 'nombre_producto', 'precio_venta', 'cantidad_disponible', 'imagen_producto')
+        .order_by('nombre_producto')[:120]
+    )
     # preparar imagen urls
     for p in productos:
         try:
@@ -678,57 +694,78 @@ def caja(request):
 
     # cargar clientes para autocompletar cedula
     from .models import Cliente
-    clientes = list(Cliente.objects.exclude(documento__isnull=True).exclude(documento__exact='').values(
-        'documento', 'nombre_cliente', 'apellido_cliente', 'direccion', 'telefono_cliente'
-    ))
+    clientes = list(
+        Cliente.objects
+        .exclude(documento__isnull=True)
+        .exclude(documento__exact='')
+        .values('documento', 'nombre_cliente', 'apellido_cliente', 'direccion', 'telefono_cliente')
+    )
 
     return render(request, 'core/caja.html', {
         'productos': productos,
         'clientes': clientes,
         'cart_count': len(request.session.get('cart', [])),
-        'user_groups': list(request.user.groups.values_list('name', flat=True))
+        'user_groups': _user_groups(request.user)
     })
 
 @login_required
 @admin_only
 def inventario(request):
-    # Obtener todos los productos para mostrar el inventario
-    productos = Producto.objects.all().order_by('nombre_producto')
-    
-    # Preparar datos para el template
-    for p in productos:
-        try:
-            if p.imagen_producto and p.imagen_producto.url:
-                p.img_url = p.imagen_producto.url
-                if p.cantidad_disponible <=0:
-                    p.status_producto=False
-                else:
-                    p.status_producto=True
-            else:
-                p.img_url = ''
-        except ValueError:
-            p.img_url = ''
+    productos = (
+        Producto.objects
+        .select_related('categoria')
+        .only(
+            'id',
+            'nombre_producto',
+            'descripcion',
+            'precio_venta',
+            'cantidad_disponible',
+            'status_producto',
+            'categoria_id',
+            'categoria__nombre_categoria',
+            'imagen_producto',
+        )
+        .order_by('nombre_producto')
+    )
     # Paginación: 15 productos por página
     paginator = Paginator(productos, 15)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+
+    for p in page_obj.object_list:
+        p.img_url = _safe_img_url(p)
+        p.status_producto = (p.cantidad_disponible or 0) > 0
+
     # Añadir motivo de la última reducción (si existe) a cada producto de la página
     try:
+        page_product_ids = [p.pk for p in page_obj.object_list]
+        motivos_map = {}
+        if page_product_ids:
+            rows = (
+                Historial_Inventario.objects
+                .filter(producto_id__in=page_product_ids, cantidad_nueva__lt=F('cantidad_anterior'))
+                .order_by('producto_id', '-fecha_ajuste')
+                .values('producto_id', 'motivo')
+            )
+            for row in rows:
+                pid = row['producto_id']
+                if pid not in motivos_map:
+                    motivos_map[pid] = row['motivo']
+
         for p in page_obj.object_list:
-            last_red = Historial_Inventario.objects.filter(producto=p, cantidad_nueva__lt=F('cantidad_anterior')).order_by('-fecha_ajuste').first()
-            p.ultimo_motivo_resto = last_red.motivo if last_red else ''
+            p.ultimo_motivo_resto = motivos_map.get(p.pk, '')
     except Exception:
         # No bloquear la vista si hay algún problema con historial
         for p in page_obj.object_list:
             p.ultimo_motivo_resto = ''
 
     return render(request, 'core/inventario.html', {
-        'productos': productos,
+        'productos': page_obj.object_list,
         'page_obj': page_obj,
         'paginator': paginator,
-        'categories': Categoria.objects.all(),
+        'categories': _cached_categories(),
         'cart_count': len(request.session.get('cart', [])),
-        'user_groups': list(request.user.groups.values_list('name', flat=True))
+        'user_groups': _user_groups(request.user)
     })
 
 @login_required
@@ -802,17 +839,40 @@ def detalles_compra_producto(request, producto_id):
 @login_required
 def historial_compras(request):
     """Muestra el historial de compras (salidas) del usuario."""
-    salidas = Salida.objects.filter(usuario=request.user).order_by('-date')
-    # Pre-cargar items por salida
-    salida_items = {}
+    salidas = list(
+        Salida.objects
+        .filter(usuario=request.user)
+        .select_related('carrito_de_compras')
+        .only('id', 'date', 'total', 'carrito_de_compras_id')
+        .order_by('-date')
+    )
+
+    carrito_ids = [s.carrito_de_compras_id for s in salidas if s.carrito_de_compras_id]
+    items_by_carrito = {}
+    if carrito_ids:
+        items_qs = (
+            OrdenDeDespacho.objects
+            .filter(carrito_de_compras_id__in=carrito_ids)
+            .select_related('producto')
+            .only(
+                'id',
+                'carrito_de_compras_id',
+                'cantidad_item',
+                'sub_total_item',
+                'producto_id',
+                'producto__nombre_producto',
+            )
+        )
+        for it in items_qs:
+            items_by_carrito.setdefault(it.carrito_de_compras_id, []).append(it)
+
     for s in salidas:
-        salida_items[s.pk] = OrdenDeDespacho.objects.filter(carrito_de_compras=s.carrito_de_compras)
+        s.items = items_by_carrito.get(s.carrito_de_compras_id, [])
 
     return render(request, 'core/historial_compras.html', {
         'salidas': salidas,
-        'salida_items': salida_items,
         'cart_count': len(request.session.get('cart', [])),
-        'user_groups': list(request.user.groups.values_list('name', flat=True))
+        'user_groups': _user_groups(request.user)
     })
 
 
@@ -907,12 +967,16 @@ def comprar_producto(request, producto_id):
 def pago_exitoso(request, salida_id):
     salida = get_object_or_404(Salida, pk=salida_id)
     # Intentar recuperar items del carrito si existen
-    items = OrdenDeDespacho.objects.filter(carrito_de_compras=salida.carrito_de_compras)
+    items = (
+        OrdenDeDespacho.objects
+        .filter(carrito_de_compras=salida.carrito_de_compras)
+        .select_related('producto')
+    )
     return render(request, 'core/pago_exitoso.html', {
         'salida': salida,
         'items': items,
         'cart_count': len(request.session.get('cart', [])),
-        'user_groups': list(request.user.groups.values_list('name', flat=True))
+        'user_groups': _user_groups(request.user)
     })
 
 
@@ -920,12 +984,16 @@ def pago_exitoso(request, salida_id):
 def detalles_salida(request, salida_id):
     """Mostrar todos los productos incluidos en una Salida (orden) específica."""
     salida = get_object_or_404(Salida, pk=salida_id)
-    items = OrdenDeDespacho.objects.filter(carrito_de_compras=salida.carrito_de_compras)
+    items = (
+        OrdenDeDespacho.objects
+        .filter(carrito_de_compras=salida.carrito_de_compras)
+        .select_related('producto')
+    )
     return render(request, 'core/detalles_salida.html', {
         'salida': salida,
         'items': items,
         'cart_count': len(request.session.get('cart', [])),
-        'user_groups': list(request.user.groups.values_list('name', flat=True))
+        'user_groups': _user_groups(request.user)
     })
 
 
@@ -1315,11 +1383,21 @@ def editar_producto(request, producto_id):
 @login_required
 @admin_only
 def todos_clientes(request):
-    clientes = Cliente.objects.all().order_by('nombre_cliente')    
+    clientes_qs = (
+        Cliente.objects
+        .only('id', 'nombre_cliente', 'apellido_cliente', 'documento', 'rif_empresarial', 'telefono_cliente', 'email')
+        .order_by('nombre_cliente')
+    )
+    paginator = Paginator(clientes_qs, 25)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, 'core/clientes.html', {
-        'clientes': clientes,
+        'clientes': page_obj,
+        'page_obj': page_obj,
+        'is_paginated': page_obj.has_other_pages(),
         'cart_count': len(request.session.get('cart', [])),
-        'user_groups': list(request.user.groups.values_list('name', flat=True))
+        'user_groups': _user_groups(request.user)
     })
 
 @login_required
