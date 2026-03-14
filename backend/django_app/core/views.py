@@ -1464,12 +1464,14 @@ def agregar_marca(request):
         
         return redirect('agregar_marca')
     
-    # Obtener productos que no tienen marca o tienen marca vacía
-    productos_sin_marca = Producto.objects.filter(
-        Q(marca_producto__isnull=True) | Q(marca_producto='')
-    ).order_by('nombre_producto')
-    
+    # Obtener todos los productos para permitir seleccionar cualquiera
+    productos = Producto.objects.all().order_by('nombre_producto')
+
+    # Mantener a la vista los no marcados para información, pero no bloquea
+    productos_sin_marca = productos.filter(Q(marca_producto__isnull=True) | Q(marca_producto=''))
+
     return render(request, 'core/agregar_marca.html', {
+        'productos': productos,
         'productos_sin_marca': productos_sin_marca,
         'cart_count': len(request.session.get('cart', [])),
         'user_groups': list(request.user.groups.values_list('name', flat=True))

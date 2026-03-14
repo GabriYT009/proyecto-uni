@@ -244,8 +244,8 @@
                     <label for="producto_id">Seleccionar Producto:</label>
                     <select name="producto_id" id="producto_id" class="form-control" required>
                         <option value="">-- Seleccionar Producto --</option>
-                        {% for producto in productos_sin_marca %}
-                            <option value="{{ producto.pk }}">{{ producto.nombre_producto }} (ID: {{ producto.pk }})</option>
+                        {% for producto in productos %}
+                            <option value="{{ producto.pk }}">{{ producto.nombre_producto }}{% if producto.marca_producto %} (Marca: {{ producto.marca_producto }}){% endif %}</option>
                         {% endfor %}
                     </select>
                 </div>
