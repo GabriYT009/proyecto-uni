@@ -1,0 +1,1564 @@
+[
+{
+  "model": "auth.group",
+  "fields": {
+    "name": "cajero",
+    "permissions": []
+  }
+},
+{
+  "model": "auth.group",
+  "fields": {
+    "name": "admin",
+    "permissions": []
+  }
+},
+{
+  "model": "auth.group",
+  "fields": {
+    "name": "cliente",
+    "permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$seYqKAyFzf8iq7pyaqOD2D$L/HlCwi5/yMQMr9sQNWpFqbbgLdD5JopTxacFTxeFfs=",
+    "last_login": "2026-01-18T15:06:45.718Z",
+    "is_superuser": false,
+    "username": "Gabo123",
+    "first_name": "",
+    "last_name": "",
+    "email": "gaboyt009@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-01-06T10:09:05Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$uvHaISi4WxGzquGPYRhDJe$F2tIj14aua1YaVWL9lgCo3jMXZryMbqdvfPCSfxrxpo=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "admin",
+    "first_name": "",
+    "last_name": "",
+    "email": "admin123",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-01-11T22:49:06.511Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$bwIcCHCWgtGnYMIGX0FKjf$EFhu1LHPIBPq0M/7ezldpxaWaiGvqhgk1mBkp4RWmI0=",
+    "last_login": "2026-03-11T16:27:58.588Z",
+    "is_superuser": true,
+    "username": "admin1",
+    "first_name": "",
+    "last_name": "",
+    "email": "admin1@gmail.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2026-01-11T22:56:05Z",
+    "groups": [
+      [
+        "admin"
+      ]
+    ],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$vvV9rV6Pyv8byDCj2cgUM7$NLi0pKIcgfkG0lviFYF6BXVpW0ZHdaOwyIEbQQNdhNM=",
+    "last_login": "2026-01-12T00:59:46.108Z",
+    "is_superuser": false,
+    "username": "cliente",
+    "first_name": "",
+    "last_name": "",
+    "email": "cliente@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-01-12T00:19:22Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$4myIo7oex4bg6exgOkKEX1$2rlwX3zCRMNryWvlGfmVXWesmNpUYmTZtf2hXX9F/vY=",
+    "last_login": "2026-01-12T00:48:55.077Z",
+    "is_superuser": false,
+    "username": "cristian",
+    "first_name": "",
+    "last_name": "",
+    "email": "cristian",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-01-12T00:48:51.220Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$uZhbdiJTkwVl5ShvHo6HUt$LDWZiKwDEo4xO80iApdJmRSLCBqsllO7K3hewtn3cLU=",
+    "last_login": "2026-01-25T14:21:57.288Z",
+    "is_superuser": false,
+    "username": "cristian1",
+    "first_name": "",
+    "last_name": "",
+    "email": "cristian1234@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-01-25T14:21:49.061Z",
+    "groups": [
+      [
+        "cliente"
+      ]
+    ],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$wmsbrezbeZSmkBwEqmDLuF$CWMhgtB4HHGLPQy0IcSZp9Tda22Gm/bln2sk0LkKA4s=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "cristian123",
+    "first_name": "",
+    "last_name": "",
+    "email": "cristian2@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-01-25T18:28:53.421Z",
+    "groups": [
+      [
+        "cliente"
+      ]
+    ],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$lJKHZWtSvwHc2X3E0vxaST$hQ2t1JDmTUpkEjjT6a9sC52C9xeTrBzczeRwBkwnKaA=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "prueba",
+    "first_name": "",
+    "last_name": "",
+    "email": "prueba@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-01-25T18:30:00.469Z",
+    "groups": [
+      [
+        "cliente"
+      ]
+    ],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$X9lfJdacEMIDsdkOcCFxqo$hMEv3YIRZXTyuETw/NC1TOuKO/3Z1X6e3Tdcou2yGEo=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "prueba2",
+    "first_name": "",
+    "last_name": "",
+    "email": "prue4ba@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-01-25T18:36:51.307Z",
+    "groups": [
+      [
+        "cliente"
+      ]
+    ],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$bZ0k0iaQDyk67vOGvaReQQ$EnFxIi5MVQhu9CNiyv4nsq9zpu1bWj6Laxno5u8/FIM=",
+    "last_login": "2026-01-25T18:46:05.652Z",
+    "is_superuser": false,
+    "username": "cliente1",
+    "first_name": "",
+    "last_name": "",
+    "email": "cliente1@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-01-25T18:45:58.995Z",
+    "groups": [
+      [
+        "cliente"
+      ]
+    ],
+    "user_permissions": []
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "5wqbqff3ro395g8nka5pwspqn3e3on93",
+  "fields": {
+    "session_data": ".eJxVjMsOgkAMRf9l1mZSahkYlu75AmNI2ymCGkh4rIz_LiQsdHvPueftGl6Xrllnm5o-ucqd3el3E9anDTtIDx7uo9dxWKZe_K74g86-HpO9Lof7F-h47rY3Qh5YOUVJIsgtEkQkJC0omGGQsg2QgxqAYi4Us4hGseRIkGUYtqjytLjqWtw-X1XvOm8:1vtsAj:sCmStckG8JYyENnvC5Exh8O3_g6Vv28M1uCRDz_xJ5o",
+    "expire_date": "2026-03-07T18:57:45.566Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "c9wepp44z5u1fy47ovlyosm3n90kom47",
+  "fields": {
+    "session_data": ".eJxVjDEOwjAMRe-SGUWucUPDyM4ZIttxaQGlUtNOiLtDpQ6w_vfef7nE6zKktdqcxuzO7ugOv5uwPqxsIN-53CavU1nmUfym-J1Wf52yPS-7-3cwcB2-NUIbWDlHySLIPRJEJCQ9UTDDIF0foAU1AMVWKDYRjWLHkaBpMLj3B-X7Nyw:1vtr07:8xkYxyozkCbtB02PWjjIVaQo34UptVI18aSXOxwfrKo",
+    "expire_date": "2026-03-07T17:42:43.143Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "cdkpcl8xabinwpjay9fhnw8kh0tr2ytr",
+  "fields": {
+    "session_data": ".eJxVjEEOwiAQAP-yZ0OguwL26N03NAsLUjWQlPZk_Ltp0oNeZybzhom3tUxbT8s0C4yAcPplgeMz1V3Ig-u9qdjqusxB7Yk6bFe3Jul1Pdq_QeFeYASXKRorQ3bGcCZP3iGyHix7coyiOTpCEygk1MkbR6LlEvzZDNkjWfh8Ac0mNwo:1w0MPe:4OwHd-moWbC62XF8We8FdMEV5qLmCMDppTyxS8cbevY",
+    "expire_date": "2026-03-25T16:27:58.591Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "dd2oed3thwj3gexyt2a80k9l0hi7scvg",
+  "fields": {
+    "session_data": ".eJxVjDEOAiEQRe9CbYjACIOlvWcgAwyyaiBZdivj3XWTLbT9773_EoHWpYZ18BymLM7CiMPvFik9uG0g36nduky9LfMU5abInQ557Zmfl939O6g06rfGo40OOVnA4ozHwoojR_QApJnVCQ2TRTBIRRVwmsEVyAp99hqtFu8P5mM3pw:1vk5xJ:f4ZGaRf2illrr9TvfQ26i8W8C2UsuMjpMuS2rRhmuo4",
+    "expire_date": "2026-02-08T19:39:29.736Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "nd4knih2ll8vksyyi3ewc6xf6qa9ec94",
+  "fields": {
+    "session_data": ".eJxVjEEOgjAQRe_StWkGCtPi0j1naDrTqUVNSSisjHcXEha6fe_9_1Y-bGv2W5XFT1FdlVGXX0aBn1IOER-h3GfNc1mXifSR6NNWPc5RXrez_TvIoeZ9DbEZ0FlDDG2DIQliS4iJdijGIoHp2EV0A_UgQh2Ss5R6lwwCA6vPF9M_N7Q:1vh2oA:oB-4ZEaWhe3dLsJ75aJ_E95GUcQ-BGwV_c29A1r8fLk",
+    "expire_date": "2026-01-31T09:41:26.081Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "sgs7cmni62lwqsg1qy7ksnut4s2m2luc",
+  "fields": {
+    "session_data": ".eJxVjDEOgzAMRe-SuYqMa1LC2L1nQLZjCm0FEoEJcfeCxNCu_73_VtfwMnfNkm1q-uRqd3WX301Y3zYcIL14eI5ex2GeevGH4k-a_WNM9rmf7l-g49ztb4QysHKKkkSQWySISEh6o2CGQao2QAlqAIqlUCwiGsWKI0FRYNijytPs6nXbvhyMOng:1vtqzN:VBYVCsmYinInRtzvD0et_GMvvi8oTRVF06t8ii3Be8o",
+    "expire_date": "2026-03-07T17:41:57.502Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "ub6qvuuw7zxvl3k0tb8us5s8bvqaqhma",
+  "fields": {
+    "session_data": ".eJxVjDsOwjAQBe_iGll2Esd2SnpOgFC0u97FARRL-VSIu5NIKaB9M2_eqod1yf0689QPSXXKqtPvhkBPHneQHjDei6YyLtOAelf0QWd9KYlf58P9C2SY8_auGU3A0LBrkWqhAIZbiZhCREEv4KjxFURwvvUVmiQORMhaY5xlgC1KMC2qu94-X1rDPCc:1vdyVS:RlBn3I4iagkcjngTCcfUU_FW0X1vE8GNJqdGWciSC3I",
+    "expire_date": "2026-01-22T22:29:26.706Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "vpypw8el739qydkmo57g5hm78l0w2rv9",
+  "fields": {
+    "session_data": ".eJxVjc0OwiAQhN-FMyHLFrD06L1PYAzZBWqrpiT9ORjju9smPeh1vplv3iLQuvRhnfMUhiQaUQn5mzHFRx53kO403oqKZVymgdVeUQedVVtSfp6P7p-gp7nf1gjWUaTkOTEjdWjAo0ETT8bljI7rzoGFmAEiWjZee8zG1-QNaI1uk0aaFtFcsJLaSneVYjspgdeXaLT9fAEYGkAJ:1vtqmZ:gSBdgcYnAeuPFJorGYNEn1XPVKFaMIody3TznCmT_2Y",
+    "expire_date": "2026-03-07T17:28:43.942Z"
+  }
+},
+{
+  "model": "core.categoria",
+  "pk": 4,
+  "fields": {
+    "nombre_categoria": "Cajas",
+    "descripcion_categoria": "Cajas personalizadas para regalos y eventos",
+    "rif_proveedor": null,
+    "telefono_proveedor": null,
+    "direccion_proveedor": null
+  }
+},
+{
+  "model": "core.categoria",
+  "pk": 5,
+  "fields": {
+    "nombre_categoria": "Toppers",
+    "descripcion_categoria": "Toppers decorativos para tortas y celebraciones",
+    "rif_proveedor": null,
+    "telefono_proveedor": null,
+    "direccion_proveedor": null
+  }
+},
+{
+  "model": "core.categoria",
+  "pk": 6,
+  "fields": {
+    "nombre_categoria": "Sublimación",
+    "descripcion_categoria": "Productos con técnica de sublimación",
+    "rif_proveedor": null,
+    "telefono_proveedor": null,
+    "direccion_proveedor": null
+  }
+},
+{
+  "model": "core.categoria",
+  "pk": 7,
+  "fields": {
+    "nombre_categoria": "Impresión",
+    "descripcion_categoria": "Servicios de impresión personalizada",
+    "rif_proveedor": null,
+    "telefono_proveedor": null,
+    "direccion_proveedor": null
+  }
+},
+{
+  "model": "core.categoria",
+  "pk": 8,
+  "fields": {
+    "nombre_categoria": "Personalización",
+    "descripcion_categoria": "Artículos personalizados a medida",
+    "rif_proveedor": null,
+    "telefono_proveedor": null,
+    "direccion_proveedor": null
+  }
+},
+{
+  "model": "core.categoria",
+  "pk": 9,
+  "fields": {
+    "nombre_categoria": "Electrónica",
+    "descripcion_categoria": "Categoría asignada automáticamente",
+    "rif_proveedor": null,
+    "telefono_proveedor": null,
+    "direccion_proveedor": null
+  }
+},
+{
+  "model": "core.cliente",
+  "pk": 1,
+  "fields": {
+    "tipo_cliente": null,
+    "documento": "30812369",
+    "rif_empresarial": null,
+    "nombre_cliente": "Gabriel",
+    "apellido_cliente": "Leal",
+    "direccion": "Urbanización La Granja",
+    "telefono_cliente": "04245854907",
+    "email": "gaboyt009@gmail.com",
+    "user": null
+  }
+},
+{
+  "model": "core.cliente",
+  "pk": 2,
+  "fields": {
+    "tipo_cliente": null,
+    "documento": "30812369",
+    "rif_empresarial": null,
+    "nombre_cliente": "Gabriel",
+    "apellido_cliente": "Leal",
+    "direccion": "Urbanización La Granja",
+    "telefono_cliente": "04245854907",
+    "email": "gaboyt009@gmail.com",
+    "user": null
+  }
+},
+{
+  "model": "core.cliente",
+  "pk": 3,
+  "fields": {
+    "tipo_cliente": null,
+    "documento": "30812369",
+    "rif_empresarial": null,
+    "nombre_cliente": "Gabriel",
+    "apellido_cliente": "Leal",
+    "direccion": "Urbanización La Granja",
+    "telefono_cliente": "04245854907",
+    "email": "gaboyt009@gmail.com",
+    "user": null
+  }
+},
+{
+  "model": "core.cliente",
+  "pk": 4,
+  "fields": {
+    "tipo_cliente": null,
+    "documento": "30812369",
+    "rif_empresarial": null,
+    "nombre_cliente": "Gabriel",
+    "apellido_cliente": "Leal",
+    "direccion": "Urbanización La Granja",
+    "telefono_cliente": "04245854907",
+    "email": "gaboyt009@gmail.com",
+    "user": null
+  }
+},
+{
+  "model": "core.cliente",
+  "pk": 5,
+  "fields": {
+    "tipo_cliente": null,
+    "documento": "30812369",
+    "rif_empresarial": null,
+    "nombre_cliente": "Gabriel",
+    "apellido_cliente": "Leal",
+    "direccion": "Urbanización La Granja",
+    "telefono_cliente": "04245854907",
+    "email": "gaboyt009@gmail.com",
+    "user": null
+  }
+},
+{
+  "model": "core.cliente",
+  "pk": 6,
+  "fields": {
+    "tipo_cliente": null,
+    "documento": "V28064923",
+    "rif_empresarial": null,
+    "nombre_cliente": "Cristian",
+    "apellido_cliente": "Hernandez",
+    "direccion": "proceres",
+    "telefono_cliente": "1236",
+    "email": "cristian@saqwe.com",
+    "user": null
+  }
+},
+{
+  "model": "core.cliente",
+  "pk": 7,
+  "fields": {
+    "tipo_cliente": null,
+    "documento": "E212321321",
+    "rif_empresarial": null,
+    "nombre_cliente": "xin",
+    "apellido_cliente": "pen",
+    "direccion": "a",
+    "telefono_cliente": "22",
+    "email": "asassd@dflgs.com",
+    "user": null
+  }
+},
+{
+  "model": "core.cliente",
+  "pk": 8,
+  "fields": {
+    "tipo_cliente": null,
+    "documento": "V28064923",
+    "rif_empresarial": null,
+    "nombre_cliente": "cristian",
+    "apellido_cliente": "hernandez",
+    "direccion": "proceres",
+    "telefono_cliente": "04265787646",
+    "email": "cristian2@gmail.com",
+    "user": [
+      "cristian123"
+    ]
+  }
+},
+{
+  "model": "core.cliente",
+  "pk": 9,
+  "fields": {
+    "tipo_cliente": null,
+    "documento": "V123456789",
+    "rif_empresarial": null,
+    "nombre_cliente": "prueba",
+    "apellido_cliente": "prueba",
+    "direccion": "a",
+    "telefono_cliente": "1231231231",
+    "email": "prueba@gmail.com",
+    "user": [
+      "prueba"
+    ]
+  }
+},
+{
+  "model": "core.cliente",
+  "pk": 10,
+  "fields": {
+    "tipo_cliente": null,
+    "documento": "V123456856",
+    "rif_empresarial": null,
+    "nombre_cliente": "pruebaasd",
+    "apellido_cliente": "prueba",
+    "direccion": "a",
+    "telefono_cliente": "1231231231",
+    "email": "prue4ba@gmail.com",
+    "user": [
+      "prueba2"
+    ]
+  }
+},
+{
+  "model": "core.cliente",
+  "pk": 11,
+  "fields": {
+    "tipo_cliente": null,
+    "documento": "V123456789",
+    "rif_empresarial": null,
+    "nombre_cliente": "nombre cliente",
+    "apellido_cliente": "apellido cliente",
+    "direccion": "direccion cliente",
+    "telefono_cliente": "04123456",
+    "email": "cliente1@gmail.com",
+    "user": [
+      "cliente1"
+    ]
+  }
+},
+{
+  "model": "core.producto",
+  "pk": 6,
+  "fields": {
+    "categoria": 4,
+    "nombre_producto": "Caja de regalo pequeña",
+    "descripcion": "Caja decorada para regalos pequeños",
+    "marca_producto": "None",
+    "max_producto": null,
+    "precio_venta": 5.0,
+    "status_producto": true,
+    "cantidad_disponible": 45,
+    "imagen_producto": "products/pngtree-vector-of-realistic-gift-box-png-image_847741.jpg"
+  }
+},
+{
+  "model": "core.producto",
+  "pk": 7,
+  "fields": {
+    "categoria": 4,
+    "nombre_producto": "Caja de regalo mediana",
+    "descripcion": "Caja decorada para regalos medianos",
+    "marca_producto": "cajita",
+    "max_producto": null,
+    "precio_venta": 8.0,
+    "status_producto": true,
+    "cantidad_disponible": 22,
+    "imagen_producto": "products/png-transparent-round-red-gift-box-with-green-ribbon-illustration-christmas-gif_WCedHee.png"
+  }
+},
+{
+  "model": "core.producto",
+  "pk": 9,
+  "fields": {
+    "categoria": 5,
+    "nombre_producto": "Topper de cumpleaños",
+    "descripcion": "Topper personalizado para tortas de cumpleaños",
+    "marca_producto": "None",
+    "max_producto": null,
+    "precio_venta": 3.0,
+    "status_producto": true,
+    "cantidad_disponible": 100,
+    "imagen_producto": "products/feliz-cumpleanos-espanol-mano-letras_105554-469.avif"
+  }
+},
+{
+  "model": "core.producto",
+  "pk": 10,
+  "fields": {
+    "categoria": 5,
+    "nombre_producto": "Topper de boda",
+    "descripcion": "Topper elegante para tortas de boda",
+    "marca_producto": "None",
+    "max_producto": null,
+    "precio_venta": 5.0,
+    "status_producto": true,
+    "cantidad_disponible": 50,
+    "imagen_producto": "products/7d4ded4efd2fcf09f9c8a0635be834a9.jpg"
+  }
+},
+{
+  "model": "core.producto",
+  "pk": 11,
+  "fields": {
+    "categoria": 5,
+    "nombre_producto": "Topper de baby shower",
+    "descripcion": "Topper tierno para baby showers",
+    "marca_producto": "None",
+    "max_producto": null,
+    "precio_venta": 4.0,
+    "status_producto": true,
+    "cantidad_disponible": 75,
+    "imagen_producto": "products/fe5d94f2e5c317595146276b5857d750.jpg"
+  }
+},
+{
+  "model": "core.producto",
+  "pk": 12,
+  "fields": {
+    "categoria": 6,
+    "nombre_producto": "Taza sublimada",
+    "descripcion": "Taza con diseño personalizado por sublimación",
+    "marca_producto": "None",
+    "max_producto": null,
+    "precio_venta": 10.0,
+    "status_producto": true,
+    "cantidad_disponible": 40,
+    "imagen_producto": "products/540_TKzoiNd.webp"
+  }
+},
+{
+  "model": "core.producto",
+  "pk": 13,
+  "fields": {
+    "categoria": 6,
+    "nombre_producto": "Camiseta sublimada",
+    "descripcion": "Camiseta con diseño personalizado",
+    "marca_producto": "None",
+    "max_producto": null,
+    "precio_venta": 15.0,
+    "status_producto": true,
+    "cantidad_disponible": 25,
+    "imagen_producto": "products/prod_258.jpg"
+  }
+},
+{
+  "model": "core.producto",
+  "pk": 14,
+  "fields": {
+    "categoria": 6,
+    "nombre_producto": "Taza sublimada con foto",
+    "descripcion": "Taza con foto personalizada",
+    "marca_producto": "None",
+    "max_producto": null,
+    "precio_venta": 12.0,
+    "status_producto": true,
+    "cantidad_disponible": 35,
+    "imagen_producto": "products/404-4045429_taza-de-navidad-tazas-personalizadas-navideas-png.png"
+  }
+},
+{
+  "model": "core.producto",
+  "pk": 15,
+  "fields": {
+    "categoria": 7,
+    "nombre_producto": "Impresión en papel fotográfico",
+    "descripcion": "Impresión de fotos en papel de alta calidad",
+    "marca_producto": "None",
+    "max_producto": null,
+    "precio_venta": 2.0,
+    "status_producto": true,
+    "cantidad_disponible": 200,
+    "imagen_producto": "products/png-transparent-canvas-print-graphy-printing-graphic-paper-poster-posters-cosme_Nuu5Zcs.png"
+  }
+},
+{
+  "model": "core.producto",
+  "pk": 16,
+  "fields": {
+    "categoria": 7,
+    "nombre_producto": "Impresión de invitaciones",
+    "descripcion": "Invitaciones personalizadas impresas",
+    "marca_producto": "None",
+    "max_producto": null,
+    "precio_venta": 1.5,
+    "status_producto": false,
+    "cantidad_disponible": 0,
+    "imagen_producto": "products/Coleccion-invitaciones-de-boda-rama.png"
+  }
+},
+{
+  "model": "core.producto",
+  "pk": 17,
+  "fields": {
+    "categoria": 7,
+    "nombre_producto": "Impresión de tarjetas",
+    "descripcion": "Tarjetas de visita o felicitación impresas",
+    "marca_producto": null,
+    "max_producto": null,
+    "precio_venta": 0.5,
+    "status_producto": true,
+    "cantidad_disponible": 300,
+    "imagen_producto": ""
+  }
+},
+{
+  "model": "core.producto",
+  "pk": 18,
+  "fields": {
+    "categoria": 8,
+    "nombre_producto": "Llaveros personalizados",
+    "descripcion": "Llaveros con grabado personalizado",
+    "marca_producto": "None",
+    "max_producto": null,
+    "precio_venta": 4.0,
+    "status_producto": true,
+    "cantidad_disponible": 60,
+    "imagen_producto": "products/8-19.png"
+  }
+},
+{
+  "model": "core.producto",
+  "pk": 19,
+  "fields": {
+    "categoria": 8,
+    "nombre_producto": "Agenda personalizada",
+    "descripcion": "Agenda con diseño a medida",
+    "marca_producto": "None",
+    "max_producto": null,
+    "precio_venta": 8.0,
+    "status_producto": true,
+    "cantidad_disponible": 20,
+    "imagen_producto": ""
+  }
+},
+{
+  "model": "core.producto",
+  "pk": 20,
+  "fields": {
+    "categoria": 8,
+    "nombre_producto": "Cuadernos personalizados",
+    "descripcion": "Cuadernos con portada personalizada",
+    "marca_producto": null,
+    "max_producto": null,
+    "precio_venta": 6.0,
+    "status_producto": true,
+    "cantidad_disponible": 80,
+    "imagen_producto": ""
+  }
+},
+{
+  "model": "core.producto",
+  "pk": 22,
+  "fields": {
+    "categoria": 9,
+    "nombre_producto": "borrador",
+    "descripcion": "borrador",
+    "marca_producto": "Kores",
+    "max_producto": null,
+    "precio_venta": 2.0,
+    "status_producto": false,
+    "cantidad_disponible": 6,
+    "imagen_producto": "products/Borrador-Blanco-Kores.jpg"
+  }
+},
+{
+  "model": "core.producto",
+  "pk": 23,
+  "fields": {
+    "categoria": 9,
+    "nombre_producto": "Lapiz de grafito",
+    "descripcion": "borrador",
+    "marca_producto": "Kores",
+    "max_producto": null,
+    "precio_venta": 2.0,
+    "status_producto": true,
+    "cantidad_disponible": 1,
+    "imagen_producto": ""
+  }
+},
+{
+  "model": "core.carritodecompras",
+  "pk": 14,
+  "fields": {
+    "usuario": [
+      "admin1"
+    ],
+    "status_carrito": true
+  }
+},
+{
+  "model": "core.carritodecompras",
+  "pk": 15,
+  "fields": {
+    "usuario": [
+      "admin1"
+    ],
+    "status_carrito": true
+  }
+},
+{
+  "model": "core.carritodecompras",
+  "pk": 16,
+  "fields": {
+    "usuario": [
+      "admin1"
+    ],
+    "status_carrito": true
+  }
+},
+{
+  "model": "core.carritodecompras",
+  "pk": 17,
+  "fields": {
+    "usuario": [
+      "admin1"
+    ],
+    "status_carrito": true
+  }
+},
+{
+  "model": "core.carritodecompras",
+  "pk": 18,
+  "fields": {
+    "usuario": [
+      "admin1"
+    ],
+    "status_carrito": true
+  }
+},
+{
+  "model": "core.carritodecompras",
+  "pk": 19,
+  "fields": {
+    "usuario": [
+      "admin1"
+    ],
+    "status_carrito": true
+  }
+},
+{
+  "model": "core.salida",
+  "pk": 14,
+  "fields": {
+    "bcv": null,
+    "carrito_de_compras": 14,
+    "metodo_pago": null,
+    "usuario": [
+      "admin1"
+    ],
+    "total": 12.0,
+    "date": "2026-02-17T02:40:57.455Z"
+  }
+},
+{
+  "model": "core.salida",
+  "pk": 15,
+  "fields": {
+    "bcv": null,
+    "carrito_de_compras": 15,
+    "metodo_pago": null,
+    "usuario": [
+      "admin1"
+    ],
+    "total": 12.0,
+    "date": "2026-02-17T17:58:58.977Z"
+  }
+},
+{
+  "model": "core.salida",
+  "pk": 16,
+  "fields": {
+    "bcv": null,
+    "carrito_de_compras": 16,
+    "metodo_pago": null,
+    "usuario": [
+      "admin1"
+    ],
+    "total": 20.0,
+    "date": "2026-02-17T20:26:28.682Z"
+  }
+},
+{
+  "model": "core.salida",
+  "pk": 17,
+  "fields": {
+    "bcv": null,
+    "carrito_de_compras": 17,
+    "metodo_pago": null,
+    "usuario": [
+      "admin1"
+    ],
+    "total": 0.25,
+    "date": "2026-02-19T23:04:41.720Z"
+  }
+},
+{
+  "model": "core.salida",
+  "pk": 18,
+  "fields": {
+    "bcv": null,
+    "carrito_de_compras": 18,
+    "metodo_pago": null,
+    "usuario": [
+      "admin1"
+    ],
+    "total": 1.5,
+    "date": "2026-02-21T03:32:16.820Z"
+  }
+},
+{
+  "model": "core.salida",
+  "pk": 19,
+  "fields": {
+    "bcv": null,
+    "carrito_de_compras": 19,
+    "metodo_pago": null,
+    "usuario": [
+      "admin1"
+    ],
+    "total": 25.0,
+    "date": "2026-03-11T16:25:45.100Z"
+  }
+},
+{
+  "model": "core.ordendedespacho",
+  "pk": 14,
+  "fields": {
+    "carrito_de_compras": 14,
+    "producto": null,
+    "cantidad_item": 1,
+    "sub_total_item": 12.0,
+    "estado_disponibilidad": true
+  }
+},
+{
+  "model": "core.ordendedespacho",
+  "pk": 15,
+  "fields": {
+    "carrito_de_compras": 15,
+    "producto": null,
+    "cantidad_item": 1,
+    "sub_total_item": 12.0,
+    "estado_disponibilidad": true
+  }
+},
+{
+  "model": "core.ordendedespacho",
+  "pk": 16,
+  "fields": {
+    "carrito_de_compras": 16,
+    "producto": 7,
+    "cantidad_item": 1,
+    "sub_total_item": 8.0,
+    "estado_disponibilidad": true
+  }
+},
+{
+  "model": "core.ordendedespacho",
+  "pk": 17,
+  "fields": {
+    "carrito_de_compras": 16,
+    "producto": null,
+    "cantidad_item": 1,
+    "sub_total_item": 12.0,
+    "estado_disponibilidad": true
+  }
+},
+{
+  "model": "core.ordendedespacho",
+  "pk": 18,
+  "fields": {
+    "carrito_de_compras": 17,
+    "producto": null,
+    "cantidad_item": 1,
+    "sub_total_item": 0.25,
+    "estado_disponibilidad": true
+  }
+},
+{
+  "model": "core.ordendedespacho",
+  "pk": 19,
+  "fields": {
+    "carrito_de_compras": 18,
+    "producto": 16,
+    "cantidad_item": 1,
+    "sub_total_item": 1.5,
+    "estado_disponibilidad": true
+  }
+},
+{
+  "model": "core.ordendedespacho",
+  "pk": 20,
+  "fields": {
+    "carrito_de_compras": 19,
+    "producto": 6,
+    "cantidad_item": 5,
+    "sub_total_item": 25.0,
+    "estado_disponibilidad": true
+  }
+},
+{
+  "model": "core.historial_inventario",
+  "pk": 1,
+  "fields": {
+    "producto": 19,
+    "cantidad_anterior": 45,
+    "cantidad_nueva": 40,
+    "tipo_movimiento": "Ajuste Negativo",
+    "fecha_ajuste": "2026-01-21T12:02:38.017Z",
+    "motivo": "Sin motivo especificado",
+    "usuario_responsable": "admin1"
+  }
+},
+{
+  "model": "core.historial_inventario",
+  "pk": 2,
+  "fields": {
+    "producto": null,
+    "cantidad_anterior": 12312,
+    "cantidad_nueva": 12312,
+    "tipo_movimiento": "Sin Cambio",
+    "fecha_ajuste": "2026-01-21T12:41:02.042Z",
+    "motivo": "Sin motivo especificado",
+    "usuario_responsable": "admin1"
+  }
+},
+{
+  "model": "core.historial_inventario",
+  "pk": 3,
+  "fields": {
+    "producto": 19,
+    "cantidad_anterior": 30,
+    "cantidad_nueva": 30,
+    "tipo_movimiento": "Sin Cambio",
+    "fecha_ajuste": "2026-01-21T12:41:43.412Z",
+    "motivo": "revision de producto",
+    "usuario_responsable": "admin1"
+  }
+},
+{
+  "model": "core.historial_inventario",
+  "pk": 4,
+  "fields": {
+    "producto": 19,
+    "cantidad_anterior": 30,
+    "cantidad_nueva": 20,
+    "tipo_movimiento": "Ajuste Negativo",
+    "fecha_ajuste": "2026-01-21T12:42:01.297Z",
+    "motivo": "revision de producto",
+    "usuario_responsable": "admin1"
+  }
+},
+{
+  "model": "core.historial_inventario",
+  "pk": 5,
+  "fields": {
+    "producto": 7,
+    "cantidad_anterior": 25,
+    "cantidad_nueva": 25,
+    "tipo_movimiento": "Sin Cambio",
+    "fecha_ajuste": "2026-01-26T10:57:53.500Z",
+    "motivo": "Sin motivo especificado",
+    "usuario_responsable": "admin1"
+  }
+},
+{
+  "model": "core.historial_inventario",
+  "pk": 6,
+  "fields": {
+    "producto": null,
+    "cantidad_anterior": 12312,
+    "cantidad_nueva": 12311,
+    "tipo_movimiento": "venta",
+    "fecha_ajuste": "2026-02-04T16:47:15.012Z",
+    "motivo": "Compra por usuario admin1 (cantidad 1)",
+    "usuario_responsable": "admin1"
+  }
+},
+{
+  "model": "core.historial_inventario",
+  "pk": 7,
+  "fields": {
+    "producto": 7,
+    "cantidad_anterior": 24,
+    "cantidad_nueva": 23,
+    "tipo_movimiento": "venta",
+    "fecha_ajuste": "2026-02-04T16:54:20.557Z",
+    "motivo": "Compra por usuario admin1 (cantidad 1)",
+    "usuario_responsable": "admin1"
+  }
+},
+{
+  "model": "core.historial_inventario",
+  "pk": 8,
+  "fields": {
+    "producto": null,
+    "cantidad_anterior": 12311,
+    "cantidad_nueva": 12310,
+    "tipo_movimiento": "venta",
+    "fecha_ajuste": "2026-02-04T16:59:24.245Z",
+    "motivo": "Compra por usuario admin1 (cantidad 1)",
+    "usuario_responsable": "admin1"
+  }
+},
+{
+  "model": "core.historial_inventario",
+  "pk": 9,
+  "fields": {
+    "producto": null,
+    "cantidad_anterior": 12310,
+    "cantidad_nueva": 12309,
+    "tipo_movimiento": "venta",
+    "fecha_ajuste": "2026-02-04T17:08:39.779Z",
+    "motivo": "Compra por usuario admin1 (cantidad 1)",
+    "usuario_responsable": "admin1"
+  }
+},
+{
+  "model": "core.historial_inventario",
+  "pk": 10,
+  "fields": {
+    "producto": null,
+    "cantidad_anterior": 12309,
+    "cantidad_nueva": 12308,
+    "tipo_movimiento": "venta",
+    "fecha_ajuste": "2026-02-04T17:17:41.746Z",
+    "motivo": "Compra por usuario admin1 (cantidad 1)",
+    "usuario_responsable": "admin1"
+  }
+},
+{
+  "model": "core.historial_inventario",
+  "pk": 11,
+  "fields": {
+    "producto": null,
+    "cantidad_anterior": 2,
+    "cantidad_nueva": 1,
+    "tipo_movimiento": "venta",
+    "fecha_ajuste": "2026-02-04T17:18:08.703Z",
+    "motivo": "Compra por usuario admin1 (cantidad 1)",
+    "usuario_responsable": "admin1"
+  }
+},
+{
+  "model": "core.historial_inventario",
+  "pk": 12,
+  "fields": {
+    "producto": null,
+    "cantidad_anterior": 12308,
+    "cantidad_nueva": 12307,
+    "tipo_movimiento": "venta",
+    "fecha_ajuste": "2026-02-17T01:50:23.300Z",
+    "motivo": "Compra por usuario admin1 (cantidad 1)",
+    "usuario_responsable": "admin1"
+  }
+},
+{
+  "model": "core.historial_inventario",
+  "pk": 13,
+  "fields": {
+    "producto": null,
+    "cantidad_anterior": 12307,
+    "cantidad_nueva": 12306,
+    "tipo_movimiento": "venta",
+    "fecha_ajuste": "2026-02-17T01:52:39.542Z",
+    "motivo": "Compra por usuario admin1 (cantidad 1)",
+    "usuario_responsable": "admin1"
+  }
+},
+{
+  "model": "core.historial_inventario",
+  "pk": 14,
+  "fields": {
+    "producto": null,
+    "cantidad_anterior": 12306,
+    "cantidad_nueva": 12305,
+    "tipo_movimiento": "venta",
+    "fecha_ajuste": "2026-02-17T01:55:06.656Z",
+    "motivo": "Compra por usuario admin1 (cantidad 1)",
+    "usuario_responsable": "admin1"
+  }
+},
+{
+  "model": "core.historial_inventario",
+  "pk": 15,
+  "fields": {
+    "producto": null,
+    "cantidad_anterior": 12305,
+    "cantidad_nueva": 12304,
+    "tipo_movimiento": "venta",
+    "fecha_ajuste": "2026-02-17T02:21:53.255Z",
+    "motivo": "Compra por usuario admin1 (cantidad 1)",
+    "usuario_responsable": "admin1"
+  }
+},
+{
+  "model": "core.historial_inventario",
+  "pk": 16,
+  "fields": {
+    "producto": null,
+    "cantidad_anterior": 12304,
+    "cantidad_nueva": 12303,
+    "tipo_movimiento": "venta",
+    "fecha_ajuste": "2026-02-17T02:22:34.372Z",
+    "motivo": "Compra por usuario admin1 (cantidad 1)",
+    "usuario_responsable": "admin1"
+  }
+},
+{
+  "model": "core.historial_inventario",
+  "pk": 17,
+  "fields": {
+    "producto": null,
+    "cantidad_anterior": 12303,
+    "cantidad_nueva": 12302,
+    "tipo_movimiento": "venta",
+    "fecha_ajuste": "2026-02-17T02:24:06.418Z",
+    "motivo": "Compra por usuario admin1 (cantidad 1)",
+    "usuario_responsable": "admin1"
+  }
+},
+{
+  "model": "core.historial_inventario",
+  "pk": 18,
+  "fields": {
+    "producto": null,
+    "cantidad_anterior": 12302,
+    "cantidad_nueva": 12301,
+    "tipo_movimiento": "venta",
+    "fecha_ajuste": "2026-02-17T02:40:57.455Z",
+    "motivo": "Compra AJAX por usuario admin1 (cantidad 1)",
+    "usuario_responsable": "admin1"
+  }
+},
+{
+  "model": "core.historial_inventario",
+  "pk": 19,
+  "fields": {
+    "producto": null,
+    "cantidad_anterior": 12301,
+    "cantidad_nueva": 12300,
+    "tipo_movimiento": "venta",
+    "fecha_ajuste": "2026-02-17T17:58:58.977Z",
+    "motivo": "Compra por usuario admin1 (cantidad 1)",
+    "usuario_responsable": "admin1"
+  }
+},
+{
+  "model": "core.historial_inventario",
+  "pk": 20,
+  "fields": {
+    "producto": 7,
+    "cantidad_anterior": 23,
+    "cantidad_nueva": 22,
+    "tipo_movimiento": "venta",
+    "fecha_ajuste": "2026-02-17T20:26:28.681Z",
+    "motivo": "Compra por usuario admin1 (cantidad 1)",
+    "usuario_responsable": "admin1"
+  }
+},
+{
+  "model": "core.historial_inventario",
+  "pk": 21,
+  "fields": {
+    "producto": null,
+    "cantidad_anterior": 12300,
+    "cantidad_nueva": 12299,
+    "tipo_movimiento": "venta",
+    "fecha_ajuste": "2026-02-17T20:26:28.682Z",
+    "motivo": "Compra por usuario admin1 (cantidad 1)",
+    "usuario_responsable": "admin1"
+  }
+},
+{
+  "model": "core.historial_inventario",
+  "pk": 22,
+  "fields": {
+    "producto": null,
+    "cantidad_anterior": 1,
+    "cantidad_nueva": 0,
+    "tipo_movimiento": "venta",
+    "fecha_ajuste": "2026-02-19T23:04:41.720Z",
+    "motivo": "Compra por usuario admin1 (cantidad 1)",
+    "usuario_responsable": "admin1"
+  }
+},
+{
+  "model": "core.historial_inventario",
+  "pk": 23,
+  "fields": {
+    "producto": null,
+    "cantidad_anterior": 12299,
+    "cantidad_nueva": 0,
+    "tipo_movimiento": "Ajuste Negativo",
+    "fecha_ajuste": "2026-02-20T03:43:24.832Z",
+    "motivo": "reajuste",
+    "usuario_responsable": "admin1"
+  }
+},
+{
+  "model": "core.historial_inventario",
+  "pk": 24,
+  "fields": {
+    "producto": 16,
+    "cantidad_anterior": 150,
+    "cantidad_nueva": 0,
+    "tipo_movimiento": "Ajuste Negativo",
+    "fecha_ajuste": "2026-02-20T03:53:40.767Z",
+    "motivo": "ajuste de inventario",
+    "usuario_responsable": "admin1"
+  }
+},
+{
+  "model": "core.historial_inventario",
+  "pk": 25,
+  "fields": {
+    "producto": 16,
+    "cantidad_anterior": 0,
+    "cantidad_nueva": 1,
+    "tipo_movimiento": "Ajuste Positivo",
+    "fecha_ajuste": "2026-02-20T03:56:32.067Z",
+    "motivo": "reajuste",
+    "usuario_responsable": "admin1"
+  }
+},
+{
+  "model": "core.historial_inventario",
+  "pk": 26,
+  "fields": {
+    "producto": 16,
+    "cantidad_anterior": 1,
+    "cantidad_nueva": 0,
+    "tipo_movimiento": "Ajuste Negativo",
+    "fecha_ajuste": "2026-02-20T04:00:02.524Z",
+    "motivo": "as",
+    "usuario_responsable": "admin1"
+  }
+},
+{
+  "model": "core.historial_inventario",
+  "pk": 27,
+  "fields": {
+    "producto": 16,
+    "cantidad_anterior": 0,
+    "cantidad_nueva": 1,
+    "tipo_movimiento": "Ajuste Positivo",
+    "fecha_ajuste": "2026-02-21T00:47:20.384Z",
+    "motivo": "asd",
+    "usuario_responsable": "admin1"
+  }
+},
+{
+  "model": "core.historial_inventario",
+  "pk": 28,
+  "fields": {
+    "producto": 16,
+    "cantidad_anterior": 1,
+    "cantidad_nueva": 1,
+    "tipo_movimiento": "Sin Cambio",
+    "fecha_ajuste": "2026-02-21T00:47:37.854Z",
+    "motivo": "Sin motivo especificado",
+    "usuario_responsable": "admin1"
+  }
+},
+{
+  "model": "core.historial_inventario",
+  "pk": 29,
+  "fields": {
+    "producto": 22,
+    "cantidad_anterior": 6,
+    "cantidad_nueva": 6,
+    "tipo_movimiento": "Sin Cambio",
+    "fecha_ajuste": "2026-02-21T01:00:56.064Z",
+    "motivo": "si",
+    "usuario_responsable": "admin1"
+  }
+},
+{
+  "model": "core.historial_inventario",
+  "pk": 30,
+  "fields": {
+    "producto": 16,
+    "cantidad_anterior": 1,
+    "cantidad_nueva": 0,
+    "tipo_movimiento": "venta",
+    "fecha_ajuste": "2026-02-21T03:32:16.820Z",
+    "motivo": "Compra por usuario admin1 (cantidad 1)",
+    "usuario_responsable": "admin1"
+  }
+},
+{
+  "model": "core.historial_inventario",
+  "pk": 31,
+  "fields": {
+    "producto": 6,
+    "cantidad_anterior": 50,
+    "cantidad_nueva": 45,
+    "tipo_movimiento": "venta",
+    "fecha_ajuste": "2026-03-11T16:25:45.099Z",
+    "motivo": "Compra por usuario admin1 (cantidad 5)",
+    "usuario_responsable": "admin1"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 1,
+  "fields": {
+    "action_time": "2026-01-11T22:58:22.253Z",
+    "user": [
+      "admin1"
+    ],
+    "content_type": [
+      "auth",
+      "group"
+    ],
+    "object_id": "1",
+    "object_repr": "cajero",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 2,
+  "fields": {
+    "action_time": "2026-01-11T22:58:57.138Z",
+    "user": [
+      "admin1"
+    ],
+    "content_type": [
+      "auth",
+      "user"
+    ],
+    "object_id": "1",
+    "object_repr": "Gabo123",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Groups\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 3,
+  "fields": {
+    "action_time": "2026-01-11T22:59:10.790Z",
+    "user": [
+      "admin1"
+    ],
+    "content_type": [
+      "auth",
+      "user"
+    ],
+    "object_id": "1",
+    "object_repr": "Gabo123",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Groups\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 4,
+  "fields": {
+    "action_time": "2026-01-11T23:07:36.236Z",
+    "user": [
+      "admin1"
+    ],
+    "content_type": [
+      "auth",
+      "group"
+    ],
+    "object_id": "2",
+    "object_repr": "admin",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 5,
+  "fields": {
+    "action_time": "2026-01-11T23:07:46.042Z",
+    "user": [
+      "admin1"
+    ],
+    "content_type": [
+      "auth",
+      "user"
+    ],
+    "object_id": "3",
+    "object_repr": "admin1",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Groups\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 6,
+  "fields": {
+    "action_time": "2026-01-12T00:20:16.926Z",
+    "user": [
+      "admin1"
+    ],
+    "content_type": [
+      "auth",
+      "group"
+    ],
+    "object_id": "3",
+    "object_repr": "cliente",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 7,
+  "fields": {
+    "action_time": "2026-01-12T00:20:40.735Z",
+    "user": [
+      "admin1"
+    ],
+    "content_type": [
+      "auth",
+      "user"
+    ],
+    "object_id": "4",
+    "object_repr": "cliente",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Email address\", \"Groups\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 8,
+  "fields": {
+    "action_time": "2026-01-12T00:31:20.162Z",
+    "user": [
+      "admin1"
+    ],
+    "content_type": [
+      "auth",
+      "user"
+    ],
+    "object_id": "4",
+    "object_repr": "cliente",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Groups\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 9,
+  "fields": {
+    "action_time": "2026-01-12T00:32:09.662Z",
+    "user": [
+      "admin1"
+    ],
+    "content_type": [
+      "auth",
+      "user"
+    ],
+    "object_id": "4",
+    "object_repr": "cliente",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Groups\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 10,
+  "fields": {
+    "action_time": "2026-01-12T00:45:02.696Z",
+    "user": [
+      "admin1"
+    ],
+    "content_type": [
+      "auth",
+      "user"
+    ],
+    "object_id": "4",
+    "object_repr": "cliente",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Groups\"]}}]"
+  }
+}
+]

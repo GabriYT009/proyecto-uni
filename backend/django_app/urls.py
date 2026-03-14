@@ -25,7 +25,7 @@ from django.contrib.staticfiles.storage import staticfiles_storage
 import os
 
 urlpatterns = [
-    path('favicon.ico', RedirectView.as_view(url=staticfiles_storage.url('favicon.ico'), permanent=False)),
+    path('favicon.ico', RedirectView.as_view(url='/static/img/favicon.png', permanent=False)),
     path('admin/', admin.site.urls),
     # The `core` app is within the django_app package.
     path('', include('django_app.core.urls')),
