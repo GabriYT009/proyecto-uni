@@ -10,8 +10,6 @@
     <link href="https://fonts.googleapis.com" rel="preconnect">
     <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-
     <!-- Vendor CSS Files -->
     <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
     <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
@@ -309,7 +307,7 @@
                 <div class="search-container">
                     <input type="text" class="search-input" placeholder="Buscar productos..." id="searchInput">
                     <button class="search-btn">
-                        <i class="material-icons">search</i>
+                        <i class="bi bi-search"></i>
                     </button>
                 </div>
 
@@ -322,7 +320,7 @@
 
                 <div class="profile-menu">
                     <button class="profile-btn" id="profileToggle" aria-expanded="false">
-                        <i class="material-icons">account_circle</i>
+                        <i class="bi bi-person-circle"></i>
                         {% if user.is_authenticated %}
                             {{ user.username }}
                         {% else %}
@@ -332,16 +330,16 @@
                     <div class="profile-dropdown" id="profileDropdown" aria-hidden="true">
                         {% if user.is_authenticated %}
                         <a href="{% url 'perfil' %}" class="dropdown-item">
-                            <i class="material-icons">person</i>
+                            <i class="bi bi-person"></i>
                             Mi Perfil
                         </a>
                         <a href="{% url 'logout' %}" class="dropdown-item logout-button">
-                            <i class="material-icons">exit_to_app</i>
+                            <i class="bi bi-box-arrow-right"></i>
                             Cerrar Sesión
                         </a>
                         {% else %}
                         <a href="{% url 'login' %}" class="dropdown-item">
-                            <i class="material-icons">login</i>
+                            <i class="bi bi-box-arrow-in-right"></i>
                             Iniciar Sesión
                         </a>
                         {% endif %}
@@ -353,7 +351,7 @@
 
     <div class="product-detail-container">
         <a href="{% url 'inventario' %}" class="back-button">
-            <i class="material-icons">arrow_back</i>
+            <i class="bi bi-arrow-left"></i>
             Volver al Inventario
         </a>
 

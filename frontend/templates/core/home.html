@@ -512,13 +512,13 @@
                 {% for category in categories %}
                     {% if 'electr' in category.nombre_categoria|lower %}
                         <a href="{% url 'catalog' %}?Categoria={{ category.nombre_categoria }}" class="category-card">
-                            <div class="category-icon">📝</div>
+                            <div class="category-icon"><i class="bi bi-journal-richtext" aria-hidden="true"></i></div>
                             <span>Papelería</span>
                         </a>
                     {% else %}
                         <a href="{% url 'catalog' %}?Categoria={{ category.nombre_categoria }}" class="category-card">
                             <div class="category-icon">
-                                {% if category.nombre_categoria == 'Cajas' %}📦{% elif category.nombre_categoria == 'Toppers' %}🎂{% elif category.nombre_categoria == 'Sublimación' %}🖨️{% elif category.nombre_categoria == 'Impresión' %}📄{% elif category.nombre_categoria == 'Personalización' %}🎨{% elif category.nombre_categoria == 'Papelería' %}📝{% else %}🖥️{% endif %}
+                                {% if category.nombre_categoria == 'Cajas' %}<i class="bi bi-box-seam" aria-hidden="true"></i>{% elif category.nombre_categoria == 'Toppers' %}<i class="bi bi-stars" aria-hidden="true"></i>{% elif category.nombre_categoria == 'Sublimación' %}<i class="bi bi-printer" aria-hidden="true"></i>{% elif category.nombre_categoria == 'Impresión' %}<i class="bi bi-file-earmark-text" aria-hidden="true"></i>{% elif category.nombre_categoria == 'Personalización' %}<i class="bi bi-palette" aria-hidden="true"></i>{% elif category.nombre_categoria == 'Papelería' %}<i class="bi bi-pencil-square" aria-hidden="true"></i>{% else %}<i class="bi bi-laptop" aria-hidden="true"></i>{% endif %}
                             </div>
                             <span>{{ category.nombre_categoria }}</span>
                         </a>

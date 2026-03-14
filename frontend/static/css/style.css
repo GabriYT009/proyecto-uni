@@ -1,3 +1,6 @@
+@import url("https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800&display=swap");
+@import url("../vendor/bootstrap-icons/bootstrap-icons.css");
+
 /* Unified style.css for login and catalog
    Includes modern container-based layout and legacy .formulario rules for compatibility */
 
@@ -26,14 +29,11 @@ html {
 
 body {
     margin: 0;
-    padding: 24px;
-    font-family: Inter, 'Segoe UI', Roboto, Arial, sans-serif;
+    padding: 0;
+    font-family: "Urbanist", "Segoe UI", Roboto, Arial, sans-serif;
     /* force transparency to let the html gradient show through (overrides inline styles) */
     background: transparent !important;
-    display: flex;
-    /* align content at the top for long pages instead of centering vertically */
-    align-items: flex-start;
-    justify-content: center;
+    min-height: 100vh;
 }
 
 /* Modern centered card container */
@@ -45,7 +45,7 @@ body {
     padding: 30px 36px;
     border-radius: 16px;
     box-shadow: 0 18px 40px rgba(25,6,80,0.35);
-    width: 420px;
+    width: min(460px, calc(100vw - 32px));
     border: 1px solid rgba(255,255,255,0.12);
     border-top: 3px solid rgba(255,255,255,0.15);
     transition: transform .12s ease, box-shadow .12s ease;
@@ -100,19 +100,30 @@ button[type="submit"]:hover, .btn.primary:hover { background: rgba(255,255,255,0
 /* --- Login-specific visual to match catalog background --- */
 body.login-page {
     /* use the configured vertical gradient (blanco -> morado) */
-    background: var(--background-gradient);
+    background: radial-gradient(circle at top, rgba(255,255,255,0.96), rgba(225,190,231,0.88) 38%, rgba(156,39,176,0.9) 100%) !important;
     color: #000;
+    display: grid !important;
+    place-items: center !important;
+    align-content: center !important;
+    padding: 32px !important;
+    min-height: 100vh !important;
 }
 
 body.login-page .container {
     /* make container fully opaque for readability on the gradient */
-    background: rgba(255,255,255,1);
-    border-top: 3px solid rgba(156,39,176,0.12);
-    box-shadow: 0 12px 30px rgba(15,23,42,0.08);
+    background: rgba(255,255,255,0.96);
+    border: 1px solid rgba(255,255,255,0.55);
+    border-top: 4px solid rgba(156,39,176,0.2);
+    box-shadow: 0 30px 60px rgba(78, 22, 116, 0.22);
+    padding: 36px 34px;
 }
 
 body.login-page .container h2 {
     color: #9C27B0; /* purple heading for 'Inicio de sesión' */
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.2rem;
 }
 
 body.login-page label { color: #000; }
@@ -124,6 +135,41 @@ body.login-page .container .full label {
 }
 
 body.login-page .hint { color: #000; }
+body.login-page .hint,
+body.login-page .registrarse {
+    text-align: center;
+}
+
+body.login-page form {
+    display: grid;
+    gap: 14px;
+}
+
+body.login-page label {
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+body.login-page input[type="text"],
+body.login-page input[type="password"],
+body.login-page input[type="email"],
+body.login-page select {
+    min-height: 50px;
+    border-radius: 14px;
+    padding: 12px 14px;
+    border: 1px solid rgba(153, 50, 204, 0.18);
+    box-shadow: inset 0 1px 2px rgba(17, 24, 39, 0.04);
+}
+
+body.login-page .fila-cedula {
+    margin-bottom: 0;
+}
+
+body.login-page .hint {
+    font-size: 0.92rem;
+    color: rgba(17,17,17,0.72);
+    margin: -2px 0 2px;
+}
 
 /* Inputs remain light for readability */
 body.login-page input[type="text"],
@@ -154,8 +200,11 @@ body.login-page button[type="submit"] {
     transition: background .14s ease, color .14s ease, transform .06s ease;
     /* make it rounded (pill) like before */
     border-radius: 999px;
-    padding: 10px 22px;
+    padding: 14px 22px;
     box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    width: 100%;
 }
 
 /* On hover/focus/active show white background and purple text (pressed look) */
@@ -175,13 +224,20 @@ body.login-page button[type="submit"]:active { transform: translateY(1px); box-s
 /* Logo positioning for login page */
 body.login-page #logo{
     position: fixed;
-    top: 12px;
-    left: 12px;
-    width: 140px;
+    top: 20px;
+    left: 20px;
+    width: 136px;
     max-width: 28vw;
     height: auto;
     z-index: 10000;
     border-radius: 6px;
+}
+
+body.login-page .bar-logo-link {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 10000;
 }
 
 /* Text logo styles (replace image logo with text) */
@@ -199,6 +255,211 @@ body.login-page #logo{
     color: var(--secondary-color);
     display: inline-block;
     margin-left: 6px;
+}
+
+:root {
+    --brand-primary: #9932CC;
+    --brand-primary-dark: #7B1FA2;
+    --brand-soft: #E1BEE7;
+    --brand-shell: #EFEFEF;
+}
+
+html, body, button, input, select, textarea {
+    font-family: "Urbanist", "Segoe UI", Roboto, Arial, sans-serif !important;
+}
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(153, 50, 204, 0.65) rgba(255,255,255,0.55);
+}
+
+*::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+*::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.58);
+    border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(153,50,204,0.95), rgba(123,31,162,0.88));
+    border: 2px solid rgba(255,255,255,0.75);
+    border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, rgba(153,50,204,1), rgba(123,31,162,1));
+}
+
+.top-bar {
+    height: 82px !important;
+    background: rgba(255,255,255,0.84) !important;
+    backdrop-filter: blur(18px) !important;
+    -webkit-backdrop-filter: blur(18px) !important;
+    border-bottom: 1px solid rgba(153,50,204,0.12) !important;
+    box-shadow: 0 16px 36px rgba(102, 32, 128, 0.12) !important;
+}
+
+.top-bar .bar-inner {
+    max-width: 1480px !important;
+    height: 82px !important;
+    padding: 0 28px !important;
+    gap: 18px !important;
+}
+
+.bar-logo-link,
+.bar-logo-text {
+    font-family: "Urbanist", sans-serif !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.03em;
+    color: var(--brand-primary) !important;
+}
+
+.bar-logo-text {
+    font-size: 1.8rem !important;
+}
+
+.main-nav {
+    gap: 10px !important;
+    margin-right: 18px !important;
+    padding: 8px !important;
+    background: rgba(255,255,255,0.86) !important;
+    border: 1px solid rgba(153,50,204,0.08) !important;
+    border-radius: 999px !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.82), 0 10px 24px rgba(153,50,204,0.08) !important;
+}
+
+.nav-link,
+.clients-toggle,
+.product-toggle {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 12px 16px !important;
+    border-radius: 999px !important;
+    font-weight: 700 !important;
+    color: #2f2440 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.nav-link:hover,
+.nav-link:focus,
+.clients-toggle:hover,
+.clients-toggle:focus,
+.product-toggle:hover,
+.product-toggle:focus {
+    background: linear-gradient(135deg, rgba(153,50,204,0.12), rgba(153,50,204,0.04)) !important;
+    color: var(--brand-primary) !important;
+}
+
+.clients-toggle,
+.product-toggle,
+.search-btn {
+    font-size: 0 !important;
+}
+
+.clients-toggle::before,
+.product-toggle::before {
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.clients-toggle::before { content: "Clientes"; }
+.product-toggle::before { content: "Producto"; }
+
+.clients-toggle::after,
+.product-toggle::after {
+    content: "\F282";
+    font-family: "bootstrap-icons";
+    font-size: 12px;
+    transition: transform 0.2s ease;
+}
+
+.clients-toggle[aria-expanded="true"]::after,
+.product-toggle[aria-expanded="true"]::after {
+    transform: rotate(180deg);
+}
+
+.search-container {
+    position: relative !important;
+    background: rgba(255,255,255,0.88) !important;
+    border: 1px solid rgba(153,50,204,0.12) !important;
+    border-radius: 999px !important;
+    padding: 6px 8px 6px 16px !important;
+    box-shadow: 0 14px 30px rgba(153,50,204,0.08) !important;
+}
+
+.search-input {
+    font-size: 15px !important;
+    color: #34253e !important;
+}
+
+.search-input::placeholder {
+    color: rgba(52,37,62,0.58) !important;
+}
+
+.search-btn {
+    width: 40px !important;
+    height: 40px !important;
+    background: linear-gradient(135deg, #fff, #f7ebfb) !important;
+    border: 1px solid rgba(153,50,204,0.14) !important;
+    color: var(--brand-primary) !important;
+    box-shadow: 0 8px 18px rgba(153,50,204,0.12) !important;
+}
+
+.search-btn::before {
+    content: "\F52A";
+    font-family: "bootstrap-icons";
+    font-size: 16px;
+}
+
+.search-btn i,
+.search-btn svg {
+    display: none !important;
+}
+
+.profile-btn,
+a.logout-button {
+    background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(245,235,251,0.96)) !important;
+    color: var(--brand-primary) !important;
+    border: 1px solid rgba(153,50,204,0.12) !important;
+    border-radius: 999px !important;
+    padding: 10px 16px !important;
+    font-weight: 800 !important;
+    box-shadow: 0 14px 28px rgba(153,50,204,0.12) !important;
+}
+
+.profile-dropdown,
+.nav-menu {
+    border: 1px solid rgba(153,50,204,0.1) !important;
+    border-radius: 18px !important;
+    box-shadow: 0 20px 40px rgba(75, 12, 110, 0.15) !important;
+    padding: 10px !important;
+}
+
+.profile-dropdown .dropdown-item,
+.nav-menu .nav-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    border-radius: 12px !important;
+    font-weight: 700 !important;
+}
+
+.profile-dropdown .dropdown-item:hover,
+.nav-menu .nav-item:hover {
+    background: rgba(153,50,204,0.08) !important;
+}
+
+.giant-frame {
+    background: rgba(255,255,255,0.92) !important;
+    border: 1px solid rgba(255,255,255,0.58) !important;
+    box-shadow: 0 30px 60px rgba(78,22,116,0.16) !important;
+    backdrop-filter: blur(12px) !important;
 }
 /* Move the 3-line hamburger button to the right so it doesn't overlap the text logo */
 .top-bar .bar-toggle{ left: 140px; }
