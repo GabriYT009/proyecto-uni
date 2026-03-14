@@ -9,6 +9,8 @@ urlpatterns = [
     path('cliente/registrar/', views.crear_cliente, name='registrar_cliente'),
     path('cliente/crear_usuario/', views.crear_usuario, name='crear_usuario'),
     path('producto/registrar/', views.crear_Productoo, name='registrar_producto'),
+    # Compatibilidad antigua
+    path('registrar/', RedirectView.as_view(pattern_name='registrar_producto', permanent=False)),
     path('catalogo/', views.catalog, name='catalog'),
     path('perfil/', views.perfil, name='perfil'),
     path('carrito/', views.carrito, name='carrito'),
