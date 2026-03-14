@@ -321,12 +321,10 @@
                 {% for product in Productos %}
                 <div class="card">
                     {% if product.imagen_producto %}
-                        {% with img_src=product.imagen_producto.url %}
+                        <img src="{{ product.imagen_producto.url }}" alt="{{ product.nombre_producto }}" class="view" loading="lazy" decoding="async" data-id="{{ product.id }}" data-title="{{ product.nombre_producto }}" data-img="{{ product.imagen_producto.url }}" data-desc="{{ product.descripcion }}" data-price="$ {{ product.precio_venta }}" role="button" tabindex="0" style="cursor:pointer;" onerror="this.onerror=null;this.src='{% static 'assets/img/logo.png' %}';">
                     {% else %}
-                        {% with img_src=static('assets/img/logo.png') %}
+                        <img src="{% static 'assets/img/logo.png' %}" alt="{{ product.nombre_producto }}" class="view" loading="lazy" decoding="async" data-id="{{ product.id }}" data-title="{{ product.nombre_producto }}" data-img="{% static 'assets/img/logo.png' %}" data-desc="{{ product.descripcion }}" data-price="$ {{ product.precio_venta }}" role="button" tabindex="0" style="cursor:pointer;">
                     {% endif %}
-                        <img src="{{ img_src }}" alt="{{ product.nombre_producto }}" class="view" loading="lazy" decoding="async" data-id="{{ product.id }}" data-title="{{ product.nombre_producto }}" data-img="{{ img_src }}" data-desc="{{ product.descripcion }}" data-price="$ {{ product.precio_venta }}" role="button" tabindex="0" style="cursor:pointer;" onerror="this.onerror=null;this.src='{{ static('assets/img/logo.png') }}';">
-                    {% endwith %}
                     
                     <h4 class="view" data-id="{{ product.id }}" role="button" tabindex="0" style="cursor:pointer;">{{ product.nombre_producto }}</h4>
                     <p>{{ product.descripcion }}</p>
