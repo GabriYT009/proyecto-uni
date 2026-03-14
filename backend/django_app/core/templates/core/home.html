@@ -563,8 +563,8 @@
                 {% for product in Productos %}
                     {% if product.status_producto %}
                         <div class="card featured-card">
-                            {% if product.imagen_producto %}
-                                <img src="{{ product.imagen_producto.url }}" alt="{{ product.nombre_producto }}" class="view" loading="lazy" decoding="async" data-id="{{ product.pk }}" data-title="{{ product.nombre_producto }}" data-img="{{ product.imagen_producto.url }}" data-desc="{{ product.descripcion }}" data-price="$ {{ product.precio_venta }}" role="button" tabindex="0" style="cursor:pointer;" onerror="this.onerror=null;this.src='{% static \"assets/img/logo.png\" %}';">
+                            {% if product.img_url %}
+                                <img src="{{ product.img_url }}" alt="{{ product.nombre_producto }}" class="view" loading="lazy" decoding="async" data-id="{{ product.pk }}" data-title="{{ product.nombre_producto }}" data-img="{{ product.img_url }}" data-desc="{{ product.descripcion }}" data-price="$ {{ product.precio_venta }}" role="button" tabindex="0" style="cursor:pointer;" onerror="this.onerror=null;this.src='{% static 'assets/img/logo.png' %}';">
                             {% else %}
                                 <div class="img-placeholder">Sin imagen</div>
                             {% endif %}
@@ -747,17 +747,18 @@
         </div>
     </div>
 
-    <script src="{% static 'js/catalog.js' %}"></script>
     <script>
-        // provide the same products array used on catalog page
-        products = {{ Productos_json|safe }};
-        console.log('Products loaded (home):', products && products.length);
+        // expose products before catalog.js initializes
+        window.products = {{ Productos_json|safe }};
+        try { localStorage.setItem('products', JSON.stringify(window.products)); } catch(e) {}
+        console.log('Products loaded (home):', window.products && window.products.length);
     </script>
+    <script src="{% static 'js/catalog.js' %}"></script>
     <script>
         // bind server-rendered product elements to the products array
         (function(){
             try {
-                const prods = window.products || products || [];
+                const prods = window.products || [];
                 if (!prods || !prods.length) return;
                 function normalize(p){
                     return {
