@@ -1,0 +1,606 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <script>
+        // Evitar diálogos alert bloqueantes heredados de JS antiguo
+        window.alert = function(msg){ try{ console.log('alert suppressed:', msg); }catch(e){} };
+    </script>
+    <title>Carrito</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        /* Giant frame around everything */
+        .giant-frame {
+            border-radius: 25px;
+            margin: 40px auto;
+            padding: 50px;
+    <script>
+        // Product dropdown toggle (carrito page)
+        (function(){
+            const pt = document.getElementById('productToggle');
+            const pd = document.getElementById('productDropdown');
+            if(!pt || !pd) return;
+            function closeP(){ pd.classList.remove('show'); pt.setAttribute('aria-expanded','false'); pd.setAttribute('aria-hidden','true'); }
+            pt.addEventListener('click', function(e){ e.stopPropagation(); const opened = pd.classList.toggle('show'); pt.setAttribute('aria-expanded', opened ? 'true' : 'false'); pd.setAttribute('aria-hidden', opened ? 'false' : 'true'); });
+            document.addEventListener('click', function(e){ if(!pt.contains(e.target) && !pd.contains(e.target)) closeP(); });
+            document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeP(); });
+        })();
+    </script>
+            background: #fff;
+            box-shadow: 0 0 50px rgba(255, 105, 180, 0.3);
+            max-width: 1000px;
+            width: 90%;
+        }
+
+        body{
+            position: relative;
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #E1BEE7, #EFEFEF);
+            margin:0;
+            color:#000;
+            min-height:100vh;
+            padding-top:100px; /* leave space for top bar */
+        }
+
+        /* top full-width bar */
+        .top-bar{ position: fixed; top:0; left:0; right:0; height:70px; background:#fff; border-bottom:1px solid rgba(0,0,0,0.06); z-index:10000; transition: all 240ms cubic-bezier(.2,.9,.2,1); box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .top-bar .bar-inner{ max-width:1400px; margin:0 auto; height:70px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; position:relative; }
+        .top-bar .btn{ background:transparent; color:#9932CC; border:1px solid rgba(153,50,204,0.12); padding:8px 14px; border-radius:8px; }
+
+        /* collapsed (minimized) top-bar to corner - only on mobile */
+        .top-bar.collapsed{ left:12px; right:auto; width:56px; height:56px; border-radius:10px; padding:6px; border-bottom: none; box-shadow:0 6px 18px rgba(0,0,0,0.08); }
+        .top-bar.collapsed .bar-inner{ display:none; }
+        .bar-logo-link{ display:flex; align-items:center; font-size:24px; font-weight:700; color:#9932CC; text-decoration:none; }
+        .bar-logo-text{ font-size:24px; font-weight:700; color:#9932CC; }
+
+        /* Search container */
+        .search-container{ display:flex; align-items:center; background:#f5f5f5; border-radius:25px; padding:5px; width:400px; }
+        .search-input{ flex:1; border:none; background:transparent; padding:8px 15px; font-size:16px; outline:none; }
+        .search-btn{ background:#fff; color:#9932CC; border:none; border-radius:20px; width:35px; height:35px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; margin-right:5px; }
+        .cart-link-inline{ margin-left:5px; }
+        .cart-link-inline{ position:relative; display:inline-block; }
+        .cart-link-inline .cart-icon{ width:24px; height:24px; object-fit:contain; display:block; }
+        .cart-count{ position:absolute; top:-5px; right:-5px; background:#9932CC; color:#fff; border-radius:50%; padding:2px 6px; font-size:12px; font-weight:600; }
+
+        /* Main navigation */
+        .main-nav{ display:flex; gap:30px; margin-right:30px; }
+        .nav-link{ color:#333; text-decoration:none; font-weight:600; font-size:16px; padding:8px 12px; border-radius:6px; transition: all 0.3s ease; }
+        .nav-link:hover{ background:#f0f0f0; color:#9932CC; }
+
+        .bar-toggle{ display:none; /* hide on desktop */ }
+        /* cuando la barra está colapsada mostrar logo dentro del contenedor pequeño */
+        .top-bar.collapsed .bar-logo-link{ left:8px; top:8px; z-index:10003; }
+        .top-bar.collapsed .bar-logo-link img.bar-logo{ width:28px; height:28px; border-radius:6px; }
+        /* colocar el toggle a la derecha dentro del contenedor colapsado para poder expandir de nuevo */
+        .top-bar.collapsed .bar-toggle{ left:auto; right:8px; top:8px; z-index:10004; }
+        .bar-toggle .hamburger{ width:20px; height:14px; position:relative; display:inline-block; }
+        .bar-toggle .hamburger span{ position:absolute; left:0; right:0; height:2px; background:#9932CC; border-radius:2px; }
+        .bar-toggle .hamburger span:nth-child(1){ top:0; }
+        .bar-toggle .hamburger span:nth-child(2){ top:6px; }
+        .bar-toggle .hamburger span:nth-child(3){ top:12px; }
+        .top-bar.collapsed .bar-toggle{ display:flex; }
+
+        /* username display: keep positioning only so logout-button styles apply */
+        .user-name{ position:relative; z-index:10002; }
+        /* profile dropdown */
+        .profile-menu{ position:relative; display:inline-block; }
+        .profile-btn{ background: #ffffff; color: #9932CC; padding: 8px 12px; border-radius: 20px; border: none; font-weight:600; display:flex; align-items:center; gap:8px; cursor:pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
+        .profile-btn:focus{ outline:2px solid rgba(153,50,204,0.12); }
+        .profile-dropdown{ position:absolute; right:0; top:calc(100% + 8px); background:#fff; border:1px solid rgba(0,0,0,0.06); border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.08); display:none; min-width:160px; z-index:10005; padding:6px 0; }
+        .profile-dropdown.show{ display:block; }
+        .profile-dropdown .dropdown-item{ display:block; padding:8px 12px; color:#333; text-decoration:none; font-weight:600; font-size:16px; border-radius:6px; transition: all 0.3s ease; }
+        .profile-dropdown .dropdown-item:hover{ background:#f0f0f0; color:#9932CC; }
+        .top-bar.collapsed .user-name{ display:none; }
+        /* nav menu for hamburger (3-line) */
+        .nav-menu{ position:absolute; left:12px; top:64px; background:#fff; border:1px solid rgba(0,0,0,0.06); border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.08); display:none; z-index:10006; min-width:180px; }
+        .nav-menu.show{ display:block; }
+        .nav-menu .nav-item{ display:block; padding:10px 12px; color:#333; text-decoration:none; font-weight:700; }
+        .nav-menu .nav-item:hover{ background:#f7f7f7; }
+        /* groups inside bar-inner */
+        .bar-inner .group{ display:flex; align-items:center; gap:15px; }
+        .bar-inner .bar-left{ flex:0 0 auto; }
+        .bar-inner .bar-center{ flex:1 1 auto; display:flex; justify-content:center; }
+        .bar-inner .bar-right{ flex:0 0 auto; }
+
+        a.logout-button{
+            display:inline-block;
+            background: #ffffff;
+            color: #9932CC;
+            padding: 8px 14px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+        }
+        /* avatar next to username */
+        .avatar{ width:24px; height:24px; border-radius:50%; object-fit:cover; vertical-align:middle; margin-right:8px; }
+        a.logout-button:hover{ box-shadow: 0 4px 10px rgba(0,0,0,0.16); }
+
+        /* Cart page specific styles */
+        .card-body h2 {
+            text-align: center;
+            color: #9932CC;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+
+        /* Purchase card (match comprar_producto styles) */
+        .product-card{ background:#fff; padding:24px; border-radius:12px; box-shadow:0 8px 30px rgba(0,0,0,0.06); }
+        .product-image{ max-width:160px; max-height:160px; width:100%; height:auto; object-fit:contain; border-radius:8px; background:#fff; padding:6px; box-shadow:0 4px 14px rgba(0,0,0,0.06); }
+        .btn-primary{ background:#9932CC; border:none; color:#fff; padding:8px 12px; border-radius:8px; }
+        .note{ color:#666; font-size:14px; }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        /* Improved product row layout for cart */
+        .product-row{
+            display:flex;
+            gap:16px;
+            align-items:center;
+            padding:14px 12px;
+            border-bottom:1px solid rgba(0,0,0,0.06);
+        }
+        .product-row img{
+            width:110px;
+            height:110px;
+            object-fit:contain;
+            border-radius:8px;
+            background:#fff;
+            padding:8px;
+            box-shadow:0 6px 18px rgba(0,0,0,0.06);
+            flex:0 0 110px;
+        }
+        .product-row > div{ min-width:0; }
+        .product-row .info{ flex:1; overflow:hidden; }
+        .product-row .info strong{ display:block; font-size:1.05rem; color:#222; margin-bottom:6px; }
+        .product-row .info .desc{ color:#666; font-size:0.95rem; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .product-row .actions{ text-align:right; min-width:120px; }
+        .product-row .actions .price{ font-weight:700; font-size:1.05rem; color:#333; margin-bottom:8px; }
+        .product-row .actions .btn{ display:inline-block; background:transparent; border:1px solid rgba(153,50,204,0.12); color:#9932CC; padding:6px 10px; border-radius:8px; text-decoration:none; }
+
+        @media (max-width:600px){
+            .product-row{ flex-direction:row; gap:12px; padding:10px; }
+            .product-row img{ width:80px; height:80px; flex:0 0 80px; }
+            .product-row .actions{ min-width:90px; }
+            .card-body{ padding:18px; }
+        }
+        /* Modal confirm styles */
+        .modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,0.45); display:none; align-items:center; justify-content:center; z-index:20000; }
+        .modal-backdrop.show{ display:flex; }
+        .modal{ background:#fff; border-radius:12px; padding:18px; max-width:680px; width:94%; box-shadow:0 12px 40px rgba(0,0,0,0.2); }
+        .modal h3{ margin-top:0; color:#9932CC; }
+        .modal .items{ max-height:320px; overflow:auto; margin:12px 0; }
+        .modal .item{ display:flex; justify-content:space-between; gap:12px; padding:8px 6px; border-bottom:1px solid #eee; }
+        .modal .total{ text-align:right; font-weight:700; margin-top:8px; }
+        .modal .actions{ display:flex; gap:8px; justify-content:flex-end; margin-top:12px; }
+        .modal .btn-cancel{ background:transparent; border:1px solid rgba(0,0,0,0.08); padding:8px 12px; border-radius:8px; }
+        .modal .btn-confirm{ background:#9932CC; color:#fff; border:none; padding:8px 12px; border-radius:8px; }
+    </style>
+</head>
+<body>
+    <div id="welcomeAlert" role="status" aria-live="polite" style="display:none">Bienvenido — Has iniciado sesión correctamente.</div>
+
+    <div class="top-bar" id="topBar">
+        <div class="bar-inner">
+            <div class="group bar-left">
+                <a href="{% url 'home' %}" class="bar-logo-link" aria-label="Inicio">
+                    <span class="bar-logo-text">Solucionarte</span>
+                </a>
+            </div>
+
+            <div class="group bar-center">
+
+                <nav class="main-nav">
+                    <a href="{% url 'catalog' %}" class="nav-link">Catálogo</a>
+                    <div class="clients-menu" style="position:relative;">
+                        <button id="clientsToggle" class="nav-link clients-toggle" aria-haspopup="true" aria-expanded="false">Clientes ▾</button>
+                        <div id="clientsDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
+                            <a href="{% url 'todos_clientes' %}" class="dropdown-item">Ver clientes</a>
+                            {% if 'admin' in user_groups %}
+                                <!-- Registrar Cliente removed from dropdown -->
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="product-menu" style="position:relative;">
+                        <button id="productToggle" class="nav-link product-toggle" aria-haspopup="true" aria-expanded="false">Producto ▾</button>
+                        <div id="productDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
+                            {% if 'admin' in user_groups %}
+                                <a href="{% url 'registrar_producto' %}" class="dropdown-item">Crear Producto</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {%  if 'admin' in user_groups %}
+                        <!-- Crear Producto removed from top nav -->
+                        <a href="{% url 'inventario' %}" class="nav-link">Inventario</a>
+                    {% endif %}
+                    {% if 'admin' in user_groups or 'cajero' in user_groups %}
+                        <a href="#" class="nav-link">Caja</a>
+                    {% endif %}
+                </nav>
+
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Buscar productos..." id="searchInput">
+                    <button class="search-btn">🔍</button>
+                    <a href="{% url 'carrito' %}" class="cart-link-inline" aria-label="Carrito">
+                        <img src="{% static 'core/carrito.png' %}" alt="Carrito" class="cart-icon">
+                        <span id="cart-count" class="cart-count">{{ cart_count }}</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="group bar-right">
+                {% if user.is_authenticated %}
+                    <div class="profile-menu">
+                        <button id="profileToggle" class="profile-btn" aria-haspopup="true" aria-expanded="false">
+                            <img src="{% static 'core/avatar.png' %}" alt="Avatar" class="avatar">{{ user.username }}
+                        </button>
+                        <div id="profileDropdown" class="profile-dropdown" role="menu" aria-hidden="true">
+                            <a href="{% url 'perfil' %}" class="dropdown-item">Mi perfil</a>
+                        
+                            <a href="{% url 'historial_compras' %}" class="dropdown-item">Historial de compras</a>
+                            <a href="{% url 'logout' %}" class="dropdown-item">Cerrar sesión</a>
+                        </div>
+                    </div>
+                {% else %}
+                    <a id="profileBtn" class="logout-button" href="{% url 'perfil' %}">Perfil</a>
+                {% endif %}
+            </div>
+        </div>
+        <button id="barToggle" class="bar-toggle" aria-expanded="true" aria-label="Alternar barra">
+            <span class="hamburger">
+                <span></span><span></span><span></span>
+            </span>
+        </button>
+        <div id="barNavMenu" class="nav-menu" role="menu" aria-hidden="true">
+            <a class="nav-item" href="{% url 'catalog' %}">Ver catálogo</a>
+            <a class="nav-item" href="{% url 'todos_clientes' %}">Ver clientes</a>
+            <!-- Registración de cliente eliminada del menú móvil -->
+            <a class="nav-item" href="{% url 'registrar_producto' %}">Registrar producto</a>
+        </div>
+    </div>
+
+    </div>
+                    <script>
+        // mostrar alerta si venimos del login
+        (function(){
+            if (sessionStorage.getItem('showWelcome')) {
+                const a = document.getElementById('welcomeAlert');
+                a.classList.add('show');
+                sessionStorage.removeItem('showWelcome');
+                setTimeout(()=> a.classList.remove('show'), 5000);
+            }
+        })();
+    </script>
+    <script>
+        // Hamburger nav menu
+        (function(){
+            const navToggle = document.getElementById('barToggle');
+            const navMenu = document.getElementById('barNavMenu');
+            if(!navToggle || !navMenu) return;
+
+            function closeNav(){
+                navMenu.classList.remove('show');
+                navMenu.setAttribute('aria-hidden','true');
+            }
+
+            navToggle.addEventListener('click', function(e){
+                e.stopPropagation();
+                const opened = navMenu.classList.toggle('show');
+                navMenu.setAttribute('aria-hidden', opened ? 'false' : 'true');
+            });
+
+            document.addEventListener('click', function(e){
+                if(!navToggle.contains(e.target) && !navMenu.contains(e.target)) closeNav();
+            });
+            document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeNav(); });
+        })();
+    </script>
+    <script>
+        // Profile dropdown
+        (function(){
+            const toggle = document.getElementById('profileToggle');
+            const dropdown = document.getElementById('profileDropdown');
+            if(!toggle || !dropdown) return;
+
+            function closeMenu(){
+                dropdown.classList.remove('show');
+                toggle.setAttribute('aria-expanded','false');
+                dropdown.setAttribute('aria-hidden','true');
+            }
+
+            toggle.addEventListener('click', function(e){
+                e.stopPropagation();
+                const opened = dropdown.classList.toggle('show');
+                toggle.setAttribute('aria-expanded', opened ? 'true' : 'false');
+                dropdown.setAttribute('aria-hidden', opened ? 'false' : 'true');
+            });
+
+            document.addEventListener('click', function(e){
+                if(!toggle.contains(e.target) && !dropdown.contains(e.target)){
+                    closeMenu();
+                }
+            });
+
+            document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeMenu(); });
+        })();
+    </script>
+        <script>
+            // Category dropdown
+            (function(){
+                const catToggle = document.getElementById('categoryToggle');
+                const catDropdown = document.getElementById('categoryDropdown');
+                if(!catToggle || !catDropdown) return;
+
+                function closeCat(){
+                    catDropdown.classList.remove('show');
+                    catToggle.setAttribute('aria-expanded','false');
+                    catDropdown.setAttribute('aria-hidden','true');
+                }
+
+                catToggle.addEventListener('click', function(e){
+                    e.stopPropagation();
+                    const opened = catDropdown.classList.toggle('show');
+                    catToggle.setAttribute('aria-expanded', opened ? 'true' : 'false');
+                    catDropdown.setAttribute('aria-hidden', opened ? 'false' : 'true');
+                });
+
+                document.addEventListener('click', function(e){
+                    if(!catToggle.contains(e.target) && !catDropdown.contains(e.target)) closeCat();
+                });
+                document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeCat(); });
+            })();
+        </script>
+    <script>
+        // Toggle top-bar
+        (function(){
+            try{ localStorage.removeItem('topBarCollapsed'); }catch(e){}
+            const topBar = document.getElementById('topBar');
+            const toggle = document.getElementById('barToggle');
+
+            function setCollapsed(collapsed){
+                if(collapsed){
+                    topBar.classList.add('collapsed');
+                    toggle.setAttribute('aria-expanded','false');
+                } else {
+                    topBar.classList.remove('collapsed');
+                    toggle.setAttribute('aria-expanded','true');
+                }
+            }
+
+            toggle.addEventListener('click', function(e){
+                topBar.classList.remove('collapsed');
+                toggle.setAttribute('aria-expanded','true');
+            });
+        })();
+    </script>
+
+    <script>
+        // Carrito functionality
+        
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('remove')) {
+                const id = e.target.dataset.id;
+
+            }
+        });
+
+        // Clear search input when page loads (for navigation)
+        document.getElementById('searchInput').value = '';
+
+        // Handle Enter key to search
+        document.getElementById('searchInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const query = e.target.value.trim();
+                if (query) {
+                    window.location.href = `/catalogo/?search=${encodeURIComponent(query)}`;
+                } else {
+                    window.location.href = '/catalogo/';
+                }
+            }
+        });
+    </script>
+
+    <script>
+        // Clients dropdown toggle
+        (function(){
+            const toggle = document.getElementById('clientsToggle');
+            const dropdown = document.getElementById('clientsDropdown');
+            if(!toggle || !dropdown) return;
+            function close(){ dropdown.classList.remove('show'); toggle.setAttribute('aria-expanded','false'); dropdown.setAttribute('aria-hidden','true'); }
+            toggle.addEventListener('click', function(e){ e.stopPropagation(); const opened = dropdown.classList.toggle('show'); toggle.setAttribute('aria-expanded', opened ? 'true' : 'false'); dropdown.setAttribute('aria-hidden', opened ? 'false' : 'true'); });
+            document.addEventListener('click', function(e){ if(!toggle.contains(e.target) && !dropdown.contains(e.target)) close(); });
+            document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
+        })();
+    </script>
+
+        <div class="card">
+            <div class="card-body" style="padding:30px;">
+                <div class="product-card">
+                    <h2 style="color:#9932CC; margin-top:0; text-transform:uppercase;">CARRITO DE COMPRAS</h2>
+                    <p class="note">Aquí puedes revisar las cantidades y proceder al pago para todos los productos del carrito.</p>
+                    {% if Productos and Productos|length > 0 %}
+                        <form id="cartPurchaseForm" method="post" action="{% url 'comprar_carrito' %}" style="display:flex; flex-direction:column; gap:12px; margin-top:12px;">
+                            {% csrf_token %}
+                            {% for p in Productos %}
+                                <div class="product-row">
+                                    {% if p.img_url %}
+                                        <img src="{{ p.img_url }}" alt="{{ p.nombre_producto }}">
+                                    {% endif %}
+                                    <div class="info">
+                                        <strong>{{ p.nombre_producto }}</strong>
+                                        <div class="desc">{{ p.descripcion }}</div>
+                                    </div>
+                                    <div class="actions">
+                                        <div class="price">Precio: $ {{ p.precio_venta }}</div>
+                                        <div style="display:flex; gap:6px; justify-content:flex-end; align-items:center;">
+                                            <button type="button" class="btn btn-qty" data-id="{{ p.pk }}" data-action="dec" aria-label="Disminuir cantidad">−</button>
+                                            <input type="number" 
+                                                id="cantidad_{{ p.pk }}" 
+                                                name="cantidad_{{ p.pk }}" 
+                                                min="1" 
+                                                value="{{ p.cantidad_en_carrito|default:'1' }}" 
+                                                max="{{ p.cantidad_disponible|default:'0' }}"
+                                                oninput="if(parseInt(this.value) > parseInt(this.max)) this.value = this.max;"
+                                            
+
+                                            style="width:80px; text-align:center;" aria-label="Cantidad del producto {{ p.nombre_producto }}" />
+                                            <button type="button" class="btn btn-qty" data-id="{{ p.pk }}" data-action="inc" aria-label="Aumentar cantidad">+</button>
+
+                                            <a href="{% url 'remove_from_cart' p.id %}" class="btn">Eliminar</a>
+                                        </div>
+                                        <!--quité max="{{ p.cantidad_disponible|default:'0' }}" va en el espacio luego del input, esto para que no muestre la cantidad que hay en el stock-->
+                                    </div>
+                                </div>
+                                
+                            {% endfor %}
+                            <div style="display:flex; justify-content:right" id="total">Total: $ 0.00</div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
+                                
+                                <div class="note">Verifica las cantidades antes de confirmar la compra.</div>
+                                <div>
+                                    <button type="submit" class="btn-primary" id="purchase-all">Comprar todos los productos</button>
+                                </div>
+                            </div>
+                        </form>
+                    {% else %}
+                        <div class="empty" style="margin-top:12px;"><p>Tu carrito está vacío.</p></div>
+                    {% endif %}
+                </div>
+
+
+                <script>
+                    (function(){
+
+                        function recalcularTotal() {
+                            var inputs = document.querySelectorAll('input[name^="cantidad_"]');
+                            var granTotal = 0;
+                            
+                            inputs.forEach(function(inp){
+                                var v = parseInt(inp.value,10) || 0;
+                                var pid = inp.id.replace('cantidad_','');
+                                
+                                var row = document.getElementById('cantidad_' + pid).closest('.product-row');
+                                if(row) {
+                                    var priceText = '0';
+                                    try{ 
+                                        priceText = row.querySelector('.price').textContent.replace('Precio:','').replace('$','').trim(); 
+                                    }catch(err){}
+                                    var price = parseFloat(priceText) || 0;
+                                    granTotal += (price * v);
+                                }
+                            });
+                            
+                        
+                        
+                            var divTotal = document.getElementById('total');
+                                        if (divTotal) {
+                                            divTotal.textContent = 'Total: $ ' + granTotal;
+                                        }
+                                    }
+
+                        
+                        // Escuchar los clics en los botones + y -
+                                document.querySelectorAll('.btn-qty').forEach(function(b){
+                                    b.addEventListener('click', function(){
+                                        var id = this.dataset.id;
+                                        var action = this.dataset.action;
+                                        var inp = document.getElementById('cantidad_' + id);
+                                        if (!inp) return;
+                                        var v = parseInt(inp.value,10) || 0;
+                                        var max = parseInt(inp.max,10) || 0;
+                                        if (action === 'inc' && (max === 0 || v < max)) inp.value = v + 1;
+                                        if (action === 'dec' && v > 1) inp.value = v - 1;
+                                        
+                                        // Recalcular inmediatamente después del clic
+                                        recalcularTotal();
+                                    });
+                                });
+
+                                // Escuchar si el usuario escribe el número con el teclado
+                                document.querySelectorAll('input[name^="cantidad_"]').forEach(function(inp){
+                                    inp.addEventListener('input', recalcularTotal);
+                                });
+                                recalcularTotal();
+
+
+
+                        // Validate quantities before submitting the combined purchase
+                        var form = document.getElementById('cartPurchaseForm');
+                        if (form) {
+                            form.addEventListener('submit', function(e){
+                                e.preventDefault();
+                                var invalid = false;
+                                var msgs = [];
+                                var inputs = form.querySelectorAll('input[name^="cantidad_"]');
+                                var items = [];
+                                inputs.forEach(function(inp){
+                                    var v = parseInt(inp.value,10) || 0;
+                                    var max = parseInt(inp.max,10) || 0;
+                                    var pid = inp.id.replace('cantidad_','');
+                                    var row = document.getElementById('cantidad_' + pid).closest('.product-row');
+                                    var name = 'Producto ' + pid;
+                                    try{ name = row.querySelector('.info strong').textContent.trim(); }catch(err){}
+                                    var priceText = '0';
+                                    try{ priceText = row.querySelector('.price').textContent.replace('Precio:','').replace('$','').trim(); }catch(err){}
+                                    var price = parseFloat(priceText) || 0;
+                                    if (v < 1) { invalid = true; msgs.push('Cantidad mínima para ' + name + ' es 1.'); }
+                                    if (max > 0 && v > max) { invalid = true; msgs.push('Cantidad solicitada para ' + name + ' supera el stock (' + max + ').'); }
+                                    items.push({id: pid, name: name, qty: v, price: price});
+                                });
+                                if (invalid) {
+                                    alert(msgs.join('\n'));
+                                    return false;
+                                }
+
+                                // build and open confirmation modal
+                                var modal = document.getElementById('purchaseConfirmModal');
+                                var list = modal.querySelector('.items');
+                                list.innerHTML = '';
+                                var total = 0;
+                                items.forEach(function(it){
+                                    var line = document.createElement('div');
+                                    line.className = 'item';
+                                    line.innerHTML = '<div>' + it.name + ' × ' + it.qty + '</div><div>$ ' + (it.price * it.qty).toFixed(2) + '</div>';
+                                    list.appendChild(line);
+                                    total += it.price * it.qty;
+                                });
+                                modal.querySelector('.total').textContent = 'Total: $ ' + total.toFixed(2);
+                                modal.classList.add('show');
+
+                                // wire confirm/cancel
+                                var btnCancel = modal.querySelector('.btn-cancel');
+                                var btnConfirm = modal.querySelector('.btn-confirm');
+                                btnCancel.onclick = function(){ modal.classList.remove('show'); };
+                                btnConfirm.onclick = function(){
+                                    // Redirect to pago_movil page where user will complete mobile payment
+                                    modal.classList.remove('show');
+                                    form.action = "{% url 'pago_movil' %}";
+                                    form.submit();
+                                };
+                            });
+                        }
+                    })();
+                </script>
+                <!-- Purchase confirmation modal -->
+                <div id="purchaseConfirmModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
+                    <div class="modal" role="document">
+                        <h3>Confirma tu compra</h3>
+                        <div class="note">Revisa los productos y cantidades antes de confirmar.</div>
+                        <div class="items" aria-live="polite"></div>
+                        <div class="total">Total: $ 0.00</div>
+                        <div class="actions">
+                            <button type="button" class="btn-cancel">Cancelar</button>
+                            <button type="button" class="btn-confirm">Confirmar compra</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Mobile payment flow moved to separate page (pago_movil) -->
+            </div>
+        </div>
+</body>
+</html>

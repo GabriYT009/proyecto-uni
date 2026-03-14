@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # After consolidating repository under the `django_app` folder,
@@ -28,17 +29,30 @@ SECRET_KEY = 'django-insecure-@%i@jah3u_9f!b*vpzdx(15!xw9c@9187mt%n&4o994j!to=!s
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# Allow Render's hostname (and/or any host via env var) to access the app.
+# Allow host from Railway (RAILWAY_PUBLIC_DOMAIN), Render (RENDER_EXTERNAL_HOSTNAME), or env.
 # In development, also allow localhost + 127.0.0.1.
-ALLOWED_HOSTS = os.environ.get(
-    "ALLOWED_HOSTS",
-    "127.0.0.1,localhost,proyecto-uni-qcgl.onrender.com",
-).split(",")
+railway_host = os.environ.get("RAILWAY_PUBLIC_DOMAIN")
+render_host = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
+base_hosts = ["127.0.0.1", "localhost"]
+if railway_host:
+    base_hosts.append(railway_host)
+if render_host:
+    base_hosts.append(render_host)
 
-# Allow CSRF requests coming from the Render hostname (HTTPS)
-CSRF_TRUSTED_ORIGINS = [
-    "https://proyecto-uni-qcgl.onrender.com",
-]
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", ",".join(base_hosts)).split(",")
+
+# CSRF trusted origins: Railway, Render, or env.
+csrf_trusted = []
+if railway_host:
+    csrf_trusted.append(f"https://{railway_host}")
+if render_host:
+    csrf_trusted.append(f"https://{render_host}")
+
+csrf_env = os.environ.get("CSRF_TRUSTED_ORIGINS", "")
+if csrf_env:
+    csrf_trusted += [h.strip() for h in csrf_env.split(",") if h.strip()]
+
+CSRF_TRUSTED_ORIGINS = csrf_trusted
 
 
 # Application definition
@@ -92,12 +106,19 @@ WSGI_APPLICATION = 'wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# Use PostgreSQL if DATABASE_URL is set (e.g., on Render), otherwise use SQLite for local dev.
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600, ssl_require=True)
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation

@@ -1,0 +1,27 @@
+# Git and IDE
+.git
+.gitignore
+.cursor
+.vscode
+*.md
+env-transcripts
+agent-transcripts
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.venv
+venv
+env
+
+# Django
+*.sqlite3
+*.log
+staticfiles
+media
+
+# Local / OS
+.DS_Store
+Thumbs.db
