@@ -19,6 +19,7 @@
 
     <!-- Main CSS File -->
     <link href="{% static 'css/main.css' %}" rel="stylesheet">
+    <link href="{% static 'core/modern-theme.css' %}" rel="stylesheet">
 
     <style>
         body { 
@@ -257,6 +258,41 @@
         .dropdown-toggle:hover {
             background: #f0f0f0;
         }
+
+        /* Modern theme + loader */
+        body.ui-modern {
+            background:
+                radial-gradient(1100px 650px at 10% -15%, rgba(239, 90, 255, 0.24), transparent 56%),
+                radial-gradient(900px 560px at 90% 0%, rgba(140, 82, 255, 0.22), transparent 54%),
+                linear-gradient(160deg, #12071f 0%, #1b0f2f 45%, #261447 100%);
+            color: #efe8ff;
+        }
+        .ui-modern .top-bar{ background: rgba(23, 11, 40, 0.9); border-bottom: 1px solid rgba(205, 160, 255, 0.2); box-shadow: 0 12px 28px rgba(0,0,0,0.35); }
+        .ui-modern .giant-frame,
+        .ui-modern .inventory-header,
+        .ui-modern .table-responsive,
+        .ui-modern .search-container,
+        .ui-modern .profile-btn,
+        .ui-modern a.logout-button,
+        .ui-modern .profile-dropdown{ background: rgba(49, 27, 82, 0.9); border-color: rgba(206, 169, 255, 0.24); color:#f0e8ff; }
+        .ui-modern .nav-link,
+        .ui-modern .bar-logo-text,
+        .ui-modern .search-input,
+        .ui-modern .mdl-data-table td,
+        .ui-modern .product-info strong,
+        .ui-modern .product-info small{ color:#e7dafb; }
+        .ui-modern .mdl-data-table th { background: linear-gradient(140deg, #e155ff, #9546f0); }
+        .ui-modern .mdl-data-table tbody tr:hover { background: rgba(173, 99, 235, 0.22); }
+
+        #pageLoader {
+            position: fixed; inset: 0; z-index: 30000; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:12px;
+            background: radial-gradient(circle at 30% 20%, rgba(230, 88, 255, 0.22), transparent 45%), linear-gradient(160deg, rgba(18, 8, 33, 0.96), rgba(26, 12, 44, 0.98));
+            opacity:0; visibility:hidden; transition:opacity .28s ease, visibility .28s ease;
+        }
+        #pageLoader.show { opacity:1; visibility:visible; }
+        .loader-ring { width:54px; height:54px; border-radius:50%; border:3px solid rgba(255,194,255,0.25); border-top-color:#ee7bff; border-right-color:#9d5cff; animation:spin .8s linear infinite; }
+        #pageLoader p{ margin:0; color:#f4e7ff; font-weight:700; }
+        @keyframes spin { to { transform: rotate(360deg);} }
 
         .dropdown-menu {
             display: none;
@@ -511,7 +547,11 @@
         .floating-messages .msg.error{ background: #dc3545; }
     </style>
 </head>
-<body>
+<body class="ui-modern">
+    <div id="pageLoader" aria-hidden="true">
+        <div class="loader-ring" aria-hidden="true"></div>
+        <p>Cargando vista...</p>
+    </div>
     {% csrf_token %}
     
     <!-- Messages -->
@@ -1190,6 +1230,8 @@
             });
         }
     </script>
+
+    <script src="{% static 'core/page-loader.js' %}"></script>
 
 </body>
 </html>

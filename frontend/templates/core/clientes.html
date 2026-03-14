@@ -31,6 +31,7 @@
 
     <!-- Main CSS File -->
     <link href="{% static 'css/main.css' %}" rel="stylesheet">
+    <link href="{% static 'core/modern-theme.css' %}" rel="stylesheet">
 
     <meta name="csrf-token" content="{{ csrf_token }}">
     <style>
@@ -45,9 +46,37 @@
         .mdl-data-table td { padding: 12px 16px; border-bottom:1px solid #eee; color:#333; }
         .pagination.custom-pagination { display:inline-flex; gap:8px; list-style:none; padding:0; margin:16px auto; align-items:center; }
         .btn { background:#9932CC; color:#fff; padding:8px 12px; border-radius:8px; text-decoration:none; border:none; }
+
+        body.ui-modern{
+            background:
+                radial-gradient(1000px 620px at 10% -10%, rgba(239, 90, 255, 0.24), transparent 56%),
+                radial-gradient(820px 520px at 90% 0%, rgba(140, 82, 255, 0.2), transparent 54%),
+                linear-gradient(160deg, #12071f 0%, #1b0f2f 45%, #261447 100%);
+            color:#efe8ff;
+        }
+        .ui-modern .top-bar{ background: rgba(23,11,40,0.9) !important; border-bottom:1px solid rgba(205,160,255,0.2) !important; }
+        .ui-modern .giant-frame,
+        .ui-modern .table-responsive,
+        .ui-modern .inventory-header,
+        .ui-modern .profile-btn,
+        .ui-modern .profile-dropdown{ background: rgba(49,27,82,0.9) !important; color:#efe8ff !important; border-color: rgba(206,169,255,0.24) !important; }
+        .ui-modern .mdl-data-table th{ background: linear-gradient(140deg, #e155ff, #9546f0); }
+        .ui-modern .mdl-data-table td,
+        .ui-modern .nav-link,
+        .ui-modern .bar-logo-text{ color:#e7dafb !important; }
+
+        #pageLoader { position:fixed; inset:0; z-index:30000; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:12px; background: radial-gradient(circle at 30% 20%, rgba(230,88,255,0.22), transparent 45%), linear-gradient(160deg, rgba(18,8,33,0.96), rgba(26,12,44,0.98)); opacity:0; visibility:hidden; transition:opacity .28s ease, visibility .28s ease; }
+        #pageLoader.show { opacity:1; visibility:visible; }
+        .loader-ring { width:54px; height:54px; border-radius:50%; border:3px solid rgba(255,194,255,0.25); border-top-color:#ee7bff; border-right-color:#9d5cff; animation:spin .8s linear infinite; }
+        #pageLoader p{ margin:0; color:#f4e7ff; font-weight:700; }
+        @keyframes spin { to { transform: rotate(360deg);} }
     </style>
 </head>
-<body>
+<body class="ui-modern">
+    <div id="pageLoader" aria-hidden="true">
+        <div class="loader-ring" aria-hidden="true"></div>
+        <p>Cargando vista...</p>
+    </div>
     {% csrf_token %}
 
     {% if messages %}
@@ -242,6 +271,7 @@
                 document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeCat(); });
             })();
         </script>
+        <script src="{% static 'core/page-loader.js' %}"></script>
 
     </body>
     </html>

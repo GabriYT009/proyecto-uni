@@ -479,3 +479,42 @@ a.logout-button {
     /* On small screens, place cart to the left of the toggle (which is on the right) */
     .top-bar .cart-link{ left: auto; right: 56px; }
 }
+
+/* ===== Modern UI tokens and utilities (phase 1) ===== */
+:root {
+    --ui-bg-1: #12071f;
+    --ui-bg-2: #1b0f2f;
+    --ui-bg-3: #261447;
+    --ui-surface: rgba(42, 22, 72, 0.9);
+    --ui-surface-2: rgba(55, 30, 92, 0.9);
+    --ui-border: rgba(207, 164, 255, 0.24);
+    --ui-text: #eee7ff;
+    --ui-text-soft: #d6c7f4;
+    --ui-accent-1: #e155ff;
+    --ui-accent-2: #9546f0;
+}
+
+.ui-reveal-up {
+    animation: uiRevealUp .55s ease both;
+}
+
+.ui-fade-in {
+    animation: uiFadeIn .5s ease both;
+}
+
+@keyframes uiRevealUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes uiFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ui-reveal-up,
+    .ui-fade-in {
+        animation: none !important;
+    }
+}

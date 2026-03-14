@@ -21,6 +21,7 @@
 
     <!-- Main CSS File -->
     <link href="{% static 'css/main.css' %}" rel="stylesheet">
+    <link href="{% static 'core/modern-theme.css' %}" rel="stylesheet">
 
     <style>
         body { 
@@ -513,7 +514,7 @@
         .floating-messages .msg.error{ background: #dc3545; }
     </style>
 </head>
-<body>
+<body class="ui-modern">
     {% csrf_token %}
     
     <!-- Messages -->
