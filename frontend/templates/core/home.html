@@ -21,6 +21,8 @@
         :root{
             --home-desktop:#4d0a91;
             --home-nav:#1c013f;
+            --login-purple-start:rgba(72, 31, 106, 0.90);
+            --login-purple-end:rgba(51, 22, 80, 0.92);
             --home-hero:#000000;
             --home-hero-text:#ffffff;
             --home-surface:#ffffff;
@@ -67,7 +69,7 @@
             margin:0 auto 24px;
         }
         /* top full-width bar */
-        .top-bar{ position: fixed; top:0; left:0; right:0; height:70px; background:var(--home-nav); border-bottom:1px solid rgba(255,255,255,0.08); z-index:10000; transition: all 240ms cubic-bezier(.2,.9,.2,1); box-shadow: 0 10px 28px rgba(9, 1, 22, 0.34); }
+        .top-bar{ position: fixed; top:0; left:0; right:0; height:70px; background:linear-gradient(180deg, var(--login-purple-start) 0%, var(--login-purple-end) 100%); border-bottom:1px solid rgba(255,255,255,0.08); z-index:10000; transition: all 240ms cubic-bezier(.2,.9,.2,1); box-shadow: 0 10px 28px rgba(9, 1, 22, 0.34); }
         .top-bar .bar-inner{ max-width:1400px; margin:0 auto; height:70px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; position:relative; }
         .top-bar .btn{ background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.14); padding:8px 14px; border-radius:8px; }
 
