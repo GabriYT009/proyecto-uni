@@ -435,18 +435,32 @@ def crear_usuario(request):
 @admin_only
 
 def crear_Productoo(request):
-    if request.method == 'POST':
-        form = ProductForm(request.POST,request.FILES)
-        if form.is_valid():
-            producto = form.save()
-            messages.success(request, f'Producto "{producto.nombre_producto}" creado exitosamente.')
-            return redirect('inventario')  # Cambiado de 'catalog' a 'inventario'
-    else:
-        form = ProductForm()
-    return render(request, 'core/crear_Productoo.html', 
-                {'form': form,
-                'user_groups': list(request.user.groups.values_list('name', flat=True)),
-                'cart_count': len(request.session.get('cart', []))})
+    try:
+        if request.method == 'POST':
+            form = ProductForm(request.POST, request.FILES)
+            if form.is_valid():
+                producto = form.save()
+                messages.success(request, f'Producto "{producto.nombre_producto}" creado exitosamente.')
+                return redirect('inventario')  # Cambiado de 'catalog' a 'inventario'
+            else:
+                # Mostrar errores del formulario
+                messages.error(request, 'Por favor corrige los errores en el formulario.')
+        else:
+            form = ProductForm()
+
+    except Exception as e:
+        # En el caso de cualquier excepción, loguear y mostrar mensaje.
+        import traceback
+        print('Error en crear_Productoo:', e)
+        traceback.print_exc()
+        messages.error(request, f'Error al crear producto: {e}')
+        form = ProductForm(request.POST or None, request.FILES or None)
+
+    return render(request, 'core/crear_Productoo.html', {
+        'form': form,
+        'user_groups': list(request.user.groups.values_list('name', flat=True)),
+        'cart_count': len(request.session.get('cart', []))
+    })
 
 
 def catalog(request):
