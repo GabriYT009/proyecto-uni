@@ -542,7 +542,7 @@
                     {% if product.status_producto %}
                         <div class="card featured-card">
                             {% if product.imagen_producto %}
-                                <img src="{{ product.imagen_producto.url }}" alt="{{ product.nombre_producto }}" class="view" loading="lazy" decoding="async" data-id="{{ product.pk }}" data-title="{{ product.nombre_producto }}" data-img="{% if product.imagen_producto %}{{ product.imagen_producto.url }}{% endif %}" data-desc="{{ product.descripcion }}" data-price="$ {{ product.precio_venta }}" role="button" tabindex="0" style="cursor:pointer;">
+                                <img src="{{ product.imagen_producto.url }}" alt="{{ product.nombre_producto }}" class="view" loading="lazy" decoding="async" data-id="{{ product.pk }}" data-title="{{ product.nombre_producto }}" data-img="{{ product.imagen_producto.url }}" data-desc="{{ product.descripcion }}" data-price="$ {{ product.precio_venta }}" role="button" tabindex="0" style="cursor:pointer;">
                             {% else %}
                                 <div class="img-placeholder">Sin imagen</div>
                             {% endif %}

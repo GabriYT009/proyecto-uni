@@ -12,6 +12,7 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.db.models import Q, F
 from django.core.cache import cache
+from django.conf import settings
 import re
 import os
 import json
@@ -27,12 +28,17 @@ HOME_PRODUCTS_LIMIT = 24
 
 
 def _safe_img_url(producto):
+    fallback = settings.STATIC_URL + 'assets/img/logo.png'
     try:
         if producto.imagen_producto and producto.imagen_producto.url:
-            return producto.imagen_producto.url
+            try:
+                if producto.imagen_producto.path and os.path.exists(producto.imagen_producto.path):
+                    return producto.imagen_producto.url
+            except Exception:
+                pass
     except Exception:
         pass
-    return ''
+    return fallback
 
 
 def _cached_categories(timeout=300):
@@ -729,10 +735,7 @@ def caja(request):
     )
     # preparar imagen urls
     for p in productos:
-        try:
-            p.img_url = p.imagen_producto.url if p.imagen_producto and p.imagen_producto.url else ''
-        except Exception:
-            p.img_url = ''
+        p.img_url = _safe_img_url(p)
 
     # cargar clientes para autocompletar cedula
     from .models import Cliente

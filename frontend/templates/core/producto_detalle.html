@@ -434,7 +434,6 @@
     </div>
 
     <script>
-        <script>
             // Product dropdown toggle (producto_detalle page)
             (function(){
                 const pt = document.getElementById('productToggle');
@@ -445,36 +444,34 @@
                 document.addEventListener('click', function(e){ if(!pt.contains(e.target) && !pd.contains(e.target)) closeP(); });
                 document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeP(); });
             })();
-        
-        </script>
-        <!-- producto_detalle: Categoria dropdown removed -->
-        // Profile dropdown toggle + click-outside to close
-        (function(){
-            const toggle = document.getElementById('profileToggle');
-            const dropdown = document.getElementById('profileDropdown');
-            if(!toggle || !dropdown) return;
 
-            function closeMenu(){
-                dropdown.classList.remove('show');
-                toggle.setAttribute('aria-expanded','false');
-                dropdown.setAttribute('aria-hidden','true');
-            }
+            // Profile dropdown toggle + click-outside to close
+            (function(){
+                const toggle = document.getElementById('profileToggle');
+                const dropdown = document.getElementById('profileDropdown');
+                if(!toggle || !dropdown) return;
 
-            toggle.addEventListener('click', function(e){
-                e.stopPropagation();
-                const opened = dropdown.classList.toggle('show');
-                toggle.setAttribute('aria-expanded', opened ? 'true' : 'false');
-                dropdown.setAttribute('aria-hidden', opened ? 'false' : 'true');
-            });
-
-            document.addEventListener('click', function(e){
-                if(!toggle.contains(e.target) && !dropdown.contains(e.target)){
-                    closeMenu();
+                function closeMenu(){
+                    dropdown.classList.remove('show');
+                    toggle.setAttribute('aria-expanded','false');
+                    dropdown.setAttribute('aria-hidden','true');
                 }
-            });
 
-            document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeMenu(); });
-        })();
+                toggle.addEventListener('click', function(e){
+                    e.stopPropagation();
+                    const opened = dropdown.classList.toggle('show');
+                    toggle.setAttribute('aria-expanded', opened ? 'true' : 'false');
+                    dropdown.setAttribute('aria-hidden', opened ? 'false' : 'true');
+                });
+
+                document.addEventListener('click', function(e){
+                    if(!toggle.contains(e.target) && !dropdown.contains(e.target)){
+                        closeMenu();
+                    }
+                });
+
+                document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeMenu(); });
+            })();
     </script>
 
     <!-- Search functionality -->
