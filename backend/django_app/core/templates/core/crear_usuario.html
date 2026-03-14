@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Crear Usuario</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'core/modern-theme.css' %}">
     <style>
         body{ font-family: motserrat, sans-serif; margin:0; padding:24px; background: linear-gradient(150deg,#9932CC,#1E90FF); color:#fff; min-height:100vh; }
         .login-page{ display:flex; align-items:center; justify-content:center; min-height:80vh; }
@@ -62,7 +61,7 @@
         }
     </style>
 </head>
-<body class="login-page ui-modern">
+<body class="login-page">
     {% if user.is_authenticated %}
         <a href="{% url 'home' %}" class="bar-logo-link" aria-label="Inicio">
             <img id="logo" src="{% static 'core/logo nuevo.png' %}" alt="Solucionarte">
