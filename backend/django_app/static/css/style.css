@@ -281,6 +281,12 @@ body.login-page .registrarse {
     text-align: center;
 }
 
+body.login-page .login-card h2,
+body.login-page .login-card label[for="username"],
+body.login-page .login-card label[for="password"] {
+    color: #ffffff !important;
+}
+
 body.login-page form {
     display: grid;
     gap: 14px;
