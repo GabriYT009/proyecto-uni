@@ -17,10 +17,10 @@
             <img id="logo" src="{% static 'core/logo nuevo.png' %}" alt="Solucionarte">
         </a>
     {% endif %}
-    <div class="container">
+    <div class="container auth-card login-card">
         <h2>Inicio de sesión</h2>
         {% if error %}
-            <div style="color:crimson; margin-bottom:8px;">{{ error }}</div>
+            <div class="auth-error">{{ error }}</div>
         {% endif %}
         <form id="loginForm" method="post" action="{% url 'login_post' %}">
             {% csrf_token %}
