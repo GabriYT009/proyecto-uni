@@ -103,10 +103,10 @@ body.login-page {
     isolation: isolate;
     overflow: hidden;
     background:
-        radial-gradient(1300px 700px at 0% -5%, rgba(225, 190, 231, 0.30), transparent 58%),
-        radial-gradient(980px 620px at 100% 0%, rgba(156, 39, 176, 0.28), transparent 55%),
-        linear-gradient(165deg, #f7effa 0%, #d9b5e9 35%, #b26bcd 72%, #8f3db2 100%) !important;
-    color: #1c1431;
+        radial-gradient(1200px 760px at -6% -15%, rgba(133, 46, 195, 0.38), transparent 60%),
+        radial-gradient(980px 640px at 104% 4%, rgba(165, 67, 220, 0.28), transparent 58%),
+        linear-gradient(165deg, #09050f 0%, #140a22 34%, #1b0b2f 62%, #0c0616 100%) !important;
+    color: #efe7ff;
     display: grid !important;
     place-items: center !important;
     align-content: center !important;
@@ -126,31 +126,35 @@ body.login-page::after {
 
 body.login-page::before {
     background:
-        radial-gradient(620px 380px at 14% 28%, rgba(120, 34, 175, 0.60), transparent 70%),
-        radial-gradient(700px 430px at 84% 18%, rgba(168, 65, 214, 0.58), transparent 72%),
-        radial-gradient(560px 360px at 52% 78%, rgba(91, 18, 139, 0.42), transparent 70%);
-    filter: blur(10px) saturate(110%);
-    animation: authBlobDriftA 22s ease-in-out infinite alternate;
+        radial-gradient(760px 420px at 16% 26%, rgba(122, 42, 188, 0.46), transparent 72%),
+        radial-gradient(840px 520px at 86% 18%, rgba(148, 60, 214, 0.40), transparent 74%),
+        conic-gradient(from 210deg at 52% 50%, rgba(0,0,0,0) 0deg, rgba(173, 92, 232, 0.18) 110deg, rgba(0,0,0,0) 250deg);
+    filter: blur(12px) saturate(112%);
+    mix-blend-mode: screen;
+    animation: authVeilFlowA 24s cubic-bezier(.45,.05,.55,.95) infinite alternate;
 }
 
 body.login-page::after {
     background:
-        radial-gradient(540px 320px at 16% 86%, rgba(153, 50, 204, 0.32), transparent 72%),
-        radial-gradient(620px 340px at 86% 70%, rgba(123, 31, 162, 0.34), transparent 72%);
-    filter: blur(16px);
-    animation: authBlobDriftB 30s ease-in-out infinite alternate;
+        linear-gradient(112deg, rgba(0, 0, 0, 0) 14%, rgba(170, 83, 230, 0.20) 36%, rgba(0, 0, 0, 0) 54%),
+        linear-gradient(286deg, rgba(0, 0, 0, 0) 20%, rgba(129, 43, 195, 0.18) 47%, rgba(0, 0, 0, 0) 70%),
+        radial-gradient(740px 420px at 54% 84%, rgba(93, 21, 142, 0.26), transparent 72%);
+    filter: blur(20px);
+    opacity: 0.92;
+    mix-blend-mode: screen;
+    animation: authVeilFlowB 30s cubic-bezier(.4,.08,.6,.92) infinite alternate;
 }
 
-@keyframes authBlobDriftA {
-    0% { transform: translate3d(-2%, -1%, 0) scale(1); }
-    50% { transform: translate3d(2%, 2%, 0) scale(1.06); }
-    100% { transform: translate3d(-1%, 3%, 0) scale(1.03); }
+@keyframes authVeilFlowA {
+    0% { transform: translate3d(-3%, -2%, 0) rotate(-2deg) scale(1.02); }
+    50% { transform: translate3d(2%, 2%, 0) rotate(1.2deg) scale(1.07); }
+    100% { transform: translate3d(-1%, 3%, 0) rotate(-1deg) scale(1.04); }
 }
 
-@keyframes authBlobDriftB {
-    0% { transform: translate3d(2%, -2%, 0) scale(1.02); }
-    50% { transform: translate3d(-1%, 1%, 0) scale(1.08); }
-    100% { transform: translate3d(1%, -1%, 0) scale(1.03); }
+@keyframes authVeilFlowB {
+    0% { transform: translate3d(2%, -2%, 0) rotate(1deg) scale(1.01); }
+    50% { transform: translate3d(-1%, 1%, 0) rotate(-1.2deg) scale(1.08); }
+    100% { transform: translate3d(1%, -1%, 0) rotate(0.6deg) scale(1.03); }
 }
 
 body.login-page .container {
