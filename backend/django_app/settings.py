@@ -37,6 +37,12 @@ def _strip_proto(host: str | None) -> str | None:
     host = host.strip().replace("https://", "").replace("http://", "")
     return host.rstrip("/")
 
+def _ensure_scheme(origin: str) -> str:
+    origin = origin.strip()
+    if origin.startswith(("http://", "https://")):
+        return origin
+    return "https://" + origin.lstrip("/")
+
 railway_host = _strip_proto(os.environ.get("RAILWAY_PUBLIC_DOMAIN"))
 render_host = _strip_proto(os.environ.get("RENDER_EXTERNAL_HOSTNAME"))
 base_hosts = ["127.0.0.1", "localhost"]
@@ -65,7 +71,7 @@ csrf_env = os.environ.get("CSRF_TRUSTED_ORIGINS", "")
 if csrf_env:
     csrf_trusted += [h.strip() for h in csrf_env.split(",") if h.strip()]
 
-CSRF_TRUSTED_ORIGINS = csrf_trusted
+CSRF_TRUSTED_ORIGINS = [_ensure_scheme(h) for h in csrf_trusted if h]
 
 
 # Application definition
