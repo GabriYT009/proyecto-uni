@@ -472,7 +472,7 @@ def crear_Productoo(request):
         messages.error(request, f'Error al crear producto: {e}')
         form = ProductForm(request.POST or None, request.FILES or None)
 
-    return render(request, 'core/crear_Productoo.html', {
+    return render(request, 'core/crear_productoo.html', {
         'form': form,
         'user_groups': list(request.user.groups.values_list('name', flat=True)),
         'cart_count': len(request.session.get('cart', []))
