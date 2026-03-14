@@ -45,7 +45,14 @@ if railway_host:
 if render_host:
     base_hosts.append(render_host)
 
-ALLOWED_HOSTS = [h for h in os.environ.get("ALLOWED_HOSTS", ",".join(base_hosts)).split(",") if h]
+_env_allowed = os.environ.get("ALLOWED_HOSTS", "")
+if _env_allowed.strip():
+    ALLOWED_HOSTS = [h for h in _env_allowed.split(",") if h]
+else:
+    ALLOWED_HOSTS = base_hosts
+
+if not ALLOWED_HOSTS:
+    ALLOWED_HOSTS = base_hosts
 
 # CSRF trusted origins: Railway, Render, or env.
 csrf_trusted = []
