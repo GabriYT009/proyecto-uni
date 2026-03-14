@@ -10,8 +10,6 @@
     <link href="https://fonts.googleapis.com" rel="preconnect">
     <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-
     <!-- Vendor CSS Files -->
     <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
     <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
@@ -602,7 +600,7 @@
             <!-- Header Section -->
             <div class="inventory-header">
                 <div class="inventory-header-icon">
-                    <i class="material-icons">inventory_2</i>
+                    <i class="bi bi-box-seam-fill"></i>
                 </div>
                 <div class="inventory-header-text">
                     <p class="text-condensedLight">
@@ -681,7 +679,7 @@
                             <td>
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <a href="{% url 'producto_detalle' producto.pk %}" class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect" title="Ver detalles de compras" style="text-decoration: none; color: inherit;">
-                                        <i class="material-icons" style="color: white;">visibility</i>
+                                        <i class="bi bi-eye-fill" style="color: white;"></i>
                                     </a>
                                     <div class="dropdown">
                                         <button class="dropdown-toggle" title="Más opciones">
@@ -689,11 +687,11 @@
                                         </button>
                                         <div class="dropdown-menu">
                                             <a href="#" class="dropdown-item js-confirm-delete" data-product-id="{{ producto.pk }}" data-product-name="{{ producto.nombre_producto|escapejs }}">
-                                                <i class="material-icons" style="font-size: 16px;">delete</i>
+                                                <i class="bi bi-trash3" style="font-size: 16px;"></i>
                                                 Eliminar
                                             </a>
                                             <a href="#" class="dropdown-item js-open-edit" data-product-id="{{ producto.pk }}" data-product-name="{{ producto.nombre_producto|escapejs }}" data-product-desc="{{ producto.descripcion|escapejs }}" data-product-price="{{ producto.precio_venta|default:0 }}" data-product-qty="{{ producto.cantidad_disponible|default:0 }}" data-product-status="{{ producto.status_producto|lower }}" data-product-category="{{ producto.categoria.nombre_categoria|default:""|escapejs }}" data-product-img="{{ producto.img_url|escapejs }}">
-                                                <i class="material-icons" style="font-size: 16px;">edit</i>
+                                                <i class="bi bi-pencil-square" style="font-size: 16px;"></i>
                                                 Editar
                                             </a>
                                         </div>
