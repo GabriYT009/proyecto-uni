@@ -542,10 +542,12 @@
                     {% if product.status_producto %}
                         <div class="card">
                             {% if product.imagen_producto %}
-                                <img src="{{ product.imagen_producto.url }}" alt="{{ product.nombre_producto }}" class="view" loading="lazy" decoding="async" data-id="{{ product.pk }}" data-title="{{ product.nombre_producto }}" data-img="{% if product.imagen_producto %}{{ product.imagen_producto.url }}{% endif %}" data-desc="{{ product.descripcion }}" data-price="$ {{ product.precio_venta }}" role="button" tabindex="0" style="cursor:pointer;">
+                                {% with img_src=product.imagen_producto.url %}
                             {% else %}
-                                <div style="height: 150px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #999; font-size: 14px;">Sin imagen</div>
+                                {% with img_src=static('assets/img/logo.png') %}
                             {% endif %}
+                                <img src="{{ img_src }}" alt="{{ product.nombre_producto }}" class="view" loading="lazy" decoding="async" data-id="{{ product.pk }}" data-title="{{ product.nombre_producto }}" data-img="{{ img_src }}" data-desc="{{ product.descripcion }}" data-price="$ {{ product.precio_venta }}" role="button" tabindex="0" style="cursor:pointer;" onerror="this.onerror=null;this.src='{{ static('assets/img/logo.png') }}';">
+                            {% endwith %}
 
                             <h4 class="view" data-id="{{ product.pk }}" role="button" tabindex="0" style="cursor:pointer;">{{ product.nombre_producto }}</h4>
                             <p>{{ product.descripcion }}</p>
