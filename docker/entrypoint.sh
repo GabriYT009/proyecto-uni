@@ -5,8 +5,6 @@ PORT="${PORT:-8000}"
 APP_ROOT="${APP_ROOT:-/app/backend}"
 export PORT
 
-sed "s/__PORT__/${PORT}/g" /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
-
 cd "$APP_ROOT"
 
 python manage.py migrate --noinput
@@ -20,6 +18,7 @@ from django.contrib.auth.models import Group
 for name in ['admin', 'user', 'cajero', 'cliente']:
     Group.objects.get_or_create(name=name)
 "
+
 python -c "
 import os, django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_app.settings')
@@ -39,14 +38,11 @@ if User.objects.count() == 0:
     print('Created default admin user:', u)
 " 2>/dev/null || true
 
-gunicorn django_app.wsgi:application \
-    --bind 127.0.0.1:8002 \
-  --workers 2 \
-  --threads 2 \
+exec gunicorn django_app.wsgi:application \
+  --bind 0.0.0.0:${PORT} \
+  --workers ${WEB_CONCURRENCY:-2} \
+  --threads ${GUNICORN_THREADS:-2} \
   --access-logfile - \
   --error-logfile - \
   --capture-output \
-  --enable-stdio-inheritance \
-  &
-
-exec nginx -g "daemon off;"
+  --enable-stdio-inheritance
