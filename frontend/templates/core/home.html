@@ -534,21 +534,30 @@
             <h2>Categorías</h2>
             <div class="category-bar-wrap" aria-label="Barra de categorías">
                 <div class="category-grid category-bar" role="navigation">
-                {% for category in categories %}
-                    {% if 'electr' in category.nombre_categoria|lower %}
-                        <a href="{% url 'catalog' %}?Categoria={{ category.nombre_categoria }}" class="category-card">
-                            <div class="category-icon"><i class="bi bi-journal-richtext" aria-hidden="true"></i></div>
-                            <span>Papelería</span>
-                        </a>
-                    {% else %}
-                        <a href="{% url 'catalog' %}?Categoria={{ category.nombre_categoria }}" class="category-card">
-                            <div class="category-icon">
-                                {% if category.nombre_categoria == 'Cajas' %}<i class="bi bi-box-seam" aria-hidden="true"></i>{% elif category.nombre_categoria == 'Toppers' %}<i class="bi bi-stars" aria-hidden="true"></i>{% elif category.nombre_categoria == 'Sublimación' %}<i class="bi bi-printer" aria-hidden="true"></i>{% elif category.nombre_categoria == 'Impresión' %}<i class="bi bi-file-earmark-text" aria-hidden="true"></i>{% elif category.nombre_categoria == 'Personalización' %}<i class="bi bi-palette" aria-hidden="true"></i>{% elif category.nombre_categoria == 'Papelería' %}<i class="bi bi-pencil-square" aria-hidden="true"></i>{% else %}<i class="bi bi-laptop" aria-hidden="true"></i>{% endif %}
-                            </div>
-                            <span>{{ category.nombre_categoria }}</span>
-                        </a>
-                    {% endif %}
-                {% endfor %}
+                    <a href="{% url 'catalog' %}?Categoria=Cajas" class="category-card">
+                        <div class="category-icon">📦</div>
+                        <span>Cajas</span>
+                    </a>
+                    <a href="{% url 'catalog' %}?Categoria=Toppers" class="category-card">
+                        <div class="category-icon">🎂</div>
+                        <span>Toppers</span>
+                    </a>
+                    <a href="{% url 'catalog' %}?Categoria=Sublimación" class="category-card">
+                        <div class="category-icon">🖨️</div>
+                        <span>Sublimación</span>
+                    </a>
+                    <a href="{% url 'catalog' %}?Categoria=Impresión" class="category-card">
+                        <div class="category-icon">📄</div>
+                        <span>Impresión</span>
+                    </a>
+                    <a href="{% url 'catalog' %}?Categoria=Personalización" class="category-card">
+                        <div class="category-icon">🎨</div>
+                        <span>Personalización</span>
+                    </a>
+                    <a href="{% url 'catalog' %}?Categoria=Papelería" class="category-card">
+                        <div class="category-icon">📝</div>
+                        <span>Papelería</span>
+                    </a>
                 </div>
             </div>
         </section>
