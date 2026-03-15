@@ -205,8 +205,8 @@
         .search{ padding:8px 12px; border-radius:8px; border: 1px solid #ccc; width:260px; background:#fff; color:#111; }
         .select{ padding:8px 12px; border-radius:8px; border: 1px solid #ccc; background:#fff; color:#111; }
         /* Product grid and card styles (desktop grid) */
-        .grid{ display:grid; grid-template-columns: repeat(auto-fill,minmax(240px,1fr)); gap:24px; padding:20px 0; grid-auto-rows: minmax(320px, auto); align-items:start; justify-items:stretch; }
-        .card{ background:#fff; color:#111; border-radius:10px; padding:20px; box-shadow:0 6px 18px rgba(0,0,0,.08); display:flex; flex-direction:column; justify-content:space-between; transition: none; margin-bottom:16px; border:1px solid rgba(0,0,0,0.06); min-height:320px; position:relative; z-index:1; }
+        .grid{ display:grid; grid-template-columns: repeat(auto-fill,minmax(240px,1fr)); gap:32px; padding:30px 4px; grid-auto-rows: minmax(320px, auto); align-items:start; justify-items:stretch; }
+        .card{ background:#fff; color:#111; border-radius:10px; padding:22px; box-shadow:0 6px 18px rgba(0,0,0,.08); display:flex; flex-direction:column; justify-content:space-between; transition: none; margin-bottom:0; border:1px solid rgba(0,0,0,0.06); min-height:320px; position:relative; z-index:1; }
         .card .row{ position:relative; z-index:2; }
         /* Keep columns aligned; remove manual column offsets that broke ordering */
         .grid > .card{ margin-left:0; }
@@ -522,9 +522,11 @@
 
         <!-- Categories Section -->
         <style>
-        .category-bar-wrap{ display:flex; align-items:center; gap:8px; margin:12px 0; }
-        .cat-scroll-btn{ background:#fff; border:1px solid #e0e0e0; padding:6px 10px; border-radius:6px; cursor:pointer; font-weight:700; color:#9932CC; }
-        .category-bar{ display:flex; gap:16px; overflow-x:auto; padding:12px 8px; -webkit-overflow-scrolling:touch; scroll-behavior:smooth; scrollbar-width:none; -ms-overflow-style:none; }
+        .category-bar-wrap{ display:flex; align-items:center; gap:2px; margin:12px 0; }
+        .cat-scroll-btn{ background:#fff; border:1px solid #e0e0e0; padding:6px 9px; border-radius:6px; cursor:pointer; font-weight:700; color:#9932CC; line-height:1; }
+        .cat-scroll-left{ margin-right:-2px; }
+        .cat-scroll-right{ margin-left:-2px; }
+        .category-bar{ display:flex; gap:16px; overflow-x:auto; padding:12px 2px; -webkit-overflow-scrolling:touch; scroll-behavior:smooth; scrollbar-width:none; -ms-overflow-style:none; }
         .category-bar::-webkit-scrollbar{ width:0; height:0; display:none; }
         .category-card{ flex:0 0 auto; white-space:nowrap; width:200px; padding:18px 14px; display:flex; flex-direction:column; align-items:center; justify-content:center; }
         .category-card .category-icon{ font-size:40px; margin-bottom:10px; }

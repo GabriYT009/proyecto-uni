@@ -267,9 +267,11 @@
     </div>
 
     <style>
-    .category-bar-wrap{ display:flex; align-items:center; gap:8px; margin:12px 0; }
-    .cat-scroll-btn{ background:#fff; border:1px solid #e0e0e0; padding:6px 10px; border-radius:6px; cursor:pointer; font-weight:700; color:#9932CC; }
-    .category-bar{ display:flex; gap:16px; overflow-x:auto; padding:12px 8px; -webkit-overflow-scrolling:touch; scroll-behavior:smooth; }
+    .category-bar-wrap{ display:flex; align-items:center; gap:2px; margin:12px 0; }
+    .cat-scroll-btn{ background:#fff; border:1px solid #e0e0e0; padding:6px 9px; border-radius:6px; cursor:pointer; font-weight:700; color:#9932CC; line-height:1; }
+    .cat-scroll-left{ margin-right:-2px; }
+    .cat-scroll-right{ margin-left:-2px; }
+    .category-bar{ display:flex; gap:16px; overflow-x:auto; padding:12px 2px; -webkit-overflow-scrolling:touch; scroll-behavior:smooth; }
     .category-bar::-webkit-scrollbar{ height:8px; }
     .category-bar::-webkit-scrollbar-thumb{ background:#d8b6e6; border-radius:8px; }
     .category-card{ flex:0 0 auto; white-space:nowrap; width:200px; padding:18px 14px; display:flex; flex-direction:column; align-items:center; justify-content:center; }
