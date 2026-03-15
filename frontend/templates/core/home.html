@@ -533,6 +533,7 @@
         <section class="categories">
             <h2>Categorías</h2>
             <div class="category-bar-wrap" aria-label="Barra de categorías">
+                <button type="button" class="cat-scroll-btn cat-scroll-left" aria-label="Anterior">◀</button>
                 <div class="category-grid category-bar" role="navigation">
                     <a href="{% url 'catalog' %}?Categoria=Cajas" class="category-card">
                         <div class="category-icon">📦</div>
@@ -559,6 +560,7 @@
                         <span>Papelería</span>
                     </a>
                 </div>
+                <button type="button" class="cat-scroll-btn cat-scroll-right" aria-label="Siguiente">▶</button>
             </div>
         </section>
 

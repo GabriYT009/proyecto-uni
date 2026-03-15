@@ -286,29 +286,30 @@
             <div class="category-bar-wrap" aria-label="Barra de categorías">
                 <button type="button" class="cat-scroll-btn cat-scroll-left" aria-label="Anterior">◀</button>
                 <div class="category-grid category-bar" role="navigation">
-                <a href="{% url 'catalog' %}" class="category-card {% if not selected_Categoria %}active{% endif %}">
-                    <div class="category-icon">🌟</div>
-                    <span>Todas</span>
-                </a>
-                {% for category in categories %}
-                    {% if 'electr' in category.nombre_categoria|lower %}
-                        {% with display_name='Papelería' icon='📝' %}
-                        <a href="?Categoria={{ category.nombre_categoria }}" class="category-card {% if selected_Categoria == category.nombre_categoria %}active{% endif %}">
-                            <div class="category-icon">{{ icon }}</div>
-                            <span>{{ display_name }}</span>
-                        </a>
-                        {% endwith %}
-                    {% else %}
-                        {% with display_name=category.nombre_categoria query_name=category.nombre_categoria %}
-                        <a href="?Categoria={{ query_name }}" class="category-card {% if selected_Categoria == category.nombre_categoria %}active{% endif %}">
-                            <div class="category-icon">
-                                {% if category.nombre_categoria == 'Cajas' %}📦{% elif category.nombre_categoria == 'Toppers' %}🎂{% elif category.nombre_categoria == 'Sublimación' %}🖨️{% elif category.nombre_categoria == 'Impresión' %}📄{% elif category.nombre_categoria == 'Personalización' %}🎨{% elif category.nombre_categoria == 'Papelería' %}📝{% else %}🖥️{% endif %}
-                            </div>
-                            <span>{{ display_name }}</span>
-                        </a>
-                        {% endwith %}
-                    {% endif %}
-                {% endfor %}
+                    <a href="?Categoria=Cajas" class="category-card {% if selected_Categoria == 'Cajas' %}active{% endif %}">
+                        <div class="category-icon">📦</div>
+                        <span>Cajas</span>
+                    </a>
+                    <a href="?Categoria=Toppers" class="category-card {% if selected_Categoria == 'Toppers' %}active{% endif %}">
+                        <div class="category-icon">🎂</div>
+                        <span>Toppers</span>
+                    </a>
+                    <a href="?Categoria=Sublimación" class="category-card {% if selected_Categoria == 'Sublimación' %}active{% endif %}">
+                        <div class="category-icon">🖨️</div>
+                        <span>Sublimación</span>
+                    </a>
+                    <a href="?Categoria=Impresión" class="category-card {% if selected_Categoria == 'Impresión' %}active{% endif %}">
+                        <div class="category-icon">📄</div>
+                        <span>Impresión</span>
+                    </a>
+                    <a href="?Categoria=Personalización" class="category-card {% if selected_Categoria == 'Personalización' %}active{% endif %}">
+                        <div class="category-icon">🎨</div>
+                        <span>Personalización</span>
+                    </a>
+                    <a href="?Categoria=Papelería" class="category-card {% if selected_Categoria == 'Papelería' %}active{% endif %}">
+                        <div class="category-icon">📝</div>
+                        <span>Papelería</span>
+                    </a>
                 </div>
                 <button type="button" class="cat-scroll-btn cat-scroll-right" aria-label="Siguiente">▶</button>
             </div>
