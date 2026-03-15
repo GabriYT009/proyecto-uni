@@ -1,10 +1,20 @@
 import logging
 
+from django.contrib.auth.models import AnonymousUser
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from .models import Producto
 
 logger = logging.getLogger(__name__)
+
+
+def inject_user(request):
+    """Make `user` available in all templates, even if auth context processor is disabled."""
+    try:
+        return {'user': getattr(request, 'user', AnonymousUser())}
+    except Exception:
+        logger.exception("inject_user fallback: request.user unavailable")
+        return {'user': AnonymousUser()}
 
 def contador_carrito(request):
     """
