@@ -765,3 +765,37 @@
         init();
     }
 })();
+
+// Global-safe close handler for product detail modal.
+(function(){
+    if (window.__detailModalGlobalCloseBound) return;
+    window.__detailModalGlobalCloseBound = true;
+
+    function closeDetailModal(){
+        const modalEl = document.getElementById('detailModal');
+        if (!modalEl) return;
+        modalEl.classList.remove('show');
+        modalEl.setAttribute('aria-hidden', 'true');
+        if (modalEl.style) modalEl.style.display = 'none';
+        try {
+            document.documentElement.style.overflow = '';
+            document.body.style.overflow = '';
+            document.documentElement.style.paddingRight = '';
+            document.body.style.paddingRight = '';
+        } catch(e){}
+    }
+
+    document.addEventListener('click', function(ev){
+        const modalEl = document.getElementById('detailModal');
+        if (!modalEl || !modalEl.classList.contains('show')) return;
+        const inner = modalEl.querySelector('.detail-modal') || modalEl.querySelector('.modal');
+        if (!inner || !inner.contains(ev.target)) closeDetailModal();
+    }, true);
+
+    document.addEventListener('keydown', function(ev){
+        if (ev.key === 'Escape') {
+            const modalEl = document.getElementById('detailModal');
+            if (modalEl && modalEl.classList.contains('show')) closeDetailModal();
+        }
+    });
+})();
