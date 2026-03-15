@@ -3,6 +3,9 @@ set -euo pipefail
 
 PORT="${PORT:-8000}"
 APP_ROOT="${APP_ROOT:-/app/backend}"
+RUN_STARTUP_TASKS="${RUN_STARTUP_TASKS:-0}"
+RUN_MIGRATIONS="${RUN_MIGRATIONS:-${RUN_STARTUP_TASKS}}"
+RUN_BOOTSTRAP_AUTH="${RUN_BOOTSTRAP_AUTH:-${RUN_STARTUP_TASKS}}"
 export PORT
 
 echo "[entrypoint] Starting application"
@@ -29,12 +32,17 @@ run_with_retries() {
     done
 }
 
-echo "[entrypoint] Running migrations"
-run_with_retries "migrations" python manage.py migrate --noinput
+if [ "$RUN_MIGRATIONS" = "1" ] || [ "$RUN_MIGRATIONS" = "true" ] || [ "$RUN_MIGRATIONS" = "yes" ]; then
+    echo "[entrypoint] Running migrations"
+    run_with_retries "migrations" python manage.py migrate --noinput
+else
+    echo "[entrypoint] Skipping migrations (set RUN_MIGRATIONS=1 to enable)"
+fi
 
 echo "[entrypoint] Collecting static files"
 python manage.py collectstatic --noinput 2>/dev/null || true
 
+if [ "$RUN_BOOTSTRAP_AUTH" = "1" ] || [ "$RUN_BOOTSTRAP_AUTH" = "true" ] || [ "$RUN_BOOTSTRAP_AUTH" = "yes" ]; then
 echo "[entrypoint] Ensuring auth groups"
 run_with_retries "auth group setup" python -c "
 import os, django
@@ -64,6 +72,9 @@ if User.objects.count() == 0:
         pass
     print('Created default admin user:', u)
 " 2>/dev/null || true
+else
+    echo "[entrypoint] Skipping auth bootstrap (set RUN_BOOTSTRAP_AUTH=1 to enable)"
+fi
 
 echo "[entrypoint] Starting gunicorn on 0.0.0.0:${PORT}"
 exec gunicorn django_app.wsgi:application \

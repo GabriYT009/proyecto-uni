@@ -27,6 +27,8 @@ El proyecto está preparado para desplegar **backend y frontend en la misma inst
      - `CSRF_TRUSTED_ORIGINS`: lista separada por comas, ej. `https://tudominio.com`
      - `SECRET_KEY`: clave secreta Django (recomendado en producción).
      - `DEBUG`: `False` en producción (recomendado).
+    - `RUN_MIGRATIONS`: `1` si quieres ejecutar `migrate` en cada arranque. Por defecto está desactivado para evitar que Railway quede sin puerto si la base tarda en responder.
+    - `RUN_BOOTSTRAP_AUTH`: `1` si quieres crear grupos y admin por defecto en cada arranque. Por defecto está desactivado.
 
 5. **Puerto**: Railway asigna `PORT` automáticamente; el entrypoint hace que Gunicorn escuche directamente en ese puerto.
 
@@ -36,7 +38,8 @@ El proyecto está preparado para desplegar **backend y frontend en la misma inst
 
 - **Gunicorn**: sirve la app Django en `0.0.0.0:$PORT`.
 - **WhiteNoise**: sirve archivos estáticos desde Django.
-- El entrypoint ejecuta migraciones con reintentos, `collectstatic`, configuración base de grupos/usuario admin y luego deja Gunicorn en primer plano.
+- El entrypoint ejecuta `collectstatic` y deja Gunicorn en primer plano.
+- Si necesitas tareas de base de datos al arranque, activa `RUN_MIGRATIONS=1` y/o `RUN_BOOTSTRAP_AUTH=1`.
 
 ## Probar en local con Docker
 
