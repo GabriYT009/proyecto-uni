@@ -516,8 +516,8 @@ body.home-soft .home-hero .hero-btn:hover {
 }
 
 body.home-soft .featured-section {
-    background: rgba(236, 226, 245, 0.72);
-    border: 1px solid rgba(170, 134, 200, 0.22);
+    background: #ffffff;
+    border: 1px solid rgba(28, 1, 63, 0.08);
     border-radius: 16px;
     padding: 24px 18px;
 }
