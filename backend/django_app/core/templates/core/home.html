@@ -227,8 +227,8 @@
         #detailModal.show{ display: flex; }
         /* initial state for inner dialog to allow entrance animation */
         #detailModal .detail-modal{ transform: translateY(12px) scale(0.98); opacity: 0; max-width:900px; width: min(92vw, 900px); margin:40px auto; padding:20px; background:#fff; color:#000; border-radius:8px; box-sizing:border-box; }
-        /* make product image scale to fit the viewport while preserving aspect ratio */
-        #detailModal .detail-modal img{ width:100%; height:auto; max-height:70vh; object-fit:contain; display:block; border-radius:6px; margin-bottom:12px; }
+        /* Keep detail image compact on home modal */
+        #detailModal .detail-modal img{ width:min(360px, 100%); height:auto; max-height:42vh; object-fit:contain; display:block; border-radius:6px; margin:0 auto 12px auto; }
         @keyframes modalIn { from { opacity: 0; transform: translateY(12px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
         #detailModal.show .detail-modal{ animation: modalIn 260ms cubic-bezier(.2,.9,.2,1) forwards; }
         .close{ background:#eee; color:#333; padding:6px 10px; border-radius:8px; cursor:pointer; border:none; }
@@ -730,7 +730,7 @@
                 <strong id="m-title">Título</strong>
             </div>
             <hr/>
-            <img id="m-img" src="" alt="" style="width:100%; height:auto; object-fit:contain; border-radius:6px; margin-bottom:8px; max-height:70vh;">
+            <img id="m-img" src="" alt="" style="width:min(360px, 100%); height:auto; object-fit:contain; border-radius:6px; margin:0 auto 8px auto; max-height:42vh; display:block;">
             <p id="m-desc"></p>
             <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
                 <strong id="m-price"></strong>
@@ -1029,106 +1029,29 @@
                     if (ctype.indexOf('application/json') !== -1) {
                         const data = await res.json();
                         try{ const cc = document.getElementById('cart-count'); if(cc) cc.textContent = data.count; }catch(e){}
-
-                        // Fetch purchase partial and show in modal (do not redirect)
-                        try{
-                            const part = await fetch('/producto/' + encodeURIComponent(id) + '/comprar/?partial=1&single=1', { credentials: 'include' });
-                            if (part.ok) {
-                                const html = await part.text();
-                                showPurchaseModal(html);
-                                return;
-                            }
-                        }catch(e){ console.warn('could not load purchase partial', e); }
-
+                        const detailModal = document.getElementById('detailModal');
+                        if (detailModal) detailModal.classList.remove('show');
                         return;
                     }
                     if (res.redirected) {
-                        window.location = res.url;
                         return;
                     }
-                    window.location.reload();
                 } catch(err){
                     console.error('addToCart failed', err);
                 }
             };
-
-            // Minimal modal to show purchase partial
-            function showPurchaseModal(html){
-                let modal = document.getElementById('purchaseModal');
-                if (!modal){
-                    modal = document.createElement('div');
-                    modal.id = 'purchaseModal';
-                    modal.style.position = 'fixed';
-                    modal.style.left = '0';
-                    modal.style.top = '0';
-                    modal.style.right = '0';
-                    modal.style.bottom = '0';
-                    modal.style.background = 'rgba(0,0,0,0.4)';
-                    modal.style.zIndex = '20000';
-                    modal.style.display = 'flex';
-                    modal.style.alignItems = 'center';
-                    modal.style.justifyContent = 'center';
-                    const wrapper = document.createElement('div');
-                    wrapper.id = 'purchaseModalContent';
-                    wrapper.style.maxWidth = '900px';
-                    wrapper.style.width = '95%';
-                    wrapper.style.margin = '20px';
-                    wrapper.innerHTML = html;
-                    modal.appendChild(wrapper);
-                    document.body.appendChild(modal);
-                    // execute inline scripts
-                    const scripts = wrapper.querySelectorAll('script');
-                    scripts.forEach(s => {
-                        const ns = document.createElement('script');
-                        if (s.src) ns.src = s.src; else ns.textContent = s.textContent;
-                        wrapper.appendChild(ns);
-                    });
-                    modal.addEventListener('click', function(e){ if(e.target === modal) modal.remove(); });
-                } else {
-                    const content = document.getElementById('purchaseModalContent');
-                    if (content) {
-                        content.innerHTML = html;
-                        const scripts = content.querySelectorAll('script');
-                        scripts.forEach(s => {
-                            const ns = document.createElement('script');
-                            if (s.src) ns.src = s.src; else ns.textContent = s.textContent;
-                            content.appendChild(ns);
-                        });
-                    }
-                    modal.style.display = 'flex';
-                }
-            }
         })();
     </script>
     <script>
         // Ensure modal "Añadir al carrito" button posts directly to add_to_cart (home page)
         (function(){
             const btn = document.getElementById('m-add-cart');
-            function getCsrf(){ const m = document.querySelector('meta[name="csrf-token"]'); return m?m.content:null; }
             if (btn) {
                 btn.addEventListener('click', async function(e){
                     e.preventDefault();
                     const id = window.currentProductId || (document.getElementById('detailModal') && document.getElementById('detailModal').dataset.productId);
                     if (!id) return;
-                    try {
-                        const token = getCsrf();
-                        const res = await fetch('/add_to_cart/' + id + '/', {
-                            method: 'POST',
-                            headers: { 'X-CSRFToken': token, 'Content-Type': 'application/json' },
-                            credentials: 'include',
-                            body: JSON.stringify({})
-                        });
-                        if (res.ok) {
-                            const data = await res.json();
-                                // Redirect to cart and show purchase UI
-                                window.location.href = '/carrito/?buy=' + encodeURIComponent(id);
-                            return;
-                        } else if (res.redirected) {
-                            window.location = res.url;
-                        } else {
-                            console.error('add_to_cart failed', res.status);
-                        }
-                    } catch(err){ console.error('add_to_cart error', err); }
+                    if (window.addToCart) window.addToCart(id);
                 });
             }
         })();

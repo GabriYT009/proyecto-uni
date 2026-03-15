@@ -672,11 +672,6 @@ def carrito(request):
     
     # Si se solicita comprar directamente desde el carrito (GET ?buy=ID), obtener el producto
     buy_id = request.GET.get('buy')
-    # support auto_buy set by add_to_cart (AJAX) so cart shows purchase UI immediately
-    if not buy_id:
-        auto = request.session.pop('auto_buy', None)
-        if auto:
-            buy_id = str(auto)
     producto_compra = None
     if buy_id:
         try:
@@ -714,15 +709,7 @@ def add_to_cart(request, product_id):
     request.session['cart'] = cart
     request.session.modified = True
 
-    
-    try:
-        request.session['auto_buy'] = int(product_id)
-    except Exception:
-        try:
-            request.session['auto_buy'] = product_id
-        except Exception:
-            pass
-    return JsonResponse({'count': len(cart), 'auto_buy': request.session.get('auto_buy')})
+    return JsonResponse({'count': len(cart)})
 
 @login_required
 def remove_from_cart(request, product_id):
