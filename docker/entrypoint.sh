@@ -6,6 +6,7 @@ APP_ROOT="${APP_ROOT:-/app/backend}"
 RUN_STARTUP_TASKS="${RUN_STARTUP_TASKS:-0}"
 RUN_MIGRATIONS="${RUN_MIGRATIONS:-${RUN_STARTUP_TASKS}}"
 RUN_BOOTSTRAP_AUTH="${RUN_BOOTSTRAP_AUTH:-${RUN_STARTUP_TASKS}}"
+RUN_COLLECTSTATIC="${RUN_COLLECTSTATIC:-0}"
 export PORT
 
 echo "[entrypoint] Starting application"
@@ -39,8 +40,12 @@ else
     echo "[entrypoint] Skipping migrations (set RUN_MIGRATIONS=1 to enable)"
 fi
 
-echo "[entrypoint] Collecting static files"
-python manage.py collectstatic --noinput 2>/dev/null || true
+if [ "$RUN_COLLECTSTATIC" = "1" ] || [ "$RUN_COLLECTSTATIC" = "true" ] || [ "$RUN_COLLECTSTATIC" = "yes" ]; then
+    echo "[entrypoint] Collecting static files"
+    python manage.py collectstatic --noinput 2>/dev/null || true
+else
+    echo "[entrypoint] Skipping collectstatic (set RUN_COLLECTSTATIC=1 to enable)"
+fi
 
 if [ "$RUN_BOOTSTRAP_AUTH" = "1" ] || [ "$RUN_BOOTSTRAP_AUTH" = "true" ] || [ "$RUN_BOOTSTRAP_AUTH" = "yes" ]; then
 echo "[entrypoint] Ensuring auth groups"

@@ -204,15 +204,21 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Frontend primero; luego estáticos del backend y temas legacy
+# In production, prefer a single canonical static tree to avoid duplicate paths
+# during collectstatic. Local development can opt into the legacy trees.
+ENABLE_LEGACY_STATIC_DIRS = os.environ.get("ENABLE_LEGACY_STATIC_DIRS", "False").lower() in ("1", "true", "yes")
+
 _static_dirs = []
 if (FRONTEND_DIR / "static").exists():
     _static_dirs.append(str(FRONTEND_DIR / "static"))
-_static_dirs.extend([
-    str(BASE_DIR / "static"),
-    str(BASE_DIR / "extras" / "Presento"),
-    str(BASE_DIR / "extras" / "SFI-V2-master"),
-])
+
+if ENABLE_LEGACY_STATIC_DIRS:
+    _static_dirs.extend([
+        str(BASE_DIR / "static"),
+        str(BASE_DIR / "extras" / "Presento"),
+        str(BASE_DIR / "extras" / "SFI-V2-master"),
+    ])
+
 STATICFILES_DIRS = [d for d in _static_dirs if os.path.exists(d)]
 
 # Use WhiteNoise to serve static files in production (especially when running under Waitress).

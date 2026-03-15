@@ -29,6 +29,8 @@ El proyecto está preparado para desplegar **backend y frontend en la misma inst
      - `DEBUG`: `False` en producción (recomendado).
     - `RUN_MIGRATIONS`: `1` si quieres ejecutar `migrate` en cada arranque. Por defecto está desactivado para evitar que Railway quede sin puerto si la base tarda en responder.
     - `RUN_BOOTSTRAP_AUTH`: `1` si quieres crear grupos y admin por defecto en cada arranque. Por defecto está desactivado.
+    - `RUN_COLLECTSTATIC`: `1` si quieres ejecutar `collectstatic` al arrancar. Por defecto está desactivado porque la imagen ya lo ejecuta en build.
+    - `ENABLE_LEGACY_STATIC_DIRS`: `1` solo si realmente necesitas incluir `backend/django_app/static` o los temas legacy en `collectstatic`.
 
 5. **Puerto**: Railway asigna `PORT` automáticamente; el entrypoint hace que Gunicorn escuche directamente en ese puerto.
 
@@ -40,6 +42,8 @@ El proyecto está preparado para desplegar **backend y frontend en la misma inst
 - **WhiteNoise**: sirve archivos estáticos desde Django.
 - El entrypoint ejecuta `collectstatic` y deja Gunicorn en primer plano.
 - Si necesitas tareas de base de datos al arranque, activa `RUN_MIGRATIONS=1` y/o `RUN_BOOTSTRAP_AUTH=1`.
+- `collectstatic` queda desactivado por defecto en runtime; la imagen lo ejecuta durante el build.
+- Para evitar colisiones de archivos estáticos, en producción solo se usa `frontend/static` salvo que actives `ENABLE_LEGACY_STATIC_DIRS=1`.
 
 ## Probar en local con Docker
 
