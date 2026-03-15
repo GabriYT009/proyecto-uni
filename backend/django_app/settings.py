@@ -233,9 +233,10 @@ STATICFILES_DIRS = [d for d in _static_dirs if os.path.exists(d)]
 
 # Use WhiteNoise to serve static files in production (especially when running under Waitress).
 # See https://whitenoise.evans.io/en/stable/
+USE_MANIFEST_STATICFILES = os.environ.get("USE_MANIFEST_STATICFILES", "False").lower() in ("1", "true", "yes")
 STATICFILES_STORAGE = (
     'whitenoise.storage.CompressedManifestStaticFilesStorage'
-    if not DEBUG else
+    if USE_MANIFEST_STATICFILES else
     'whitenoise.storage.CompressedStaticFilesStorage'
 )
 WHITENOISE_MAX_AGE = 31536000 if not DEBUG else 0

@@ -92,6 +92,8 @@ def home(request):
     categories = []
     Productos = []
     Productos_json = '[]'
+    cart_count = 0
+    user_groups = []
 
     try:
         categories = _cached_categories()
@@ -130,12 +132,22 @@ def home(request):
     except Exception:
         logger.exception("Home view fallback: database unavailable or timed out")
 
+    try:
+        cart_count = len(request.session.get('cart', []))
+    except Exception:
+        logger.exception("Home view fallback: session unavailable")
+
+    try:
+        user_groups = _user_groups(request.user)
+    except Exception:
+        logger.exception("Home view fallback: unable to read user groups")
+
     return render(request, 'core/home.html', {
         'categories': categories, 
         'Productos': Productos, 
         'Productos_json': Productos_json,
-        'cart_count': len(request.session.get('cart', [])),
-        'user_groups': _user_groups(request.user)
+        'cart_count': cart_count,
+        'user_groups': user_groups,
     })
 
 def login_post(request):
