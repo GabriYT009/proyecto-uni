@@ -2634,7 +2634,7 @@ textarea {
 }
 
 body {
-  background: linear-gradient(135deg, var(--brand-soft), var(--brand-shell)) !important;
+  background: #ffffff !important;
 }
 
 * {
