@@ -695,7 +695,7 @@ a.logout-button {
 
 /* Home visual softening — Option B */
 body.home-soft {
-    background: linear-gradient(160deg, #d8cde4 0%, #ceb7dc 52%, #b676cc 100%) !important;
+    background: #ffffff !important;
 }
 
 body.home-soft .giant-frame {
@@ -705,20 +705,17 @@ body.home-soft .giant-frame {
 }
 
 body.home-soft .home-hero {
-    background:
-        radial-gradient(780px 420px at 8% 8%, rgba(142, 157, 255, 0.20), transparent 58%),
-        radial-gradient(820px 460px at 92% 0%, rgba(138, 102, 214, 0.20), transparent 62%),
-        linear-gradient(145deg, #312576 0%, #241b5e 55%, #1f184b 100%) !important;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 10px 28px rgba(30, 22, 66, 0.22) !important;
-    border: 1px solid rgba(179, 158, 234, 0.28);
+    background: #ffffff !important;
+    box-shadow: 0 10px 28px rgba(30, 22, 66, 0.08) !important;
+    border: 1px solid rgba(179, 158, 234, 0.18);
     padding: 68px 38px !important;
     margin-bottom: 36px !important;
 }
 
 body.home-soft .home-hero .hero-content h1,
 body.home-soft .home-hero .hero-content p {
-    color: #f2ecff !important;
-    text-shadow: 0 2px 14px rgba(17, 11, 39, 0.34);
+    color: #1c013f !important;
+    text-shadow: none;
 }
 
 body.home-soft .home-hero .hero-btn {
@@ -733,8 +730,8 @@ body.home-soft .home-hero .hero-btn:hover {
 }
 
 body.home-soft .featured-section {
-    background: rgba(236, 226, 245, 0.72);
-    border: 1px solid rgba(170, 134, 200, 0.22);
+    background: #ffffff;
+    border: 1px solid rgba(170, 134, 200, 0.18);
     border-radius: 16px;
     padding: 24px 18px;
 }

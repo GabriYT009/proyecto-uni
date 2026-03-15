@@ -34,17 +34,19 @@
         body{
             position: relative;
             font-family: 'Montserrat', sans-serif;
-            background:
-                radial-gradient(circle at top left, rgba(155,81,224,0.22), transparent 28%),
-                radial-gradient(circle at bottom right, rgba(255,255,255,0.12), transparent 22%),
-                linear-gradient(180deg, #5a11ab 0%, var(--home-desktop) 36%, #3a0471 100%);
+            background: #ffffff;
             margin:0;
-            color:#fff;
+            color:#1f1f1f;
             min-height:100vh;
             padding-top:80px; /* leave space for top bar */
             display:flex;
             flex-direction:column;
+            scrollbar-width:none;
+            -ms-overflow-style:none;
         }
+        html{ scrollbar-width:none; -ms-overflow-style:none; }
+        html::-webkit-scrollbar,
+        body::-webkit-scrollbar{ width:0; height:0; display:none; }
         .main-content{ flex:1; }
         .wrap{
             max-width:1800px;
