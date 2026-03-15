@@ -452,6 +452,34 @@
             background: #5a6268;
             transform: translateY(-1px);
         }
+
+        .btn-danger {
+            background: #c43d4b;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #aa2f3d;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(196, 61, 75, 0.28);
+        }
+
+        .delete-warning {
+            margin: 0;
+            color: #495057;
+            line-height: 1.6;
+        }
+
+        .delete-product-name {
+            margin-top: 14px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: #f8ebff;
+            border: 1px solid rgba(153, 50, 204, 0.18);
+            color: #61247f;
+            font-weight: 700;
+            word-break: break-word;
+        }
         /* Inventory filter/search styles */
         #inventorySearch{
             max-width:280px;
@@ -877,27 +905,73 @@
             });
         })();
 
+        let pendingDeleteProductId = null;
+
+        function actualizarEstadoScrollBody() {
+            const modalEditar = document.getElementById('modalEditar');
+            const modalEliminar = document.getElementById('modalEliminarProducto');
+            const hayModalAbierto =
+                (modalEditar && modalEditar.style.display === 'flex') ||
+                (modalEliminar && modalEliminar.style.display === 'flex');
+
+            document.body.style.overflow = hayModalAbierto ? 'hidden' : 'auto';
+        }
+
+        function cerrarModalEliminar() {
+            const modalEliminar = document.getElementById('modalEliminarProducto');
+            const nombreProducto = document.getElementById('deleteProductName');
+            pendingDeleteProductId = null;
+
+            if (nombreProducto) {
+                nombreProducto.textContent = '';
+            }
+
+            if (modalEliminar) {
+                modalEliminar.style.display = 'none';
+            }
+
+            actualizarEstadoScrollBody();
+        }
+
+        function enviarEliminacionProducto() {
+            if (!pendingDeleteProductId) {
+                cerrarModalEliminar();
+                return;
+            }
+
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/producto/${pendingDeleteProductId}/eliminar/`;
+
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+            if (csrfToken) {
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = 'csrfmiddlewaretoken';
+                csrfInput.value = csrfToken.value;
+                form.appendChild(csrfInput);
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
         // Función para confirmar eliminación de producto
         function confirmarEliminar(productoId, nombreProducto) {
-            if (confirm(`¿Estás seguro de que deseas eliminar el producto "${nombreProducto}"?\n\nEsta acción no se puede deshacer.`)) {
-                // Crear un formulario temporal para enviar la solicitud POST
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = `/producto/${productoId}/eliminar/`;
+            const modalEliminar = document.getElementById('modalEliminarProducto');
+            const nombreProductoEl = document.getElementById('deleteProductName');
 
-                // Agregar el token CSRF
-                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
-                if (csrfToken) {
-                    const csrfInput = document.createElement('input');
-                    csrfInput.type = 'hidden';
-                    csrfInput.name = 'csrfmiddlewaretoken';
-                    csrfInput.value = csrfToken.value;
-                    form.appendChild(csrfInput);
-                }
+            pendingDeleteProductId = productoId;
 
-                document.body.appendChild(form);
-                form.submit();
+            if (nombreProductoEl) {
+                nombreProductoEl.textContent = nombreProducto || 'este producto';
             }
+
+            if (modalEliminar) {
+                modalEliminar.style.display = 'flex';
+            }
+
+            actualizarEstadoScrollBody();
         }
 
         
@@ -957,8 +1031,9 @@
             const modalEditar = document.getElementById('modalEditar');
             if (modalEditar) {
                 modalEditar.style.display = 'flex';
-                document.body.style.overflow = 'hidden'; // Prevenir scroll del body
             }
+
+            actualizarEstadoScrollBody();
         }
 
         // Bind events for elements using data-attributes (safer than inline onclick)
@@ -993,8 +1068,9 @@
             const modalEditar = document.getElementById('modalEditar');
             if (modalEditar) {
                 modalEditar.style.display = 'none';
-                document.body.style.overflow = 'auto'; // Restaurar scroll del body
             }
+
+            actualizarEstadoScrollBody();
         }
 
         // Vista previa de imagen (con guardas)
@@ -1028,11 +1104,36 @@
                 });
             }
 
+            const modalEliminarClick = document.getElementById('modalEliminarProducto');
+            if (modalEliminarClick) {
+                modalEliminarClick.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        cerrarModalEliminar();
+                    }
+                });
+            }
+
+            const confirmarEliminarBtn = document.getElementById('confirmDeleteButton');
+            if (confirmarEliminarBtn) {
+                confirmarEliminarBtn.addEventListener('click', function() {
+                    enviarEliminacionProducto();
+                });
+            }
+
             // Cerrar modal con tecla Escape
             document.addEventListener('keydown', function(e) {
-                const modal = document.getElementById('modalEditar');
-                if (e.key === 'Escape' && modal && modal.style.display === 'flex') {
-                    cerrarModalEditar();
+                if (e.key === 'Escape') {
+                    const modalEditar = document.getElementById('modalEditar');
+                    const modalEliminar = document.getElementById('modalEliminarProducto');
+
+                    if (modalEliminar && modalEliminar.style.display === 'flex') {
+                        cerrarModalEliminar();
+                        return;
+                    }
+
+                    if (modalEditar && modalEditar.style.display === 'flex') {
+                        cerrarModalEditar();
+                    }
                 }
             });
         }
@@ -1097,6 +1198,23 @@
 
     <!-- Modal para ajustar inventario -->
     <!-- Ajustes combinados en modal de edición; modal de ajuste eliminado -->
+
+    <div id="modalEliminarProducto" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirmar eliminación</h3>
+                <button class="modal-close" onclick="cerrarModalEliminar()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="delete-warning">Vas a eliminar este producto del inventario. Esta acción no se puede deshacer.</p>
+                <div id="deleteProductName" class="delete-product-name"></div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="cerrarModalEliminar()">Cancelar</button>
+                    <button type="button" id="confirmDeleteButton" class="btn-danger">Eliminar producto</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal para editar producto -->
     <div id="modalEditar" class="modal-overlay" style="display: none;">
