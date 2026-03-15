@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
 PORT="${PORT:-8000}"
 APP_ROOT="${APP_ROOT:-/app/backend}"
@@ -10,13 +10,33 @@ echo "[entrypoint] PORT=${PORT} APP_ROOT=${APP_ROOT}"
 
 cd "$APP_ROOT"
 
+run_with_retries() {
+    local description="$1"
+    shift
+    local attempt=1
+    local max_attempts="${STARTUP_RETRIES:-10}"
+    local sleep_seconds="${STARTUP_RETRY_SLEEP:-3}"
+
+    until "$@"; do
+        if [ "$attempt" -ge "$max_attempts" ]; then
+            echo "[entrypoint] ${description} failed after ${attempt} attempts"
+            return 1
+        fi
+
+        echo "[entrypoint] ${description} failed on attempt ${attempt}/${max_attempts}; retrying in ${sleep_seconds}s"
+        attempt=$((attempt + 1))
+        sleep "$sleep_seconds"
+    done
+}
+
 echo "[entrypoint] Running migrations"
-python manage.py migrate --noinput
+run_with_retries "migrations" python manage.py migrate --noinput
+
 echo "[entrypoint] Collecting static files"
 python manage.py collectstatic --noinput 2>/dev/null || true
 
 echo "[entrypoint] Ensuring auth groups"
-python -c "
+run_with_retries "auth group setup" python -c "
 import os, django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_app.settings')
 django.setup()
@@ -45,29 +65,13 @@ if User.objects.count() == 0:
     print('Created default admin user:', u)
 " 2>/dev/null || true
 
-echo "[entrypoint] Rendering nginx configuration"
-sed "s/__PORT__/${PORT}/g" /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
-nginx -t
-
-echo "[entrypoint] Starting gunicorn on 127.0.0.1:8002"
-gunicorn django_app.wsgi:application \
-    --bind 127.0.0.1:8002 \
-    --workers ${WEB_CONCURRENCY:-2} \
-    --threads ${GUNICORN_THREADS:-2} \
+echo "[entrypoint] Starting gunicorn on 0.0.0.0:${PORT}"
+exec gunicorn django_app.wsgi:application \
+    --bind "0.0.0.0:${PORT}" \
+    --workers "${WEB_CONCURRENCY:-2}" \
+    --threads "${GUNICORN_THREADS:-2}" \
+    --timeout "${GUNICORN_TIMEOUT:-120}" \
     --access-logfile - \
     --error-logfile - \
     --capture-output \
-    --enable-stdio-inheritance &
-GUNICORN_PID=$!
-
-echo "[entrypoint] Starting nginx on port ${PORT}"
-nginx -g 'daemon off;' &
-NGINX_PID=$!
-
-trap 'kill -TERM ${GUNICORN_PID} ${NGINX_PID} 2>/dev/null || true; wait ${GUNICORN_PID} ${NGINX_PID} 2>/dev/null || true' TERM INT
-
-wait -n ${GUNICORN_PID} ${NGINX_PID}
-EXIT_CODE=$?
-kill -TERM ${GUNICORN_PID} ${NGINX_PID} 2>/dev/null || true
-wait ${GUNICORN_PID} ${NGINX_PID} 2>/dev/null || true
-exit ${EXIT_CODE}
+    --enable-stdio-inheritance

@@ -1,6 +1,6 @@
-# Despliegue en Railway (Docker + Nginx)
+# Despliegue en Railway (Docker + Gunicorn)
 
-El proyecto está preparado para desplegar **backend y frontend en la misma instancia** usando un único contenedor con **Nginx** (reverse proxy y estáticos) y **Gunicorn** (Django).
+El proyecto está preparado para desplegar **backend y frontend en la misma instancia** usando un único contenedor con **Gunicorn** sirviendo Django directamente en el puerto público de Railway. Los archivos estáticos se sirven con **WhiteNoise**.
 
 ## Requisitos
 
@@ -28,15 +28,15 @@ El proyecto está preparado para desplegar **backend y frontend en la misma inst
      - `SECRET_KEY`: clave secreta Django (recomendado en producción).
      - `DEBUG`: `False` en producción (recomendado).
 
-5. **Puerto**: Railway asigna `PORT` automáticamente; el entrypoint hace que Nginx escuche en ese puerto.
+5. **Puerto**: Railway asigna `PORT` automáticamente; el entrypoint hace que Gunicorn escuche directamente en ese puerto.
 
 6. **Deploy**: tras el build, Railway ejecuta el contenedor. En el arranque se ejecutan migraciones, `collectstatic`, creación de grupos y usuario admin por defecto si no hay usuarios.
 
 ## Estructura del contenedor
 
-- **Nginx**: escucha en `$PORT`, sirve `/static/` y `/media/`, y hace proxy del resto a Gunicorn.
-- **Gunicorn**: sirve la app Django en `127.0.0.1:8000`.
-- Todo en un solo proceso (entrypoint inicia Gunicorn en segundo plano y Nginx en primer plano).
+- **Gunicorn**: sirve la app Django en `0.0.0.0:$PORT`.
+- **WhiteNoise**: sirve archivos estáticos desde Django.
+- El entrypoint ejecuta migraciones con reintentos, `collectstatic`, configuración base de grupos/usuario admin y luego deja Gunicorn en primer plano.
 
 ## Probar en local con Docker
 
