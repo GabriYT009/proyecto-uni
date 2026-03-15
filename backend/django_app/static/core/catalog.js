@@ -104,8 +104,7 @@
                         window.__catalog_saved_scroll = (typeof __catalog_saved_scroll !== 'undefined' && __catalog_saved_scroll !== null) ? __catalog_saved_scroll : ((typeof window.scrollY !== 'undefined') ? window.scrollY : (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop || 0);
                         // disable scrolling on root element
                         try { document.documentElement.style.overflow = 'hidden'; document.body.style.overflow = 'hidden'; } catch(e){}
-                        // try to keep viewport at saved position
-                        try { window.scrollTo(0, window.__catalog_saved_scroll || 0); } catch(e){}
+                        // Keep current viewport position; avoid forced scroll jumps.
                 } catch(e){}
             console.log('[catalog.js] modal forced visible, style.display=', modal.style && modal.style.display);
 
@@ -240,12 +239,7 @@
                         // restore overflow and scroll
                         try { document.documentElement.style.overflow = ''; document.body.style.overflow = ''; } catch(e){}
                         // restore only if we actually have a numeric saved position
-                        try {
-                            if (saved !== null && Number.isFinite(Number(saved))) {
-                                try { window.scrollTo(0, Number(saved)); } catch(e){}
-                                try { setTimeout(function(){ window.scrollTo(0, Number(saved)); }, 50); } catch(e){}
-                            }
-                        } catch(e){}
+                        // Keep current viewport position on close; no forced scroll jump.
                         // cleanup both markers
                         try { delete window.__catalog_saved_scroll; } catch(e){}
                         try { delete window.__home_saved_scroll; } catch(e){}
@@ -656,12 +650,7 @@
                         // restore overflow and scroll (also remove padding added to avoid layout shift)
                         try { document.documentElement.style.overflow = ''; document.body.style.overflow = ''; document.documentElement.style.paddingRight = ''; document.body.style.paddingRight = ''; } catch(e){}
                         // restore only if we actually have a numeric saved position
-                        try {
-                            if (saved !== null && Number.isFinite(Number(saved))) {
-                                try { window.scrollTo(0, Number(saved)); } catch(e){}
-                                try { setTimeout(function(){ window.scrollTo(0, Number(saved)); }, 50); } catch(e){}
-                            }
-                        } catch(e){}
+                        // Keep current viewport position on close; no forced scroll jump.
                         // cleanup both markers
                         try { delete window.__catalog_saved_scroll; } catch(e){}
                         try { delete window.__home_saved_scroll; } catch(e){}
