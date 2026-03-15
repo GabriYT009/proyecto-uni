@@ -128,11 +128,12 @@ WSGI_APPLICATION = 'django_app.wsgi.application'
 
 
 # Database
-# Prioridad: DATABASE_URL (incluye aliases Railway) -> MYSQL_* -> SQLite
+# Prioridad: URL privada de Railway -> DATABASE_URL publica -> MYSQL_* -> SQLite
 DATABASE_URL = (
-    os.environ.get("DATABASE_URL")
-    or os.environ.get("MYSQL_URL")
     or os.environ.get("MYSQL_PRIVATE_URL")
+    or os.environ.get("DATABASE_PRIVATE_URL")
+    or os.environ.get("DATABASE_URL")
+    or os.environ.get("MYSQL_URL")
     or os.environ.get("MYSQL_PUBLIC_URL")
     or ""
 )
