@@ -5,11 +5,17 @@ PORT="${PORT:-8000}"
 APP_ROOT="${APP_ROOT:-/app/backend}"
 export PORT
 
+echo "[entrypoint] Starting application"
+echo "[entrypoint] PORT=${PORT} APP_ROOT=${APP_ROOT}"
+
 cd "$APP_ROOT"
 
+echo "[entrypoint] Running migrations"
 python manage.py migrate --noinput
+echo "[entrypoint] Collecting static files"
 python manage.py collectstatic --noinput 2>/dev/null || true
 
+echo "[entrypoint] Ensuring auth groups"
 python -c "
 import os, django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_app.settings')
@@ -19,6 +25,7 @@ for name in ['admin', 'user', 'cajero', 'cliente']:
     Group.objects.get_or_create(name=name)
 "
 
+echo "[entrypoint] Ensuring default admin"
 python -c "
 import os, django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_app.settings')
@@ -38,8 +45,11 @@ if User.objects.count() == 0:
     print('Created default admin user:', u)
 " 2>/dev/null || true
 
+echo "[entrypoint] Rendering nginx configuration"
 sed "s/__PORT__/${PORT}/g" /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
+nginx -t
 
+echo "[entrypoint] Starting gunicorn on 127.0.0.1:8002"
 gunicorn django_app.wsgi:application \
     --bind 127.0.0.1:8002 \
     --workers ${WEB_CONCURRENCY:-2} \
@@ -50,6 +60,7 @@ gunicorn django_app.wsgi:application \
     --enable-stdio-inheritance &
 GUNICORN_PID=$!
 
+echo "[entrypoint] Starting nginx on port ${PORT}"
 nginx -g 'daemon off;' &
 NGINX_PID=$!
 
