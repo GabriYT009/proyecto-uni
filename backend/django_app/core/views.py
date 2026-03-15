@@ -629,6 +629,7 @@ def perfil(request):
         cliente = None
 
     return render(request, 'core/perfil.html', {
+        'user': user,
         'user_groups': list(request.user.groups.values_list('name', flat=True)),
         'cart_count': len(request.session.get('cart', [])),
         'cliente': cliente,
