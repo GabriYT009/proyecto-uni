@@ -587,7 +587,7 @@
             <div class="group bar-right">
                 {% if user.is_authenticated %}
                     <div class="profile-menu">
-                        <button id="profileToggle" class="profile-btn" aria-haspopup="true" aria-expanded="false" onclick="(function(e){ e.stopPropagation(); const dd = document.getElementById('profileDropdown'); if(!dd) return; const opened = dd.classList.toggle('show'); this.setAttribute('aria-expanded', opened ? 'true' : 'false'); dd.setAttribute('aria-hidden', opened ? 'false' : 'true'); })(event);">
+                        <button id="profileToggle" class="profile-btn" aria-haspopup="true" aria-expanded="false">
                             <img src="{% static 'core/avatar.png' %}" alt="Avatar" class="avatar">{{ user.username }}
                         </button>
                         <div id="profileDropdown" class="profile-dropdown" role="menu" aria-hidden="true">

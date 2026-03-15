@@ -228,6 +228,31 @@
                 document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
             })();
 
+            // Profile dropdown toggle (clientes page)
+            (function(){
+                const profileToggle = document.getElementById('profileToggle');
+                const profileDropdown = document.getElementById('profileDropdown');
+                if(!profileToggle || !profileDropdown) return;
+
+                function closeProfile(){
+                    profileDropdown.classList.remove('show');
+                    profileToggle.setAttribute('aria-expanded','false');
+                    profileDropdown.setAttribute('aria-hidden','true');
+                }
+
+                profileToggle.addEventListener('click', function(e){
+                    e.stopPropagation();
+                    const opened = profileDropdown.classList.toggle('show');
+                    profileToggle.setAttribute('aria-expanded', opened ? 'true' : 'false');
+                    profileDropdown.setAttribute('aria-hidden', opened ? 'false' : 'true');
+                });
+
+                document.addEventListener('click', function(e){
+                    if(!profileToggle.contains(e.target) && !profileDropdown.contains(e.target)) closeProfile();
+                });
+                document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeProfile(); });
+            })();
+
             // Category dropdown (clientes page)
             (function(){
                 const catToggle = document.getElementById('categoryToggle');
