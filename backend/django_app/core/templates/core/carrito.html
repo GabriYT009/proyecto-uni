@@ -531,9 +531,15 @@
 
                         // Validate quantities before submitting the combined purchase
                         var form = document.getElementById('cartPurchaseForm');
+                        function hidePageLoader(){
+                            var loader = document.getElementById('pageLoaderOverlay');
+                            if (loader) loader.classList.remove('is-visible');
+                        }
                         if (form) {
                             form.addEventListener('submit', function(e){
                                 e.preventDefault();
+                                // Prevent global page-loader from staying visible while confirm modal is open
+                                hidePageLoader();
                                 var invalid = false;
                                 var msgs = [];
                                 var inputs = form.querySelectorAll('input[name^="cantidad_"]');
@@ -553,6 +559,7 @@
                                     items.push({id: pid, name: name, qty: v, price: price});
                                 });
                                 if (invalid) {
+                                    hidePageLoader();
                                     alert(msgs.join('\n'));
                                     return false;
                                 }
@@ -580,6 +587,9 @@
                                     // Redirect to pago_movil page where user will complete mobile payment
                                     modal.classList.remove('show');
                                     form.action = "{% url 'pago_movil' %}";
+                                    // Show loader only now, when navigation will really happen
+                                    var loader = document.getElementById('pageLoaderOverlay');
+                                    if (loader) loader.classList.add('is-visible');
                                     form.submit();
                                 };
                             });
