@@ -154,76 +154,75 @@ def login_post(request):
     if request.method == 'POST':
         username = (request.POST.get('username') or '').strip()
         password = (request.POST.get('password') or '').strip()
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return redirect('home')
 
-        # If the DB has no users yet (fresh deployment), allow default admin credentials.
-        # These can be adjusted via environment variables for production.
         fallback_user = os.environ.get("DJANGO_ADMIN_USER", "admin1")
         fallback_pass = os.environ.get("DJANGO_ADMIN_PASSWORD", "123456")
-        if username == fallback_user and password == fallback_pass:
-            # Ensure the fallback admin user exists and always accepts the fallback password.
-            # This helps when the DB already has a user with the same name but an unknown password.
-            user_obj, created = User.objects.get_or_create(
-                username=username,
-                defaults={
-                    "email": os.environ.get("DJANGO_ADMIN_EMAIL", "admin@example.com"),
-                    "is_superuser": True,
-                    "is_staff": True,
-                },
-            )
 
-            # Always update the password and admin flags so the fallback remains usable.
-            user_obj.set_password(password)
-            user_obj.is_superuser = True
-            user_obj.is_staff = True
-            user_obj.save()
-
-            # Ensure admin group membership if the group exists.
-            try:
-                admin_group = Group.objects.get(name="admin")
-                user_obj.groups.add(admin_group)
-            except Group.DoesNotExist:
-                pass
-
-            # Authenticate again now that the user exists and the password is set.
+        try:
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
                 return redirect('home')
 
-        # Log details to help diagnose deploy/login issues (will appear in Render logs).
-        # NOTE: `repr(username)` is used to surface leading/trailing spaces if present.
-        user_exists = User.objects.filter(username=username).exists()
-        user_info = None
-        if user_exists:
-            u = User.objects.filter(username=username).first()
-            user_info = {
-                'username': u.username,
-                'is_active': u.is_active,
-                'is_superuser': u.is_superuser,
-                'date_joined': u.date_joined.isoformat() if hasattr(u, 'date_joined') else None,
-            }
+            # If the DB has no users yet (fresh deployment), allow default admin credentials.
+            if username == fallback_user and password == fallback_pass:
+                user_obj, created = User.objects.get_or_create(
+                    username=username,
+                    defaults={
+                        "email": os.environ.get("DJANGO_ADMIN_EMAIL", "admin@example.com"),
+                        "is_superuser": True,
+                        "is_staff": True,
+                    },
+                )
 
-        logger.warning(
-            "Login failed (render). username=%s (repr=%s), user_exists=%s, fallback=%s/%s, info=%s",
-            username,
-            repr(username),
-            user_exists,
-            fallback_user,
-            "***" if password else "",
-            user_info,
-        )
+                user_obj.set_password(password)
+                user_obj.is_superuser = True
+                user_obj.is_staff = True
+                user_obj.save()
 
-        # Better error messaging for failed login
-        if username and user_exists:
-            error = 'Contraseña incorrecta. Verifica tu clave.'
-        else:
-            error = 'Usuario no encontrado. Verifica tu nombre de usuario.'
+                try:
+                    admin_group = Group.objects.get(name="admin")
+                    user_obj.groups.add(admin_group)
+                except Group.DoesNotExist:
+                    pass
 
-        return render(request, 'core/index.html', {'error': error})
+                user = authenticate(request, username=username, password=password)
+                if user is not None:
+                    login(request, user)
+                    return redirect('home')
+
+            user_exists = User.objects.filter(username=username).exists()
+            user_info = None
+            if user_exists:
+                u = User.objects.filter(username=username).first()
+                user_info = {
+                    'username': u.username,
+                    'is_active': u.is_active,
+                    'is_superuser': u.is_superuser,
+                    'date_joined': u.date_joined.isoformat() if hasattr(u, 'date_joined') else None,
+                }
+
+            logger.warning(
+                "Login failed. username=%s (repr=%s), user_exists=%s, fallback=%s/%s, info=%s",
+                username,
+                repr(username),
+                user_exists,
+                fallback_user,
+                "***" if password else "",
+                user_info,
+            )
+
+            if username and user_exists:
+                error = 'Contraseña incorrecta. Verifica tu clave.'
+            else:
+                error = 'Usuario no encontrado. Verifica tu nombre de usuario.'
+
+            return render(request, 'core/index.html', {'error': error})
+        except Exception:
+            logger.exception("Login failed due to backend/database error")
+            return render(request, 'core/index.html', {
+                'error': 'No se pudo iniciar sesion temporalmente. Intenta de nuevo en unos segundos.'
+            })
     return redirect('login')
 
 
