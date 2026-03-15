@@ -89,39 +89,46 @@ def login_view(request):
     return render(request, 'core/index.html')
 
 def home(request):
-    categories = _cached_categories()
+    categories = []
+    Productos = []
+    Productos_json = '[]'
 
-    productos_qs = (
-        Producto.objects
-        .filter(status_producto=True)
-        .select_related('categoria')
-        .only(
-            'id',
-            'nombre_producto',
-            'precio_venta',
-            'descripcion',
-            'imagen_producto',
-            'categoria__nombre_categoria',
+    try:
+        categories = _cached_categories()
+
+        productos_qs = (
+            Producto.objects
+            .filter(status_producto=True)
+            .select_related('categoria')
+            .only(
+                'id',
+                'nombre_producto',
+                'precio_venta',
+                'descripcion',
+                'imagen_producto',
+                'categoria__nombre_categoria',
+            )
+            .order_by('precio_venta')[:HOME_PRODUCTS_LIMIT]
         )
-        .order_by('precio_venta')[:HOME_PRODUCTS_LIMIT]
-    )
 
-    Productos = list(productos_qs)
+        Productos = list(productos_qs)
 
-    lista_productos_json = []
-    for p in Productos:
-        img_url = _safe_img_url(p)
-        p.img_url = img_url
-        lista_productos_json.append({
-            'id': p.pk,
-            'title': p.nombre_producto,
-            'price': p.precio_venta,
-            'img': img_url,
-            'desc': p.descripcion,
-            'Categoria': p.categoria.nombre_categoria if p.categoria else '',
-        })
+        lista_productos_json = []
+        for p in Productos:
+            img_url = _safe_img_url(p)
+            p.img_url = img_url
+            lista_productos_json.append({
+                'id': p.pk,
+                'title': p.nombre_producto,
+                'price': p.precio_venta,
+                'img': img_url,
+                'desc': p.descripcion,
+                'Categoria': p.categoria.nombre_categoria if p.categoria else '',
+            })
 
-    Productos_json = json.dumps(lista_productos_json, ensure_ascii=False)
+        Productos_json = json.dumps(lista_productos_json, ensure_ascii=False)
+    except Exception:
+        logger.exception("Home view fallback: database unavailable or timed out")
 
     return render(request, 'core/home.html', {
         'categories': categories, 

@@ -131,11 +131,18 @@ MYSQL_USER = os.environ.get("MYSQL_USER")
 MYSQL_PASSWORD = os.environ.get("MYSQL_PASSWORD")
 MYSQL_HOST = os.environ.get("MYSQL_HOST", "127.0.0.1")
 MYSQL_PORT = os.environ.get("MYSQL_PORT", "3306")
+DB_CONNECT_TIMEOUT = int(os.environ.get("DB_CONNECT_TIMEOUT", "5"))
+DB_READ_TIMEOUT = int(os.environ.get("DB_READ_TIMEOUT", "10"))
+DB_WRITE_TIMEOUT = int(os.environ.get("DB_WRITE_TIMEOUT", "10"))
 
 if DATABASE_URL.startswith(("mysql://", "mysql2://", "mysql+mysqlconnector://", "mysql+pymysql://")):
     DATABASES = {
         "default": dj_database_url.config(default=DATABASE_URL, conn_max_age=600, ssl_require=True)
     }
+    db_options = DATABASES["default"].setdefault("OPTIONS", {})
+    db_options.setdefault("connect_timeout", DB_CONNECT_TIMEOUT)
+    db_options.setdefault("read_timeout", DB_READ_TIMEOUT)
+    db_options.setdefault("write_timeout", DB_WRITE_TIMEOUT)
 elif MYSQL_NAME and MYSQL_USER:
     DATABASES = {
         "default": {
@@ -149,6 +156,9 @@ elif MYSQL_NAME and MYSQL_USER:
             "OPTIONS": {
                 "charset": "utf8mb4",
                 "init_command": "SET sql_mode='STRICT_TRANS_TABLES', default_storage_engine=InnoDB",
+                "connect_timeout": DB_CONNECT_TIMEOUT,
+                "read_timeout": DB_READ_TIMEOUT,
+                "write_timeout": DB_WRITE_TIMEOUT,
             },
         }
     }
