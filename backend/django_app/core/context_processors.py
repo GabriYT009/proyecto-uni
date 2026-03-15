@@ -1,14 +1,23 @@
+import logging
+
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from .models import Producto
+
+logger = logging.getLogger(__name__)
 
 def contador_carrito(request):
     """
     Este procesador lee la sesión en cada recarga de página 
     y devuelve la cantidad de items en el carrito.
     """
-    # Obtenemos el carrito de la sesión, si no existe es una lista vacía
-    cart = request.session.get('cart', [])
+    # Obtenemos el carrito de la sesión, si no existe es una lista vacía.
+    # Si la sesión falla (por ejemplo, por BD no disponible), no rompemos el render.
+    try:
+        cart = request.session.get('cart', [])
+    except Exception:
+        logger.exception("contador_carrito fallback: session unavailable")
+        cart = []
     
     # Devolvemos un diccionario. La clave será el nombre de la 
     # variable que podrás usar en cualquier HTML.

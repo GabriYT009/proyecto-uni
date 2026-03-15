@@ -112,13 +112,17 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
                 'django_app.core.context_processors.contador_carrito',  # procesador de contexto personalizado
             ],
         },
     },
 ]
+
+if os.environ.get("ENABLE_AUTH_CONTEXT_PROCESSOR", "False").lower() in ("1", "true", "yes"):
+    TEMPLATES[0]['OPTIONS']['context_processors'].append('django.contrib.auth.context_processors.auth')
+
+if os.environ.get("ENABLE_MESSAGES_CONTEXT_PROCESSOR", "False").lower() in ("1", "true", "yes"):
+    TEMPLATES[0]['OPTIONS']['context_processors'].append('django.contrib.messages.context_processors.messages')
 
 WSGI_APPLICATION = 'django_app.wsgi.application'
 
@@ -240,6 +244,10 @@ STATICFILES_STORAGE = (
     'whitenoise.storage.CompressedStaticFilesStorage'
 )
 WHITENOISE_MAX_AGE = 31536000 if not DEBUG else 0
+
+# Cookie-backed session/messages avoid hard dependency on DB during template rendering.
+SESSION_ENGINE = os.environ.get("SESSION_ENGINE", "django.contrib.sessions.backends.signed_cookies")
+MESSAGE_STORAGE = os.environ.get("MESSAGE_STORAGE", "django.contrib.messages.storage.cookie.CookieStorage")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
