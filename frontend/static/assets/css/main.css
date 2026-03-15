@@ -2688,7 +2688,7 @@ body {
 
 .top-bar {
   height: 82px !important;
-  background: rgba(255, 255, 255, 0.84) !important;
+  background: rgb(116 39 154) !important;
   border-bottom: 1px solid rgba(153, 50, 204, 0.12) !important;
   box-shadow: 0 16px 36px rgba(102, 32, 128, 0.12) !important;
   backdrop-filter: blur(18px) !important;
@@ -2707,7 +2707,7 @@ body {
   font-family: "Urbanist", sans-serif !important;
   font-weight: 800 !important;
   letter-spacing: -0.03em;
-  color: var(--brand-primary) !important;
+  color: #ffffff !important;
 }
 
 .bar-logo-text {
