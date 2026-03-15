@@ -128,8 +128,14 @@ WSGI_APPLICATION = 'django_app.wsgi.application'
 
 
 # Database
-# Prioridad: MYSQL_* o DATABASE_URL (MySQL) -> SQLite
-DATABASE_URL = os.environ.get("DATABASE_URL", "")
+# Prioridad: DATABASE_URL (incluye aliases Railway) -> MYSQL_* -> SQLite
+DATABASE_URL = (
+    os.environ.get("DATABASE_URL")
+    or os.environ.get("MYSQL_URL")
+    or os.environ.get("MYSQL_PRIVATE_URL")
+    or os.environ.get("MYSQL_PUBLIC_URL")
+    or ""
+)
 MYSQL_NAME = os.environ.get("MYSQL_DATABASE") or os.environ.get("MYSQL_NAME")
 MYSQL_USER = os.environ.get("MYSQL_USER")
 MYSQL_PASSWORD = os.environ.get("MYSQL_PASSWORD")
@@ -138,10 +144,11 @@ MYSQL_PORT = os.environ.get("MYSQL_PORT", "3306")
 DB_CONNECT_TIMEOUT = int(os.environ.get("DB_CONNECT_TIMEOUT", "5"))
 DB_READ_TIMEOUT = int(os.environ.get("DB_READ_TIMEOUT", "10"))
 DB_WRITE_TIMEOUT = int(os.environ.get("DB_WRITE_TIMEOUT", "10"))
+MYSQL_SSL_REQUIRE = os.environ.get("MYSQL_SSL_REQUIRE", "False").lower() in ("1", "true", "yes")
 
 if DATABASE_URL.startswith(("mysql://", "mysql2://", "mysql+mysqlconnector://", "mysql+pymysql://")):
     DATABASES = {
-        "default": dj_database_url.config(default=DATABASE_URL, conn_max_age=600, ssl_require=True)
+        "default": dj_database_url.config(default=DATABASE_URL, conn_max_age=600, ssl_require=MYSQL_SSL_REQUIRE)
     }
     db_options = DATABASES["default"].setdefault("OPTIONS", {})
     db_options.setdefault("connect_timeout", DB_CONNECT_TIMEOUT)
