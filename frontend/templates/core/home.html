@@ -743,6 +743,22 @@
     </div>
 
     <script>
+        // Close product detail modal on backdrop click or Escape
+        (function(){
+            const detailModal = document.getElementById('detailModal');
+            if (!detailModal) return;
+
+            detailModal.addEventListener('click', function(e){
+                if (e.target === detailModal) detailModal.classList.remove('show');
+            });
+
+            document.addEventListener('keydown', function(e){
+                if (e.key === 'Escape') detailModal.classList.remove('show');
+            });
+        })();
+    </script>
+
+    <script>
         // expose products before catalog.js initializes
         window.products = {{ Productos_json|safe }};
         try { localStorage.setItem('products', JSON.stringify(window.products)); } catch(e) {}

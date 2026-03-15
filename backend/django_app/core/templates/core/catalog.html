@@ -383,6 +383,26 @@
             </div>
         </div>
 
+    <script>
+        // Close product detail modal on backdrop click or Escape
+        (function(){
+            const detailModal = document.getElementById('detailModal');
+            if (!detailModal) return;
+
+            detailModal.addEventListener('click', function(e){
+                if (e.target === detailModal) {
+                    detailModal.classList.remove('show');
+                }
+            });
+
+            document.addEventListener('keydown', function(e){
+                if (e.key === 'Escape') {
+                    detailModal.classList.remove('show');
+                }
+            });
+        })();
+    </script>
+
     <script src="{% static 'core/catalog.js' %}"></script>
     <script src="{% static 'js/catalog.js' %}"></script>
     <script>
