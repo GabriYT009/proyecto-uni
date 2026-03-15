@@ -38,11 +38,25 @@ if User.objects.count() == 0:
     print('Created default admin user:', u)
 " 2>/dev/null || true
 
-exec gunicorn django_app.wsgi:application \
-  --bind 0.0.0.0:${PORT} \
-  --workers ${WEB_CONCURRENCY:-2} \
-  --threads ${GUNICORN_THREADS:-2} \
-  --access-logfile - \
-  --error-logfile - \
-  --capture-output \
-  --enable-stdio-inheritance
+sed "s/__PORT__/${PORT}/g" /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
+
+gunicorn django_app.wsgi:application \
+    --bind 127.0.0.1:8002 \
+    --workers ${WEB_CONCURRENCY:-2} \
+    --threads ${GUNICORN_THREADS:-2} \
+    --access-logfile - \
+    --error-logfile - \
+    --capture-output \
+    --enable-stdio-inheritance &
+GUNICORN_PID=$!
+
+nginx -g 'daemon off;' &
+NGINX_PID=$!
+
+trap 'kill -TERM ${GUNICORN_PID} ${NGINX_PID} 2>/dev/null || true; wait ${GUNICORN_PID} ${NGINX_PID} 2>/dev/null || true' TERM INT
+
+wait -n ${GUNICORN_PID} ${NGINX_PID}
+EXIT_CODE=$?
+kill -TERM ${GUNICORN_PID} ${NGINX_PID} 2>/dev/null || true
+wait ${GUNICORN_PID} ${NGINX_PID} 2>/dev/null || true
+exit ${EXIT_CODE}
