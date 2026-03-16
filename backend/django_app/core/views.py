@@ -1476,9 +1476,21 @@ def agregar_marca(request):
         if producto_id and marca:
             try:
                 producto = Producto.objects.get(pk=producto_id)
+                marca_anterior = (producto.marca_producto or '').strip()
                 producto.marca_producto = marca
                 producto.save()
-                messages.success(request, f'Marca "{marca}" agregada al producto "{producto.nombre_producto}".')
+                if marca_anterior and marca_anterior.lower() != marca.lower():
+                    messages.success(
+                        request,
+                        f'Marca actualizada en "{producto.nombre_producto}": "{marca_anterior}" -> "{marca}".'
+                    )
+                elif marca_anterior and marca_anterior.lower() == marca.lower():
+                    messages.success(
+                        request,
+                        f'La marca de "{producto.nombre_producto}" ya estaba en "{marca}".'
+                    )
+                else:
+                    messages.success(request, f'Marca "{marca}" agregada al producto "{producto.nombre_producto}".')
             except Producto.DoesNotExist:
                 messages.error(request, 'Producto no encontrado.')
             except Exception as e:
