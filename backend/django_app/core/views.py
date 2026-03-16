@@ -42,14 +42,14 @@ def _safe_img_url(producto):
 
 
 def _cached_categories(timeout=300):
-    cache_key = 'core:categories:list'
-    categories = cache.get(cache_key)
-    if categories is None:
-        categories = list(
-            Categoria.objects.only('id', 'nombre_categoria').order_by('nombre_categoria')
-        )
-        cache.set(cache_key, categories, timeout)
-    return categories
+    # Leemos categorias en cada request para reflejar cambios inmediatamente.
+    return list(
+        Categoria.objects
+        .filter(nombre_categoria__isnull=False)
+        .exclude(nombre_categoria='')
+        .only('id', 'nombre_categoria')
+        .order_by('nombre_categoria')
+    )
 
 
 def _user_groups(user):
