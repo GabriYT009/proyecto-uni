@@ -1,17 +1,32 @@
 from django import forms
+from django.db.models import Case, When, IntegerField
 from .models import Producto, Categoria
+
+ALLOWED_CATEGORY_NAMES = [
+    'Cajas',
+    'Toppers',
+    'Sublimación',
+    'Impresión',
+    'Personalización',
+    'Papelería',
+]
 
 class ProductForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        order_case = Case(
+            *[When(nombre_categoria=name, then=pos) for pos, name in enumerate(ALLOWED_CATEGORY_NAMES)],
+            output_field=IntegerField(),
+        )
         # Mostrar categorias con nombre valido y ordenadas alfabeticamente.
         self.fields['categoria'].queryset = (
             Categoria.objects
             .filter(nombre_categoria__isnull=False)
             .exclude(nombre_categoria='')
             .exclude(nombre_categoria__startswith='-')
-            .order_by('nombre_categoria')
+            .filter(nombre_categoria__in=ALLOWED_CATEGORY_NAMES)
+            .order_by(order_case, 'nombre_categoria')
         )
     
     class Meta:

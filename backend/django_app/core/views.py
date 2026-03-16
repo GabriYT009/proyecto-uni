@@ -10,7 +10,7 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django.contrib import messages
-from django.db.models import Q, F
+from django.db.models import Q, F, Case, When, IntegerField
 from django.core.cache import cache
 from django.conf import settings
 import re
@@ -25,6 +25,14 @@ from django.db import transaction
 logger = logging.getLogger(__name__)
 
 HOME_PRODUCTS_LIMIT = 24
+ALLOWED_CATEGORY_NAMES = [
+    'Cajas',
+    'Toppers',
+    'Sublimación',
+    'Impresión',
+    'Personalización',
+    'Papelería',
+]
 
 
 def _safe_img_url(producto):
@@ -43,13 +51,18 @@ def _safe_img_url(producto):
 
 def _cached_categories(timeout=300):
     # Leemos categorias en cada request para reflejar cambios inmediatamente.
+    order_case = Case(
+        *[When(nombre_categoria=name, then=pos) for pos, name in enumerate(ALLOWED_CATEGORY_NAMES)],
+        output_field=IntegerField(),
+    )
     return list(
         Categoria.objects
         .filter(nombre_categoria__isnull=False)
         .exclude(nombre_categoria='')
         .exclude(nombre_categoria__startswith='-')
+        .filter(nombre_categoria__in=ALLOWED_CATEGORY_NAMES)
         .only('id', 'nombre_categoria')
-        .order_by('nombre_categoria')
+        .order_by(order_case, 'nombre_categoria')
     )
 
 
