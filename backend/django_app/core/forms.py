@@ -2,6 +2,16 @@ from django import forms
 from .models import Producto, Categoria
 
 class ProductForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Mostrar categorias con nombre valido y ordenadas alfabeticamente.
+        self.fields['categoria'].queryset = (
+            Categoria.objects
+            .filter(nombre_categoria__isnull=False)
+            .exclude(nombre_categoria='')
+            .order_by('nombre_categoria')
+        )
     
     class Meta:
         model = Producto  # Modelo actualizado
@@ -56,30 +66,5 @@ class ProductForm(forms.ModelForm):
         return nombre
 
     def save(self, commit=True):
-        instance = super().save(commit=False)
-        
-
-        # cambié 'nombre_producto' en lugar de 'title'
-        nombre_lower = (instance.nombre_producto or "").lower()
-        
-        nombre_cat_asignar = 'Electrónica' # Valor por defecto
-
-        if any(word in nombre_lower for word in ['teclado', 'audífonos', 'computadora', 'celular', 'tablet', 'mouse', 'monitor', 'impresora', 'router', 'cámara', 'drone', 'consola', 'juego']):
-            nombre_cat_asignar = 'Electrónica'
-        elif any(word in nombre_lower for word in ['camisa', 'pantalón', 'zapatos', 'sombrero', 'bolso', 'ropa', 'vestido', 'chaqueta']):
-            nombre_cat_asignar = 'Ropa'
-        elif any(word in nombre_lower for word in ['mesa', 'silla', 'sofá', 'cama', 'cocina', 'baño', 'hogar', 'decoración']):
-            nombre_cat_asignar = 'Hogar'
-        
-
-        # Usamos get_or_create solo con el nombre.
-        categoria_obj, created = Categoria.objects.get_or_create(
-            nombre_categoria=nombre_cat_asignar,
-            defaults={'descripcion_categoria': 'Categoría asignada automáticamente'}
-        )
-        
-        instance.categoria = categoria_obj
-
-        if commit:
-            instance.save()
-        return instance
+        # Respetar la categoria seleccionada en el formulario.
+        return super().save(commit=commit)
