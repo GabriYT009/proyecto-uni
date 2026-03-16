@@ -50,6 +50,12 @@ def _safe_img_url(producto):
 
 
 def _cached_categories(timeout=300):
+    for category_name in ALLOWED_CATEGORY_NAMES:
+        Categoria.objects.get_or_create(
+            nombre_categoria=category_name,
+            defaults={'descripcion_categoria': f'Categoria {category_name}'},
+        )
+
     # Leemos categorias en cada request para reflejar cambios inmediatamente.
     order_case = Case(
         *[When(nombre_categoria=name, then=pos) for pos, name in enumerate(ALLOWED_CATEGORY_NAMES)],
