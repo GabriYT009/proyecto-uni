@@ -3,6 +3,7 @@ set -euo pipefail
 
 PORT="${PORT:-8000}"
 APP_ROOT="${APP_ROOT:-/app/backend}"
+MEDIA_ROOT="${MEDIA_ROOT:-${APP_ROOT}/media}"
 RUN_STARTUP_TASKS="${RUN_STARTUP_TASKS:-0}"
 RUN_MIGRATIONS="${RUN_MIGRATIONS:-${RUN_STARTUP_TASKS}}"
 RUN_BOOTSTRAP_AUTH="${RUN_BOOTSTRAP_AUTH:-${RUN_STARTUP_TASKS}}"
@@ -10,9 +11,25 @@ RUN_COLLECTSTATIC="${RUN_COLLECTSTATIC:-0}"
 export PORT
 
 echo "[entrypoint] Starting application"
-echo "[entrypoint] PORT=${PORT} APP_ROOT=${APP_ROOT}"
+echo "[entrypoint] PORT=${PORT} APP_ROOT=${APP_ROOT} MEDIA_ROOT=${MEDIA_ROOT}"
 
 cd "$APP_ROOT"
+
+# Ensure media directory exists (important when MEDIA_ROOT points to a Railway volume).
+mkdir -p "$MEDIA_ROOT"
+
+# Optionally seed MEDIA_ROOT with bundled media files on first run.
+# Useful when migrating from repo-bundled media to a persistent mounted volume.
+INIT_MEDIA_FROM_BUNDLED="${INIT_MEDIA_FROM_BUNDLED:-1}"
+BUNDLED_MEDIA_DIR="${APP_ROOT}/media"
+if [ "$INIT_MEDIA_FROM_BUNDLED" = "1" ] || [ "$INIT_MEDIA_FROM_BUNDLED" = "true" ] || [ "$INIT_MEDIA_FROM_BUNDLED" = "yes" ]; then
+    if [ -d "$BUNDLED_MEDIA_DIR" ] && [ "$BUNDLED_MEDIA_DIR" != "$MEDIA_ROOT" ]; then
+        if [ -z "$(ls -A "$MEDIA_ROOT" 2>/dev/null || true)" ]; then
+            echo "[entrypoint] Seeding MEDIA_ROOT from bundled media"
+            cp -a "$BUNDLED_MEDIA_DIR/." "$MEDIA_ROOT/" 2>/dev/null || true
+        fi
+    fi
+fi
 
 run_with_retries() {
     local description="$1"

@@ -224,8 +224,8 @@ STATIC_URL = '/static/'
 # and serve them with WhiteNoise.
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = os.environ.get("MEDIA_URL", '/media/')
+MEDIA_ROOT = Path(os.environ.get("MEDIA_ROOT", str(BASE_DIR / 'media')))
 
 # In production, prefer a single canonical static tree to avoid duplicate paths
 # during collectstatic. Local development can opt into the legacy trees.

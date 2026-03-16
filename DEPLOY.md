@@ -57,5 +57,11 @@ Abre `http://localhost:8000`.
 
 ## Notas
 
-- **Media (subidas)**: en Railway el disco es efímero. Para persistir archivos subidos usa un almacenamiento externo (S3, etc.) y configura Django para ello.
+- **Media (subidas)**: en Railway el disco local del contenedor es efímero. Para que las imágenes de productos NO se pierdan entre deploys:
+  1. Crea un **Volume** en Railway y móntalo, por ejemplo en `/data`.
+  2. En Variables del servicio define: `MEDIA_ROOT=/data/media`.
+  3. Redeploy del servicio.
+  4. (Opcional) `INIT_MEDIA_FROM_BUNDLED=1` para copiar una sola vez imágenes existentes del contenedor al volumen cuando esté vacío.
+
+  Con esta configuración, las subidas `ImageField` quedan persistentes entre reinicios y nuevos deploys.
 - **MySQL**: usa un servicio gestionado (Railway, PlanetScale, Aiven, etc.) y configura `DATABASE_URL` o `MYSQL_*`.
