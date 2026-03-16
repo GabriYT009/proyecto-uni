@@ -742,9 +742,12 @@ def add_to_cart(request, product_id):
 @login_required
 def remove_from_cart(request, product_id):
     cart = request.session.get('cart', [])
-    
-    cart.remove(product_id)
+
+    # Remove the product entirely from session cart, even if it appears multiple times.
+    pid = str(product_id)
+    cart = [item for item in cart if str(item) != pid]
     request.session['cart'] = cart
+    request.session.modified = True
     return redirect('carrito')
 
 
