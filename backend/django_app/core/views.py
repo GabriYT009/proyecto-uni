@@ -47,6 +47,7 @@ def _cached_categories(timeout=300):
         Categoria.objects
         .filter(nombre_categoria__isnull=False)
         .exclude(nombre_categoria='')
+        .exclude(nombre_categoria__startswith='-')
         .only('id', 'nombre_categoria')
         .order_by('nombre_categoria')
     )

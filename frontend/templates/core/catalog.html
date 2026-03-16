@@ -289,30 +289,12 @@
             <div class="category-bar-wrap" aria-label="Barra de categorías">
                 <button type="button" class="cat-scroll-btn cat-scroll-left" aria-label="Anterior">◀</button>
                 <div class="category-grid category-bar" role="navigation">
-                    <a href="?Categoria=Cajas" class="category-card {% if selected_Categoria == 'Cajas' %}active{% endif %}">
-                        <div class="category-icon">📦</div>
-                        <span>Cajas</span>
+                    {% for categoria in categories %}
+                    <a href="?Categoria={{ categoria.nombre_categoria|urlencode }}" class="category-card {% if selected_Categoria == categoria.nombre_categoria %}active{% endif %}">
+                        <div class="category-icon">{% cycle '📦' '🎂' '🖨️' '📄' '🎨' '📝' %}</div>
+                        <span>{{ categoria.nombre_categoria }}</span>
                     </a>
-                    <a href="?Categoria=Toppers" class="category-card {% if selected_Categoria == 'Toppers' %}active{% endif %}">
-                        <div class="category-icon">🎂</div>
-                        <span>Toppers</span>
-                    </a>
-                    <a href="?Categoria=Sublimación" class="category-card {% if selected_Categoria == 'Sublimación' %}active{% endif %}">
-                        <div class="category-icon">🖨️</div>
-                        <span>Sublimación</span>
-                    </a>
-                    <a href="?Categoria=Impresión" class="category-card {% if selected_Categoria == 'Impresión' %}active{% endif %}">
-                        <div class="category-icon">📄</div>
-                        <span>Impresión</span>
-                    </a>
-                    <a href="?Categoria=Personalización" class="category-card {% if selected_Categoria == 'Personalización' %}active{% endif %}">
-                        <div class="category-icon">🎨</div>
-                        <span>Personalización</span>
-                    </a>
-                    <a href="?Categoria=Papelería" class="category-card {% if selected_Categoria == 'Papelería' %}active{% endif %}">
-                        <div class="category-icon">📝</div>
-                        <span>Papelería</span>
-                    </a>
+                    {% endfor %}
                 </div>
                 <button type="button" class="cat-scroll-btn cat-scroll-right" aria-label="Siguiente">▶</button>
             </div>

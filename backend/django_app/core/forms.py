@@ -10,6 +10,7 @@ class ProductForm(forms.ModelForm):
             Categoria.objects
             .filter(nombre_categoria__isnull=False)
             .exclude(nombre_categoria='')
+            .exclude(nombre_categoria__startswith='-')
             .order_by('nombre_categoria')
         )
     

@@ -544,30 +544,12 @@
             <div class="category-bar-wrap" aria-label="Barra de categorías">
                 <button type="button" class="cat-scroll-btn cat-scroll-left" aria-label="Anterior">◀</button>
                 <div class="category-grid category-bar" role="navigation">
-                    <a href="{% url 'catalog' %}?Categoria=Cajas" class="category-card">
-                        <div class="category-icon">📦</div>
-                        <span>Cajas</span>
+                    {% for categoria in categories %}
+                    <a href="{% url 'catalog' %}?Categoria={{ categoria.nombre_categoria|urlencode }}" class="category-card">
+                        <div class="category-icon">{% cycle '📦' '🎂' '🖨️' '📄' '🎨' '📝' %}</div>
+                        <span>{{ categoria.nombre_categoria }}</span>
                     </a>
-                    <a href="{% url 'catalog' %}?Categoria=Toppers" class="category-card">
-                        <div class="category-icon">🎂</div>
-                        <span>Toppers</span>
-                    </a>
-                    <a href="{% url 'catalog' %}?Categoria=Sublimación" class="category-card">
-                        <div class="category-icon">🖨️</div>
-                        <span>Sublimación</span>
-                    </a>
-                    <a href="{% url 'catalog' %}?Categoria=Impresión" class="category-card">
-                        <div class="category-icon">📄</div>
-                        <span>Impresión</span>
-                    </a>
-                    <a href="{% url 'catalog' %}?Categoria=Personalización" class="category-card">
-                        <div class="category-icon">🎨</div>
-                        <span>Personalización</span>
-                    </a>
-                    <a href="{% url 'catalog' %}?Categoria=Papelería" class="category-card">
-                        <div class="category-icon">📝</div>
-                        <span>Papelería</span>
-                    </a>
+                    {% endfor %}
                 </div>
                 <button type="button" class="cat-scroll-btn cat-scroll-right" aria-label="Siguiente">▶</button>
             </div>
