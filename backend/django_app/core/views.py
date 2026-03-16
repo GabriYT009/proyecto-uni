@@ -606,6 +606,7 @@ def catalog(request):
     lista_productos_json = []
     for p in page_obj.object_list:
         img_url = _safe_img_url(p)
+        p.img_url = img_url
         lista_productos_json.append({
             'id': p.pk,
             'title': p.nombre_producto,
