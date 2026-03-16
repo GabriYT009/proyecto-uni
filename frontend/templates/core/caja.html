@@ -34,6 +34,33 @@
         .invoice-header{ margin-bottom:12px; }
         #invoice-table th, #invoice-table td{ font-size:13px; }
         #invoice-table input{ width:100%; border: none; text-align:center; }
+        .invoice-table-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+
+        @media (max-width: 768px){
+            .page-shell{ padding:10px; }
+            .wrap{ display:block; }
+            .left{ flex:1 1 auto; padding:12px; border-radius:10px; }
+            .invoice{ padding:10px; }
+            .invoice-header{ flex-direction:column; gap:8px; }
+            .customer-info{ font-size:13px !important; }
+            .factura-info{ text-align:left !important; font-size:13px !important; }
+            #invoice-table th, #invoice-table td{ font-size:12px; padding:5px !important; }
+            #invoice-table input{ min-width:42px; }
+            .totals div{ font-size:20px !important; }
+            .actions{ display:flex; gap:8px; }
+            .actions .btn{ flex:1; min-height:40px; }
+            .inventory{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+            .card{ padding:6px; }
+            .card-img{ height:76px; }
+            .card .title{ font-size:13px; }
+            .card .price{ font-size:12px; }
+            .card .stock{ font-size:11px; }
+        }
+
+        @media (max-width: 420px){
+            .inventory{ grid-template-columns:1fr 1fr; }
+            #client-doc{ width:100px !important; }
+        }
     </style>
 </head>
 <body>
@@ -72,7 +99,8 @@
                         </div>
                     </div>
 
-                    <table id="invoice-table" style="width:100%; border-collapse:collapse; margin-top:12px;">
+                    <div class="invoice-table-wrap">
+                    <table id="invoice-table" style="width:100%; border-collapse:collapse; margin-top:12px; min-width:520px;">
                         <thead>
                             <tr style="background:#f0f0f0;">
                                 <th style="padding:6px; border:1px solid #ddd;">Código</th>
@@ -86,6 +114,7 @@
                             <!-- rows added here -->
                         </tbody>
                     </table>
+                    </div>
 
                     <div class="totals" style="margin-top:12px; text-align:right; font-weight:700;">
                         <div style="font-size:18px; margin-top:6px">Total: $<span id="total">0.00</span></div>
