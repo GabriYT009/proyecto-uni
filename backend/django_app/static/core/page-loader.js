@@ -45,8 +45,12 @@
 
   function shouldSkipLink(link) {
     if (!link) return true;
+    // Skip links handled via JS (modal open / AJAX add-to-cart).
+    if (link.classList && (link.classList.contains('view') || link.classList.contains('add-cart'))) return true;
+    if (link.closest && link.closest('.view, .add-cart')) return true;
     var href = link.getAttribute('href') || '';
     if (!href || href === '#' || href.startsWith('javascript:')) return true;
+    if (href.indexOf('/add_to_cart/') !== -1) return true;
     if (href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('data:')) return true;
     if (link.hasAttribute('download')) return true;
     if (link.target && link.target !== '_self') return true;
@@ -92,6 +96,12 @@
     window.addEventListener('load', function () {
       hideLoader();
     });
+
+    // Expose controls for pages with async flows that must hide overlay manually.
+    window.PageLoader = {
+      show: showLoader,
+      hide: hideLoader
+    };
   }
 
   if (document.readyState === 'loading') {

@@ -523,6 +523,8 @@
                     }
                 } catch(err){
                     console.error('addToCart failed', err);
+                } finally {
+                    try { if (window.PageLoader && typeof window.PageLoader.hide === 'function') window.PageLoader.hide(); } catch(e){}
                 }
             };
         })();
