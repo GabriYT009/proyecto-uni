@@ -7,7 +7,8 @@
     <title>Caja</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <style>
-        body{ font-family: 'Montserrat', sans-serif; background: #ffffff; margin:0; padding:20px; }
+        body{ margin:0; padding:0; font-family: "Urbanist", "Segoe UI", Roboto, Arial, sans-serif; background: #edececfa !important; min-height: 100vh; }
+        .page-shell{ padding:20px; }
         .wrap{ max-width:1400px; margin:0 auto; display:flex; gap:20px; }
         .left{ flex:0 0 520px; background:#fff; padding:18px; border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,0.06); }
         .right{ flex:1; background:#fff; padding:18px; border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,0.06); }
@@ -35,8 +36,18 @@
     </style>
 </head>
 <body>
+    <div class="page-shell">
     <div style="max-width:1200px; margin:12px auto;">
         <h2 style="color:#9932CC;">Caja</h2>
+        {% if messages %}
+        <div style="margin:8px 0 12px 0;">
+            {% for message in messages %}
+            <div style="padding:10px 12px; border-radius:8px; margin-bottom:8px; color:#fff; background:{% if message.tags == 'success' %}#1f9d57{% else %}#d9534f{% endif %};">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
         <div class="wrap">
             <div class="left" style="flex:1">
                 <div class="invoice">
@@ -94,7 +105,7 @@
                     <div class="inventory" id="quick-products">
                         {% for p in productos %}
                         <div class="card" data-id="{{ p.pk }}" data-code="{{ p.pk }}" data-name="{{ p.nombre_producto }}" data-price="{{ p.precio_venta }}" data-stock="{{ p.cantidad_disponible }}">
-                            {% if p.img_url %}<img src="{{ p.img_url }}" class="card-img" loading="lazy" decoding="async" style="display:none;" />{% endif %}
+                            {% if p.img_url %}<img src="{{ p.img_url }}" class="card-img" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='{% static 'assets/img/logo.png' %}';" />{% else %}<img src="{% static 'assets/img/logo.png' %}" class="card-img" loading="lazy" decoding="async" />{% endif %}
                             <div class="title">{{ p.nombre_producto }}</div>
                             <div class="price">${{ p.precio_venta }}</div>
                             <div class="stock">Stock: {{ p.cantidad_disponible }}</div>
@@ -105,12 +116,28 @@
             </div>
         </div>
     </div>
+    </div>
 
     <script>
         // Quick POS behavior: click inventory item to add to invoice
         (function(){
             function format(n){ return parseFloat(n).toFixed(2); }
             var items = {};
+
+            function getCookie(name){
+                var cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
 
             function recalc(){
                 var total = 0; for(var k in items){ total += items[k].price * items[k].qty; }
@@ -145,13 +172,7 @@
                     var name = card.dataset.name.toLowerCase();
                     var code = card.dataset.code.toLowerCase();
                     var match = name.includes(term) || code.includes(term);
-                    var img = card.querySelector('img');
                     card.style.display = match ? '' : 'none';
-                    // show image only if there's a non-empty search term and it's a match
-                    if(img){
-                        if(term.length > 0 && match){ img.style.display = ''; }
-                        else { img.style.display = 'none'; }
-                    }
                     if(match && !matched) matched = card; // first matching card
                 });
             });
@@ -214,7 +235,38 @@
 
 
             document.getElementById('clear-invoice').addEventListener('click', function(){ items = {}; renderInvoice(); recalc(); });
-            document.getElementById('checkout').addEventListener('click', function(){ alert('Cobrar $' + document.getElementById('total').textContent); });
+            document.getElementById('checkout').addEventListener('click', async function(){
+                var payloadItems = Object.keys(items).map(function(k){
+                    return { id: Number(items[k].id), qty: Number(items[k].qty || 1) };
+                }).filter(function(it){ return it.id > 0 && it.qty > 0; });
+
+                if(!payloadItems.length){
+                    alert('No hay productos agregados para cobrar.');
+                    return;
+                }
+
+                try {
+                    const res = await fetch('/caja/cobrar/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken') || ''
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify({ items: payloadItems })
+                    });
+                    const data = await res.json();
+                    if (!res.ok || !data.success) {
+                        alert(data.error || 'No se pudo procesar el pago.');
+                        return;
+                    }
+
+                    alert(data.message || 'Su pago ha sido procesado exitosamente.');
+                    window.location.href = data.redirect_url || '/caja/';
+                } catch(err){
+                    alert('Error al procesar el pago. Intenta de nuevo.');
+                }
+            });
         })();
     </script>
     <script src="{% static 'core/page-loader.js' %}"></script>

@@ -21,6 +21,7 @@ from django.core.paginator import Paginator
 from .forms import ProductForm
 from django.utils import timezone
 from django.db import transaction
+from django.urls import reverse
 
 logger = logging.getLogger(__name__)
 
@@ -785,6 +786,102 @@ def caja(request):
         'cart_count': len(request.session.get('cart', [])),
         'user_groups': _user_groups(request.user)
     })
+
+
+@login_required
+@shared_access
+def cobrar_caja(request):
+    """Procesa cobro desde la vista Caja y devuelve JSON para feedback en UI."""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Metodo no permitido'}, status=405)
+
+    try:
+        payload = json.loads(request.body or '{}')
+    except Exception:
+        return JsonResponse({'success': False, 'error': 'Payload JSON invalido'}, status=400)
+
+    raw_items = payload.get('items') or []
+    if not isinstance(raw_items, list) or not raw_items:
+        return JsonResponse({'success': False, 'error': 'No hay productos para cobrar'}, status=400)
+
+    qty_by_product = {}
+    for item in raw_items:
+        try:
+            pid = int(item.get('id'))
+            qty = int(item.get('qty', 1))
+        except Exception:
+            continue
+        if pid <= 0 or qty <= 0:
+            continue
+        qty_by_product[pid] = qty_by_product.get(pid, 0) + qty
+
+    if not qty_by_product:
+        return JsonResponse({'success': False, 'error': 'No hay productos validos para cobrar'}, status=400)
+
+    productos = {
+        p.pk: p for p in Producto.objects.filter(pk__in=qty_by_product.keys(), status_producto=True)
+    }
+
+    for pid in qty_by_product.keys():
+        if pid not in productos:
+            return JsonResponse({'success': False, 'error': f'Producto no disponible (ID {pid})'}, status=400)
+
+    try:
+        with transaction.atomic():
+            carrito = CarritoDeCompras.objects.create(usuario=request.user, status_carrito=True)
+            total = 0.0
+
+            for pid, cantidad in qty_by_product.items():
+                producto = productos[pid]
+                disponible = producto.cantidad_disponible or 0
+
+                if cantidad > disponible:
+                    return JsonResponse({
+                        'success': False,
+                        'error': f'Stock insuficiente para "{producto.nombre_producto}". Disponible: {disponible}.'
+                    }, status=400)
+
+                subtotal = float(producto.precio_venta or 0) * cantidad
+                OrdenDeDespacho.objects.create(
+                    carrito_de_compras=carrito,
+                    producto=producto,
+                    cantidad_item=cantidad,
+                    sub_total_item=subtotal,
+                    estado_disponibilidad=True,
+                )
+
+                cantidad_anterior = producto.cantidad_disponible or 0
+                producto.cantidad_disponible = max(0, cantidad_anterior - cantidad)
+                producto.save(update_fields=['cantidad_disponible'])
+
+                Historial_Inventario.objects.create(
+                    producto=producto,
+                    cantidad_anterior=cantidad_anterior,
+                    cantidad_nueva=producto.cantidad_disponible or 0,
+                    tipo_movimiento='venta',
+                    motivo=f'Cobro en caja por {request.user.username} (cantidad {cantidad})',
+                    usuario_responsable=request.user.username,
+                )
+
+                total += subtotal
+
+            Salida.objects.create(
+                carrito_de_compras=carrito,
+                metodo_pago=None,
+                usuario=request.user,
+                total=total,
+                date=timezone.now(),
+            )
+
+        messages.success(request, 'Pago procesado exitosamente.')
+        return JsonResponse({
+            'success': True,
+            'message': 'Pago procesado exitosamente.',
+            'redirect_url': reverse('caja'),
+        })
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 @login_required
 @admin_only
