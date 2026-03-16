@@ -187,6 +187,8 @@ document.addEventListener('click', function(event) {
     window.__detailModalGlobalCloseBound = true;
 
     document.addEventListener('click', function(event) {
+        if (event.target && event.target.closest && event.target.closest('.view')) return;
+
         const modalElement = document.getElementById('detailModal');
         if (!modalElement || !modalElement.classList.contains('show')) return;
 
