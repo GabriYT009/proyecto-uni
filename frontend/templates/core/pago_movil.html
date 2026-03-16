@@ -7,6 +7,23 @@
     <title>Pago móvil</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <style>
+        :root {
+            --primary-color: #6A1B9A;
+            --secondary-color: #9C27B0;
+            --background-gradient: linear-gradient(180deg, #e1e0e0 0%, var(--secondary-color) 100%);
+            --background-color: #EFEFEF;
+            --card-background: #ffffff;
+            --card-opacity: 1;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Urbanist", "Segoe UI", Roboto, Arial, sans-serif;
+            background: #e1e0e0 !important;
+            min-height: 100vh;
+        }
+
         .container{ max-width:760px; margin:40px auto; padding:20px; background:#fff; border-radius:12px; }
         .field{ margin-bottom:12px; }
         label{ display:block; margin-bottom:6px; font-weight:700; color:#333; }
