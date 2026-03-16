@@ -35,7 +35,7 @@
             left: 0;
             right: 0;
             height: 70px;
-            background: rgb(72 13 102);
+            background: rgb(72 13 102) !important;
             border-bottom: 1px solid rgba(153, 50, 204, 0.12);
             z-index: 10000;
             transition: all 240ms cubic-bezier(.2,.9,.2,1);
@@ -58,28 +58,25 @@
             align-items: center;
             font-size: 24px;
             font-weight: 700;
-            color: #ffffff;
+            color: #ffffff !important;
             text-decoration: none;
         }
 
         .bar-logo-text {
             font-size: 24px;
             font-weight: 700;
-            color: #ffffff;
+            color: #ffffff !important;
         }
 
         .main-nav {
-            background: #ffffff;
-            border-radius: 28px;
-            padding: 6px 10px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
             display: flex;
             gap: 30px;
             margin-right: 30px;
+            align-items: center;
         }
 
         .nav-link {
-            color: #333;
+            color: #ffffff !important;
             text-decoration: none;
             font-weight: 600;
             font-size: 16px;
@@ -89,8 +86,8 @@
         }
 
         .nav-link:hover {
-            background: #f0f0f0;
-            color: #9932CC;
+            background: rgba(255,255,255,0.12);
+            color: #ffffff !important;
         }
 
         .profile-menu {
@@ -110,6 +107,11 @@
             gap: 8px;
             cursor: pointer;
             box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+        }
+
+        .bar-center {
+            display: flex;
+            align-items: center;
         }
 
         .profile-dropdown {
