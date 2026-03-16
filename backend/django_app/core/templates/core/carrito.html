@@ -16,22 +16,11 @@
             border-radius: 25px;
             margin: 40px auto;
             padding: 50px;
-    <script>
-        // Product dropdown toggle (carrito page)
-        (function(){
-            const pt = document.getElementById('productToggle');
-            const pd = document.getElementById('productDropdown');
-            if(!pt || !pd) return;
-            function closeP(){ pd.classList.remove('show'); pt.setAttribute('aria-expanded','false'); pd.setAttribute('aria-hidden','true'); }
-            pt.addEventListener('click', function(e){ e.stopPropagation(); const opened = pd.classList.toggle('show'); pt.setAttribute('aria-expanded', opened ? 'true' : 'false'); pd.setAttribute('aria-hidden', opened ? 'false' : 'true'); });
-            document.addEventListener('click', function(e){ if(!pt.contains(e.target) && !pd.contains(e.target)) closeP(); });
-            document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeP(); });
-        })();
-    </script>
             background: rgb(229 227 227 / 92%);
             box-shadow: 0 0 50px rgba(255, 105, 180, 0.3);
             max-width: 1000px;
-            width: 90%;
+            width: min(1000px, 94vw);
+            box-sizing: border-box;
         }
 
         body{
@@ -69,14 +58,14 @@
         .nav-link{ color:#333; text-decoration:none; font-weight:600; font-size:16px; padding:8px 12px; border-radius:6px; transition: all 0.3s ease; }
         .nav-link:hover{ background:#f0f0f0; color:#9932CC; }
 
-        .bar-toggle{ display:none; /* hide on desktop */ }
+        .bar-toggle{ display:none; align-items:center; justify-content:center; width:40px; height:40px; border-radius:10px; border:1px solid rgba(255,255,255,0.35); background:rgba(255,255,255,0.12); cursor:pointer; }
         /* cuando la barra está colapsada mostrar logo dentro del contenedor pequeño */
         .top-bar.collapsed .bar-logo-link{ left:8px; top:8px; z-index:10003; }
         .top-bar.collapsed .bar-logo-link img.bar-logo{ width:28px; height:28px; border-radius:6px; }
         /* colocar el toggle a la derecha dentro del contenedor colapsado para poder expandir de nuevo */
         .top-bar.collapsed .bar-toggle{ left:auto; right:8px; top:8px; z-index:10004; }
         .bar-toggle .hamburger{ width:20px; height:14px; position:relative; display:inline-block; }
-        .bar-toggle .hamburger span{ position:absolute; left:0; right:0; height:2px; background:#9932CC; border-radius:2px; }
+        .bar-toggle .hamburger span{ position:absolute; left:0; right:0; height:2px; background:#fff; border-radius:2px; }
         .bar-toggle .hamburger span:nth-child(1){ top:0; }
         .bar-toggle .hamburger span:nth-child(2){ top:6px; }
         .bar-toggle .hamburger span:nth-child(3){ top:12px; }
@@ -178,6 +167,66 @@
             .product-row .actions{ min-width:90px; }
             .card-body{ padding:18px; }
         }
+        @media (max-width: 768px) {
+            body { padding-top: 132px; overflow-x: hidden; }
+            .top-bar,
+            .top-bar.collapsed {
+                left: 0;
+                right: 0;
+                width: 100%;
+                height: 124px;
+                border-radius: 0;
+                padding: 0;
+                border-bottom: 1px solid rgba(153,50,204,0.12);
+                box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+            }
+            .top-bar .bar-inner,
+            .top-bar.collapsed .bar-inner {
+                height: 124px;
+                padding: 8px 10px;
+                align-items: flex-start;
+                flex-wrap: wrap;
+                gap: 8px;
+                display: flex;
+            }
+            .bar-logo-link { position: static; transform: none; }
+            .bar-toggle,
+            .top-bar.collapsed .bar-toggle {
+                display: flex;
+                position: static;
+                margin-left: 8px;
+                z-index: 10001;
+            }
+            .bar-inner .bar-right { display: flex; margin-left: auto; gap: 8px; }
+            .bar-inner .bar-center { display: flex; width: 100%; order: 3; justify-content: center; }
+            .main-nav { display: none; }
+            .search-container { width: 100%; max-width: 100%; }
+            .profile-btn { padding: 7px 10px; font-size: 13px; }
+            .avatar { width: 20px; height: 20px; margin-right: 4px; }
+            .nav-menu { top: 116px; left: 10px; right: 10px; min-width: auto; }
+
+            .giant-frame {
+                margin: 12px;
+                padding: 16px;
+                width: auto;
+                max-width: 100%;
+                border-radius: 20px;
+            }
+            .card {
+                width: 100%;
+                margin: 0;
+            }
+            .card-body {
+                padding: 20px !important;
+            }
+            .product-card {
+                padding: 18px;
+            }
+            .card-body h2 {
+                font-size: 2rem;
+                line-height: 1.1;
+            }
+        }
         /* Modal confirm styles */
         .modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,0.45); display:none; align-items:center; justify-content:center; z-index:20000; }
         .modal-backdrop.show{ display:flex; }
@@ -260,7 +309,7 @@
                 {% endif %}
             </div>
         </div>
-        <button id="barToggle" class="bar-toggle" aria-expanded="true" aria-label="Alternar barra">
+        <button id="barToggle" class="bar-toggle" aria-expanded="false" aria-label="Abrir menu">
             <span class="hamburger">
                 <span></span><span></span><span></span>
             </span>
@@ -292,8 +341,6 @@
                 <a class="nav-item" href="{% url 'caja' %}">Caja</a>
             {% endif %}
         </div>
-    </div>
-
     </div>
                     <script>
         // mostrar alerta si venimos del login
@@ -420,30 +467,6 @@
             })();
         </script>
     <script>
-        // Toggle top-bar
-        (function(){
-            try{ localStorage.removeItem('topBarCollapsed'); }catch(e){}
-            const topBar = document.getElementById('topBar');
-            const toggle = document.getElementById('barToggle');
-
-            function setCollapsed(collapsed){
-                if(collapsed){
-                    topBar.classList.add('collapsed');
-                    toggle.setAttribute('aria-expanded','false');
-                } else {
-                    topBar.classList.remove('collapsed');
-                    toggle.setAttribute('aria-expanded','true');
-                }
-            }
-
-            toggle.addEventListener('click', function(e){
-                topBar.classList.remove('collapsed');
-                toggle.setAttribute('aria-expanded','true');
-            });
-        })();
-    </script>
-
-    <script>
         // Carrito functionality
         
         document.addEventListener('click', function(e) {
@@ -474,6 +497,18 @@
         (function(){
             const toggle = document.getElementById('clientsToggle');
             const dropdown = document.getElementById('clientsDropdown');
+            if(!toggle || !dropdown) return;
+            function close(){ dropdown.classList.remove('show'); toggle.setAttribute('aria-expanded','false'); dropdown.setAttribute('aria-hidden','true'); }
+            toggle.addEventListener('click', function(e){ e.stopPropagation(); const opened = dropdown.classList.toggle('show'); toggle.setAttribute('aria-expanded', opened ? 'true' : 'false'); dropdown.setAttribute('aria-hidden', opened ? 'false' : 'true'); });
+            document.addEventListener('click', function(e){ if(!toggle.contains(e.target) && !dropdown.contains(e.target)) close(); });
+            document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
+        })();
+    </script>
+    <script>
+        // Product dropdown toggle
+        (function(){
+            const toggle = document.getElementById('productToggle');
+            const dropdown = document.getElementById('productDropdown');
             if(!toggle || !dropdown) return;
             function close(){ dropdown.classList.remove('show'); toggle.setAttribute('aria-expanded','false'); dropdown.setAttribute('aria-hidden','true'); }
             toggle.addEventListener('click', function(e){ e.stopPropagation(); const opened = dropdown.classList.toggle('show'); toggle.setAttribute('aria-expanded', opened ? 'true' : 'false'); dropdown.setAttribute('aria-hidden', opened ? 'false' : 'true'); });
