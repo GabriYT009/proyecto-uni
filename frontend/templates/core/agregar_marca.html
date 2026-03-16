@@ -24,7 +24,7 @@
 
     <style>
         body {
-            padding-top: 70px;
+            padding-top: 82px;
             background: #ffffff;
             font-family: 'Montserrat', sans-serif;
         }
@@ -34,18 +34,20 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 70px;
+            height: 82px;
             background: rgb(72 13 102) !important;
             border-bottom: 1px solid rgba(153, 50, 204, 0.12);
             z-index: 10000;
             transition: all 240ms cubic-bezier(.2,.9,.2,1);
             box-shadow: 0 16px 36px rgba(102, 32, 128, 0.12);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
         }
 
         .top-bar .bar-inner {
             max-width: 1400px;
             margin: 0 auto;
-            height: 70px;
+            height: 82px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -69,6 +71,10 @@
         }
 
         .main-nav {
+            background: #ffffff;
+            border-radius: 28px;
+            padding: 6px 10px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
             display: flex;
             gap: 30px;
             margin-right: 30px;
@@ -76,19 +82,33 @@
         }
 
         .nav-link {
-            color: #ffffff !important;
+            color: #333 !important;
             text-decoration: none;
             font-weight: 600;
             font-size: 16px;
             padding: 8px 12px;
             border-radius: 6px;
             transition: all 0.3s ease;
+            border: none;
+            background: transparent;
         }
 
         .nav-link:hover {
-            background: rgba(255,255,255,0.12);
-            color: #ffffff !important;
+            background: #f0f0f0;
+            color: #9932CC !important;
         }
+
+        .search-container { display:flex; align-items:center; background:#f5f5f5; border-radius:25px; padding:5px; width:400px; }
+        .search-input { flex:1; border:none; background:transparent; padding:8px 15px; font-size:16px; outline:none; }
+        .search-btn { background:#fff; color:#9932CC; border:none; border-radius:20px; width:35px; height:35px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; margin-right:5px; }
+        .cart-link-inline { margin-left:5px; position:relative; display:inline-block; }
+        .cart-link-inline .cart-icon { width:24px; height:24px; object-fit:contain; display:block; }
+        .cart-count { position:absolute; top:-5px; right:-5px; background:#9932CC; color:#fff; border-radius:50%; padding:2px 6px; font-size:12px; font-weight:600; }
+
+        .bar-inner .group { display:flex; align-items:center; gap:15px; }
+        .bar-inner .bar-left { flex:0 0 auto; }
+        .bar-inner .bar-center { flex:1 1 auto; display:flex; justify-content:center; }
+        .bar-inner .bar-right { flex:0 0 auto; }
 
         .profile-menu {
             position: relative;
@@ -107,11 +127,6 @@
             gap: 8px;
             cursor: pointer;
             box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-        }
-
-        .bar-center {
-            display: flex;
-            align-items: center;
         }
 
         .profile-dropdown {
@@ -238,26 +253,50 @@
     <!-- Top Bar -->
     <div class="top-bar">
         <div class="bar-inner">
-            <div class="bar-left">
-                <a href="{% url 'home' %}" class="bar-logo-link">
+            <div class="group bar-left">
+                <a href="{% url 'home' %}" class="bar-logo-link" aria-label="Inicio">
                     <span class="bar-logo-text">SolucionArte</span>
                 </a>
             </div>
-            <div class="bar-center">
+
+            <div class="group bar-center">
                 <nav class="main-nav">
-                    <a href="{% url 'home' %}" class="nav-link">Inicio</a>
                     <a href="{% url 'catalog' %}" class="nav-link">Catálogo</a>
+                    <div class="clients-menu" style="position:relative;">
+                        <button id="clientsToggle" class="nav-link clients-toggle" aria-haspopup="true" aria-expanded="false">Clientes ▾</button>
+                        <div id="clientsDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px; right:auto;">
+                            <a href="{% url 'todos_clientes' %}" class="dropdown-item">Ver clientes</a>
+                        </div>
+                    </div>
+                    <div class="product-menu" style="position:relative;">
+                        <button id="productToggle" class="nav-link product-toggle" aria-haspopup="true" aria-expanded="false">Producto ▾</button>
+                        <div id="productDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px; right:auto;">
+                            {% if 'admin' in user_groups %}
+                                <a href="{% url 'registrar_producto' %}" class="dropdown-item">Crear Producto</a>
+                            {% endif %}
+                        </div>
+                    </div>
                     <a href="{% url 'inventario' %}" class="nav-link">Inventario</a>
                     <a href="{% url 'caja' %}" class="nav-link">Caja</a>
                 </nav>
+
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Buscar productos..." id="searchInput">
+                    <button class="search-btn">🔍</button>
+                    <a href="{% url 'carrito' %}" class="cart-link-inline" aria-label="Carrito">
+                        <img src="{% static 'core/carrito.png' %}" alt="Carrito" class="cart-icon">
+                        <span id="cart-count" class="cart-count">{{ cart_count }}</span>
+                    </a>
+                </div>
             </div>
-            <div class="bar-right">
+
+            <div class="group bar-right">
                 <div class="profile-menu">
-                    <button class="profile-btn" onclick="toggleDropdown()">
+                    <button id="profileToggle" class="profile-btn" aria-haspopup="true" aria-expanded="false">
                         <i class="bi bi-person-circle"></i>
                         {{ user.username }}
                     </button>
-                    <div class="profile-dropdown" id="profileDropdown">
+                    <div class="profile-dropdown" id="profileDropdown" aria-hidden="true">
                         <a href="{% url 'perfil' %}" class="dropdown-item">Perfil</a>
                         <a href="{% url 'logout' %}" class="dropdown-item">Cerrar Sesión</a>
                     </div>
@@ -325,10 +364,64 @@
     <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
 
     <script>
-        function toggleDropdown() {
+        (function(){
+            const toggle = document.getElementById('profileToggle');
             const dropdown = document.getElementById('profileDropdown');
-            dropdown.classList.toggle('show');
-        }
+            if(!toggle || !dropdown) return;
+
+            function closeMenu(){
+                dropdown.classList.remove('show');
+                toggle.setAttribute('aria-expanded','false');
+                dropdown.setAttribute('aria-hidden','true');
+            }
+
+            toggle.addEventListener('click', function(e){
+                e.stopPropagation();
+                const opened = dropdown.classList.toggle('show');
+                toggle.setAttribute('aria-expanded', opened ? 'true' : 'false');
+                dropdown.setAttribute('aria-hidden', opened ? 'false' : 'true');
+            });
+
+            document.addEventListener('click', function(e){
+                if(!toggle.contains(e.target) && !dropdown.contains(e.target)) closeMenu();
+            });
+            document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeMenu(); });
+        })();
+
+        (function(){
+            const pt = document.getElementById('productToggle');
+            const pd = document.getElementById('productDropdown');
+            if(!pt || !pd) return;
+            function closeP(){ pd.classList.remove('show'); pt.setAttribute('aria-expanded','false'); pd.setAttribute('aria-hidden','true'); }
+            pt.addEventListener('click', function(e){ e.stopPropagation(); const opened = pd.classList.toggle('show'); pt.setAttribute('aria-expanded', opened ? 'true' : 'false'); pd.setAttribute('aria-hidden', opened ? 'false' : 'true'); });
+            document.addEventListener('click', function(e){ if(!pt.contains(e.target) && !pd.contains(e.target)) closeP(); });
+            document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeP(); });
+        })();
+
+        (function(){
+            const ct = document.getElementById('clientsToggle');
+            const cd = document.getElementById('clientsDropdown');
+            if(!ct || !cd) return;
+            function closeC(){ cd.classList.remove('show'); ct.setAttribute('aria-expanded','false'); cd.setAttribute('aria-hidden','true'); }
+            ct.addEventListener('click', function(e){ e.stopPropagation(); const opened = cd.classList.toggle('show'); ct.setAttribute('aria-expanded', opened ? 'true' : 'false'); cd.setAttribute('aria-hidden', opened ? 'false' : 'true'); });
+            document.addEventListener('click', function(e){ if(!ct.contains(e.target) && !cd.contains(e.target)) closeC(); });
+            document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeC(); });
+        })();
+
+        (function(){
+            const searchInput = document.getElementById('searchInput');
+            if(!searchInput) return;
+            searchInput.addEventListener('keydown', function(e){
+                if (e.key === 'Enter') {
+                    const query = e.target.value.trim();
+                    if (query) {
+                        window.location.href = `/catalogo/?search=${encodeURIComponent(query)}`;
+                    } else {
+                        window.location.href = '/catalogo/';
+                    }
+                }
+            });
+        })();
 
         // Al seleccionar un producto, cargar su marca actual para facilitar la edicion.
         (function() {
@@ -342,18 +435,6 @@
             });
         })();
 
-        // Close dropdown when clicking outside
-        window.onclick = function(event) {
-            if (!event.target.closest('.profile-btn')) {
-                const dropdowns = document.getElementsByClassName('profile-dropdown');
-                for (let i = 0; i < dropdowns.length; i++) {
-                    const openDropdown = dropdowns[i];
-                    if (openDropdown.classList.contains('show')) {
-                        openDropdown.classList.remove('show');
-                    }
-                }
-            }
-        }
     </script>
     <script src="{% static 'core/page-loader.js' %}"></script>
 </body>
