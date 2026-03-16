@@ -243,8 +243,10 @@
                     <label for="producto_id">Seleccionar Producto:</label>
                     <select name="producto_id" id="producto_id" class="form-control" required>
                         <option value="">-- Seleccionar Producto --</option>
-                        {% for producto in productos_sin_marca %}
-                            <option value="{{ producto.pk }}">{{ producto.nombre_producto }} (ID: {{ producto.pk }})</option>
+                        {% for producto in productos %}
+                            <option value="{{ producto.pk }}" data-marca="{{ producto.marca_producto|default:''|escape }}">
+                                {{ producto.nombre_producto }} (ID: {{ producto.pk }}){% if producto.marca_producto %} - Marca actual: {{ producto.marca_producto }}{% endif %}
+                            </option>
                         {% endfor %}
                     </select>
                 </div>
@@ -252,7 +254,7 @@
                     <label for="marca_producto">Marca del Producto:</label>
                     <input type="text" name="marca_producto" id="marca_producto" class="form-control" placeholder="Ingrese la marca" required>
                 </div>
-                <button type="submit" class="btn btn-primary btn-block">Agregar Marca</button>
+                <button type="submit" class="btn btn-primary btn-block">Guardar Marca</button>
             </form>
         </div>
 
@@ -280,6 +282,18 @@
             const dropdown = document.getElementById('profileDropdown');
             dropdown.classList.toggle('show');
         }
+
+        // Al seleccionar un producto, cargar su marca actual para facilitar la edicion.
+        (function() {
+            const productoSelect = document.getElementById('producto_id');
+            const marcaInput = document.getElementById('marca_producto');
+            if (!productoSelect || !marcaInput) return;
+
+            productoSelect.addEventListener('change', function() {
+                const selectedOption = productoSelect.options[productoSelect.selectedIndex];
+                marcaInput.value = selectedOption ? (selectedOption.getAttribute('data-marca') || '') : '';
+            });
+        })();
 
         // Close dropdown when clicking outside
         window.onclick = function(event) {
