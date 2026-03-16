@@ -852,17 +852,9 @@ def inventario(request):
 def producto_detalle(request, producto_id):
     try:
         producto = Producto.objects.get(pk=producto_id)
-        
-        # Manejo de la URL de la imagen
-        try:
-            if producto.imagen_producto and producto.imagen_producto.url:
-                img_url = producto.imagen_producto.url
-            else:
-                img_url = ''
-        except ValueError:
-            img_url = ''
-        
-        producto.img_url = img_url
+
+        # Reutilizar la misma logica segura de imagen usada en catalogo/home.
+        producto.img_url = _safe_img_url(producto)
         
         from_inventario = request.GET.get('origin') == 'inventario'
         return render(request, 'core/producto_detalle.html', {
@@ -957,11 +949,7 @@ def historial_compras(request):
 @login_required
 def comprar_producto(request, producto_id):
     producto = get_object_or_404(Producto, pk=producto_id)
-    try:
-        img_url = producto.imagen_producto.url if producto.imagen_producto and producto.imagen_producto.url else ''
-    except Exception:
-        img_url = ''
-    producto.img_url = img_url
+    producto.img_url = _safe_img_url(producto)
 
     if request.method == 'POST':
         try:
