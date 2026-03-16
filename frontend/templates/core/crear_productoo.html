@@ -213,6 +213,49 @@
             margin-top: 8px;
             text-align: center;
         }
+
+        @media (max-width: 768px) {
+            body { padding-top: 132px; }
+            .top-bar,
+            .top-bar.collapsed {
+                left: 0;
+                right: 0;
+                width: 100%;
+                height: 124px;
+                border-radius: 0;
+                padding: 0;
+                border-bottom: 1px solid rgba(153,50,204,0.12);
+                box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+            }
+            .top-bar .bar-inner,
+            .top-bar.collapsed .bar-inner {
+                height: 124px;
+                padding: 8px 10px;
+                align-items: flex-start;
+                flex-wrap: wrap;
+                gap: 8px;
+                display: flex;
+            }
+            .bar-logo-link { position: static; transform: none; }
+            .bar-toggle,
+            .top-bar.collapsed .bar-toggle {
+                display: flex;
+                position: static;
+                margin-left: 8px;
+                z-index: 10001;
+            }
+            .bar-toggle .hamburger span { background: #fff; }
+            .bar-inner .bar-right { display: flex; margin-left: auto; gap: 8px; }
+            .bar-inner .bar-center { display: flex; width: 100%; order: 3; justify-content: center; }
+            .main-nav { display: none; }
+            .search-container { width: 100%; max-width: 100%; }
+            .profile-btn { padding: 7px 10px; font-size: 13px; }
+            .avatar { width: 20px; height: 20px; margin-right: 4px; }
+            .nav-menu { top: 116px; left: 10px; right: 10px; }
+            .card { margin: 14px 12px 0; }
+            .card-body { padding: 20px !important; }
+            .card-body form > div:first-of-type { flex-direction: column !important; gap: 12px !important; }
+        }
     </style>
 </head>
 <body>
@@ -463,29 +506,6 @@
                 if(!catToggle.contains(e.target) && !catDropdown.contains(e.target)) closeCat();
             });
             document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeCat(); });
-        })();
-    </script>
-    <script>
-        // Toggle top-bar
-        (function(){
-            try{ localStorage.removeItem('topBarCollapsed'); }catch(e){}
-            const topBar = document.getElementById('topBar');
-            const toggle = document.getElementById('barToggle');
-
-            function setCollapsed(collapsed){
-                if(collapsed){
-                    topBar.classList.add('collapsed');
-                    toggle.setAttribute('aria-expanded','false');
-                } else {
-                    topBar.classList.remove('collapsed');
-                    toggle.setAttribute('aria-expanded','true');
-                }
-            }
-
-            toggle.addEventListener('click', function(e){
-                topBar.classList.remove('collapsed');
-                toggle.setAttribute('aria-expanded','true');
-            });
         })();
     </script>
 
