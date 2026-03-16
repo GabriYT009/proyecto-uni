@@ -36,6 +36,12 @@ urlpatterns = [
 # (e.g. Gunicorn-only on Railway without Nginx sidecar).
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
+# Fallback para servir media cuando DEBUG=False (deploy simple sin Nginx dedicado).
+# Evita 404 en rutas como /media/products/<archivo>.
+urlpatterns += [
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+]
+
 if settings.DEBUG:
     # Serve legacy theme assets (Presento) directly under /static/assets/ when DEBUG
     presento_root = os.path.join(settings.BASE_DIR, 'extras', 'Presento', 'assets')
