@@ -32,9 +32,11 @@ urlpatterns = [
     
 ]
 
+# Serve media files in development and simple production deployments
+# (e.g. Gunicorn-only on Railway without Nginx sidecar).
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
 if settings.DEBUG:
-    # Serve media files
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     # Serve legacy theme assets (Presento) directly under /static/assets/ when DEBUG
     presento_root = os.path.join(settings.BASE_DIR, 'extras', 'Presento', 'assets')
     if os.path.exists(presento_root):
