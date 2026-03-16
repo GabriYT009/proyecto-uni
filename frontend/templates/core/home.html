@@ -750,12 +750,26 @@
             const detailModal = document.getElementById('detailModal');
             if (!detailModal) return;
 
+            function closeDetailModal(){
+                detailModal.classList.remove('show');
+                detailModal.setAttribute('aria-hidden', 'true');
+                detailModal.style.display = 'none';
+                try {
+                    document.documentElement.style.overflow = '';
+                    document.body.style.overflow = '';
+                } catch(e){}
+            }
+
             detailModal.addEventListener('click', function(e){
-                if (e.target === detailModal) detailModal.classList.remove('show');
+                if (e.target === detailModal) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeDetailModal();
+                }
             });
 
             document.addEventListener('keydown', function(e){
-                if (e.key === 'Escape') detailModal.classList.remove('show');
+                if (e.key === 'Escape') closeDetailModal();
             });
         })();
     </script>
@@ -806,7 +820,7 @@
         // Defensive: prevent anchor default only for product clicks so page doesn't jump to top
         document.addEventListener('click', function(e){
             try{
-                const prod = e.target.closest('.view, [data-id]');
+                const prod = e.target.closest('.view');
                 if(!prod) return;
                 const a = e.target.closest('a');
                 if(a){
@@ -814,9 +828,6 @@
                     if (href === '#' || href.trim() === '') {
                         e.preventDefault();
                     }
-                } else {
-                    // also prevent default on elements that might be focusable and cause jump
-                    try{ e.preventDefault(); } catch(e){}
                 }
             }catch(err){/* ignore */}
         }, true);

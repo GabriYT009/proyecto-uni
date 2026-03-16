@@ -99,6 +99,10 @@ function openDetail(id){
     }
     mTitle.textContent = p.title;
     mImg.src = p.img;
+    mImg.onerror = function(){
+        this.onerror = null;
+        this.src = '/static/assets/img/logo.png';
+    };
     mDesc.textContent = p.desc;
     mPrice.textContent = formatPrice(p.price);
     if (modal) {
