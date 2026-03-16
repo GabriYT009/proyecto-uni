@@ -87,6 +87,13 @@ class ProductForm(forms.ModelForm):
             raise forms.ValidationError("Ya existe un producto con este nombre.")
         return nombre
 
+    def clean_imagen_producto(self):
+        imagen = self.cleaned_data.get('imagen_producto')
+        # En creacion forzamos imagen para evitar productos nuevos sin foto.
+        if not self.instance.pk and not imagen:
+            raise forms.ValidationError("Debes seleccionar una imagen para el producto.")
+        return imagen
+
     def save(self, commit=True):
         # Respetar la categoria seleccionada en el formulario.
         return super().save(commit=commit)
