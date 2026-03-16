@@ -39,11 +39,9 @@ def _safe_img_url(producto):
     fallback = settings.STATIC_URL + 'assets/img/logo.png'
     try:
         if producto.imagen_producto and producto.imagen_producto.url:
-            try:
-                if producto.imagen_producto.path and os.path.exists(producto.imagen_producto.path):
-                    return producto.imagen_producto.url
-            except Exception:
-                pass
+            # Priorizar la URL almacenada del archivo para evitar falsos negativos
+            # en entornos donde no se puede resolver .path de forma fiable.
+            return producto.imagen_producto.url
     except Exception:
         pass
     return fallback
