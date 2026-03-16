@@ -131,10 +131,17 @@
                 padding: 12px;
                 border-radius: 20px;
                 box-shadow: 0 0 28px rgba(255, 105, 180, 0.22);
+                width: auto;
+                max-width: 100%;
+                box-sizing: border-box;
             }
             .wrap {
                 margin: 0;
                 padding: 0;
+                width: 100% !important;
+                max-width: 100% !important;
+                min-width: 0;
+                display: block;
             }
             .inventory-header {
                 padding: 18px 14px;
@@ -143,14 +150,26 @@
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 12px;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box;
+            }
+            .inventory-header-text {
+                width: 100% !important;
+                max-width: none !important;
+                min-width: 0;
             }
             .inventory-header-icon {
                 font-size: 34px;
                 line-height: 1;
             }
             .inventory-header-text p {
+                margin: 0;
                 font-size: 14px;
                 line-height: 1.45;
+                white-space: normal;
+                overflow-wrap: anywhere;
+                word-break: normal;
             }
 
             .inventory-filters {
@@ -163,6 +182,7 @@
                 gap: 10px !important;
                 max-width: 100% !important;
                 width: 100% !important;
+                min-width: 0;
             }
             #inventorySearch,
             #inventoryCategory,
@@ -783,7 +803,7 @@
                     <i class="bi bi-box-seam-fill"></i>
                 </div>
                 <div class="inventory-header-text">
-                    <p class="text-condensedLight">
+                    <p>
                         Gestiona y visualiza el inventario de productos. Aquí puedes ver todos los productos disponibles, sus cantidades en stock y estado actual.
                     </p>
                 </div>
