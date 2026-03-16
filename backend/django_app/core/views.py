@@ -1366,29 +1366,37 @@ def editar_producto(request, producto_id):
         posted_imagen = bool(request.FILES.get('imagen_producto'))
 
         changed = False
+        changed_non_image = False
         if posted_nombre and posted_nombre != (producto.nombre_producto or ''):
             changed = True
+            changed_non_image = True
         if posted_desc != (producto.descripcion or ''):
             changed = True
+            changed_non_image = True
         # compare numeric with tolerance for floats
         try:
             if float(posted_precio) != float(producto.precio_venta or 0):
                 changed = True
+                changed_non_image = True
         except Exception:
             pass
         try:
             if int(posted_cantidad) != int(producto.cantidad_disponible or 0):
                 changed = True
+                changed_non_image = True
         except Exception:
             pass
         if bool(posted_status) != bool(producto.status_producto):
             changed = True
+            changed_non_image = True
         if posted_categoria_id != (producto.categoria_id if getattr(producto, 'categoria_id', None) is not None else None):
             changed = True
+            changed_non_image = True
         if posted_imagen:
             changed = True
 
-        if changed and not motivo:
+        # Permitir actualizar solo la imagen sin exigir motivo.
+        if changed_non_image and not motivo:
             messages.error(request, 'Debes proporcionar un motivo cuando realizas cualquier cambio al producto.')
             return redirect('inventario')
 
