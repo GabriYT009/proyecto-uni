@@ -22,6 +22,7 @@ from .forms import ProductForm
 from django.utils import timezone
 from django.db import transaction
 from django.urls import reverse
+from django.core.files.storage import default_storage
 
 logger = logging.getLogger(__name__)
 
@@ -1173,6 +1174,27 @@ def comprar_carrito(request):
     if not cart:
         messages.error(request, 'No hay productos en el carrito.')
         return redirect('carrito')
+
+    payment_proof = request.FILES.get('payment_proof')
+    if payment_proof:
+        content_type = (payment_proof.content_type or '').lower()
+        if not content_type.startswith('image/'):
+            messages.error(request, 'El comprobante debe ser una imagen valida.')
+            return redirect('carrito')
+        if payment_proof.size and payment_proof.size > (5 * 1024 * 1024):
+            messages.error(request, 'El comprobante supera el tamano maximo de 5 MB.')
+            return redirect('carrito')
+
+        _, ext = os.path.splitext(payment_proof.name or '')
+        ext = (ext or '.jpg').lower()
+        proof_name = f"payment_proofs/{request.user.pk}_{timezone.now().strftime('%Y%m%d_%H%M%S_%f')}{ext}"
+        try:
+            saved_path = default_storage.save(proof_name, payment_proof)
+            logger.info('Comprobante de pago guardado: user=%s path=%s', request.user.pk, saved_path)
+        except Exception:
+            logger.exception('No se pudo guardar el comprobante de pago movil.')
+            messages.error(request, 'No se pudo guardar la imagen del comprobante.')
+            return redirect('carrito')
 
     productos = Producto.objects.filter(pk__in=cart)
 
