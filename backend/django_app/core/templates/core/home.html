@@ -1045,6 +1045,27 @@
         // Ensure addToCart is available globally for modal buttons
         (function(){
             function getCsrf(){ const m = document.querySelector('meta[name="csrf-token"]'); return m?m.content:null; }
+            function clearAddToCartOverlays(){
+                try{
+                    const detailModal = document.getElementById('detailModal');
+                    if (detailModal) {
+                        detailModal.classList.remove('show');
+                        detailModal.setAttribute('aria-hidden','true');
+                        detailModal.style.display = 'none';
+                    }
+                } catch(e){}
+                try {
+                    document.documentElement.style.overflow = '';
+                    document.body.style.overflow = '';
+                    document.documentElement.style.paddingRight = '';
+                    document.body.style.paddingRight = '';
+                } catch(e){}
+                try {
+                    const loader = document.getElementById('pageLoaderOverlay');
+                    if (loader) loader.classList.remove('is-visible');
+                } catch(e){}
+                try { if (window.PageLoader && typeof window.PageLoader.hide === 'function') window.PageLoader.hide(); } catch(e){}
+            }
             window.addToCart = async function(id){
                 try{
                     const token = getCsrf();
@@ -1058,17 +1079,17 @@
                     if (ctype.indexOf('application/json') !== -1) {
                         const data = await res.json();
                         try{ const cc = document.getElementById('cart-count'); if(cc) cc.textContent = data.count; }catch(e){}
-                        const detailModal = document.getElementById('detailModal');
-                        if (detailModal) detailModal.classList.remove('show');
+                        clearAddToCartOverlays();
                         return;
                     }
                     if (res.redirected) {
+                        clearAddToCartOverlays();
                         return;
                     }
                 } catch(err){
                     console.error('addToCart failed', err);
                 } finally {
-                    try { if (window.PageLoader && typeof window.PageLoader.hide === 'function') window.PageLoader.hide(); } catch(e){}
+                    clearAddToCartOverlays();
                 }
             };
         })();
