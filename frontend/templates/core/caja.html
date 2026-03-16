@@ -21,7 +21,8 @@
         .p-item img{ width:56px; height:56px; object-fit:cover; border-radius:6px; background:#fff }
         .p-item .name{ font-weight:700 }
         .inventory{ display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px }
-        .card{ padding:8px; border-radius:8px; text-align:left; border:1px solid #eee; }
+        .card{ padding:8px; border-radius:8px; text-align:left; border:1px solid #eee; cursor:pointer; transition:transform .15s ease, box-shadow .15s ease; }
+        .card:hover{ transform:translateY(-2px); box-shadow:0 6px 14px rgba(0,0,0,.08); }
         .card .title{ font-size:14px; margin-top:0; font-weight:700 }
         .card .price{ font-size:13px; margin-top:4px }
         .card .stock{ font-size:12px; color:#888; margin-top:2px }
@@ -160,9 +161,29 @@
                         '<td style="padding:4px; border:1px solid #ddd; text-align:right;">$ '+format(it.price * it.qty)+'</td>';
                     tbody.appendChild(tr);
                     tr.querySelector('input').addEventListener('input', function(e){
-                        var v = parseInt(this.value,10) || 1; items[k].qty = v; recalc();
+                        var v = parseInt(this.value,10) || 1;
+                        items[k].qty = v;
+                        renderInvoice();
+                        recalc();
                     });
                 });
+            }
+
+            function addCardToInvoice(card){
+                if(!card) return;
+                var stock = parseInt(card.dataset.stock,10) || 0;
+                if(stock <= 0){
+                    alert('No hay stock disponible para "'+card.dataset.name+'"');
+                    return;
+                }
+                var id = card.dataset.id;
+                var name = card.dataset.name;
+                var price = parseFloat(card.dataset.price) || 0;
+                var codeVal = card.dataset.code || id;
+                if(!items[id]) items[id] = {id:id, code:codeVal, name:name, price:price, qty:1};
+                else items[id].qty += 1;
+                renderInvoice();
+                recalc();
             }
 
             document.getElementById('product-search').addEventListener('input', function(e){
@@ -215,14 +236,7 @@
                     }
                 });
                 if(found){
-                    var stock = parseInt(found.dataset.stock,10) || 0;
-                    if(stock <= 0){
-                        alert('No hay stock disponible para "'+found.dataset.name+'"');
-                        return;
-                    }
-                    var id = found.dataset.id; var name = found.dataset.name; var price = parseFloat(found.dataset.price) || 0;
-                    var codeVal = found.dataset.code || id;
-                    if(!items[id]) items[id] = {id:id, code:codeVal, name:name, price:price, qty:1}; else items[id].qty += 1;
+                    addCardToInvoice(found);
                 } else {
                     // add a generic entry for non-listed product
                     if(!items[code]) items[code] = {id:code, code:code, name:code, price:0, qty:1}; else items[code].qty += 1;
@@ -230,8 +244,9 @@
                 renderInvoice(); recalc();
             });
 
-            // clicking cards no longer adds anything; only the manual button does
-            // listener removed intentionally
+            document.querySelectorAll('#quick-products .card').forEach(function(card){
+                card.addEventListener('click', function(){ addCardToInvoice(card); });
+            });
 
 
             document.getElementById('clear-invoice').addEventListener('click', function(){ items = {}; renderInvoice(); recalc(); });
