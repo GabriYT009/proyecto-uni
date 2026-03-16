@@ -129,11 +129,15 @@
 
         /* Mobile responsive */
         @media (max-width: 768px) {
-            body { padding-top: 70px; }
-            .top-bar .bar-inner { padding: 0 10px; }
-            .search-container { width: 250px; }
-            .bar-inner .bar-center { display: none; }
-            .bar-inner .bar-right { display: none; }
+            body { padding-top: 132px; }
+            .top-bar { height: 124px; }
+            .top-bar .bar-inner { height: 124px; padding: 8px 10px; align-items: flex-start; flex-wrap: wrap; gap: 8px; }
+            .bar-inner .bar-right { display: flex; margin-left: auto; }
+            .bar-inner .bar-center { display: flex; width: 100%; order: 3; flex-direction: column; gap: 8px; }
+            .main-nav { width: 100%; margin-right: 0; gap: 10px; overflow-x: auto; white-space: nowrap; }
+            .search-container { width: 100%; max-width: 100%; }
+            .profile-btn { padding: 7px 10px; font-size: 13px; }
+            .avatar { width: 20px; height: 20px; margin-right: 4px; }
         }
 
         /* Catalog styles */

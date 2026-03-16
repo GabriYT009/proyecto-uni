@@ -3,7 +3,13 @@ set -euo pipefail
 
 PORT="${PORT:-8000}"
 APP_ROOT="${APP_ROOT:-/app/backend}"
-MEDIA_ROOT="${MEDIA_ROOT:-${APP_ROOT}/media}"
+if [ -z "${MEDIA_ROOT:-}" ]; then
+    if [ -d "/data" ]; then
+        MEDIA_ROOT="/data/media"
+    else
+        MEDIA_ROOT="${APP_ROOT}/media"
+    fi
+fi
 RUN_STARTUP_TASKS="${RUN_STARTUP_TASKS:-0}"
 RUN_MIGRATIONS="${RUN_MIGRATIONS:-${RUN_STARTUP_TASKS}}"
 RUN_BOOTSTRAP_AUTH="${RUN_BOOTSTRAP_AUTH:-${RUN_STARTUP_TASKS}}"

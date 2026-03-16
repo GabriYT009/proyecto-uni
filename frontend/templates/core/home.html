@@ -65,9 +65,6 @@
         .top-bar .bar-inner{ max-width:1400px; margin:0 auto; height:70px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; position:relative; }
         .top-bar .btn{ background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.14); padding:8px 14px; border-radius:8px; }
 
-        /* collapsed (minimized) top-bar to corner - only on mobile */
-        .top-bar.collapsed{ left:12px; right:auto; width:56px; height:56px; border-radius:10px; padding:6px; border-bottom: none; box-shadow:0 6px 18px rgba(0,0,0,0.08); }
-        .top-bar.collapsed .bar-inner{ display:none; }
         .bar-logo-link{ display:flex; align-items:center; font-size:24px; font-weight:700; color:#fff; text-decoration:none; }
         .bar-logo-text{ font-size:24px; font-weight:700; color:#fff; }
 
@@ -152,17 +149,11 @@
         .nav-link:hover{ background:rgba(255,255,255,0.10); color:#fff; }
 
         .bar-toggle{ display:none; /* hide on desktop */ }
-        /* cuando la barra está colapsada mostrar logo dentro del contenedor pequeño */
-        .top-bar.collapsed .bar-logo-link{ left:8px; top:8px; z-index:10003; }
-        .top-bar.collapsed .bar-logo-link img.bar-logo{ width:28px; height:28px; border-radius:6px; }
-        /* colocar el toggle a la derecha dentro del contenedor colapsado para poder expandir de nuevo */
-        .top-bar.collapsed .bar-toggle{ left:auto; right:8px; top:8px; z-index:10004; }
         .bar-toggle .hamburger{ width:20px; height:14px; position:relative; display:inline-block; }
         .bar-toggle .hamburger span{ position:absolute; left:0; right:0; height:2px; background:#fff; border-radius:2px; }
         .bar-toggle .hamburger span:nth-child(1){ top:0; }
         .bar-toggle .hamburger span:nth-child(2){ top:6px; }
         .bar-toggle .hamburger span:nth-child(3){ top:12px; }
-        .top-bar.collapsed .bar-toggle{ display:flex; }
 
         /* username display: keep positioning only so logout-button styles apply */
         .user-name{ position:relative; z-index:10002; }
@@ -174,7 +165,6 @@
         .profile-dropdown.show{ display:block; }
         .profile-dropdown .dropdown-item{ display:block; padding:8px 12px; color:#333; text-decoration:none; font-weight:600; font-size:16px; border-radius:6px; transition: all 0.3s ease; }
         .profile-dropdown .dropdown-item:hover{ background:#f0f0f0; color:#9932CC; }
-        .top-bar.collapsed .user-name{ display:none; }
         /* nav menu for hamburger (3-line) */
         .nav-menu{ position:absolute; left:12px; top:64px; background:#fff; border:1px solid rgba(0,0,0,0.06); border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.08); display:none; z-index:10006; min-width:180px; }
         .nav-menu.show{ display:block; }
@@ -420,13 +410,17 @@
             .card p { font-size: 14px; }
             .category-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
             .footer-content { grid-template-columns: 1fr; text-align: center; }
-            .top-bar .bar-inner { padding: 0 10px; }
-            .search-container { width: 250px; }
-            .bar-toggle { display: flex; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); z-index: 10001; }
-            .bar-logo-link { position: absolute; left: 50px; top: 50%; transform: translateY(-50%); }
-            .bar-inner .bar-center { display: none; } /* hide search and nav on mobile */
-            .cart-link { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); }
-            .bar-inner .bar-right { display: none; } /* hide profile on mobile, show cart */
+            .top-bar { height: 124px; }
+            .top-bar .bar-inner { height: 124px; padding: 8px 10px; align-items: flex-start; flex-wrap: wrap; gap: 8px; }
+            .bar-logo-link { position: static; transform: none; }
+            .bar-toggle { display: flex; position: static; margin-left: 8px; z-index: 10001; }
+            .bar-inner .bar-right { display: flex; margin-left: auto; gap: 8px; }
+            .bar-inner .bar-center { display: flex; width: 100%; order: 3; justify-content: center; }
+            .main-nav { display: none; }
+            .search-container { width: 100%; max-width: 100%; }
+            .profile-btn { padding: 7px 10px; font-size: 13px; }
+            .avatar { width: 20px; height: 20px; margin-right: 4px; }
+            .nav-menu { top: 116px; }
         }
     </style>
 </head>
@@ -505,12 +499,20 @@
         </button>
         <div id="barNavMenu" class="nav-menu" role="menu" aria-hidden="true">
             <a class="nav-item" href="{% url 'catalog' %}">Ver catálogo</a>
-            <a class="nav-item" href="{% url 'registrar_producto' %}">Registrar producto</a>
-                            {%  if 'admin' in user_groups %}
-                                <!-- Registrar Cliente removed from dropdown -->
-                            {% endif %}
+            <a class="nav-item" href="{% url 'carrito' %}">Carrito</a>
+            {% if user.is_authenticated %}
+                <a class="nav-item" href="{% url 'perfil' %}">Mi perfil</a>
+                <a class="nav-item" href="{% url 'historial_compras' %}">Historial de compras</a>
+            {% endif %}
+            {% if 'admin' in user_groups %}
+                <a class="nav-item" href="{% url 'registrar_producto' %}">Registrar producto</a>
+                <a class="nav-item" href="{% url 'inventario' %}">Inventario</a>
+            {% endif %}
             {% if 'admin' in user_groups or 'cajero' in user_groups %}
                 <a class="nav-item" href="{% url 'caja' %}">Caja</a>
+            {% endif %}
+            {% if user.is_authenticated %}
+                <a class="nav-item" href="{% url 'logout' %}">Cerrar sesión</a>
             {% endif %}
         </div>
     </div>
@@ -908,49 +910,6 @@
                 document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeCat(); });
             })();
         </script>
-    <script>
-        // Toggle top-bar
-        (function(){
-            try{ /* leave stored state for users */ }catch(e){}
-            const topBar = document.getElementById('topBar');
-            const toggle = document.getElementById('barToggle');
-
-            function setCollapsed(collapsed){
-                if(!topBar || !toggle) return;
-                if(collapsed){
-                    topBar.classList.add('collapsed');
-                    toggle.setAttribute('aria-expanded','false');
-                } else {
-                    topBar.classList.remove('collapsed');
-                    toggle.setAttribute('aria-expanded','true');
-                }
-                try{ localStorage.setItem('topBarCollapsed', collapsed ? '1' : '0'); }catch(e){}
-            }
-
-            if (!toggle || !topBar) return;
-
-            toggle.addEventListener('click', function(e){
-                e.stopPropagation();
-                const collapsed = !topBar.classList.contains('collapsed');
-                setCollapsed(collapsed);
-            });
-
-            document.addEventListener('click', function(e){
-                if(!toggle.contains(e.target) && !topBar.contains(e.target)) {
-                    // optional: close collapsed menu when clicking outside
-                    if (topBar.classList.contains('collapsed')) setCollapsed(false);
-                }
-            });
-
-            document.addEventListener('keydown', function(e){ if(e.key === 'Escape') setCollapsed(false); });
-
-            // Initialize from storage
-            try{
-                const v = localStorage.getItem('topBarCollapsed');
-                setCollapsed(v === '1');
-            }catch(e){}
-        })();
-    </script>
     <script>
         // Carrito functionality
         function updateCartCount(count) {

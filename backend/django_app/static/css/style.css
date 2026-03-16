@@ -36,6 +36,51 @@ body {
     justify-content: center;
 }
 
+/* Mobile topbar hardening across templates */
+@media (max-width: 768px) {
+    .top-bar.collapsed {
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        height: 70px !important;
+        border-radius: 0 !important;
+        padding: 0 !important;
+        border-bottom: 1px solid rgba(153, 50, 204, 0.15) !important;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12) !important;
+    }
+
+    .top-bar.collapsed .bar-inner {
+        display: flex !important;
+    }
+
+    .top-bar .bar-toggle {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        background: rgba(255, 255, 255, 0.12);
+    }
+
+    .top-bar .bar-toggle .hamburger span {
+        background: #fff !important;
+    }
+
+    .top-bar .nav-menu {
+        left: 10px !important;
+        right: 10px !important;
+        top: 72px !important;
+        width: auto !important;
+        min-width: 0 !important;
+        border-radius: 12px !important;
+        max-height: 72vh;
+        overflow-y: auto;
+        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.18) !important;
+    }
+}
+
 /* Modern centered card container */
 .container {
     /* match login container: frosted/translucent so gradient shows through */

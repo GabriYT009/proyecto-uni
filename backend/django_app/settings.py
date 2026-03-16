@@ -225,7 +225,14 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = os.environ.get("MEDIA_URL", '/media/')
-MEDIA_ROOT = Path(os.environ.get("MEDIA_ROOT", str(BASE_DIR / 'media')))
+_media_root_env = os.environ.get("MEDIA_ROOT")
+if _media_root_env:
+    MEDIA_ROOT = Path(_media_root_env)
+elif Path('/data').exists():
+    # Railway volume path (when mounted) without requiring manual env setup.
+    MEDIA_ROOT = Path('/data/media')
+else:
+    MEDIA_ROOT = BASE_DIR / 'media'
 
 # In production, prefer a single canonical static tree to avoid duplicate paths
 # during collectstatic. Local development can opt into the legacy trees.
