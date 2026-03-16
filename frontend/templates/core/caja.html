@@ -101,7 +101,6 @@
                     <h4>Productos disponibles</h4>
                     <div style="display:flex; gap:6px; align-items:center;">
                         <input type="text" id="product-search" placeholder="Buscar producto..." style="flex:1; padding:6px; margin:8px 0 12px; border:1px solid #ccc; border-radius:6px;">
-                        <button class="btn" id="add-manual" style="margin-top:8px;">Agregar</button>
                     </div>
                     <div class="inventory" id="quick-products">
                         {% for p in productos %}
@@ -200,7 +199,13 @@
             document.getElementById('product-search').addEventListener('keydown', function(e){
                 if(e.key === 'Enter'){
                     e.preventDefault();
-                    document.getElementById('add-manual').click();
+                    var code = document.getElementById('product-search').value.trim();
+                    if(!code) return;
+                    var found = null;
+                    document.querySelectorAll('#quick-products .card').forEach(function(card){
+                        if(card.dataset.code === code || card.dataset.name.toLowerCase() === code.toLowerCase()) found = card;
+                    });
+                    if(found) addCardToInvoice(found);
                 }
             });
 
@@ -220,28 +225,6 @@
                     document.getElementById('client-dir').textContent = '-';
                     document.getElementById('client-phone').textContent = '-';
                 }
-            });
-
-            document.getElementById('add-manual').addEventListener('click', function(){
-                var code = document.getElementById('product-search').value.trim();
-                if(!code){
-                    alert('Ingrese código o nombre para agregar');
-                    return;
-                }
-                // search existing cards even if filtered out
-                var found = null;
-                document.querySelectorAll('#quick-products .card').forEach(function(card){
-                    if(card.dataset.code === code || card.dataset.name.toLowerCase() === code.toLowerCase()){
-                        found = card;
-                    }
-                });
-                if(found){
-                    addCardToInvoice(found);
-                } else {
-                    // add a generic entry for non-listed product
-                    if(!items[code]) items[code] = {id:code, code:code, name:code, price:0, qty:1}; else items[code].qty += 1;
-                }
-                renderInvoice(); recalc();
             });
 
             document.querySelectorAll('#quick-products .card').forEach(function(card){
