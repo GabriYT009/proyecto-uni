@@ -98,6 +98,15 @@
         .nav-menu.show{ display:block; }
         .nav-menu .nav-item{ display:block; padding:10px 12px; color:#333; text-decoration:none; font-weight:700; }
         .nav-menu .nav-item:hover{ background:#f7f7f7; }
+        .nav-menu{ overflow:visible; }
+        .nav-item-group{ position:relative; }
+        .nav-subtoggle{ width:100%; border:none; background:#fff; text-align:left; cursor:pointer; display:flex; align-items:center; justify-content:space-between; }
+        .submenu-arrow{ font-weight:900; color:#7a2ea5; }
+        .nav-submenu{ position:absolute; top:0; right:-8px; width:220px; background:#fff; border:1px solid rgba(0,0,0,0.08); border-radius:10px; box-shadow:0 14px 34px rgba(0,0,0,0.16); display:none; z-index:10007; overflow:hidden; }
+        .nav-submenu.show{ display:block; }
+        .nav-submenu .nav-item{ border-bottom:1px solid #efefef; }
+        .nav-submenu .nav-item:last-child{ border-bottom:none; }
+        .nav-submenu .nav-back{ background:#f7f2fb; color:#5b2b80; }
         /* groups inside bar-inner */
         .bar-inner .group{ display:flex; align-items:center; gap:15px; }
         .bar-inner .bar-left{ flex:0 0 auto; }
@@ -258,9 +267,30 @@
         </button>
         <div id="barNavMenu" class="nav-menu" role="menu" aria-hidden="true">
             <a class="nav-item" href="{% url 'catalog' %}">Ver catálogo</a>
-            <a class="nav-item" href="{% url 'todos_clientes' %}">Ver clientes</a>
-            <!-- Registración de cliente eliminada del menú móvil -->
-            <a class="nav-item" href="{% url 'registrar_producto' %}">Registrar producto</a>
+            <div class="nav-item-group">
+                <button class="nav-item nav-subtoggle" type="button" data-target="cartClientsSubMenu" aria-expanded="false">Clientes <span class="submenu-arrow">›</span></button>
+                <div id="cartClientsSubMenu" class="nav-submenu" aria-hidden="true">
+                    <button class="nav-item nav-back" type="button" data-close-submenu="cartClientsSubMenu">← Menu</button>
+                    <a class="nav-item" href="{% url 'todos_clientes' %}">Ver clientes</a>
+                </div>
+            </div>
+            <div class="nav-item-group">
+                <button class="nav-item nav-subtoggle" type="button" data-target="cartProductsSubMenu" aria-expanded="false">Productos <span class="submenu-arrow">›</span></button>
+                <div id="cartProductsSubMenu" class="nav-submenu" aria-hidden="true">
+                    <button class="nav-item nav-back" type="button" data-close-submenu="cartProductsSubMenu">← Menu</button>
+                    {% if 'admin' in user_groups %}
+                        <a class="nav-item" href="{% url 'registrar_producto' %}">Crear producto</a>
+                    {% else %}
+                        <a class="nav-item" href="{% url 'catalog' %}">Ver productos</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% if 'admin' in user_groups %}
+                <a class="nav-item" href="{% url 'inventario' %}">Inventario</a>
+            {% endif %}
+            {% if 'admin' in user_groups or 'cajero' in user_groups %}
+                <a class="nav-item" href="{% url 'caja' %}">Caja</a>
+            {% endif %}
         </div>
     </div>
 
@@ -282,9 +312,19 @@
             const navToggle = document.getElementById('barToggle');
             const navMenu = document.getElementById('barNavMenu');
             if(!navToggle || !navMenu) return;
+            const submenuToggles = navMenu.querySelectorAll('.nav-subtoggle');
+
+            function closeSubmenus(){
+                navMenu.querySelectorAll('.nav-submenu.show').forEach(function(sm){
+                    sm.classList.remove('show');
+                    sm.setAttribute('aria-hidden','true');
+                });
+                submenuToggles.forEach(function(btn){ btn.setAttribute('aria-expanded','false'); });
+            }
 
             function closeNav(){
                 navMenu.classList.remove('show');
+                closeSubmenus();
                 navMenu.setAttribute('aria-hidden','true');
             }
 
@@ -292,6 +332,30 @@
                 e.stopPropagation();
                 const opened = navMenu.classList.toggle('show');
                 navMenu.setAttribute('aria-hidden', opened ? 'false' : 'true');
+                if(!opened) closeSubmenus();
+            });
+
+            submenuToggles.forEach(function(btn){
+                btn.addEventListener('click', function(e){
+                    e.stopPropagation();
+                    const targetId = btn.getAttribute('data-target');
+                    const submenu = targetId ? document.getElementById(targetId) : null;
+                    if(!submenu) return;
+                    const opening = !submenu.classList.contains('show');
+                    closeSubmenus();
+                    if(opening){
+                        submenu.classList.add('show');
+                        submenu.setAttribute('aria-hidden','false');
+                        btn.setAttribute('aria-expanded','true');
+                    }
+                });
+            });
+
+            navMenu.querySelectorAll('[data-close-submenu]').forEach(function(btn){
+                btn.addEventListener('click', function(e){
+                    e.stopPropagation();
+                    closeSubmenus();
+                });
             });
 
             document.addEventListener('click', function(e){
