@@ -906,8 +906,8 @@ def inventario(request):
         )
         .order_by('nombre_producto')
     )
-    # Paginación: 15 productos por página
-    paginator = Paginator(productos, 15)
+    # Paginación: 10 productos por página
+    paginator = Paginator(productos, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
