@@ -141,6 +141,27 @@ class Producto(models.Model):
     def __str__(self):
         return self.nombre_producto
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Copiar la imagen a static/product-images/ si existe
+        if self.imagen_producto and self.imagen_producto.name:
+            import shutil, os
+            from django.conf import settings
+            # Ruta absoluta de la imagen en media
+            media_path = self.imagen_producto.path
+            # Nombre base del archivo
+            image_basename = os.path.basename(media_path)
+            # Destino en static/product-images/
+            static_dir = os.path.join(settings.FRONTEND_DIR, 'static', 'product-images')
+            os.makedirs(static_dir, exist_ok=True)
+            static_path = os.path.join(static_dir, image_basename)
+            try:
+                if not os.path.exists(static_path):
+                    shutil.copy2(media_path, static_path)
+            except Exception as e:
+                # No interrumpir el guardado si falla la copia
+                pass
+
 
 # ==========================================
 # 3. Tablas de Operación y Transacciones
