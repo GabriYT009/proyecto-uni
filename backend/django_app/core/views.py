@@ -1,4 +1,5 @@
 import logging
+from collections import Counter
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
@@ -9,180 +10,247 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django.contrib import messages
-from django.db.models import Q, F
+from django.db.models import Q, F, Case, When, IntegerField
+from django.core.cache import cache
+from django.conf import settings
 import re
 import os
 import json
 from .models import Producto, Cliente, Categoria, Historial_Inventario, MetodoPago, CarritoDeCompras, OrdenDeDespacho, Salida
 from django.core.paginator import Paginator
 from .forms import ProductForm
-from django.contrib import messages
 from django.utils import timezone
 from django.db import transaction
+from django.urls import reverse
+from django.core.files.storage import default_storage
 
 logger = logging.getLogger(__name__)
 
+HOME_PRODUCTS_LIMIT = 24
+ALLOWED_CATEGORY_NAMES = [
+    'Cajas',
+    'Toppers',
+    'Sublimación',
+    'Impresión',
+    'Personalización',
+    'Papelería',
+]
+
+
+def _safe_img_url(producto):
+    fallback = settings.STATIC_URL + 'assets/img/logo.png'
+    try:
+        if producto.imagen_producto and producto.imagen_producto.url:
+            image_name = producto.imagen_producto.name
+            try:
+                if producto.imagen_producto.storage.exists(image_name):
+                    return producto.imagen_producto.url
+            except Exception:
+                pass
+
+            image_basename = os.path.basename(image_name)
+            static_fallback_path = os.path.join(settings.FRONTEND_DIR, 'static', 'product-images', image_basename)
+            if os.path.exists(static_fallback_path):
+                return settings.STATIC_URL + 'product-images/' + image_basename
+    except Exception:
+        pass
+    return fallback
+
+
+def _cached_categories(timeout=300):
+    for category_name in ALLOWED_CATEGORY_NAMES:
+        Categoria.objects.get_or_create(
+            nombre_categoria=category_name,
+            defaults={'descripcion_categoria': f'Categoria {category_name}'},
+        )
+
+    # Leemos categorias en cada request para reflejar cambios inmediatamente.
+    order_case = Case(
+        *[When(nombre_categoria=name, then=pos) for pos, name in enumerate(ALLOWED_CATEGORY_NAMES)],
+        output_field=IntegerField(),
+    )
+    return list(
+        Categoria.objects
+        .filter(nombre_categoria__isnull=False)
+        .exclude(nombre_categoria='')
+        .exclude(nombre_categoria__startswith='-')
+        .filter(nombre_categoria__in=ALLOWED_CATEGORY_NAMES)
+        .only('id', 'nombre_categoria')
+        .order_by(order_case, 'nombre_categoria')
+    )
+
+
+def _user_groups(user):
+    return list(user.groups.values_list('name', flat=True))
+
 def is_admin(user):
+    if not hasattr(user, 'is_authenticated') or not user.is_authenticated:
+        return False
     return user.groups.filter(name='admin').exists()
 
 def is_regular_user(user):
+    if not hasattr(user, 'is_authenticated') or not user.is_authenticated:
+        return False
     return user.groups.filter(name='user').exists() and not is_admin(user)
 
 
 def is_cajero(user):
+    if not hasattr(user, 'is_authenticated') or not user.is_authenticated:
+        return False
     return user.groups.filter(name='cajero').exists()
 
 def admin_only(view_func):
-    decorated_view_func = login_required(
-        user_passes_test(is_admin, login_url='login')(view_func)
-    )
+    decorated_view_func = user_passes_test(is_admin, login_url='login')(login_required(view_func))
     return decorated_view_func
 
 def cajero_only(view_func):
-    decorated_view_func = login_required(
-        user_passes_test(is_cajero, login_url='login')(view_func)
-    )
+    decorated_view_func = user_passes_test(is_cajero, login_url='login')(login_required(view_func))
     return decorated_view_func
 
 
 def shared_access(view_func):
-    decorated_view_func = login_required(
-        user_passes_test(lambda u: is_admin(u) or is_regular_user(u) or is_cajero(u), login_url='login')(view_func)
-    )
+    decorated_view_func = user_passes_test(lambda u: is_admin(u) or is_regular_user(u) or is_cajero(u), login_url='login')(login_required(view_func))
     return decorated_view_func
 
 
 def login_view(request):
     return render(request, 'core/index.html')
 
-
-import json
-from django.shortcuts import render
-from .models import Producto, Categoria
-
 def home(request):
-    # 1. Obtener todas las categorías
-    categories = Categoria.objects.all()
+    categories = []
+    Productos = []
+    Productos_json = '[]'
+    cart_count = 0
+    user_groups = []
 
-    # 2. Obtener productos ordenados por el nuevo campo 'precio_venta'
-    # Nota: Django usa 'id' automático (pk) aunque no lo escribas en el modelo.
-    Productos = Producto.objects.all().order_by('precio_venta')
+    try:
+        categories = _cached_categories()
 
-    # Lista auxiliar para preparar el JSON
-    lista_productos_json = []
+        productos_qs = (
+            Producto.objects
+            .filter(status_producto=True)
+            .select_related('categoria')
+            .only(
+                'id',
+                'nombre_producto',
+                'precio_venta',
+                'descripcion',
+                'imagen_producto',
+                'categoria__nombre_categoria',
+            )
+            .order_by('precio_venta')[:HOME_PRODUCTS_LIMIT]
+        )
 
-    for p in Productos:
-        # --- Manejo de la URL de la imagen (Campo: imagen_producto) ---
-        try:
-            if p.imagen_producto and p.imagen_producto.url:
-                img_url = p.imagen_producto.url
-            else:
-                img_url = ''
-        except ValueError:
-            img_url = ''
-        
-        # Asignamos la url al objeto para usarlo en el template HTML (Django Template)
-        p.img_url = img_url
+        Productos = list(productos_qs)
 
-        # --- Construcción del Diccionario para JSON ---
+        lista_productos_json = []
+        for p in Productos:
+            img_url = _safe_img_url(p)
+            p.img_url = img_url
+            lista_productos_json.append({
+                'id': p.pk,
+                'title': p.nombre_producto,
+                'price': p.precio_venta,
+                'img': img_url,
+                'desc': p.descripcion,
+                'Categoria': p.categoria.nombre_categoria if p.categoria else '',
+            })
 
-        lista_productos_json.append({
-            'id': p.pk,                         # ID automático
-            'title': p.nombre_producto,         # Antes: title
-            'price': p.precio_venta,            # Antes: price
-            'img': img_url,                     # La url procesada arriba
-            'desc': p.descripcion,              # Antes: desc
+        Productos_json = json.dumps(lista_productos_json, ensure_ascii=False)
+    except Exception:
+        logger.exception("Home view fallback: database unavailable or timed out")
 
+    try:
+        cart_count = len(request.session.get('cart', []))
+    except Exception:
+        logger.exception("Home view fallback: session unavailable")
 
-            # Accedemos a la relación ForeignKey (p.categoria) y su campo nombre (nombre_categoria)
-            'Categoria': p.categoria.nombre_categoria if p.categoria else '',
-        })
-
-    # 3. Convertir a JSON
-    Productos_json = json.dumps(lista_productos_json, ensure_ascii=False)
+    try:
+        user_groups = _user_groups(request.user)
+    except Exception:
+        logger.exception("Home view fallback: unable to read user groups")
 
     return render(request, 'core/home.html', {
         'categories': categories, 
         'Productos': Productos, 
         'Productos_json': Productos_json,
-        'cart_count': len(request.session.get('cart', [])),
-        'user_groups': list(request.user.groups.values_list('name', flat=True))
+        'cart_count': cart_count,
+        'user_groups': user_groups,
     })
 
 def login_post(request):
     if request.method == 'POST':
         username = (request.POST.get('username') or '').strip()
         password = (request.POST.get('password') or '').strip()
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return redirect('home')
 
-        # If the DB has no users yet (fresh deployment), allow default admin credentials.
-        # These can be adjusted via environment variables for production.
         fallback_user = os.environ.get("DJANGO_ADMIN_USER", "admin1")
         fallback_pass = os.environ.get("DJANGO_ADMIN_PASSWORD", "123456")
-        if username == fallback_user and password == fallback_pass:
-            # Ensure the fallback admin user exists and always accepts the fallback password.
-            # This helps when the DB already has a user with the same name but an unknown password.
-            user_obj, created = User.objects.get_or_create(
-                username=username,
-                defaults={
-                    "email": os.environ.get("DJANGO_ADMIN_EMAIL", "admin@example.com"),
-                    "is_superuser": True,
-                    "is_staff": True,
-                },
-            )
 
-            # Always update the password and admin flags so the fallback remains usable.
-            user_obj.set_password(password)
-            user_obj.is_superuser = True
-            user_obj.is_staff = True
-            user_obj.save()
-
-            # Ensure admin group membership if the group exists.
-            try:
-                admin_group = Group.objects.get(name="admin")
-                user_obj.groups.add(admin_group)
-            except Group.DoesNotExist:
-                pass
-
-            # Authenticate again now that the user exists and the password is set.
+        try:
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
                 return redirect('home')
 
-        # Log details to help diagnose deploy/login issues (will appear in Render logs).
-        # NOTE: `repr(username)` is used to surface leading/trailing spaces if present.
-        user_exists = User.objects.filter(username=username).exists()
-        user_info = None
-        if user_exists:
-            u = User.objects.filter(username=username).first()
-            user_info = {
-                'username': u.username,
-                'is_active': u.is_active,
-                'is_superuser': u.is_superuser,
-                'date_joined': u.date_joined.isoformat() if hasattr(u, 'date_joined') else None,
-            }
+            # If the DB has no users yet (fresh deployment), allow default admin credentials.
+            if username == fallback_user and password == fallback_pass:
+                user_obj, created = User.objects.get_or_create(
+                    username=username,
+                    defaults={
+                        "email": os.environ.get("DJANGO_ADMIN_EMAIL", "admin@example.com"),
+                        "is_superuser": True,
+                        "is_staff": True,
+                    },
+                )
 
-        logger.warning(
-            "Login failed (render). username=%s (repr=%s), user_exists=%s, fallback=%s/%s, info=%s",
-            username,
-            repr(username),
-            user_exists,
-            fallback_user,
-            "***" if password else "",
-            user_info,
-        )
+                user_obj.set_password(password)
+                user_obj.is_superuser = True
+                user_obj.is_staff = True
+                user_obj.save()
 
-        # Better error messaging for failed login
-        if username and user_exists:
-            error = 'Contraseña incorrecta. Verifica tu clave.'
-        else:
-            error = 'Usuario no encontrado. Verifica tu nombre de usuario.'
+                try:
+                    admin_group = Group.objects.get(name="admin")
+                    user_obj.groups.add(admin_group)
+                except Group.DoesNotExist:
+                    pass
 
-        return render(request, 'core/index.html', {'error': error})
+                user = authenticate(request, username=username, password=password)
+                if user is not None:
+                    login(request, user)
+                    return redirect('home')
+
+            user_exists = User.objects.filter(username=username).exists()
+            user_info = None
+            if user_exists:
+                u = User.objects.filter(username=username).first()
+                user_info = {
+                    'username': u.username,
+                    'is_active': u.is_active,
+                    'is_superuser': u.is_superuser,
+                    'date_joined': u.date_joined.isoformat() if hasattr(u, 'date_joined') else None,
+                }
+
+            logger.warning(
+                "Login failed. username=%s (repr=%s), user_exists=%s, fallback=%s/%s, info=%s",
+                username,
+                repr(username),
+                user_exists,
+                fallback_user,
+                "***" if password else "",
+                user_info,
+            )
+
+            if username and user_exists:
+                error = 'Contraseña incorrecta. Verifica tu clave.'
+            else:
+                error = 'Usuario no encontrado. Verifica tu nombre de usuario.'
+
+            return render(request, 'core/index.html', {'error': error})
+        except Exception:
+            logger.exception("Login failed due to backend/database error")
+            return render(request, 'core/index.html', {
+                'error': 'No se pudo iniciar sesion temporalmente. Intenta de nuevo en unos segundos.'
+            })
     return redirect('login')
 
 
@@ -435,18 +503,60 @@ def crear_usuario(request):
 @admin_only
 
 def crear_Productoo(request):
-    if request.method == 'POST':
-        form = ProductForm(request.POST,request.FILES)
-        if form.is_valid():
-            producto = form.save()
-            messages.success(request, f'Producto "{producto.nombre_producto}" creado exitosamente.')
-            return redirect('inventario')  # Cambiado de 'catalog' a 'inventario'
-    else:
-        form = ProductForm()
-    return render(request, 'core/crear_Productoo.html', 
-                {'form': form,
-                'user_groups': list(request.user.groups.values_list('name', flat=True)),
-                'cart_count': len(request.session.get('cart', []))})
+    try:
+        if request.method == 'POST':
+            form = ProductForm(request.POST, request.FILES)
+            if form.is_valid():
+                producto = form.save()
+                messages.success(request, f'Producto "{producto.nombre_producto}" creado exitosamente.')
+                return redirect('inventario')  # Cambiado de 'catalog' a 'inventario'
+            else:
+                # Mostrar errores del formulario
+                messages.error(request, 'Por favor corrige los errores en el formulario.')
+        else:
+            form = ProductForm()
+
+    except Exception as e:
+        # En el caso de cualquier excepción, loguear y mostrar mensaje.
+        import traceback
+        print('Error en crear_Productoo:', e)
+        traceback.print_exc()
+        messages.error(request, f'Error al crear producto: {e}')
+        form = ProductForm(request.POST or None, request.FILES or None)
+
+    return render(request, 'core/crear_productoo.html', {
+        'form': form,
+        'user_groups': list(request.user.groups.values_list('name', flat=True)),
+        'cart_count': len(request.session.get('cart', []))
+    })
+
+
+def crear_Productoo_debug(request):
+    """Modo debug para reproducir /producto/registrar sin la verificación completa de grupos."""
+    error = None
+    form = None
+    try:
+        if request.method == 'POST':
+            form = ProductForm(request.POST, request.FILES)
+            if form.is_valid():
+                producto = form.save()
+                messages.success(request, f'Producto "{producto.nombre_producto}" creado exitosamente (debug).')
+                return redirect('inventario')
+        else:
+            form = ProductForm()
+    except Exception as e:
+        import traceback
+        error = traceback.format_exc()
+        print('crear_Productoo_debug error:', error)
+        messages.error(request, f'Error al crear producto: {e}')
+        form = form or ProductForm(request.POST or None, request.FILES or None)
+
+    return render(request, 'core/crear_Productoo.html', {
+        'form': form,
+        'user_groups': [],
+        'cart_count': len(request.session.get('cart', [])),
+        'debug_error': error,
+    })
 
 
 def catalog(request):
@@ -458,7 +568,20 @@ def catalog(request):
     categoria_obj = None
 
     # Base queryset: solo productos activos
-    Productos = Producto.objects.filter(status_producto=True)
+    Productos = (
+        Producto.objects
+        .filter(status_producto=True)
+        .select_related('categoria')
+        .only(
+            'id',
+            'nombre_producto',
+            'precio_venta',
+            'descripcion',
+            'imagen_producto',
+            'categoria__nombre_categoria',
+            'categoria_id',
+        )
+    )
 
     if categoria_param:
         try:
@@ -479,10 +602,10 @@ def catalog(request):
             Q(descripcion__icontains=search_param)
         )
 
-    categories = Categoria.objects.all()
+    categories = _cached_categories()
 
-    # Paginación: mostrar N productos por página
-    per_page = 12
+    # Paginación: mostrar 10 productos por página
+    per_page = 10
     paginator = Paginator(Productos.order_by('nombre_producto'), per_page)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -490,10 +613,8 @@ def catalog(request):
     # Construir JSON solo con los productos de la página actual (más eficiente)
     lista_productos_json = []
     for p in page_obj.object_list:
-        try:
-            img_url = p.imagen_producto.url if p.imagen_producto and p.imagen_producto.url else ''
-        except Exception:
-            img_url = ''
+        img_url = _safe_img_url(p)
+        p.img_url = img_url
         lista_productos_json.append({
             'id': p.pk,
             'title': p.nombre_producto,
@@ -510,7 +631,7 @@ def catalog(request):
         'selected_Categoria': categoria_obj.nombre_categoria if categoria_obj else categoria_param,
         'search_query': search_param,
         'cart_count': len(request.session.get('cart', [])),
-        'user_groups': list(request.user.groups.values_list('name', flat=True)),
+        'user_groups': _user_groups(request.user),
         'Productos_json': Productos_json,
         'page_obj': page_obj,
         'paginator': paginator,
@@ -537,6 +658,7 @@ def perfil(request):
         cliente = None
 
     return render(request, 'core/perfil.html', {
+        'user': user,
         'user_groups': list(request.user.groups.values_list('name', flat=True)),
         'cart_count': len(request.session.get('cart', [])),
         'cliente': cliente,
@@ -548,59 +670,47 @@ def perfil(request):
 @login_required
 
 def carrito(request):
-    cart = request.session.get('cart', [])
-    carrito_validado = []
-
-    
-    for producto_id in cart:
-        producto_id
+    raw_cart = request.session.get('cart', []) or []
+    cart = []
+    for item in raw_cart:
         try:
-            producto_obj = Producto.objects.filter(pk=producto_id).exclude(status_producto=False).first()
-            if producto_obj:
-                carrito_validado.append(producto_id)
-        except producto_obj.DoesNotExist:
-            pass
-    request.session['cart'] = carrito_validado
-    request.session.modified = True
+            cart.append(int(item))
+        except (TypeError, ValueError):
+            continue
 
-    Productos = Producto.objects.filter(pk__in=cart).exclude(status_producto=False)
-    cart_str = [str(item) for item in cart]
+    unique_ids = set(cart)
+    productos_qs = (
+        Producto.objects
+        .filter(pk__in=unique_ids, status_producto=True)
+        .only('id', 'nombre_producto', 'precio_venta', 'descripcion', 'imagen_producto', 'cantidad_disponible')
+    )
+    productos_map = {p.pk: p for p in productos_qs}
 
-    # Preparar URLs de imágenes
+    carrito_validado = [pid for pid in cart if pid in productos_map]
+    if carrito_validado != raw_cart:
+        request.session['cart'] = carrito_validado
+        request.session.modified = True
+
+    cantidades = Counter(carrito_validado)
+    Productos = list(productos_map.values())
     for p in Productos:
-
-        p.cantidad_en_carrito = cart_str.count(str(p.pk))
-        
-
-        try:
-            #PARA MÁS ADELANTE IMPORTANTE
-            if p.cantidad_disponible <= 0:
-                p.status_producto = False
-        
-                if p.imagen_producto and p.imagen_producto.url:
-                    p.img_url = p.imagen_producto.url
-                else:
-                    p.img_url = ''
-        except ValueError:
-            p.img_url = ''
+        p.cantidad_en_carrito = cantidades.get(p.pk, 0)
+        p.img_url = _safe_img_url(p)
+        if (p.cantidad_disponible or 0) <= 0:
+            p.status_producto = False
     
     # Si se solicita comprar directamente desde el carrito (GET ?buy=ID), obtener el producto
     buy_id = request.GET.get('buy')
-    # support auto_buy set by add_to_cart (AJAX) so cart shows purchase UI immediately
-    if not buy_id:
-        auto = request.session.pop('auto_buy', None)
-        if auto:
-            buy_id = str(auto)
     producto_compra = None
     if buy_id:
         try:
-            producto_compra = Producto.objects.filter(pk=buy_id).exclude(status_producto=False).first()
+            buy_id_int = int(buy_id)
+            producto_compra = productos_map.get(buy_id_int)
+            if producto_compra is None:
+                producto_compra = Producto.objects.filter(pk=buy_id_int, status_producto=True).first()
         
             if producto_compra:
-                try:
-                    producto_compra.img_url = producto_compra.imagen_producto.url if producto_compra.imagen_producto and producto_compra.imagen_producto.url else ''
-                except Exception:
-                    producto_compra.img_url = ''
+                producto_compra.img_url = _safe_img_url(producto_compra)
         except Exception:
             producto_compra = None
 
@@ -610,8 +720,8 @@ def carrito(request):
         'Productos': Productos,
         'producto_compra': producto_compra,
         'show_purchase_only': show_purchase_only,
-        'cart_count': len(cart),
-        'user_groups': list(request.user.groups.values_list('name', flat=True))
+        'cart_count': len(carrito_validado),
+        'user_groups': _user_groups(request.user)
     })
 
 
@@ -622,36 +732,23 @@ def carrito(request):
 #DE MOMENTO NO AGREGANDO NI ELIMINANDO PRODUCTOS DEL CARRITO EN LA BASE DE DATOS.
 
 def add_to_cart(request, product_id):
-    # Debug 
-    try:
-        print(f"[add_to_cart] user={getattr(request, 'user', None)} authenticated={getattr(request.user, 'is_authenticated', False)} method={request.method} product_id={product_id}")
-    except Exception:
-        print('[add_to_cart] debug: could not print user info')
     cart = request.session.get('cart', [])
     
     cart.append(product_id)
     request.session['cart'] = cart
+    request.session.modified = True
 
-    
-    try:
-        request.session['auto_buy'] = int(product_id)
-    except Exception:
-        try:
-            request.session['auto_buy'] = product_id
-        except Exception:
-            pass
-    try:
-        print(f"[add_to_cart] cart now={request.session.get('cart')} count={len(cart)}")
-    except Exception:
-        pass
-    return JsonResponse({'count': len(cart), 'auto_buy': request.session.get('auto_buy')})
+    return JsonResponse({'count': len(cart)})
 
 @login_required
 def remove_from_cart(request, product_id):
     cart = request.session.get('cart', [])
-    
-    cart.remove(product_id)
+
+    # Remove the product entirely from session cart, even if it appears multiple times.
+    pid = str(product_id)
+    cart = [item for item in cart if str(item) != pid]
     request.session['cart'] = cart
+    request.session.modified = True
     return redirect('carrito')
 
 
@@ -668,67 +765,186 @@ def logout_view(request):
 @shared_access
 def caja(request):
     # Mostrar interfaz de caja: cliente + factura a la izquierda, lista de productos a la derecha
-    productos = Producto.objects.filter(status_producto=True).order_by('nombre_producto')[:200]
+    productos = (
+        Producto.objects
+        .filter(status_producto=True)
+        .only('id', 'nombre_producto', 'precio_venta', 'cantidad_disponible', 'imagen_producto')
+        .order_by('nombre_producto')[:120]
+    )
     # preparar imagen urls
     for p in productos:
-        try:
-            p.img_url = p.imagen_producto.url if p.imagen_producto and p.imagen_producto.url else ''
-        except Exception:
-            p.img_url = ''
+        p.img_url = _safe_img_url(p)
 
     # cargar clientes para autocompletar cedula
     from .models import Cliente
-    clientes = list(Cliente.objects.exclude(documento__isnull=True).exclude(documento__exact='').values(
-        'documento', 'nombre_cliente', 'apellido_cliente', 'direccion', 'telefono_cliente'
-    ))
+    clientes = list(
+        Cliente.objects
+        .exclude(documento__isnull=True)
+        .exclude(documento__exact='')
+        .values('documento', 'nombre_cliente', 'apellido_cliente', 'direccion', 'telefono_cliente')
+    )
 
     return render(request, 'core/caja.html', {
         'productos': productos,
         'clientes': clientes,
         'cart_count': len(request.session.get('cart', [])),
-        'user_groups': list(request.user.groups.values_list('name', flat=True))
+        'user_groups': _user_groups(request.user)
     })
+
+
+@login_required
+@shared_access
+def cobrar_caja(request):
+    """Procesa cobro desde la vista Caja y devuelve JSON para feedback en UI."""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Metodo no permitido'}, status=405)
+
+    try:
+        payload = json.loads(request.body or '{}')
+    except Exception:
+        return JsonResponse({'success': False, 'error': 'Payload JSON invalido'}, status=400)
+
+    raw_items = payload.get('items') or []
+    if not isinstance(raw_items, list) or not raw_items:
+        return JsonResponse({'success': False, 'error': 'No hay productos para cobrar'}, status=400)
+
+    qty_by_product = {}
+    for item in raw_items:
+        try:
+            pid = int(item.get('id'))
+            qty = int(item.get('qty', 1))
+        except Exception:
+            continue
+        if pid <= 0 or qty <= 0:
+            continue
+        qty_by_product[pid] = qty_by_product.get(pid, 0) + qty
+
+    if not qty_by_product:
+        return JsonResponse({'success': False, 'error': 'No hay productos validos para cobrar'}, status=400)
+
+    productos = {
+        p.pk: p for p in Producto.objects.filter(pk__in=qty_by_product.keys(), status_producto=True)
+    }
+
+    for pid in qty_by_product.keys():
+        if pid not in productos:
+            return JsonResponse({'success': False, 'error': f'Producto no disponible (ID {pid})'}, status=400)
+
+    try:
+        with transaction.atomic():
+            carrito = CarritoDeCompras.objects.create(usuario=request.user, status_carrito=True)
+            total = 0.0
+
+            for pid, cantidad in qty_by_product.items():
+                producto = productos[pid]
+                disponible = producto.cantidad_disponible or 0
+
+                if cantidad > disponible:
+                    return JsonResponse({
+                        'success': False,
+                        'error': f'Stock insuficiente para "{producto.nombre_producto}". Disponible: {disponible}.'
+                    }, status=400)
+
+                subtotal = float(producto.precio_venta or 0) * cantidad
+                OrdenDeDespacho.objects.create(
+                    carrito_de_compras=carrito,
+                    producto=producto,
+                    cantidad_item=cantidad,
+                    sub_total_item=subtotal,
+                    estado_disponibilidad=True,
+                )
+
+                cantidad_anterior = producto.cantidad_disponible or 0
+                producto.cantidad_disponible = max(0, cantidad_anterior - cantidad)
+                producto.save(update_fields=['cantidad_disponible'])
+
+                Historial_Inventario.objects.create(
+                    producto=producto,
+                    cantidad_anterior=cantidad_anterior,
+                    cantidad_nueva=producto.cantidad_disponible or 0,
+                    tipo_movimiento='venta',
+                    motivo=f'Cobro en caja por {request.user.username} (cantidad {cantidad})',
+                    usuario_responsable=request.user.username,
+                )
+
+                total += subtotal
+
+            Salida.objects.create(
+                carrito_de_compras=carrito,
+                metodo_pago=None,
+                usuario=request.user,
+                total=total,
+                date=timezone.now(),
+            )
+
+        messages.success(request, 'Pago procesado exitosamente.')
+        return JsonResponse({
+            'success': True,
+            'message': 'Pago procesado exitosamente.',
+            'redirect_url': reverse('caja'),
+        })
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 @login_required
 @admin_only
 def inventario(request):
-    # Obtener todos los productos para mostrar el inventario
-    productos = Producto.objects.all().order_by('nombre_producto')
-    
-    # Preparar datos para el template
-    for p in productos:
-        try:
-            if p.imagen_producto and p.imagen_producto.url:
-                p.img_url = p.imagen_producto.url
-                if p.cantidad_disponible <=0:
-                    p.status_producto=False
-                else:
-                    p.status_producto=True
-            else:
-                p.img_url = ''
-        except ValueError:
-            p.img_url = ''
-    # Paginación: 15 productos por página
-    paginator = Paginator(productos, 15)
+    productos = (
+        Producto.objects
+        .select_related('categoria')
+        .only(
+            'id',
+            'nombre_producto',
+            'descripcion',
+            'precio_venta',
+            'cantidad_disponible',
+            'status_producto',
+            'categoria_id',
+            'categoria__nombre_categoria',
+            'imagen_producto',
+        )
+        .order_by('nombre_producto')
+    )
+    # Paginación: 10 productos por página
+    paginator = Paginator(productos, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+
+    for p in page_obj.object_list:
+        p.img_url = _safe_img_url(p)
+        p.status_producto = (p.cantidad_disponible or 0) > 0
+
     # Añadir motivo de la última reducción (si existe) a cada producto de la página
     try:
+        page_product_ids = [p.pk for p in page_obj.object_list]
+        motivos_map = {}
+        if page_product_ids:
+            rows = (
+                Historial_Inventario.objects
+                .filter(producto_id__in=page_product_ids, cantidad_nueva__lt=F('cantidad_anterior'))
+                .order_by('producto_id', '-fecha_ajuste')
+                .values('producto_id', 'motivo')
+            )
+            for row in rows:
+                pid = row['producto_id']
+                if pid not in motivos_map:
+                    motivos_map[pid] = row['motivo']
+
         for p in page_obj.object_list:
-            last_red = Historial_Inventario.objects.filter(producto=p, cantidad_nueva__lt=F('cantidad_anterior')).order_by('-fecha_ajuste').first()
-            p.ultimo_motivo_resto = last_red.motivo if last_red else ''
+            p.ultimo_motivo_resto = motivos_map.get(p.pk, '')
     except Exception:
         # No bloquear la vista si hay algún problema con historial
         for p in page_obj.object_list:
             p.ultimo_motivo_resto = ''
 
     return render(request, 'core/inventario.html', {
-        'productos': productos,
+        'productos': page_obj.object_list,
         'page_obj': page_obj,
         'paginator': paginator,
-        'categories': Categoria.objects.all(),
+        'categories': _cached_categories(),
         'cart_count': len(request.session.get('cart', [])),
-        'user_groups': list(request.user.groups.values_list('name', flat=True))
+        'user_groups': _user_groups(request.user)
     })
 
 @login_required
@@ -737,17 +953,9 @@ def inventario(request):
 def producto_detalle(request, producto_id):
     try:
         producto = Producto.objects.get(pk=producto_id)
-        
-        # Manejo de la URL de la imagen
-        try:
-            if producto.imagen_producto and producto.imagen_producto.url:
-                img_url = producto.imagen_producto.url
-            else:
-                img_url = ''
-        except ValueError:
-            img_url = ''
-        
-        producto.img_url = img_url
+
+        # Reutilizar la misma logica segura de imagen usada en catalogo/home.
+        producto.img_url = _safe_img_url(producto)
         
         from_inventario = request.GET.get('origin') == 'inventario'
         return render(request, 'core/producto_detalle.html', {
@@ -802,28 +1010,47 @@ def detalles_compra_producto(request, producto_id):
 @login_required
 def historial_compras(request):
     """Muestra el historial de compras (salidas) del usuario."""
-    salidas = Salida.objects.filter(usuario=request.user).order_by('-date')
-    # Pre-cargar items por salida
-    salida_items = {}
+    salidas = list(
+        Salida.objects
+        .filter(usuario=request.user)
+        .select_related('carrito_de_compras')
+        .only('id', 'date', 'total', 'carrito_de_compras_id')
+        .order_by('-date')
+    )
+
+    carrito_ids = [s.carrito_de_compras_id for s in salidas if s.carrito_de_compras_id]
+    items_by_carrito = {}
+    if carrito_ids:
+        items_qs = (
+            OrdenDeDespacho.objects
+            .filter(carrito_de_compras_id__in=carrito_ids)
+            .select_related('producto')
+            .only(
+                'id',
+                'carrito_de_compras_id',
+                'cantidad_item',
+                'sub_total_item',
+                'producto_id',
+                'producto__nombre_producto',
+            )
+        )
+        for it in items_qs:
+            items_by_carrito.setdefault(it.carrito_de_compras_id, []).append(it)
+
     for s in salidas:
-        salida_items[s.pk] = OrdenDeDespacho.objects.filter(carrito_de_compras=s.carrito_de_compras)
+        s.items = items_by_carrito.get(s.carrito_de_compras_id, [])
 
     return render(request, 'core/historial_compras.html', {
         'salidas': salidas,
-        'salida_items': salida_items,
         'cart_count': len(request.session.get('cart', [])),
-        'user_groups': list(request.user.groups.values_list('name', flat=True))
+        'user_groups': _user_groups(request.user)
     })
 
 
 @login_required
 def comprar_producto(request, producto_id):
     producto = get_object_or_404(Producto, pk=producto_id)
-    try:
-        img_url = producto.imagen_producto.url if producto.imagen_producto and producto.imagen_producto.url else ''
-    except Exception:
-        img_url = ''
-    producto.img_url = img_url
+    producto.img_url = _safe_img_url(producto)
 
     if request.method == 'POST':
         try:
@@ -907,12 +1134,16 @@ def comprar_producto(request, producto_id):
 def pago_exitoso(request, salida_id):
     salida = get_object_or_404(Salida, pk=salida_id)
     # Intentar recuperar items del carrito si existen
-    items = OrdenDeDespacho.objects.filter(carrito_de_compras=salida.carrito_de_compras)
+    items = (
+        OrdenDeDespacho.objects
+        .filter(carrito_de_compras=salida.carrito_de_compras)
+        .select_related('producto')
+    )
     return render(request, 'core/pago_exitoso.html', {
         'salida': salida,
         'items': items,
         'cart_count': len(request.session.get('cart', [])),
-        'user_groups': list(request.user.groups.values_list('name', flat=True))
+        'user_groups': _user_groups(request.user)
     })
 
 
@@ -920,12 +1151,16 @@ def pago_exitoso(request, salida_id):
 def detalles_salida(request, salida_id):
     """Mostrar todos los productos incluidos en una Salida (orden) específica."""
     salida = get_object_or_404(Salida, pk=salida_id)
-    items = OrdenDeDespacho.objects.filter(carrito_de_compras=salida.carrito_de_compras)
+    items = (
+        OrdenDeDespacho.objects
+        .filter(carrito_de_compras=salida.carrito_de_compras)
+        .select_related('producto')
+    )
     return render(request, 'core/detalles_salida.html', {
         'salida': salida,
         'items': items,
         'cart_count': len(request.session.get('cart', [])),
-        'user_groups': list(request.user.groups.values_list('name', flat=True))
+        'user_groups': _user_groups(request.user)
     })
 
 
@@ -939,6 +1174,27 @@ def comprar_carrito(request):
     if not cart:
         messages.error(request, 'No hay productos en el carrito.')
         return redirect('carrito')
+
+    payment_proof = request.FILES.get('payment_proof')
+    if payment_proof:
+        content_type = (payment_proof.content_type or '').lower()
+        if not content_type.startswith('image/'):
+            messages.error(request, 'El comprobante debe ser una imagen valida.')
+            return redirect('carrito')
+        if payment_proof.size and payment_proof.size > (5 * 1024 * 1024):
+            messages.error(request, 'El comprobante supera el tamano maximo de 5 MB.')
+            return redirect('carrito')
+
+        _, ext = os.path.splitext(payment_proof.name or '')
+        ext = (ext or '.jpg').lower()
+        proof_name = f"payment_proofs/{request.user.pk}_{timezone.now().strftime('%Y%m%d_%H%M%S_%f')}{ext}"
+        try:
+            saved_path = default_storage.save(proof_name, payment_proof)
+            logger.info('Comprobante de pago guardado: user=%s path=%s', request.user.pk, saved_path)
+        except Exception:
+            logger.exception('No se pudo guardar el comprobante de pago movil.')
+            messages.error(request, 'No se pudo guardar la imagen del comprobante.')
+            return redirect('carrito')
 
     productos = Producto.objects.filter(pk__in=cart)
 
@@ -1232,29 +1488,37 @@ def editar_producto(request, producto_id):
         posted_imagen = bool(request.FILES.get('imagen_producto'))
 
         changed = False
+        changed_non_image = False
         if posted_nombre and posted_nombre != (producto.nombre_producto or ''):
             changed = True
+            changed_non_image = True
         if posted_desc != (producto.descripcion or ''):
             changed = True
+            changed_non_image = True
         # compare numeric with tolerance for floats
         try:
             if float(posted_precio) != float(producto.precio_venta or 0):
                 changed = True
+                changed_non_image = True
         except Exception:
             pass
         try:
             if int(posted_cantidad) != int(producto.cantidad_disponible or 0):
                 changed = True
+                changed_non_image = True
         except Exception:
             pass
         if bool(posted_status) != bool(producto.status_producto):
             changed = True
+            changed_non_image = True
         if posted_categoria_id != (producto.categoria_id if getattr(producto, 'categoria_id', None) is not None else None):
             changed = True
+            changed_non_image = True
         if posted_imagen:
             changed = True
 
-        if changed and not motivo:
+        # Permitir actualizar solo la imagen sin exigir motivo.
+        if changed_non_image and not motivo:
             messages.error(request, 'Debes proporcionar un motivo cuando realizas cualquier cambio al producto.')
             return redirect('inventario')
 
@@ -1315,11 +1579,21 @@ def editar_producto(request, producto_id):
 @login_required
 @admin_only
 def todos_clientes(request):
-    clientes = Cliente.objects.all().order_by('nombre_cliente')    
+    clientes_qs = (
+        Cliente.objects
+        .only('id', 'nombre_cliente', 'apellido_cliente', 'documento', 'rif_empresarial', 'telefono_cliente', 'email')
+        .order_by('nombre_cliente')
+    )
+    paginator = Paginator(clientes_qs, 25)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, 'core/clientes.html', {
-        'clientes': clientes,
+        'clientes': page_obj,
+        'page_obj': page_obj,
+        'is_paginated': page_obj.has_other_pages(),
         'cart_count': len(request.session.get('cart', [])),
-        'user_groups': list(request.user.groups.values_list('name', flat=True))
+        'user_groups': _user_groups(request.user)
     })
 
 @login_required
@@ -1332,9 +1606,21 @@ def agregar_marca(request):
         if producto_id and marca:
             try:
                 producto = Producto.objects.get(pk=producto_id)
+                marca_anterior = (producto.marca_producto or '').strip()
                 producto.marca_producto = marca
                 producto.save()
-                messages.success(request, f'Marca "{marca}" agregada al producto "{producto.nombre_producto}".')
+                if marca_anterior and marca_anterior.lower() != marca.lower():
+                    messages.success(
+                        request,
+                        f'Marca actualizada en "{producto.nombre_producto}": "{marca_anterior}" -> "{marca}".'
+                    )
+                elif marca_anterior and marca_anterior.lower() == marca.lower():
+                    messages.success(
+                        request,
+                        f'La marca de "{producto.nombre_producto}" ya estaba en "{marca}".'
+                    )
+                else:
+                    messages.success(request, f'Marca "{marca}" agregada al producto "{producto.nombre_producto}".')
             except Producto.DoesNotExist:
                 messages.error(request, 'Producto no encontrado.')
             except Exception as e:
@@ -1344,12 +1630,14 @@ def agregar_marca(request):
         
         return redirect('agregar_marca')
     
-    # Obtener productos que no tienen marca o tienen marca vacía
-    productos_sin_marca = Producto.objects.filter(
-        Q(marca_producto__isnull=True) | Q(marca_producto='')
-    ).order_by('nombre_producto')
-    
+    # Obtener todos los productos para permitir seleccionar cualquiera
+    productos = Producto.objects.all().order_by('nombre_producto')
+
+    # Mantener a la vista los no marcados para información, pero no bloquea
+    productos_sin_marca = productos.filter(Q(marca_producto__isnull=True) | Q(marca_producto=''))
+
     return render(request, 'core/agregar_marca.html', {
+        'productos': productos,
         'productos_sin_marca': productos_sin_marca,
         'cart_count': len(request.session.get('cart', [])),
         'user_groups': list(request.user.groups.values_list('name', flat=True))

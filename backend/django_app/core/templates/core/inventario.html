@@ -24,17 +24,29 @@
 
     <style>
         body { 
-            padding-top: 70px; 
-            background: linear-gradient(135deg, #E1BEE7, #EFEFEF);
+            padding-top: 82px; 
+            background: #ffffff;
             font-family: 'Montserrat', sans-serif;
         }
 
         /* top full-width bar - MANTENIENDO EL ESTILO ORIGINAL */
-        .top-bar{ position: fixed; top:0; left:0; right:0; height:70px; background:#fff; border-bottom:1px solid rgba(0,0,0,0.06); z-index:10000; transition: all 240ms cubic-bezier(.2,.9,.2,1); box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .top-bar .bar-inner{ max-width:1400px; margin:0 auto; height:70px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; position:relative; }
+    .top-bar {
+            height: 82px !important;
+            background: rgb(72 13 102) !important;
+            border-bottom: 1px solid rgba(153, 50, 204, 0.12) !important;
+            box-shadow: 0 16px 36px rgba(102, 32, 128, 0.12) !important;
+            backdrop-filter: blur(18px) !important;
+            -webkit-backdrop-filter: blur(18px) !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10000;
+        }
+        .top-bar .bar-inner{ max-width:1400px; margin:0 auto; height:82px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; position:relative; }
 
-        .bar-logo-link{ display:flex; align-items:center; font-size:24px; font-weight:700; color:#9932CC; text-decoration:none; }
-        .bar-logo-text{ font-size:24px; font-weight:700; color:#9932CC; }
+    .bar-logo-link{ display:flex; align-items:center; font-size:24px; font-weight:700; color:#ffffff !important; text-decoration:none; }
+    .bar-logo-text{ font-size:24px; font-weight:700; color:#ffffff !important; }
 
         /* Search container */
         .search-container{ display:flex; align-items:center; background:#f5f5f5; border-radius:25px; padding:5px; width:400px; }
@@ -95,7 +107,7 @@
 
         /* Header section for inventory */
         .inventory-header {
-            background: linear-gradient(135deg, #9932CC, #7B1FA2);
+            background: linear-gradient(135deg, #61247f, #46125d);
             color: white;
             padding: 30px;
             border-radius: 15px;
@@ -159,7 +171,7 @@
         }
 
         .mdl-data-table th {
-            background: #9932CC;
+            background: #692c87;
             color: white;
             padding: 15px;
             text-align: left;
@@ -306,6 +318,47 @@
             width: 16px;
         }
 
+        @media (max-width: 768px) {
+            .dropdown {
+                position: static;
+            }
+            .dropdown-toggle {
+                display: none;
+            }
+            .dropdown-menu,
+            .dropdown-menu.show {
+                display: flex;
+                position: static;
+                top: auto;
+                right: auto;
+                min-width: 0;
+                margin-top: 0;
+                border: none;
+                box-shadow: none;
+                background: transparent;
+                gap: 6px;
+                white-space: normal;
+                max-height: none;
+                overflow: visible;
+            }
+            .dropdown-item {
+                padding: 6px 8px;
+                border: 1px solid #e0d0ef;
+                border-radius: 8px;
+                background: #fff;
+                font-size: 12px;
+                line-height: 1;
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+            }
+            .dropdown-item i {
+                margin-right: 0;
+                width: auto;
+                font-size: 14px !important;
+            }
+        }
+
         /* Modal styles */
         .modal-overlay {
             position: fixed;
@@ -442,6 +495,34 @@
             background: #5a6268;
             transform: translateY(-1px);
         }
+
+        .btn-danger {
+            background: #c43d4b;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #aa2f3d;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(196, 61, 75, 0.28);
+        }
+
+        .delete-warning {
+            margin: 0;
+            color: #495057;
+            line-height: 1.6;
+        }
+
+        .delete-product-name {
+            margin-top: 14px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: #f8ebff;
+            border: 1px solid rgba(153, 50, 204, 0.18);
+            color: #61247f;
+            font-weight: 700;
+            word-break: break-word;
+        }
         /* Inventory filter/search styles */
         #inventorySearch{
             max-width:280px;
@@ -511,6 +592,162 @@
         }
         .floating-messages .msg.success{ background: #28a745; }
         .floating-messages .msg.error{ background: #dc3545; }
+
+        @media (max-width: 768px){
+            body { padding-top: 132px; overflow-x: hidden; }
+            .top-bar {
+                left: 0;
+                right: 0;
+                width: 100%;
+                height: 124px !important;
+                border-radius: 0;
+                border-bottom: 1px solid rgba(153,50,204,0.12);
+                box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+            }
+            .top-bar .bar-inner {
+                height: 124px;
+                padding: 8px 10px;
+                align-items: flex-start;
+                flex-wrap: wrap;
+                gap: 8px;
+                display: flex;
+            }
+            .bar-logo-link { position: static; transform: none; }
+            .bar-inner .bar-right { display: flex; margin-left: auto; gap: 8px; }
+            .bar-inner .bar-center { display: flex; width: 100%; order: 3; justify-content: center; }
+            .main-nav { display: none; }
+            .search-container { width: 100%; max-width: 100%; }
+            .profile-btn { padding: 7px 10px; font-size: 13px; }
+            .avatar { width: 20px; height: 20px; margin-right: 4px; }
+
+            .giant-frame {
+                margin: 12px;
+                padding: 12px;
+                border-radius: 20px;
+                box-shadow: 0 0 28px rgba(255, 105, 180, 0.22);
+                width: auto;
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+            .wrap {
+                margin: 0;
+                padding: 0;
+                width: 100% !important;
+                max-width: 100% !important;
+                min-width: 0;
+                display: block;
+            }
+            .inventory-header {
+                padding: 18px 14px;
+                margin-bottom: 14px;
+                border-radius: 14px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box;
+            }
+            .inventory-header-text {
+                width: 100% !important;
+                max-width: none !important;
+                min-width: 0;
+            }
+            .inventory-header-icon {
+                font-size: 34px;
+                line-height: 1;
+            }
+            .inventory-header-text p {
+                margin: 0;
+                font-size: 14px;
+                line-height: 1.45;
+                white-space: normal;
+                overflow-wrap: anywhere;
+                word-break: normal;
+            }
+
+            .inventory-filters {
+                margin-bottom: 14px !important;
+                justify-content: stretch !important;
+            }
+            .inventory-filters-inner {
+                display: grid !important;
+                grid-template-columns: 1fr;
+                gap: 10px !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                min-width: 0;
+            }
+            #inventorySearch,
+            #inventoryCategory,
+            #inventoryStatus,
+            #inventoryClear,
+            .inventory-filters-inner .btn {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin-left: 0 !important;
+            }
+
+            .table-responsive {
+                margin-top: 12px;
+                overflow-x: auto;
+                overflow-y: hidden;
+                -webkit-overflow-scrolling: touch;
+            }
+            .mdl-data-table { min-width: 920px; }
+            .product-cell { min-width: 220px; }
+        }
+
+        /* Also handle mobile browsers using zoom/desktop-like viewport widths */
+        @media (max-width: 1100px) {
+            html, body {
+                max-width: 100%;
+                overflow-x: hidden;
+            }
+            .giant-frame {
+                width: calc(100% - 24px) !important;
+                max-width: calc(100% - 24px) !important;
+                margin: 12px auto !important;
+                padding: 12px !important;
+                box-sizing: border-box;
+            }
+            .wrap {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                box-sizing: border-box;
+            }
+            .inventory-header {
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .inventory-header-text,
+            .inventory-header-text p {
+                width: 100% !important;
+                max-width: 100% !important;
+                min-width: 0;
+            }
+            .inventory-filters,
+            .inventory-filters-inner {
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box;
+            }
+            .table-responsive {
+                max-width: 100%;
+                overflow-x: auto !important;
+                overflow-y: hidden !important;
+                -webkit-overflow-scrolling: touch;
+            }
+            .mdl-data-table {
+                min-width: 760px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -577,7 +814,7 @@
             <div class="group bar-right">
                 {% if user.is_authenticated %}
                     <div class="profile-menu">
-                        <button id="profileToggle" class="profile-btn" aria-haspopup="true" aria-expanded="false" onclick="(function(e){ e.stopPropagation(); const dd = document.getElementById('profileDropdown'); if(!dd) return; const opened = dd.classList.toggle('show'); this.setAttribute('aria-expanded', opened ? 'true' : 'false'); dd.setAttribute('aria-hidden', opened ? 'false' : 'true'); })(event);">
+                        <button id="profileToggle" class="profile-btn" aria-haspopup="true" aria-expanded="false">
                             <img src="{% static 'core/avatar.png' %}" alt="Avatar" class="avatar">{{ user.username }}
                         </button>
                         <div id="profileDropdown" class="profile-dropdown" role="menu" aria-hidden="true">
@@ -605,7 +842,7 @@
                     <i class="material-icons">inventory_2</i>
                 </div>
                 <div class="inventory-header-text">
-                    <p class="text-condensedLight">
+                    <p>
                         Gestiona y visualiza el inventario de productos. Aquí puedes ver todos los productos disponibles, sus cantidades en stock y estado actual.
                     </p>
                 </div>
@@ -613,8 +850,8 @@
 
             <!-- SFI-V2-master Style Table -->
             <!-- Search & Filters -->
-            <div style="margin-bottom:18px; display:flex; justify-content:center;">
-                <div style="display:flex;gap:12px;align-items:center; max-width:920px; width:100%; justify-content:center;">
+            <div class="inventory-filters" style="margin-bottom:18px; display:flex; justify-content:center;">
+                <div class="inventory-filters-inner" style="display:flex;gap:12px;align-items:center; max-width:920px; width:100%; justify-content:center;">
                     <input id="inventorySearch" class="search-input" type="search" placeholder="Buscar por nombre..." style="flex:1;" />
 
                     <select id="inventoryCategory" class="form-control" style="width:220px;">
@@ -654,8 +891,8 @@
                         <tr data-category="{{ producto.categoria.nombre_categoria|default:'' }}" data-status="{% if producto.status_producto %}activo{% else %}inactivo{% endif %}">
                             <td class="mdl-data-table__cell--non-numeric">
                                 <div class="product-cell">
-                                    {% if producto.imagen_producto %}
-                                        <img src="{{ producto.imagen_producto.url }}" alt="{{ producto.nombre_producto }}" class="product-image">
+                                    {% if producto.img_url %}
+                                        <img src="{{ producto.img_url }}" alt="{{ producto.nombre_producto }}" class="product-image" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='{% static 'assets/img/logo.png' %}';">
                                     {% else %}
                                         <div style="width: 50px; height: 50px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #999; font-size: 10px;" class="product-image">Sin img</div>
                                     {% endif %}
@@ -867,27 +1104,73 @@
             });
         })();
 
+        let pendingDeleteProductId = null;
+
+        function actualizarEstadoScrollBody() {
+            const modalEditar = document.getElementById('modalEditar');
+            const modalEliminar = document.getElementById('modalEliminarProducto');
+            const hayModalAbierto =
+                (modalEditar && modalEditar.style.display === 'flex') ||
+                (modalEliminar && modalEliminar.style.display === 'flex');
+
+            document.body.style.overflow = hayModalAbierto ? 'hidden' : 'auto';
+        }
+
+        function cerrarModalEliminar() {
+            const modalEliminar = document.getElementById('modalEliminarProducto');
+            const nombreProducto = document.getElementById('deleteProductName');
+            pendingDeleteProductId = null;
+
+            if (nombreProducto) {
+                nombreProducto.textContent = '';
+            }
+
+            if (modalEliminar) {
+                modalEliminar.style.display = 'none';
+            }
+
+            actualizarEstadoScrollBody();
+        }
+
+        function enviarEliminacionProducto() {
+            if (!pendingDeleteProductId) {
+                cerrarModalEliminar();
+                return;
+            }
+
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/producto/${pendingDeleteProductId}/eliminar/`;
+
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+            if (csrfToken) {
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = 'csrfmiddlewaretoken';
+                csrfInput.value = csrfToken.value;
+                form.appendChild(csrfInput);
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
         // Función para confirmar eliminación de producto
         function confirmarEliminar(productoId, nombreProducto) {
-            if (confirm(`¿Estás seguro de que deseas eliminar el producto "${nombreProducto}"?\n\nEsta acción no se puede deshacer.`)) {
-                // Crear un formulario temporal para enviar la solicitud POST
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = `/producto/${productoId}/eliminar/`;
+            const modalEliminar = document.getElementById('modalEliminarProducto');
+            const nombreProductoEl = document.getElementById('deleteProductName');
 
-                // Agregar el token CSRF
-                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
-                if (csrfToken) {
-                    const csrfInput = document.createElement('input');
-                    csrfInput.type = 'hidden';
-                    csrfInput.name = 'csrfmiddlewaretoken';
-                    csrfInput.value = csrfToken.value;
-                    form.appendChild(csrfInput);
-                }
+            pendingDeleteProductId = productoId;
 
-                document.body.appendChild(form);
-                form.submit();
+            if (nombreProductoEl) {
+                nombreProductoEl.textContent = nombreProducto || 'este producto';
             }
+
+            if (modalEliminar) {
+                modalEliminar.style.display = 'flex';
+            }
+
+            actualizarEstadoScrollBody();
         }
 
         
@@ -947,8 +1230,9 @@
             const modalEditar = document.getElementById('modalEditar');
             if (modalEditar) {
                 modalEditar.style.display = 'flex';
-                document.body.style.overflow = 'hidden'; // Prevenir scroll del body
             }
+
+            actualizarEstadoScrollBody();
         }
 
         // Bind events for elements using data-attributes (safer than inline onclick)
@@ -983,8 +1267,9 @@
             const modalEditar = document.getElementById('modalEditar');
             if (modalEditar) {
                 modalEditar.style.display = 'none';
-                document.body.style.overflow = 'auto'; // Restaurar scroll del body
             }
+
+            actualizarEstadoScrollBody();
         }
 
         // Vista previa de imagen (con guardas)
@@ -1018,11 +1303,36 @@
                 });
             }
 
+            const modalEliminarClick = document.getElementById('modalEliminarProducto');
+            if (modalEliminarClick) {
+                modalEliminarClick.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        cerrarModalEliminar();
+                    }
+                });
+            }
+
+            const confirmarEliminarBtn = document.getElementById('confirmDeleteButton');
+            if (confirmarEliminarBtn) {
+                confirmarEliminarBtn.addEventListener('click', function() {
+                    enviarEliminacionProducto();
+                });
+            }
+
             // Cerrar modal con tecla Escape
             document.addEventListener('keydown', function(e) {
-                const modal = document.getElementById('modalEditar');
-                if (e.key === 'Escape' && modal && modal.style.display === 'flex') {
-                    cerrarModalEditar();
+                if (e.key === 'Escape') {
+                    const modalEditar = document.getElementById('modalEditar');
+                    const modalEliminar = document.getElementById('modalEliminarProducto');
+
+                    if (modalEliminar && modalEliminar.style.display === 'flex') {
+                        cerrarModalEliminar();
+                        return;
+                    }
+
+                    if (modalEditar && modalEditar.style.display === 'flex') {
+                        cerrarModalEditar();
+                    }
                 }
             });
         }
@@ -1087,6 +1397,23 @@
 
     <!-- Modal para ajustar inventario -->
     <!-- Ajustes combinados en modal de edición; modal de ajuste eliminado -->
+
+    <div id="modalEliminarProducto" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirmar eliminación</h3>
+                <button class="modal-close" onclick="cerrarModalEliminar()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="delete-warning">Vas a eliminar este producto del inventario. Esta acción no se puede deshacer.</p>
+                <div id="deleteProductName" class="delete-product-name"></div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="cerrarModalEliminar()">Cancelar</button>
+                    <button type="button" id="confirmDeleteButton" class="btn-danger">Eliminar producto</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal para editar producto -->
     <div id="modalEditar" class="modal-overlay" style="display: none;">
@@ -1193,5 +1520,6 @@
         }
     </script>
 
+    <script src="{% static 'core/page-loader.js' %}"></script>
 </body>
 </html>

@@ -1,3 +1,6 @@
+@import url("https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800&display=swap");
+@import url("../vendor/bootstrap-icons/bootstrap-icons.css");
+
 /**
 * Template Name: Presento
 * Template URL: https://bootstrapmade.com/presento-bootstrap-corporate-template/
@@ -12,9 +15,9 @@
 --------------------------------------------------------------*/
 /* Fonts */
 :root {
-  --default-font: "Roboto",  system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --heading-font: "Raleway",  sans-serif;
-  --nav-font: "Poppins",  sans-serif;
+  --default-font: "Urbanist", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  --heading-font: "Urbanist", sans-serif;
+  --nav-font: "Urbanist", sans-serif;
 }
 
 /* Global Colors - The following color variables are used throughout the website. Updating them here will change the color scheme of the entire website */
@@ -173,30 +176,6 @@ h6 {
   content: "";
   position: absolute;
   left: 50%;
-  top: 50%;
-  transform: translateX(-40%) translateY(-50%);
-  width: 0;
-  height: 0;
-  border-top: 10px solid transparent;
-  border-bottom: 10px solid transparent;
-  border-left: 15px solid #fff;
-  z-index: 100;
-  transition: all 400ms cubic-bezier(0.55, 0.055, 0.675, 0.19);
-}
-
-.pulsating-play-btn:hover:before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translateX(-40%) translateY(-50%);
-  width: 0;
-  height: 0;
-  border: none;
-  border-top: 10px solid transparent;
-  border-bottom: 10px solid transparent;
-  border-left: 15px solid #fff;
-  z-index: 200;
   animation: none;
   border-radius: 0;
 }
@@ -2632,4 +2611,215 @@ section,
   padding-left: 5px;
   color: color-mix(in srgb, var(--default-color), transparent 60%);
   font-size: 14px;
+}
+
+/*--------------------------------------------------------------
+# Proyecto visual overrides
+--------------------------------------------------------------*/
+
+:root {
+  --brand-primary: #9932CC;
+  --brand-primary-dark: #7B1FA2;
+  --brand-soft: #E1BEE7;
+  --brand-shell: #EFEFEF;
+}
+
+html,
+body,
+button,
+input,
+select,
+textarea {
+  font-family: "Urbanist", sans-serif !important;
+}
+
+body {
+  background: #ffffff !important;
+}
+
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+.top-bar {
+  height: 82px !important;
+  background: rgb(72 13 102) !important;
+  border-bottom: 1px solid rgba(153, 50, 204, 0.12) !important;
+  box-shadow: 0 16px 36px rgba(102, 32, 128, 0.12) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+}
+
+.top-bar .bar-inner {
+  max-width: 1480px !important;
+  height: 82px !important;
+  padding: 0 28px !important;
+  gap: 18px !important;
+}
+
+.bar-logo-link,
+.bar-logo-text {
+  font-family: "Urbanist", sans-serif !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.03em;
+  color: #ffffff !important;
+}
+
+.bar-logo-text {
+  font-size: 1.8rem !important;
+}
+
+.main-nav {
+  gap: 10px !important;
+  margin-right: 18px !important;
+  padding: 8px !important;
+  background: rgba(255, 255, 255, 0.86) !important;
+  border: 1px solid rgba(153, 50, 204, 0.08) !important;
+  border-radius: 999px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82), 0 10px 24px rgba(153, 50, 204, 0.08) !important;
+}
+
+.nav-link,
+.clients-toggle,
+.product-toggle {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 12px 16px !important;
+  border-radius: 999px !important;
+  font-weight: 700 !important;
+  color: #2f2440 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.nav-link:hover,
+.nav-link:focus,
+.clients-toggle:hover,
+.clients-toggle:focus,
+.product-toggle:hover,
+.product-toggle:focus {
+  background: linear-gradient(135deg, rgba(153, 50, 204, 0.12), rgba(153, 50, 204, 0.04)) !important;
+  color: var(--brand-primary) !important;
+}
+
+.clients-toggle,
+.product-toggle,
+.search-btn {
+  font-size: 0 !important;
+}
+
+.clients-toggle::before,
+.product-toggle::before {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.clients-toggle::before { content: "Clientes"; }
+.product-toggle::before { content: "Producto"; }
+
+.clients-toggle::after,
+.product-toggle::after {
+  content: "\F282";
+  font-family: "bootstrap-icons";
+  font-size: 12px;
+  transition: transform 0.2s ease;
+}
+
+.clients-toggle[aria-expanded="true"]::after,
+.product-toggle[aria-expanded="true"]::after {
+  transform: rotate(180deg);
+}
+
+.search-container {
+  position: relative !important;
+  background: rgba(255, 255, 255, 0.88) !important;
+  border: 1px solid rgba(153, 50, 204, 0.12) !important;
+  border-radius: 999px !important;
+  padding: 6px 8px 6px 16px !important;
+  box-shadow: 0 14px 30px rgba(153, 50, 204, 0.08) !important;
+}
+
+.search-input {
+  font-size: 15px !important;
+  color: #34253e !important;
+}
+
+.search-input::placeholder {
+  color: rgba(52, 37, 62, 0.58) !important;
+}
+
+.search-btn {
+  width: 40px !important;
+  height: 40px !important;
+  background: linear-gradient(135deg, #fff, #f7ebfb) !important;
+  border: 1px solid rgba(153, 50, 204, 0.14) !important;
+  color: var(--brand-primary) !important;
+  box-shadow: 0 8px 18px rgba(153, 50, 204, 0.12) !important;
+}
+
+.search-btn::before {
+  content: "\F52A";
+  font-family: "bootstrap-icons";
+  font-size: 16px;
+}
+
+.search-btn i,
+.search-btn svg {
+  display: none !important;
+}
+
+.profile-btn,
+a.logout-button {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(245, 235, 251, 0.96)) !important;
+  color: var(--brand-primary) !important;
+  border: 1px solid rgba(153, 50, 204, 0.12) !important;
+  border-radius: 999px !important;
+  padding: 10px 16px !important;
+  font-weight: 800 !important;
+  box-shadow: 0 14px 28px rgba(153, 50, 204, 0.12) !important;
+}
+
+.profile-dropdown,
+.nav-menu,
+.dropdown-menu {
+  border: 1px solid rgba(153, 50, 204, 0.1) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 20px 40px rgba(75, 12, 110, 0.15) !important;
+  padding: 10px !important;
+}
+
+.profile-dropdown .dropdown-item,
+.nav-menu .nav-item,
+.dropdown-menu .dropdown-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  border-radius: 12px !important;
+  font-weight: 700 !important;
+}
+
+.profile-dropdown .dropdown-item:hover,
+.nav-menu .nav-item:hover,
+.dropdown-menu .dropdown-item:hover {
+  background: rgba(153, 50, 204, 0.08) !important;
+}
+
+.cart-count {
+  box-shadow: 0 8px 18px rgba(153, 50, 204, 0.22);
+}
+
+.giant-frame {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 1px solid rgba(255, 255, 255, 0.58) !important;
+  box-shadow: 0 30px 60px rgba(78, 22, 116, 0.16) !important;
+  backdrop-filter: blur(12px) !important;
 }

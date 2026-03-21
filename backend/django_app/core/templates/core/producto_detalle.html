@@ -25,16 +25,16 @@
     <style>
         body {
             padding-top: 70px;
-            background: linear-gradient(135deg, #E1BEE7, #EFEFEF);
+            background: #ffffff;
             font-family: 'Montserrat', sans-serif;
         }
 
         /* top full-width bar */
-        .top-bar{ position: fixed; top:0; left:0; right:0; height:70px; background:#fff; border-bottom:1px solid rgba(0,0,0,0.06); z-index:10000; transition: all 240ms cubic-bezier(.2,.9,.2,1); box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .top-bar{ position: fixed; top:0; left:0; right:0; height:70px; background:rgb(72 13 102); border-bottom:1px solid rgba(153,50,204,0.12); z-index:10000; transition: all 240ms cubic-bezier(.2,.9,.2,1); box-shadow: 0 16px 36px rgba(102,32,128,0.12); }
         .top-bar .bar-inner{ max-width:1400px; margin:0 auto; height:70px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; position:relative; }
 
-        .bar-logo-link{ display:flex; align-items:center; font-size:24px; font-weight:700; color:#9932CC; text-decoration:none; }
-        .bar-logo-text{ font-size:24px; font-weight:700; color:#9932CC; }
+    .bar-logo-link{ display:flex; align-items:center; font-size:24px; font-weight:700; color:#fff; text-decoration:none; }
+    .bar-logo-text{ font-size:24px; font-weight:700; color:#fff; }
 
         /* Search container */
         .search-container{ display:flex; align-items:center; background:#f5f5f5; border-radius:25px; padding:5px; width:400px; }
@@ -366,7 +366,7 @@
                 <div class="product-grid">
                     <div class="product-image-section">
                         {% if producto.img_url %}
-                            <img src="{{ producto.img_url }}" alt="{{ producto.nombre_producto }}" class="product-image">
+                            <img src="{{ producto.img_url }}" alt="{{ producto.nombre_producto }}" class="product-image" onerror="this.onerror=null;this.src='{% static 'assets/img/logo.png' %}';">
                         {% else %}
                             <div style="height: 300px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #999; font-size: 16px;" class="product-image">Sin imagen</div>
                         {% endif %}
@@ -436,7 +436,6 @@
     </div>
 
     <script>
-        <script>
             // Product dropdown toggle (producto_detalle page)
             (function(){
                 const pt = document.getElementById('productToggle');
@@ -447,9 +446,7 @@
                 document.addEventListener('click', function(e){ if(!pt.contains(e.target) && !pd.contains(e.target)) closeP(); });
                 document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeP(); });
             })();
-        
-        </script>
-        <!-- producto_detalle: Categoria dropdown removed -->
+
         // Profile dropdown toggle + click-outside to close
         (function(){
             const toggle = document.getElementById('profileToggle');
@@ -515,5 +512,6 @@
     <!-- Main JS File -->
     <script src="{% static 'js/main.js' %}"></script>
 
+    <script src="{% static 'core/page-loader.js' %}"></script>
 </body>
 </html>

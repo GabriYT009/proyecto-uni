@@ -1,7 +1,39 @@
 from django import forms
+from django.db.models import Case, When, IntegerField
 from .models import Producto, Categoria
 
+ALLOWED_CATEGORY_NAMES = [
+    'Cajas',
+    'Toppers',
+    'Sublimación',
+    'Impresión',
+    'Personalización',
+    'Papelería',
+]
+
 class ProductForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for category_name in ALLOWED_CATEGORY_NAMES:
+            Categoria.objects.get_or_create(
+                nombre_categoria=category_name,
+                defaults={'descripcion_categoria': f'Categoria {category_name}'},
+            )
+
+        order_case = Case(
+            *[When(nombre_categoria=name, then=pos) for pos, name in enumerate(ALLOWED_CATEGORY_NAMES)],
+            output_field=IntegerField(),
+        )
+        # Mostrar categorias con nombre valido y ordenadas alfabeticamente.
+        self.fields['categoria'].queryset = (
+            Categoria.objects
+            .filter(nombre_categoria__isnull=False)
+            .exclude(nombre_categoria='')
+            .exclude(nombre_categoria__startswith='-')
+            .filter(nombre_categoria__in=ALLOWED_CATEGORY_NAMES)
+            .order_by(order_case, 'nombre_categoria')
+        )
     
     class Meta:
         model = Producto  # Modelo actualizado
@@ -55,31 +87,13 @@ class ProductForm(forms.ModelForm):
             raise forms.ValidationError("Ya existe un producto con este nombre.")
         return nombre
 
+    def clean_imagen_producto(self):
+        imagen = self.cleaned_data.get('imagen_producto')
+        # En creacion forzamos imagen para evitar productos nuevos sin foto.
+        if not self.instance.pk and not imagen:
+            raise forms.ValidationError("Debes seleccionar una imagen para el producto.")
+        return imagen
+
     def save(self, commit=True):
-        instance = super().save(commit=False)
-        
-
-        # cambié 'nombre_producto' en lugar de 'title'
-        nombre_lower = (instance.nombre_producto or "").lower()
-        
-        nombre_cat_asignar = 'Electrónica' # Valor por defecto
-
-        if any(word in nombre_lower for word in ['teclado', 'audífonos', 'computadora', 'celular', 'tablet', 'mouse', 'monitor', 'impresora', 'router', 'cámara', 'drone', 'consola', 'juego']):
-            nombre_cat_asignar = 'Electrónica'
-        elif any(word in nombre_lower for word in ['camisa', 'pantalón', 'zapatos', 'sombrero', 'bolso', 'ropa', 'vestido', 'chaqueta']):
-            nombre_cat_asignar = 'Ropa'
-        elif any(word in nombre_lower for word in ['mesa', 'silla', 'sofá', 'cama', 'cocina', 'baño', 'hogar', 'decoración']):
-            nombre_cat_asignar = 'Hogar'
-        
-
-        # Usamos get_or_create solo con el nombre.
-        categoria_obj, created = Categoria.objects.get_or_create(
-            nombre_categoria=nombre_cat_asignar,
-            defaults={'descripcion_categoria': 'Categoría asignada automáticamente'}
-        )
-        
-        instance.categoria = categoria_obj
-
-        if commit:
-            instance.save()
-        return instance
+        # Respetar la categoria seleccionada en el formulario.
+        return super().save(commit=commit)

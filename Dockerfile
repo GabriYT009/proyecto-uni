@@ -6,10 +6,11 @@ ENV PYTHONUNBUFFERED=1 \
     DJANGO_SETTINGS_MODULE=django_app.settings
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    nginx \
+    build-essential \
+    pkg-config \
+    default-libmysqlclient-dev \
     && rm -rf /var/lib/apt/lists/* \
-    && ln -sf /dev/stdout /var/log/nginx/access.log \
-    && ln -sf /dev/stderr /var/log/nginx/error.log
+    && true
 
 WORKDIR /app
 
@@ -26,7 +27,6 @@ COPY frontend/ ./frontend/
 WORKDIR $APP_ROOT
 RUN python manage.py collectstatic --noinput --clear 2>/dev/null || true
 
-COPY docker/nginx.conf /etc/nginx/nginx.conf.template
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 

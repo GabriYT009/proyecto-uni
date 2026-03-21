@@ -20,18 +20,29 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import re_path
 from django.views.static import serve
+from django.views.generic.base import RedirectView
+from django.contrib.staticfiles.storage import staticfiles_storage
 import os
 
 urlpatterns = [
+    path('favicon.ico', RedirectView.as_view(url='/static/img/favicon.png', permanent=False)),
     path('admin/', admin.site.urls),
     # The `core` app is within the django_app package.
     path('', include('django_app.core.urls')),
     
 ]
 
+# Serve media files in development and simple production deployments
+# (e.g. Gunicorn-only on Railway without Nginx sidecar).
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# Fallback para servir media cuando DEBUG=False (deploy simple sin Nginx dedicado).
+# Evita 404 en rutas como /media/products/<archivo>.
+urlpatterns += [
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+]
+
 if settings.DEBUG:
-    # Serve media files
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     # Serve legacy theme assets (Presento) directly under /static/assets/ when DEBUG
     presento_root = os.path.join(settings.BASE_DIR, 'extras', 'Presento', 'assets')
     if os.path.exists(presento_root):

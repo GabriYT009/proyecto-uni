@@ -1,6 +1,6 @@
-# Despliegue en Railway (Docker + Nginx)
+# Despliegue en Railway (Docker + Gunicorn)
 
-El proyecto está preparado para desplegar **backend y frontend en la misma instancia** usando un único contenedor con **Nginx** (reverse proxy y estáticos) y **Gunicorn** (Django).
+El proyecto está preparado para desplegar **backend y frontend en la misma instancia** usando un único contenedor con **Gunicorn** sirviendo Django directamente en el puerto público de Railway. Los archivos estáticos se sirven con **WhiteNoise**.
 
 ## Requisitos
 
@@ -27,16 +27,23 @@ El proyecto está preparado para desplegar **backend y frontend en la misma inst
      - `CSRF_TRUSTED_ORIGINS`: lista separada por comas, ej. `https://tudominio.com`
      - `SECRET_KEY`: clave secreta Django (recomendado en producción).
      - `DEBUG`: `False` en producción (recomendado).
+    - `RUN_MIGRATIONS`: `1` si quieres ejecutar `migrate` en cada arranque. Por defecto está desactivado para evitar que Railway quede sin puerto si la base tarda en responder.
+    - `RUN_BOOTSTRAP_AUTH`: `1` si quieres crear grupos y admin por defecto en cada arranque. Por defecto está desactivado.
+    - `RUN_COLLECTSTATIC`: `1` si quieres ejecutar `collectstatic` al arrancar. Por defecto está desactivado porque la imagen ya lo ejecuta en build.
+    - `ENABLE_LEGACY_STATIC_DIRS`: `1` solo si realmente necesitas incluir `backend/django_app/static` o los temas legacy en `collectstatic`.
 
-5. **Puerto**: Railway asigna `PORT` automáticamente; el entrypoint hace que Nginx escuche en ese puerto.
+5. **Puerto**: Railway asigna `PORT` automáticamente; el entrypoint hace que Gunicorn escuche directamente en ese puerto.
 
 6. **Deploy**: tras el build, Railway ejecuta el contenedor. En el arranque se ejecutan migraciones, `collectstatic`, creación de grupos y usuario admin por defecto si no hay usuarios.
 
 ## Estructura del contenedor
 
-- **Nginx**: escucha en `$PORT`, sirve `/static/` y `/media/`, y hace proxy del resto a Gunicorn.
-- **Gunicorn**: sirve la app Django en `127.0.0.1:8000`.
-- Todo en un solo proceso (entrypoint inicia Gunicorn en segundo plano y Nginx en primer plano).
+- **Gunicorn**: sirve la app Django en `0.0.0.0:$PORT`.
+- **WhiteNoise**: sirve archivos estáticos desde Django.
+- El entrypoint ejecuta `collectstatic` y deja Gunicorn en primer plano.
+- Si necesitas tareas de base de datos al arranque, activa `RUN_MIGRATIONS=1` y/o `RUN_BOOTSTRAP_AUTH=1`.
+- `collectstatic` queda desactivado por defecto en runtime; la imagen lo ejecuta durante el build.
+- Para evitar colisiones de archivos estáticos, en producción solo se usa `frontend/static` salvo que actives `ENABLE_LEGACY_STATIC_DIRS=1`.
 
 ## Probar en local con Docker
 
@@ -50,5 +57,11 @@ Abre `http://localhost:8000`.
 
 ## Notas
 
-- **Media (subidas)**: en Railway el disco es efímero. Para persistir archivos subidos usa un almacenamiento externo (S3, etc.) y configura Django para ello.
+- **Media (subidas)**: en Railway el disco local del contenedor es efímero. Para que las imágenes de productos NO se pierdan entre deploys:
+  1. Crea un **Volume** en Railway y móntalo, por ejemplo en `/data`.
+  2. En Variables del servicio define: `MEDIA_ROOT=/data/media`.
+  3. Redeploy del servicio.
+  4. (Opcional) `INIT_MEDIA_FROM_BUNDLED=1` para copiar una sola vez imágenes existentes del contenedor al volumen cuando esté vacío.
+
+  Con esta configuración, las subidas `ImageField` quedan persistentes entre reinicios y nuevos deploys.
 - **MySQL**: usa un servicio gestionado (Railway, PlanetScale, Aiven, etc.) y configura `DATABASE_URL` o `MYSQL_*`.

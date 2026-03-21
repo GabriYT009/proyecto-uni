@@ -6,60 +6,6 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Crear Usuario</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <style>
-        body{ font-family: motserrat, sans-serif; margin:0; padding:24px; background: linear-gradient(150deg,#9932CC,#1E90FF); color:#fff; min-height:100vh; }
-        .login-page{ display:flex; align-items:center; justify-content:center; min-height:80vh; }
-        .card{ background:#fff; color:#000; padding:24px 32px; border-radius:8px; width:380px; text-align:center; }
-        input{ display:block; width:100%; padding:10px; margin:8px 0; border-radius:6px; border:1px solid #ccc; }
-        button{ background:#9932CC; color:#fff; padding:10px 12px; border-radius:8px; border:none; cursor:pointer; width:100%; }
-        /* 1. El contenedor padre: pone los elementos en línea */
-        .fila-cedula {
-            display: flex;        /* <--- ESTO ES LO MÁS IMPORTANTE */
-            flex-direction: row;  /* Asegura direccion horizontal */
-            gap: 15px;            /* Espacio entre el select y el input */
-            width: 100%;          /* Ocupa todo el ancho disponible */
-            margin-bottom: 15px;  /* Espacio debajo de esta fila */
-        }
-
-        /* 2. La columna del Tipo (V/E/J) */
-        .campo-corto {
-            flex: 0 0 80px;       /* Ancho fijo de 80px, no crece ni encoge */
-        }
-
-        /* 3. La columna de la Cédula */
-        .campo-largo {
-            flex: 1;              /* Ocupa todo el espacio restante automáticamente */
-        }
-
-        /* 4. Estilos para que los inputs se vean bien dentro de sus columnas */
-        .fila-cedula input,
-        .fila-cedula select {
-            width: 100%;          /* Que llenen su pequeña columna al 100% */
-            box-sizing: border-box; 
-            padding: 8px;         /* Un poco de relleno interno */
-            height: 40px;         /* Forzamos misma altura para que se vean alineados */
-        }
-
-        /* 5. Etiquetas (Labels) */
-        .fila-cedula label {
-            display: block;       /* Asegura que el texto esté encima del input */
-            margin-bottom: 5px;   /* Espacio entre la etiqueta y el campo */
-            font-weight: bold;
-        }
-
-        /* (Opcional) Responsividad: En celulares muy pequeños, volver a poner uno encima de otro */
-        @media (max-width: 480px) {
-            .fila-cedula {
-                flex-direction: column;
-                gap: 0;
-            }
-            .campo-corto, .campo-largo {
-                flex: auto;
-                width: 100%;
-                max-width: none;
-            }
-        }
-    </style>
 </head>
 <body class="login-page">
     {% if user.is_authenticated %}
@@ -71,12 +17,12 @@
             <img id="logo" src="{% static 'core/logo nuevo.png' %}" alt="Solucionarte">
         </a>
     {% endif %}
-    <div class="container">
+    <div class="container auth-card register-card">
         <h2>Crear credenciales</h2>
         {% if error %}
-            <div style="color:crimson; margin-bottom:8px; text-align:center;">{{ error }}</div>
+            <div class="auth-error">{{ error }}</div>
         {% endif %}
-        <form method="POST" action="">
+        <form method="POST" action="" class="register-form">
             {% csrf_token %}
             <!-- El email no se muestra en esta pantalla; se toma de la sesión y se envía oculto -->
             <input type="hidden" name="email" value="{{ email }}">
@@ -110,7 +56,7 @@
             </div>
 
 
-            <div class="full">
+            <div class="full span-2">
                 <label for="direccion">direccion:</label>
                 <input id="direccion" name="direccion" type="text" placeholder="direccion" required>
             </div>
@@ -124,7 +70,7 @@
                 <label for="username">Nombre de usuario</label>
                 <input id="username" name="username" type="text" placeholder="Nombre de usuario" required>
             </div>
-            <div class="full">
+            <div class="full span-2">
                 <label for="email">correo electrónico</label>
                 <input id="email" name="email" type="text" placeholder="Correo electrónico" required>
             </div>
@@ -155,6 +101,7 @@
             window.addEventListener('pageshow', function(e){ if (e.persisted) clearFormFields(); });
         })();
     </script>
+    <script src="{% static 'core/page-loader.js' %}"></script>
 </body>
 </html>
 

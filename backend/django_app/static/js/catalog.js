@@ -123,13 +123,7 @@ function openDetail(id){
             } catch(e){}
         } catch(e){}
         console.log('[home catalog.js] modal shown, className=', modal.className, 'display=', (window.getComputedStyle? getComputedStyle(modal).display : (modal.style && modal.style.display)));
-        // restore scroll position only if we have a numeric saved value
-        try {
-            if (typeof __saved_scroll !== 'undefined' && __saved_scroll !== null && Number.isFinite(Number(__saved_scroll))) {
-                try { window.scrollTo(0, Number(__saved_scroll)); } catch(e){}
-                try { setTimeout(function(){ window.scrollTo(0, Number(__saved_scroll)); }, 50); } catch(e){}
-            }
-        } catch(e){}
+        // Do not force window scroll on open; keep current viewport position.
     } else {
         console.warn('[home catalog.js] modal element not found');
     }
@@ -151,12 +145,7 @@ function closeModal() {
                 if (saved === null && typeof window.__catalog_saved_scroll !== 'undefined' && window.__catalog_saved_scroll !== null) saved = window.__catalog_saved_scroll;
                 if (saved === null) saved = 0;
                 try { document.documentElement.style.overflow = ''; document.body.style.overflow = ''; } catch(e){}
-                try {
-                    if (saved !== null && Number.isFinite(Number(saved))) {
-                        window.scrollTo(0, Number(saved));
-                        setTimeout(function(){ try{ window.scrollTo(0, Number(saved)); } catch(e){} }, 50);
-                    }
-                } catch(e){}
+                // Keep current viewport position on close; no forced scroll jump.
                 try { delete window.__home_saved_scroll; } catch(e){}
                 try { delete window.__catalog_saved_scroll; } catch(e){}
             } catch(e){}
@@ -248,16 +237,44 @@ try {
     }
 } catch(e){ console.warn('[home catalog.js] products exposure check failed', e); }
 
+// Global-safe close handler for product detail modal.
+(function(){
+    if (window.__detailModalGlobalCloseBound) return;
+    window.__detailModalGlobalCloseBound = true;
+
+    function closeDetailModal(){
+        const modalEl = document.getElementById('detailModal');
+        if (!modalEl) return;
+        modalEl.classList.remove('show');
+        modalEl.setAttribute('aria-hidden', 'true');
+        if (modalEl.style) modalEl.style.display = 'none';
+        try {
+            document.documentElement.style.overflow = '';
+            document.body.style.overflow = '';
+            document.documentElement.style.paddingRight = '';
+            document.body.style.paddingRight = '';
+        } catch(e){}
+    }
+
+    document.addEventListener('click', function(ev){
+        const modalEl = document.getElementById('detailModal');
+        if (!modalEl || !modalEl.classList.contains('show')) return;
+        const inner = modalEl.querySelector('.detail-modal') || modalEl.querySelector('.modal');
+        if (!inner || !inner.contains(ev.target)) closeDetailModal();
+    }, true);
+
+    document.addEventListener('keydown', function(ev){
+        if (ev.key === 'Escape') {
+            const modalEl = document.getElementById('detailModal');
+            if (modalEl && modalEl.classList.contains('show')) closeDetailModal();
+        }
+    });
+})();
+
 // Ensure a page load always starts at the top (do not restore previous scroll)
 try {
     window.addEventListener('load', function(){
-        try {
-            if ('scrollRestoration' in history) {
-                try { history.scrollRestoration = 'manual'; } catch(e){}
-            }
-            try { window.scrollTo(0,0); } catch(e){}
-            try { setTimeout(function(){ window.scrollTo(0,0); }, 50); } catch(e){}
-        } catch(e){}
+            // Avoid forcing page to top on load.
     });
 } catch(e){}
 
@@ -383,12 +400,7 @@ function closeModal() {
                 if (typeof window.__home_saved_scroll !== 'undefined' && window.__home_saved_scroll !== null) saved = window.__home_saved_scroll;
                 if (saved === null && typeof window.__catalog_saved_scroll !== 'undefined' && window.__catalog_saved_scroll !== null) saved = window.__catalog_saved_scroll;
                 try { document.documentElement.style.overflow = ''; document.body.style.overflow = ''; document.documentElement.style.paddingRight = ''; document.body.style.paddingRight = ''; } catch(e){}
-                try {
-                    if (saved !== null && Number.isFinite(Number(saved))) {
-                        window.scrollTo(0, Number(saved));
-                        setTimeout(function(){ try{ window.scrollTo(0, Number(saved)); } catch(e){} }, 50);
-                    }
-                } catch(e){}
+                // Keep current viewport position on close; no forced scroll jump.
                 try { delete window.__home_saved_scroll; } catch(e){}
                 try { delete window.__catalog_saved_scroll; } catch(e){}
             } catch(e){}
