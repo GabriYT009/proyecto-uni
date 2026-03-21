@@ -112,6 +112,8 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
                 'django_app.core.context_processors.inject_user',
                 'django_app.core.context_processors.contador_carrito',  # procesador de contexto personalizado
             ],
