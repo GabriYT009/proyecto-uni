@@ -604,8 +604,8 @@ def catalog(request):
 
     categories = _cached_categories()
 
-    # Paginación: mostrar N productos por página
-    per_page = 12
+    # Paginación: mostrar 10 productos por página
+    per_page = 10
     paginator = Paginator(Productos.order_by('nombre_producto'), per_page)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
