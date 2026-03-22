@@ -1,11 +1,4 @@
-        .hero:before {
-            content: "";
-            background: color-mix(in srgb, #8e15d7d6, #3e0565 30%);
-            position: absolute;
-            inset: 0;
-            z-index: 2;
-            border-radius: 20px;
-        }
+
 <!DOCTYPE html>
 {% load static %}
 <html lang="es">
@@ -23,6 +16,14 @@
     <link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
     <meta name="csrf-token" content="{{ csrf_token }}">
     <style>
+        .hero:before {
+            content: "";
+            background: color-mix(in srgb, #8e15d7d6, #3e0565 30%);
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            border-radius: 20px;
+        }
         body{
             position: relative;
             font-family: 'Montserrat', sans-serif;
