@@ -29,6 +29,7 @@ FRONTEND_DIR = REPO_ROOT / "frontend"
 SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-@%i@jah3u_9f!b*vpzdx(15!xw9c@9187mt%n&4o994j!to=!s")
 DEBUG = os.environ.get("DEBUG", "True").lower() in ("1", "true", "yes")
 
+
 # Allow host from Railway (RAILWAY_PUBLIC_DOMAIN), Render (RENDER_EXTERNAL_HOSTNAME), or env.
 # In development, also allow localhost + 127.0.0.1.
 def _strip_proto(host: str | None) -> str | None:
