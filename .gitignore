@@ -9,6 +9,9 @@ venv/
 env/
 */env/
 
+# Env (secretos)
+.env
+
 # Django stuff:
 db.sqlite3
 media/

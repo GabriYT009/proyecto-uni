@@ -1,0 +1,52 @@
+"""
+URL configuration for django_app project.
+
+The `urlpatterns` list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/5.2/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  path('', views.home, name='home')
+Class-based views
+    1. Add an import:  from other_app.views import Home
+    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
+Including another URLconf
+    1. Import the include() function: from django.urls import include, path
+    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+"""
+from django.contrib import admin
+from django.urls import include,path
+from django.conf import settings
+from django.conf.urls.static import static
+from django.urls import re_path
+from django.views.static import serve
+from django.views.generic.base import RedirectView
+from django.contrib.staticfiles.storage import staticfiles_storage
+import os
+
+urlpatterns = [
+    path('favicon.ico', RedirectView.as_view(url='/static/img/favicon.png', permanent=False)),
+    path('admin/', admin.site.urls),
+    # The `core` app is within the django_app package.
+    path('', include('django_app.core.urls')),
+    
+]
+
+# Serve media files in development and simple production deployments
+# (e.g. Gunicorn-only on Railway without Nginx sidecar).
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# Fallback para servir media cuando DEBUG=False (deploy simple sin Nginx dedicado).
+# Evita 404 en rutas como /media/products/<archivo>.
+urlpatterns += [
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+]
+
+if settings.DEBUG:
+    # Serve legacy theme assets (Presento) directly under /static/assets/ when DEBUG
+    presento_root = os.path.join(settings.BASE_DIR, 'extras', 'Presento', 'assets')
+    if os.path.exists(presento_root):
+        urlpatterns += [
+            re_path(r'^static/assets/(?P<path>.*)$', serve, {'document_root': presento_root}),
+        ]
+
