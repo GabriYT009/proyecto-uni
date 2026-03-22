@@ -24,7 +24,7 @@ from django.db import transaction
 from django.urls import reverse
 from django.core.files.storage import default_storage
 
-#from .bcv import obtener_tasa_cambio
+from .bcv import obtener_tasa_cambio
 
 
 logger = logging.getLogger(__name__)
@@ -728,14 +728,19 @@ def carrito(request):
             producto_compra = None
 
     show_purchase_only = bool(producto_compra)
-    
 
+    try:
+        tasa= obtener_tasa_cambio()
+    except Exception:
+        tasa = 'N/A'
+        
     return render(request, 'core/carrito.html', {
         'Productos': Productos,
         'producto_compra': producto_compra,
         'show_purchase_only': show_purchase_only,
         'cart_count': len(carrito_validado),
         'user_groups': _user_groups(request.user),
+        'valor_dolar': tasa,
         
     })
 
