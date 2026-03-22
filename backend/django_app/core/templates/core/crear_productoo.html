@@ -555,11 +555,15 @@
 
 
                         <label for="id_categoria" style="margin-top:10px;">Categoría</label>
-                        <select name="categoria" id="id_categoria" required>
-                            {% for option in form.categoria.field.choices %}
-                                <option value="{{ option.0 }}" {% if form.categoria.value == option.0 %}selected{% endif %}>{{ option.1 }}</option>
+                        <!-- Ocultar el select original de Django -->
+                        <div style="display:none;">{{ form.categoria }}</div>
+                        <!-- Select personalizado con opción Otros -->
+                        <select name="categoria_custom" id="id_categoria_custom" required>
+                            <option value="">---------</option>
+                            {% for cat in form.fields.categoria.queryset %}
+                                <option value="{{ cat.pk }}" {% if form.categoria.value == cat.pk %}selected{% endif %}>{{ cat.nombre_categoria }}</option>
                             {% endfor %}
-                            <option value="otros" {% if form.categoria.value == 'otros' %}selected{% endif %}>Otros</option>
+                            <option value="otros">Otros</option>
                         </select>
                         <input type="text" name="otra_categoria" id="otra_categoria" placeholder="Especifica la categoría" style="display:none; margin-top:8px;" />
                         <div class="field-error">{{ form.categoria.errors }}</div>
@@ -623,9 +627,9 @@
             }
         })();
 
-        // Mostrar campo de texto si se selecciona "Otros" en categoría
+        // Mostrar campo de texto si se selecciona "Otros" en categoría personalizada
         (function(){
-            const select = document.getElementById('id_categoria');
+            const select = document.getElementById('id_categoria_custom');
             const otra = document.getElementById('otra_categoria');
             if (!select || !otra) return;
             function toggleOtra(){

@@ -505,19 +505,29 @@ def crear_usuario(request):
 def crear_Productoo(request):
     try:
         if request.method == 'POST':
-            form = ProductForm(request.POST, request.FILES)
+            post_data = request.POST.copy()
+            categoria_custom = post_data.get('categoria_custom')
+            otra_categoria = post_data.get('otra_categoria')
+            # Si seleccionó 'otros', crear la categoría si no existe y usarla
+            if categoria_custom == 'otros' and otra_categoria:
+                cat_obj, _ = Categoria.objects.get_or_create(
+                    nombre_categoria=otra_categoria.strip(),
+                    defaults={'descripcion_categoria': f'Categoría personalizada: {otra_categoria.strip()}'},
+                )
+                post_data['categoria'] = cat_obj.pk
+            elif categoria_custom and categoria_custom != 'otros':
+                post_data['categoria'] = categoria_custom
+            # Si no seleccionó nada, dejarlo vacío
+            form = ProductForm(post_data, request.FILES)
             if form.is_valid():
                 producto = form.save()
                 messages.success(request, f'Producto "{producto.nombre_producto}" creado exitosamente.')
-                return redirect('inventario')  # Cambiado de 'catalog' a 'inventario'
+                return redirect('inventario')
             else:
-                # Mostrar errores del formulario
                 messages.error(request, 'Por favor corrige los errores en el formulario.')
         else:
             form = ProductForm()
-
     except Exception as e:
-        # En el caso de cualquier excepción, loguear y mostrar mensaje.
         import traceback
         print('Error en crear_Productoo:', e)
         traceback.print_exc()
