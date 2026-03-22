@@ -728,14 +728,15 @@ def carrito(request):
             producto_compra = None
 
     show_purchase_only = bool(producto_compra)
+    tasa= obtener_tasa_cambio()
 
     return render(request, 'core/carrito.html', {
         'Productos': Productos,
         'producto_compra': producto_compra,
         'show_purchase_only': show_purchase_only,
         'cart_count': len(carrito_validado),
-        'user_groups': _user_groups(request.user)
-        'valor_dolar': obtener_tasa_cambio(),
+        'user_groups': _user_groups(request.user),
+        'valor_dolar': tasa,
     })
 
 
