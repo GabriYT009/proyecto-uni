@@ -563,10 +563,31 @@
                             {% for cat in form.fields.categoria.queryset %}
                                 <option value="{{ cat.pk }}" {% if form.categoria.value == cat.pk %}selected{% endif %}>{{ cat.nombre_categoria }}</option>
                             {% endfor %}
-                            <option value="otros">Otros</option>
+                            <option value="otros" {% if form.categoria.value == 'otros' %}selected{% endif %}>Otros</option>
                         </select>
                         <input type="text" name="otra_categoria" id="otra_categoria" placeholder="Especifica la categoría" style="display:none; margin-top:8px;" />
                         <div class="field-error">{{ form.categoria.errors }}</div>
+                        <script>
+                        // Mostrar campo de texto si se selecciona "Otros" en categoría personalizada
+                        (function(){
+                            const select = document.getElementById('id_categoria_custom');
+                            const otra = document.getElementById('otra_categoria');
+                            if (!select || !otra) return;
+                            function toggleOtra(){
+                                if(select.value === 'otros'){
+                                    otra.style.display = 'block';
+                                    otra.required = true;
+                                } else {
+                                    otra.style.display = 'none';
+                                    otra.required = false;
+                                    otra.value = '';
+                                }
+                            }
+                            select.addEventListener('change', toggleOtra);
+                            // Ejecutar al cargar por si ya está seleccionado
+                            toggleOtra();
+                        })();
+                        </script>
 
                          <label for="id_cantidad_disponible" style="margin-top:10px;">Cantidad Inicial</label>
                          {{ form.cantidad_disponible }}
