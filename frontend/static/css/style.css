@@ -700,10 +700,17 @@ a.logout-button {
 }
 
 .giant-frame {
-    background: rgba(255,255,255,0.92) !important;
+    background: rgba(255,255,255,0.97) !important;
     border: 1px solid rgba(255,255,255,0.58) !important;
     box-shadow: 0 30px 60px rgba(78,22,116,0.16) !important;
     backdrop-filter: blur(12px) !important;
+    max-width: 1200px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 40px;
+    border-radius: 28px;
+    padding: 40px 32px 32px 32px;
 }
 /* Move the 3-line hamburger button to the right so it doesn't overlap the text logo */
 .top-bar .bar-toggle{ left: 140px; }
