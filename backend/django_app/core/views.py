@@ -733,14 +733,14 @@ def carrito(request):
         tasa= obtener_tasa_cambio()
     except Exception:
         tasa = 'N/A'
-        
+
     return render(request, 'core/carrito.html', {
         'Productos': Productos,
         'producto_compra': producto_compra,
         'show_purchase_only': show_purchase_only,
         'cart_count': len(carrito_validado),
         'user_groups': _user_groups(request.user),
-        'valor_dolar': tasa,
+        'valor_dolar':str(tasa),
         
     })
 
