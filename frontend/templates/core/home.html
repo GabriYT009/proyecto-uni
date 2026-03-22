@@ -1,3 +1,51 @@
+    <script>
+    // Modal de detalle de producto en home (igual que catalog.js)
+    (function(){
+        function openDetailFromButton(button){
+            const modal = document.getElementById('detailModal');
+            const mTitle = document.getElementById('m-title');
+            const mImg = document.getElementById('m-img');
+            const mDesc = document.getElementById('m-desc');
+            const mPrice = document.getElementById('m-price');
+            const id = button && button.dataset && button.dataset.id ? Number(button.dataset.id) : null;
+            const title = button.dataset.title || '';
+            const img = button.dataset.img || '';
+            const desc = button.dataset.desc || '';
+            const price = button.dataset.price || '';
+            if (mTitle) mTitle.textContent = title;
+            if (mImg) mImg.src = img || '';
+            if (mDesc) mDesc.textContent = desc;
+            if (mPrice) mPrice.textContent = price;
+            window.currentProductId = button.dataset.id || null;
+            if(modal){
+                modal.classList.add('show');
+                modal.setAttribute('aria-hidden','false');
+                modal.style.display = 'flex';
+                modal.style.visibility = 'visible';
+                modal.style.opacity = '1';
+                modal.style.zIndex = '99999';
+            }
+        }
+        document.addEventListener('click', function(e){
+            const btn = e.target && e.target.closest ? e.target.closest('.view') : null;
+            if (btn) {
+                e.preventDefault();
+                openDetailFromButton(btn);
+            }
+        }, true);
+        // Cerrar modal al hacer click fuera del dialog
+        document.addEventListener('click', function(ev){
+            const modal = document.getElementById('detailModal');
+            if (!modal || !modal.classList.contains('show')) return;
+            const inner = modal.querySelector('.detail-modal') || modal.querySelector('.modal');
+            if (!inner) return;
+            if (!inner.contains(ev.target)) {
+                modal.classList.remove('show');
+                modal.setAttribute('aria-hidden','true');
+                modal.style.display = 'none';
+            }
+        }, true);
+    })();
 
 <!DOCTYPE html>
 {% load static %}
