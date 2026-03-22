@@ -46,11 +46,6 @@
             }
         }, true);
     })();
-
-<!DOCTYPE html>
-{% load static %}
-<html lang="es">
-<head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
         <script>
@@ -555,8 +550,25 @@
         <!-- Categories Section -->
         <style>
         .category-bar-wrap{ display:flex; align-items:center; gap:8px; margin:12px 0; justify-content:center; }
-        .cat-scroll-btn{ background:#fff; border:1px solid #e0e0e0; padding:6px 10px; border-radius:6px; cursor:pointer; font-weight:700; color:#9932CC; font-size:22px; transition:background 0.2s; }
-        .cat-scroll-btn:hover{ background:#f3e6fa; }
+        .cat-scroll-btn{
+            background: linear-gradient(135deg, #a259c6 0%, #7c2bbf 100%);
+            border: none;
+            padding: 10px 18px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: 700;
+            color: #fff;
+            font-size: 28px;
+            box-shadow: 0 2px 8px rgba(162,89,198,0.12);
+            transition: background 0.2s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .cat-scroll-btn:hover{
+            background: linear-gradient(135deg, #7c2bbf 0%, #a259c6 100%);
+            transform: scale(1.08);
+        }
         .category-bar{ display:flex; gap:8px; overflow-x:auto; padding:12px 8px; -webkit-overflow-scrolling:touch; scroll-behavior:smooth; }
         .category-bar::-webkit-scrollbar{ height:10px; }
         .category-bar::-webkit-scrollbar-thumb{ background:#d8b6e6; border-radius:8px; }
