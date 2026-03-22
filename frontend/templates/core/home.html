@@ -18,11 +18,13 @@
         body{
             position: relative;
             font-family: 'Montserrat', sans-serif;
-            background: linear-gradient(135deg, #E1BEE7, #EFEFEF);
+            background: #fff;
             margin:0;
             color:#000;
             min-height:100vh;
             padding-top:80px; /* leave space for top bar */
+            display: flex;
+            flex-direction: column;
         }
         /* Giant frame around everything */
         .giant-frame {
@@ -482,8 +484,7 @@
         </div>
     </div>
 
-    <div class="giant-frame">
-        <div class="wrap">
+    <div class="wrap" style="flex:1;">
 
         <!-- Hero Section -->
         <section class="hero">
@@ -671,7 +672,7 @@
     </script>
 
         <!-- Footer -->
-        <footer class="footer">
+        <footer class="footer" style="margin-top:auto; width:100vw; position:relative; left:50%; right:50%; margin-left:-50vw; margin-right:-50vw;">
             <div class="footer-content">
                 <div class="footer-section">
                     <h3>Solucionarte</h3>
