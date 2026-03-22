@@ -536,6 +536,7 @@
                                     </div>
                                     <div class="actions">
                                         <div class="price">Precio: $ {{ p.precio_venta }}</div>
+                                        <div class="price">Precio en Bs: {{ p.precio_venta }}</div>
                                         <div style="display:flex; gap:6px; justify-content:flex-end; align-items:center;">
                                             <button type="button" class="btn btn-qty" data-id="{{ p.pk }}" data-action="dec" aria-label="Disminuir cantidad">−</button>
                                             <input type="number" 
@@ -557,7 +558,8 @@
                                 </div>
                                 
                             {% endfor %}
-                            <div style="display:flex; justify-content:right" id="total">Total: $ 0.00</div>
+                            <div style="display:flex; justify-content:right" id="total">Total en $:  0.00</div>
+                            <div style="display:flex; justify-content:right" id="total_bs">Total en Bs:  0.00</div>
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
                                 
                                 <div class="note">Verifica las cantidades antes de confirmar la compra.</div>
