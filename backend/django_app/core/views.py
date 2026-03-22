@@ -24,7 +24,7 @@ from django.db import transaction
 from django.urls import reverse
 from django.core.files.storage import default_storage
 
-from .bcv import obtener_tasa_cambio
+#from .bcv import obtener_tasa_cambio
 
 
 logger = logging.getLogger(__name__)
