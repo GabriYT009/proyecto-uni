@@ -553,9 +553,16 @@
                         {{ form.descripcion }}
                         <div class="field-error">{{ form.descripcion.errors }}</div>
 
-                         <label for="id_categoria" style="margin-top:10px;">Categoría</label>
-                         {{ form.categoria }}
-                         <div class="field-error">{{ form.categoria.errors }}</div>
+
+                        <label for="id_categoria" style="margin-top:10px;">Categoría</label>
+                        <select name="categoria" id="id_categoria" required>
+                            {% for option in form.categoria.field.choices %}
+                                <option value="{{ option.0 }}" {% if form.categoria.value == option.0 %}selected{% endif %}>{{ option.1 }}</option>
+                            {% endfor %}
+                            <option value="otros" {% if form.categoria.value == 'otros' %}selected{% endif %}>Otros</option>
+                        </select>
+                        <input type="text" name="otra_categoria" id="otra_categoria" placeholder="Especifica la categoría" style="display:none; margin-top:8px;" />
+                        <div class="field-error">{{ form.categoria.errors }}</div>
 
                          <label for="id_cantidad_disponible" style="margin-top:10px;">Cantidad Inicial</label>
                          {{ form.cantidad_disponible }}
@@ -614,6 +621,26 @@
                 // Solo necesitamos escuchar el evento change para inputs de tipo file
                 imgField.addEventListener('change', updatePreview);
             }
+        })();
+
+        // Mostrar campo de texto si se selecciona "Otros" en categoría
+        (function(){
+            const select = document.getElementById('id_categoria');
+            const otra = document.getElementById('otra_categoria');
+            if (!select || !otra) return;
+            function toggleOtra(){
+                if(select.value === 'otros'){
+                    otra.style.display = 'block';
+                    otra.required = true;
+                } else {
+                    otra.style.display = 'none';
+                    otra.required = false;
+                    otra.value = '';
+                }
+            }
+            select.addEventListener('change', toggleOtra);
+            // Ejecutar al cargar por si ya está seleccionado
+            toggleOtra();
         })();
 
         // Clear search input when page loads (for navigation)
