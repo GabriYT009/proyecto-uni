@@ -1,3 +1,11 @@
+        .hero:before {
+            content: "";
+            background: color-mix(in srgb, #8e15d7d6, #3e0565 30%);
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            border-radius: 20px;
+        }
 <!DOCTYPE html>
 {% load static %}
 <html lang="es">
@@ -262,7 +270,7 @@
             transform: translateX(-50%);
             max-width: 1700px;
         }
-        .hero .hero-content { position: relative; z-index: 2; }
+        .hero .hero-content { position: relative; z-index: 3; }
         .hero-content h1 {
             font-size: 48px;
             margin-bottom: 20px;
