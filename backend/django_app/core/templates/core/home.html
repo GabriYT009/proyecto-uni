@@ -782,7 +782,7 @@
 
     <script>
         // expose products before catalog.js initializes
-        window.products = {{ Productos_json|safe }};
+        window.products = JSON.parse('{{ Productos_json|escapejs }}');
         try { localStorage.setItem('products', JSON.stringify(window.products)); } catch(e) {}
         console.log('Products loaded (home):', window.products && window.products.length);
     </script>
