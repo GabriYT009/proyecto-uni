@@ -706,6 +706,7 @@ a.logout-button {
     border-radius: 28px;
     box-shadow: 0 4px 32px rgba(153,50,204,0.10);
     padding: 40px 32px 32px 32px;
+    transform: translateX(7%);
 }
 
 .wrap {
