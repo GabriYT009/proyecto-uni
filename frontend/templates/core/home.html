@@ -1,9 +1,58 @@
 {% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
+    <script>
+    // Modal de detalle de producto en home (igual que catalog.js)
+    (function(){
+        function openDetailFromButton(button){
+            const modal = document.getElementById('detailModal');
+            const mTitle = document.getElementById('m-title');
+            const mImg = document.getElementById('m-img');
+            const mDesc = document.getElementById('m-desc');
+            const mPrice = document.getElementById('m-price');
+            const id = button && button.dataset && button.dataset.id ? Number(button.dataset.id) : null;
+            const title = button.dataset.title || '';
+            const img = button.dataset.img || '';
+            const desc = button.dataset.desc || '';
+            const price = button.dataset.price || '';
+            if (mTitle) mTitle.textContent = title;
+            if (mImg) mImg.src = img || '';
+            if (mDesc) mDesc.textContent = desc;
+            if (mPrice) mPrice.textContent = price;
+            window.currentProductId = button.dataset.id || null;
+            if(modal){
+                modal.classList.add('show');
+                modal.setAttribute('aria-hidden','false');
+                modal.style.display = 'flex';
+                modal.style.visibility = 'visible';
+                modal.style.opacity = '1';
+                modal.style.zIndex = '99999';
+            }
+        }
+        document.addEventListener('click', function(e){
+            const btn = e.target && e.target.closest ? e.target.closest('.view') : null;
+            if (btn) {
+                e.preventDefault();
+                openDetailFromButton(btn);
+            }
+        }, true);
+        // Cerrar modal al hacer click fuera del dialog
+        document.addEventListener('click', function(ev){
+            const modal = document.getElementById('detailModal');
+            if (!modal || !modal.classList.contains('show')) return;
+            const inner = modal.querySelector('.detail-modal') || modal.querySelector('.modal');
+            if (!inner) return;
+            if (!inner.contains(ev.target)) {
+                modal.classList.remove('show');
+                modal.setAttribute('aria-hidden','true');
+                modal.style.display = 'none';
+            }
+        }, true);
+    })();
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
+        <script>
+            // Evitar diálogos alert bloqueantes heredados de JS antiguo
+            window.alert = function(msg){ try{ console.log('alert suppressed:', msg); }catch(e){} };
+        </script>
     <title>Inicio</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <!-- Catalog vendor and main styles to match modal appearance -->
@@ -36,6 +85,93 @@
         #__next, #root, .main-bg, .main-background, .giant-frame, .wrap, .categories, .category-section {
             background: #fff !important;
         }
+        /* Giant frame around everything */
+        .giant-frame {
+            border-radius: 25px;
+            margin: 30px;
+            padding: 60px;
+            background: #fff;
+            box-shadow: 0 0 50px rgba(255, 105, 180, 0.3);
+        }
+        .wrap{
+            max-width:1800px;
+            margin:40px auto;
+            padding:16px 80px;
+        }
+        .card{
+            background:#fff;
+            color:#000;
+            padding:20px 28px;
+            border-radius:8px;
+            width:320px;
+            text-align:center;
+            margin:0 auto 24px;
+        }
+        /* top full-width bar */
+        .top-bar{ position: fixed; top:0; left:0; right:0; height:70px; background:#fff; border-bottom:1px solid rgba(0,0,0,0.06); z-index:10000; transition: all 240ms cubic-bezier(.2,.9,.2,1); box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .top-bar .bar-inner{ max-width:1400px; margin:0 auto; height:70px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; position:relative; }
+        .top-bar .btn{ background:transparent; color:#9932CC; border:1px solid rgba(153,50,204,0.12); padding:8px 14px; border-radius:8px; }
+
+        /* collapsed (minimized) top-bar to corner - only on mobile */
+        .top-bar.collapsed{ left:12px; right:auto; width:56px; height:56px; border-radius:10px; padding:6px; border-bottom: none; box-shadow:0 6px 18px rgba(0,0,0,0.08); }
+        .top-bar.collapsed .bar-inner{ display:none; }
+        .bar-logo-link{ display:flex; align-items:center; font-size:24px; font-weight:700; color:#9932CC; text-decoration:none; }
+        .bar-logo-text{ font-size:24px; font-weight:700; color:#9932CC; }
+
+        /* Search container */
+        .search-container{ display:flex; align-items:center; background:#f5f5f5; border-radius:25px; padding:5px; width:400px; }
+        .search-input{ flex:1; border:none; background:transparent; padding:8px 15px; font-size:16px; outline:none; }
+        .search-btn{ background:#fff; color:#9932CC; border:none; border-radius:20px; width:35px; height:35px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; margin-right:5px; }
+        /* Search results dropdown */
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            border: 1px solid #e0e0e0;
+            margin-top: 5px;
+        }
+        .search-results.show {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+        .search-result-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+        .search-result-item:hover {
+            background: #f8f9fa;
+        }
+        .search-result-img {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .search-result-info {
+            flex: 1;
+        }
+        .search-result-title {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
         .search-result-price {
             color: #9932CC;
             font-weight: 500;
@@ -51,64 +187,31 @@
                 transform: translateY(0);
             }
         }
-        /* ...existing code... */
-    </style>
-    <script>
-        // Evitar diálogos alert bloqueantes heredados de JS antiguo
-        window.alert = function(msg){ try{ console.log('alert suppressed:', msg); }catch(e){} };
-    </script>
-</head>
-<body>
+        .cart-link-inline{ margin-left:5px; }
+        .cart-link-inline{ position:relative; display:inline-block; }
+        .cart-link-inline .cart-icon{ width:24px; height:24px; object-fit:contain; display:block; }
+        .cart-count{ position:absolute; top:-5px; right:-5px; background:#9932CC; color:#fff; border-radius:50%; padding:2px 6px; font-size:12px; font-weight:600; }
 
-<script>
-// Modal de detalle de producto en home (igual que catalog.js)
-(function(){
-    function openDetailFromButton(button){
-        const modal = document.getElementById('detailModal');
-        const mTitle = document.getElementById('m-title');
-        const mImg = document.getElementById('m-img');
-        const mDesc = document.getElementById('m-desc');
-        const mPrice = document.getElementById('m-price');
-        const id = button && button.dataset && button.dataset.id ? Number(button.dataset.id) : null;
-        const title = button.dataset.title || '';
-        const img = button.dataset.img || '';
-        const desc = button.dataset.desc || '';
-        const price = button.dataset.price || '';
-        if (mTitle) mTitle.textContent = title;
-        if (mImg) mImg.src = img || '';
-        if (mDesc) mDesc.textContent = desc;
-        if (mPrice) mPrice.textContent = price;
-        window.currentProductId = button.dataset.id || null;
-        if(modal){
-            modal.classList.add('show');
-            modal.setAttribute('aria-hidden','false');
-            modal.style.display = 'flex';
-            modal.style.visibility = 'visible';
-            modal.style.opacity = '1';
-            modal.style.zIndex = '99999';
-        }
-    }
-    document.addEventListener('click', function(e){
-        const btn = e.target && e.target.closest ? e.target.closest('.view') : null;
-        if (btn) {
-            e.preventDefault();
-            openDetailFromButton(btn);
-        }
-    }, true);
-    // Cerrar modal al hacer click fuera del dialog
-    document.addEventListener('click', function(ev){
-        const modal = document.getElementById('detailModal');
-        if (!modal || !modal.classList.contains('show')) return;
-        const inner = modal.querySelector('.detail-modal') || modal.querySelector('.modal');
-        if (!inner) return;
-        if (!inner.contains(ev.target)) {
-            modal.classList.remove('show');
-            modal.setAttribute('aria-hidden','true');
-            modal.style.display = 'none';
-        }
-    }, true);
-})();
-</script>
+        /* Main navigation */
+        .main-nav{ display:flex; gap:30px; margin-right:30px; }
+        .nav-link{ color:#333; text-decoration:none; font-weight:600; font-size:16px; padding:8px 12px; border-radius:6px; transition: all 0.3s ease; }
+        .nav-link:hover{ background:#f0f0f0; color:#9932CC; }
+
+        .bar-toggle{ display:none; /* hide on desktop */ }
+        /* cuando la barra está colapsada mostrar logo dentro del contenedor pequeño */
+        .top-bar.collapsed .bar-logo-link{ left:8px; top:8px; z-index:10003; }
+        .top-bar.collapsed .bar-logo-link img.bar-logo{ width:28px; height:28px; border-radius:6px; }
+        /* colocar el toggle a la derecha dentro del contenedor colapsado para poder expandir de nuevo */
+        .top-bar.collapsed .bar-toggle{ left:auto; right:8px; top:8px; z-index:10004; }
+        .bar-toggle .hamburger{ width:20px; height:14px; position:relative; display:inline-block; }
+        .bar-toggle .hamburger span{ position:absolute; left:0; right:0; height:2px; background:#9932CC; border-radius:2px; }
+        .bar-toggle .hamburger span:nth-child(1){ top:0; }
+        .bar-toggle .hamburger span:nth-child(2){ top:6px; }
+        .bar-toggle .hamburger span:nth-child(3){ top:12px; }
+        .top-bar.collapsed .bar-toggle{ display:flex; }
+
+        /* username display: keep positioning only so logout-button styles apply */
+        .user-name{ position:relative; z-index:10002; }
         /* profile dropdown */
         .profile-menu{ position:relative; display:inline-block; }
         .profile-btn{ background: #ffffff; color: #9932CC; padding: 8px 12px; border-radius: 20px; border: none; font-weight:600; display:flex; align-items:center; gap:8px; cursor:pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
