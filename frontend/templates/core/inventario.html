@@ -221,13 +221,11 @@
         /* SFI-V2-master TABLE STYLES - Solo para la tabla */
         .giant-frame {
             border-radius: 20px;
-            margin: 24px 0 24px 0;
+            margin: 24px auto;
             padding: 40px 24px;
             background: linear-gradient(135deg, #a259c6 0%, #3d1a5a 100%);
             box-shadow: 0 8px 30px rgba(16,24,40,0.04);
             width: 98vw;
-            left: 50%;
-            transform: translateX(-50%);
             max-width: 1700px;
         }
 
@@ -235,6 +233,7 @@
             max-width:1800px;
             margin:0 auto;
             padding:0;
+            width: 100%;
         }
 
         /* Header section for inventory */
@@ -733,7 +732,7 @@
             }
             .giant-frame {
                 width: calc(100% - 24px) !important;
-                max-width: calc(100% - 24px) !important;
+                max-width: 100% !important;
                 margin: 12px auto !important;
                 padding: 12px !important;
                 box-sizing: border-box;
@@ -741,7 +740,7 @@
             .wrap {
                 width: 100% !important;
                 max-width: 100% !important;
-                margin: 0 !important;
+                margin: 0 auto !important;
                 padding: 0 !important;
                 box-sizing: border-box;
             }
