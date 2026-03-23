@@ -781,6 +781,6 @@ body.inventario-page .giant-frame {
     box-shadow: 0 8px 30px rgba(16, 24, 40, 0.04);
     width: 98vw;
     left: 50%;
-    transform: translateX(0);
+    transform: translateX(7%);
     max-width: 1700px;
 }
