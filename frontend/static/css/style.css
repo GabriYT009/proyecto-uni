@@ -775,10 +775,11 @@ a.logout-button {
 /* Solo para el inventario */
 body.inventario-page .giant-frame {
     border-radius: 20px;
-    margin: 24px auto;
+    margin: 40px auto 24px auto;
     padding: 40px 24px;
     background: linear-gradient(135deg, #a259c6 0%, #3d1a5a 100%);
     box-shadow: 0 8px 30px rgba(16, 24, 40, 0.04);
-    width: 90vw;
-    max-width: 1700px;
+    width: 100%;
+    max-width: 1100px;
+    box-sizing: border-box;
 }
