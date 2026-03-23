@@ -700,13 +700,15 @@ a.logout-button {
 }
 
 .giant-frame {
-    max-width: 1200px;
-    margin: 40px auto 0 auto;
-    background: #fff;
-    border-radius: 28px;
-    box-shadow: 0 4px 32px rgba(153,50,204,0.10);
-    padding: 40px 32px 32px 32px;
+    border-radius: 20px;
+    margin: 24px 0 24px 0;
+    padding: 40px 24px;
+    background: linear-gradient(135deg, #a259c6 0%, #3d1a5a 100%);
+    box-shadow: 0 8px 30px rgba(16, 24, 40, 0.04);
+    width: 98vw;
+    left: 50%;
     transform: translateX(7%);
+    max-width: 1700px;
 }
 
 .wrap {
