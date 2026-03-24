@@ -523,12 +523,6 @@
                 <div class="product-card">
                     <h2 style="color:#9932CC; margin-top:0; text-transform:uppercase;">CARRITO DE COMPRAS</h2>
                     <p class="note">Aquí puedes revisar las cantidades y proceder al pago para todos los productos del carrito.</p>
-                    <div style="margin-bottom:8px;">Tasa de cambio (Bs por $):
-                        <input id="exchangeRate" type="number" step="0.01" value="{{ valor_dolar|default:'3500000' }}" style="width:140px; margin-left:8px;" />
-                        {% if valor_dolar == 'N/A' or valor_dolar is not defined %}
-                            <span style="color:#c00; margin-left:12px;">¡Tasa no disponible! </span>
-                        {% endif %}
-                    </div>
                     {% if Productos and Productos|length > 0 %}
                         <form id="cartPurchaseForm" method="post" action="{% url 'comprar_carrito' %}" style="display:flex; flex-direction:column; gap:12px; margin-top:12px;">
                             {% csrf_token %}
