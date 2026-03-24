@@ -160,6 +160,16 @@
     </div>
 
     <script>
+                    // Limpieza extra de residuos de texto en el contenedor de la alerta
+                    function cleanAlertContainer() {
+                        var container = document.getElementById('js-alert-container');
+                        if (!container) return;
+                        container.innerHTML = '';
+                        container.textContent = '';
+                        // Eliminar nodos de texto residuales
+                        Array.from(container.childNodes).forEach(function(nodo){ if(nodo.nodeType===3) container.removeChild(nodo); });
+                        container.style.display = 'none';
+                    }
         // Quick POS behavior: click inventory item to add to invoice
         (function(){
             function format(n){ return parseFloat(n).toFixed(2); }
@@ -249,21 +259,16 @@
                     alertDiv.style.animation = 'amazonAlertOut 0.25s cubic-bezier(.4,1.3,.6,1)';
                     setTimeout(function(){ 
                         if(alertDiv.parentNode) alertDiv.parentNode.removeChild(alertDiv);
-                        container.innerHTML = '';
-                        container.textContent = '';
-                        // Eliminar nodos de texto residuales
-                        Array.from(container.childNodes).forEach(function(nodo){ if(nodo.nodeType===3) container.removeChild(nodo); });
+                        cleanAlertContainer();
                     }, 250);
                 };
+                container.style.display = 'block';
                 container.appendChild(alertDiv);
                 setTimeout(function(){
                     alertDiv.style.animation = 'amazonAlertOut 0.25s cubic-bezier(.4,1.3,.6,1)';
                     setTimeout(function(){ 
                         if(alertDiv.parentNode) alertDiv.parentNode.removeChild(alertDiv);
-                        container.innerHTML = '';
-                        container.textContent = '';
-                        // Eliminar nodos de texto residuales
-                        Array.from(container.childNodes).forEach(function(nodo){ if(nodo.nodeType===3) container.removeChild(nodo); });
+                        cleanAlertContainer();
                     }, 250);
                 }, timeout);
             }
