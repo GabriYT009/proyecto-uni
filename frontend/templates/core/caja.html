@@ -67,15 +67,7 @@
     <div class="page-shell">
     <div style="max-width:1200px; margin:12px auto;">
         <h2 style="color:#9932CC;">Caja</h2>
-        {% if messages %}
-        <div style="margin:8px 0 12px 0;">
-            {% for message in messages %}
-            <div style="padding:10px 12px; border-radius:8px; margin-bottom:8px; color:#fff; background:{% if message.tags == 'success' %}#1f9d57{% else %}#d9534f{% endif %};">
-                {{ message }}
-            </div>
-            {% endfor %}
-        </div>
-        {% endif %}
+        {% include 'core/_messages.html' %}
         <div class="wrap">
             <div class="left" style="flex:1">
                 <div class="invoice">

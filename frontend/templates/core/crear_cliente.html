@@ -567,12 +567,12 @@
         <div class="card-body" style="padding:30px;">
             <h2>Registrar Cliente</h2>
             {% if errors %}
-                <div class="error" role="alert">Por favor corrige los errores marcados en el formulario.</div>
+                <div class="alert alert-danger" role="alert">Por favor corrige los errores marcados en el formulario.</div>
                 {% if errors.non_field %}
-                    <div class="error" role="alert">{{ errors.non_field }}</div>
+                    <div class="alert alert-danger" role="alert">{{ errors.non_field }}</div>
                 {% endif %}
                 {% if errors.debug %}
-                    <div class="error" style="font-size:12px;opacity:0.8">{{ errors.debug }}</div>
+                    <div class="alert alert-warning" style="font-size:12px;opacity:0.8">{{ errors.debug }}</div>
                 {% endif %}
             {% endif %}
             <form method="POST" action="">

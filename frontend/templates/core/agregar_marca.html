@@ -309,15 +309,7 @@
     <div class="giant-frame">
         <h1 class="text-center mb-4">Agregar Marca a Productos</h1>
 
-        {% if messages %}
-        <div class="floating-messages" aria-live="polite">
-            {% for message in messages %}
-            <div class="msg {% if message.tags == 'success' %}success{% else %}error{% endif %}">
-                {{ message }}
-            </div>
-            {% endfor %}
-        </div>
-        {% endif %}
+        {% include 'core/_messages.html' %}
 
         <div class="marca-form">
             <form method="post">

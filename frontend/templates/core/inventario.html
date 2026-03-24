@@ -779,16 +779,7 @@
 <body>
     {% csrf_token %}
     
-    <!-- Messages -->
-    {% if messages %}
-    <div class="floating-messages" aria-live="polite">
-        {% for message in messages %}
-        <div class="msg {% if message.tags == 'success' %}success{% else %}error{% endif %}">
-            {{ message }}
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
+    {% include 'core/_messages.html' %}
     <!-- TOP BAR - MANTENIENDO EL ESTILO ORIGINAL -->
     <div class="top-bar" id="topBar">
         <div class="bar-inner">

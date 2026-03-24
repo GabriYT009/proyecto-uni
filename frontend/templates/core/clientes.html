@@ -62,15 +62,7 @@
 <body>
     {% csrf_token %}
 
-    {% if messages %}
-    <div style="position: fixed; top: 80px; right: 20px; z-index: 10001;">
-        {% for message in messages %}
-        <div style="background: {% if message.tags == 'success' %}#28a745{% else %}#dc3545{% endif %}; color: white; padding: 12px 20px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-weight: 600;">
-            {{ message }}
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
+    {% include 'core/_messages.html' %}
 
     {% load static %}
     <style>
