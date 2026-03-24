@@ -524,6 +524,10 @@
                     <h2 style="color:#9932CC; margin-top:0; text-transform:uppercase;">CARRITO DE COMPRAS</h2>
                     <p class="note">Aquí puedes revisar las cantidades y proceder al pago para todos los productos del carrito.</p>
                     {% if Productos and Productos|length > 0 %}
+                    <div>
+  <label>Tasa de cambio: </label>
+  <input id="exchangeRate" value="6200000" />
+</div>
                         <form id="cartPurchaseForm" method="post" action="{% url 'comprar_carrito' %}" style="display:flex; flex-direction:column; gap:12px; margin-top:12px;">
                             {% csrf_token %}
                             {% for p in Productos %}
@@ -536,8 +540,8 @@
                                         <div class="desc">{{ p.descripcion }}</div>
                                     </div>
                                     <div class="actions">
-                                        <div class="price">Precio: $ {{ p.precio_venta }}</div>
-                                        <div class="price">Precio en Bs: {{ p.precio_venta }}</div>
+                                        <div class="price price-usd">Precio: $ {{ p.precio_venta }}</div>
+                                        <div class="price price-bs">Precio en Bs: <span class="price-bs-value">0</span></div>
                                         <div style="display:flex; gap:6px; justify-content:flex-end; align-items:center;">
                                             <button type="button" class="btn btn-qty" data-id="{{ p.pk }}" data-action="dec" aria-label="Disminuir cantidad">−</button>
                                             <input type="number" 
@@ -560,7 +564,7 @@
                                 
                             {% endfor %}
                             <div style="display:flex; justify-content:right" id="total">Total en $:  0.00</div>
-                            <div style="display:flex; justify-content:right" id="total_bs">Total en Bs:  {{valor_dolar}}</div>
+                            <div style="display:flex; justify-content:right" id="total_bs">Total en Bs:  0.00</div>
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
                                 
                                 <div class="note">Verifica las cantidades antes de confirmar la compra.</div>
@@ -579,31 +583,45 @@
                     (function(){
 
                         function recalcularTotal() {
+                            var rateInput = document.getElementById('exchangeRate');
+                            var tasa = parseFloat(rateInput ? rateInput.value : 0) || 0;
                             var inputs = document.querySelectorAll('input[name^="cantidad_"]');
-                            var granTotal = 0;
-                            
+                            var granTotalUsd = 0;
+                            var granTotalBs = 0;
+
                             inputs.forEach(function(inp){
-                                var v = parseInt(inp.value,10) || 0;
+                                var cantidad = parseInt(inp.value,10) || 0;
                                 var pid = inp.id.replace('cantidad_','');
-                                
                                 var row = document.getElementById('cantidad_' + pid).closest('.product-row');
                                 if(row) {
                                     var priceText = '0';
-                                    try{ 
-                                        priceText = row.querySelector('.price').textContent.replace('Precio:','').replace('$','').trim(); 
-                                    }catch(err){}
-                                    var price = parseFloat(priceText) || 0;
-                                    granTotal += (price * v);
+                                    try {
+                                        priceText = row.querySelector('.price-usd').textContent.replace('Precio:','').replace('$','').trim();
+                                    } catch(err) {}
+                                    var precioUsd = parseFloat(priceText) || 0;
+                                    var subtotalUsd = precioUsd * cantidad;
+                                    var subtotalBs = subtotalUsd * tasa;
+
+                                    granTotalUsd += subtotalUsd;
+                                    granTotalBs += subtotalBs;
+
+                                    var bsNode = row.querySelector('.price-bs-value');
+                                    if (bsNode) {
+                                        bsNode.textContent = subtotalBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                    }
                                 }
                             });
-                            
-                        
-                        
-                            var divTotal = document.getElementById('total');
-                                        if (divTotal) {
-                                            divTotal.textContent = 'Total: $ ' + granTotal;
-                                        }
-                                    }
+
+                            var divTotalUsd = document.getElementById('total');
+                            if (divTotalUsd) {
+                                divTotalUsd.textContent = 'Total en $: ' + granTotalUsd.toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
+                            }
+
+                            var divTotalBs = document.getElementById('total_bs');
+                            if (divTotalBs) {
+                                divTotalBs.textContent = 'Total en Bs: ' + granTotalBs.toLocaleString('es-VE', { minimumFractionDigits:2, maximumFractionDigits:2 });
+                            }
+                        }
 
                         
                         // Escuchar los clics en los botones + y -
@@ -627,6 +645,12 @@
                                 document.querySelectorAll('input[name^="cantidad_"]').forEach(function(inp){
                                     inp.addEventListener('input', recalcularTotal);
                                 });
+
+                                var rateInput = document.getElementById('exchangeRate');
+                                if (rateInput) {
+                                    rateInput.addEventListener('input', recalcularTotal);
+                                }
+
                                 recalcularTotal();
 
 
