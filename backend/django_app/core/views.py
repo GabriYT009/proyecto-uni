@@ -66,13 +66,18 @@ def _cached_categories(timeout=300):
             nombre_categoria=category_name,
             defaults={'descripcion_categoria': f'Categoria {category_name}'},
         )
+    # Asegurar que 'Otros' exista
+    otros_cat, _ = Categoria.objects.get_or_create(
+        nombre_categoria='Otros',
+        defaults={'descripcion_categoria': 'Productos que no encajan en otras categorías'},
+    )
 
     # Leemos categorias en cada request para reflejar cambios inmediatamente.
     order_case = Case(
         *[When(nombre_categoria=name, then=pos) for pos, name in enumerate(ALLOWED_CATEGORY_NAMES)],
         output_field=IntegerField(),
     )
-    return list(
+    categorias = list(
         Categoria.objects
         .filter(nombre_categoria__isnull=False)
         .exclude(nombre_categoria='')
@@ -81,6 +86,10 @@ def _cached_categories(timeout=300):
         .only('id', 'nombre_categoria')
         .order_by(order_case, 'nombre_categoria')
     )
+    # Agregar 'Otros' al final si no está en la lista
+    if not any(cat.nombre_categoria == 'Otros' for cat in categorias):
+        categorias.append(otros_cat)
+    return categorias
 
 
 def _user_groups(user):
