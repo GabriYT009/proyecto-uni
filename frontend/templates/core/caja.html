@@ -249,9 +249,10 @@
                     alertDiv.style.animation = 'amazonAlertOut 0.25s cubic-bezier(.4,1.3,.6,1)';
                     setTimeout(function(){ 
                         if(alertDiv.parentNode) alertDiv.parentNode.removeChild(alertDiv);
-                        // Limpieza total de nodos residuales
-                        while (container.firstChild) { container.removeChild(container.firstChild); }
+                        container.innerHTML = '';
                         container.textContent = '';
+                        // Eliminar nodos de texto residuales
+                        Array.from(container.childNodes).forEach(function(nodo){ if(nodo.nodeType===3) container.removeChild(nodo); });
                     }, 250);
                 };
                 container.appendChild(alertDiv);
@@ -259,9 +260,10 @@
                     alertDiv.style.animation = 'amazonAlertOut 0.25s cubic-bezier(.4,1.3,.6,1)';
                     setTimeout(function(){ 
                         if(alertDiv.parentNode) alertDiv.parentNode.removeChild(alertDiv);
-                        // Limpieza total de nodos residuales
-                        while (container.firstChild) { container.removeChild(container.firstChild); }
+                        container.innerHTML = '';
                         container.textContent = '';
+                        // Eliminar nodos de texto residuales
+                        Array.from(container.childNodes).forEach(function(nodo){ if(nodo.nodeType===3) container.removeChild(nodo); });
                     }, 250);
                 }, timeout);
             }
