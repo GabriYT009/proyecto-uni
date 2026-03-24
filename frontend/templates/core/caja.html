@@ -64,14 +64,32 @@
     </style>
 </head>
 <body>
+    <!-- Barra superior igual que inventario -->
+    <div class="top-bar" id="topBar">
+        <div class="bar-inner">
+            <div class="group bar-left">
+                <a href="/" class="bar-logo-link" aria-label="Inicio">
+                    <span class="bar-logo-text">Solucionarte</span>
+                </a>
+            </div>
+            <div class="group bar-center">
+                <nav class="main-nav">
+                    <a href="/inventario/" class="nav-link">Inventario</a>
+                    <a href="/catalogo/" class="nav-link">Catálogo</a>
+                    <a href="/clientes/" class="nav-link">Clientes</a>
+                    <a href="/caja/" class="nav-link active">Caja</a>
+                </nav>
+            </div>
+            <div class="group bar-right">
+                <!-- Aquí puedes agregar perfil, carrito, etc. si lo tienes en otras pantallas -->
+            </div>
+        </div>
+    </div>
     <div class="page-shell">
     <div style="max-width:1200px; margin:12px auto;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h2 style="color:#9932CC;">Caja</h2>
-            <a href="/" class="btn btn-outline-primary" style="font-weight:600;">Volver al inicio</a>
-        </div>
+        <h2 style="color:#9932CC; margin-top:24px;">Caja</h2>
         {% include 'core/_messages.html' %}
-        <div id="js-alert-container" style="position:fixed; top:90px; right:20px; z-index:2000; min-width:300px;"></div>
+        <div id="js-alert-container" style="position:fixed; top:100px; right:20px; z-index:2000; min-width:320px;"></div>
         <div class="wrap">
             <div class="left" style="flex:1">
                 <div class="invoice">
@@ -193,12 +211,20 @@
                 });
             }
 
+            // Notificación Bootstrap bonita, solo cuando corresponde
             function showJsAlert(message, type = 'danger', timeout = 3000) {
                 var container = document.getElementById('js-alert-container');
                 if (!container) return;
+                // Evitar duplicados
+                if (container.childElementCount > 0) return;
                 var alertDiv = document.createElement('div');
                 alertDiv.className = `alert alert-${type} alert-dismissible fade show shadow`;
                 alertDiv.role = 'alert';
+                alertDiv.style.fontWeight = '600';
+                alertDiv.style.fontSize = '1.1rem';
+                alertDiv.style.background = type === 'success' ? '#e6f9ed' : (type === 'warning' ? '#fffbe6' : '#fbeaea');
+                alertDiv.style.color = type === 'success' ? '#1f9d57' : (type === 'warning' ? '#b89c1d' : '#d9534f');
+                alertDiv.style.border = '1.5px solid ' + (type === 'success' ? '#1f9d57' : (type === 'warning' ? '#b89c1d' : '#d9534f'));
                 alertDiv.innerHTML = message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
                 container.appendChild(alertDiv);
                 setTimeout(function(){
