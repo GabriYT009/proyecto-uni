@@ -347,7 +347,13 @@
                 <div class="category-grid category-bar" role="navigation">
                     {% for categoria in categories %}
                     <a href="?Categoria={{ categoria.nombre_categoria|urlencode }}" class="category-card {% if selected_Categoria == categoria.nombre_categoria %}active{% endif %}">
-                        <div class="category-icon">{% cycle '📦' '🎂' '🖨️' '📄' '🎨' '📝' %}</div>
+                        <div class="category-icon">
+                            {% if categoria.nombre_categoria == 'Otros' %}
+                                🖥️
+                            {% else %}
+                                {% cycle '📦' '🎂' '🖨️' '📄' '🎨' '📝' %}
+                            {% endif %}
+                        </div>
                         <span>{{ categoria.nombre_categoria }}</span>
                     </a>
                     {% endfor %}
