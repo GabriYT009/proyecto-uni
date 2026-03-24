@@ -65,31 +65,29 @@
 </head>
 <body>
     <!-- Barra superior igual que inventario -->
-    <div class="top-bar" id="topBar">
-        <div class="bar-inner">
-            <div class="group bar-left">
-                <a href="/" class="bar-logo-link" aria-label="Inicio">
-                    <span class="bar-logo-text">Solucionarte</span>
+    <div class="top-bar" id="topBar" style="height:82px; background:rgb(72 13 102); border-bottom:1px solid rgba(153,50,204,0.12); box-shadow:0 16px 36px rgba(102,32,128,0.12); position:fixed; top:0; left:0; right:0; z-index:10000;">
+        <div class="bar-inner" style="max-width:1400px; margin:0 auto; height:82px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; position:relative;">
+            <div class="group bar-left" style="display:flex; align-items:center; gap:15px;">
+                <a href="/" class="bar-logo-link" aria-label="Inicio" style="display:flex; align-items:center; font-size:24px; font-weight:700; color:#fff !important; text-decoration:none;">
+                    <span class="bar-logo-text" style="font-size:24px; font-weight:700; color:#fff !important;">Solucionarte</span>
                 </a>
             </div>
-            <div class="group bar-center">
-                <nav class="main-nav">
-                    <a href="/inventario/" class="nav-link">Inventario</a>
-                    <a href="/catalogo/" class="nav-link">Catálogo</a>
-                    <a href="/clientes/" class="nav-link">Clientes</a>
-                    <a href="/caja/" class="nav-link active">Caja</a>
+            <div class="group bar-center" style="flex:1 1 auto; display:flex; justify-content:center;">
+                <nav class="main-nav" style="display:flex; gap:30px; margin-right:30px;">
+                    <a href="/inventario/" class="nav-link" style="color:#333; text-decoration:none; font-weight:600; font-size:16px; padding:8px 12px; border-radius:6px; transition:all 0.3s ease;">Inventario</a>
+                    <a href="/catalogo/" class="nav-link" style="color:#333; text-decoration:none; font-weight:600; font-size:16px; padding:8px 12px; border-radius:6px; transition:all 0.3s ease;">Catálogo</a>
+                    <a href="/clientes/" class="nav-link" style="color:#333; text-decoration:none; font-weight:600; font-size:16px; padding:8px 12px; border-radius:6px; transition:all 0.3s ease;">Clientes</a>
+                    <a href="/caja/" class="nav-link active" style="background:#f0f0f0; color:#9932CC; text-decoration:none; font-weight:600; font-size:16px; padding:8px 12px; border-radius:6px; transition:all 0.3s ease;">Caja</a>
                 </nav>
             </div>
-            <div class="group bar-right">
-                <!-- Aquí puedes agregar perfil, carrito, etc. si lo tienes en otras pantallas -->
-            </div>
+            <div class="group bar-right" style="display:flex; align-items:center; gap:15px;"></div>
         </div>
     </div>
     <div class="page-shell">
     <div style="max-width:1200px; margin:12px auto;">
-        <h2 style="color:#9932CC; margin-top:24px;">Caja</h2>
+        <h2 style="color:#9932CC; margin-top:100px;">Caja</h2>
         {% include 'core/_messages.html' %}
-        <div id="js-alert-container" style="position:fixed; top:100px; right:20px; z-index:2000; min-width:320px;"></div>
+        <div id="js-alert-container" style="position:fixed; top:100px; right:20px; z-index:2000; min-width:320px; pointer-events:none;"></div>
         <div class="wrap">
             <div class="left" style="flex:1">
                 <div class="invoice">
@@ -225,11 +223,15 @@
                 alertDiv.style.background = type === 'success' ? '#e6f9ed' : (type === 'warning' ? '#fffbe6' : '#fbeaea');
                 alertDiv.style.color = type === 'success' ? '#1f9d57' : (type === 'warning' ? '#b89c1d' : '#d9534f');
                 alertDiv.style.border = '1.5px solid ' + (type === 'success' ? '#1f9d57' : (type === 'warning' ? '#b89c1d' : '#d9534f'));
+                alertDiv.style.pointerEvents = 'auto';
                 alertDiv.innerHTML = message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
                 container.appendChild(alertDiv);
                 setTimeout(function(){
-                    if(alertDiv) alertDiv.classList.remove('show');
-                    setTimeout(function(){ if(alertDiv && alertDiv.parentNode) alertDiv.parentNode.removeChild(alertDiv); }, 400);
+                    if(alertDiv) {
+                        alertDiv.classList.remove('show');
+                        alertDiv.classList.add('fade-out');
+                    }
+                    setTimeout(function(){ if(alertDiv && alertDiv.parentNode) { alertDiv.parentNode.removeChild(alertDiv); container.innerHTML = ''; } }, 400);
                 }, timeout);
             }
 
