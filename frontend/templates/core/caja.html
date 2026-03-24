@@ -215,27 +215,64 @@
                 if (!container) return;
                 // Elimina cualquier alerta previa antes de mostrar una nueva
                 container.innerHTML = '';
+                // Iconos SVG estilo Amazon
+                var icons = {
+                    success: '<svg style="width:24px;height:24px;vertical-align:middle;margin-right:10px;" fill="none" stroke="#1f9d57" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" stroke="#1f9d57" stroke-width="2" fill="#e6f9ed"/><path d="M7 13l3 3 6-6" stroke="#1f9d57" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                    danger: '<svg style="width:24px;height:24px;vertical-align:middle;margin-right:10px;" fill="none" stroke="#d9534f" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" stroke="#d9534f" stroke-width="2" fill="#fbeaea"/><path d="M8 8l8 8M16 8l-8 8" stroke="#d9534f" stroke-width="2" stroke-linecap="round"/></svg>',
+                    warning: '<svg style="width:24px;height:24px;vertical-align:middle;margin-right:10px;" fill="none" stroke="#b89c1d" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" stroke="#b89c1d" stroke-width="2" fill="#fffbe6"/><path d="M12 8v4M12 16h.01" stroke="#b89c1d" stroke-width="2" stroke-linecap="round"/></svg>'
+                };
+                var bg = type === 'success' ? '#e6f9ed' : (type === 'warning' ? '#fffbe6' : '#fbeaea');
+                var color = type === 'success' ? '#1f9d57' : (type === 'warning' ? '#b89c1d' : '#d9534f');
+                var border = '2px solid ' + color;
                 var alertDiv = document.createElement('div');
-                alertDiv.className = `alert alert-${type} alert-dismissible fade show shadow`;
-                alertDiv.role = 'alert';
+                alertDiv.className = 'custom-amazon-alert';
+                alertDiv.setAttribute('role', 'alert');
+                alertDiv.style.display = 'flex';
+                alertDiv.style.alignItems = 'center';
+                alertDiv.style.gap = '10px';
+                alertDiv.style.background = bg;
+                alertDiv.style.color = color;
+                alertDiv.style.border = border;
+                alertDiv.style.borderRadius = '12px';
+                alertDiv.style.boxShadow = '0 4px 24px rgba(0,0,0,0.10)';
                 alertDiv.style.fontWeight = '600';
                 alertDiv.style.fontSize = '1.1rem';
-                alertDiv.style.background = type === 'success' ? '#e6f9ed' : (type === 'warning' ? '#fffbe6' : '#fbeaea');
-                alertDiv.style.color = type === 'success' ? '#1f9d57' : (type === 'warning' ? '#b89c1d' : '#d9534f');
-                alertDiv.style.border = '1.5px solid ' + (type === 'success' ? '#1f9d57' : (type === 'warning' ? '#b89c1d' : '#d9534f'));
-                alertDiv.style.pointerEvents = 'auto';
-                alertDiv.innerHTML = message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
+                alertDiv.style.padding = '16px 24px 16px 16px';
+                alertDiv.style.marginBottom = '12px';
+                alertDiv.style.position = 'relative';
+                alertDiv.style.animation = 'amazonAlertIn 0.3s cubic-bezier(.4,1.3,.6,1)';
+                alertDiv.innerHTML = icons[type] + '<span style="flex:1;">' + message + '</span>' +
+                    '<button type="button" class="btn-close" style="position:absolute;top:12px;right:12px;opacity:0.7;" aria-label="Cerrar"></button>';
+                // Animación de salida y cierre automático
+                var closeBtn = alertDiv.querySelector('.btn-close');
+                closeBtn.onclick = function() {
+                    alertDiv.style.animation = 'amazonAlertOut 0.25s cubic-bezier(.4,1.3,.6,1)';
+                    setTimeout(function(){ if(alertDiv.parentNode) alertDiv.parentNode.removeChild(alertDiv); container.innerHTML = ''; }, 250);
+                };
                 container.appendChild(alertDiv);
                 setTimeout(function(){
-                    if(alertDiv && alertDiv.parentNode) {
-                        alertDiv.classList.remove('show');
-                        alertDiv.classList.add('fade-out');
-                        setTimeout(function(){ 
-                            if(alertDiv.parentNode) alertDiv.parentNode.removeChild(alertDiv);
-                            container.innerHTML = '';
-                        }, 400);
-                    }
+                    alertDiv.style.animation = 'amazonAlertOut 0.25s cubic-bezier(.4,1.3,.6,1)';
+                    setTimeout(function(){ if(alertDiv.parentNode) alertDiv.parentNode.removeChild(alertDiv); container.innerHTML = ''; }, 250);
                 }, timeout);
+            }
+            // Animaciones CSS para la alerta Amazon
+            var styleAmazonAlert = document.getElementById('amazon-alert-anim');
+            if (!styleAmazonAlert) {
+                var style = document.createElement('style');
+                style.id = 'amazon-alert-anim';
+                style.innerHTML = `
+                @keyframes amazonAlertIn {
+                    from { opacity:0; transform:translateY(-30px) scale(0.95); }
+                    to { opacity:1; transform:translateY(0) scale(1); }
+                }
+                @keyframes amazonAlertOut {
+                    from { opacity:1; transform:translateY(0) scale(1); }
+                    to { opacity:0; transform:translateY(-30px) scale(0.95); }
+                }
+                .custom-amazon-alert { transition: box-shadow 0.2s; }
+                .custom-amazon-alert:active { box-shadow:0 2px 8px rgba(0,0,0,0.08); }
+                `;
+                document.head.appendChild(style);
             }
 
             function addCardToInvoice(card){
