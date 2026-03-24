@@ -213,8 +213,8 @@
             function showJsAlert(message, type = 'danger', timeout = 3000) {
                 var container = document.getElementById('js-alert-container');
                 if (!container) return;
-                // Evitar duplicados
-                if (container.childElementCount > 0) return;
+                // Elimina cualquier alerta previa antes de mostrar una nueva
+                container.innerHTML = '';
                 var alertDiv = document.createElement('div');
                 alertDiv.className = `alert alert-${type} alert-dismissible fade show shadow`;
                 alertDiv.role = 'alert';
@@ -227,11 +227,14 @@
                 alertDiv.innerHTML = message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
                 container.appendChild(alertDiv);
                 setTimeout(function(){
-                    if(alertDiv) {
+                    if(alertDiv && alertDiv.parentNode) {
                         alertDiv.classList.remove('show');
                         alertDiv.classList.add('fade-out');
+                        setTimeout(function(){ 
+                            if(alertDiv.parentNode) alertDiv.parentNode.removeChild(alertDiv);
+                            container.innerHTML = '';
+                        }, 400);
                     }
-                    setTimeout(function(){ if(alertDiv && alertDiv.parentNode) { alertDiv.parentNode.removeChild(alertDiv); container.innerHTML = ''; } }, 400);
                 }, timeout);
             }
 
