@@ -915,6 +915,7 @@
                         {% for cat in categories %}
                         <option value="{{ cat.nombre_categoria }}">{{ cat.nombre_categoria }}</option>
                         {% endfor %}
+                        <option value="otros">Otros</option>
                     </select>
 
                     <select id="inventoryStatus" class="form-control" style="width:160px;">
@@ -1568,6 +1569,7 @@
                             {% for cat in categories %}
                             <option value="{{ cat.pk }}">{{ cat.nombre_categoria }}</option>
                             {% endfor %}
+                            <option value="otros">Otros</option>
                         </select>
                     </div>
                     
