@@ -26,7 +26,7 @@ class ProductForm(forms.ModelForm):
             output_field=IntegerField(),
         )
         # Mostrar categorias con nombre valido y ordenadas alfabeticamente.
-        self.fields['categoria'].queryset = (
+        categorias = list(
             Categoria.objects
             .filter(nombre_categoria__isnull=False)
             .exclude(nombre_categoria='')
@@ -34,6 +34,10 @@ class ProductForm(forms.ModelForm):
             .filter(nombre_categoria__in=ALLOWED_CATEGORY_NAMES)
             .order_by(order_case, 'nombre_categoria')
         )
+        # Agregar opción 'Otros' al final
+        self.fields['categoria'].choices = [
+            (cat.pk, cat.nombre_categoria) for cat in categorias
+        ] + [('otros', 'Otros')]
     
     class Meta:
         model = Producto  # Modelo actualizado
