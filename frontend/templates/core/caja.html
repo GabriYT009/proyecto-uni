@@ -66,8 +66,12 @@
 <body>
     <div class="page-shell">
     <div style="max-width:1200px; margin:12px auto;">
-        <h2 style="color:#9932CC;">Caja</h2>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2 style="color:#9932CC;">Caja</h2>
+            <a href="/" class="btn btn-outline-primary" style="font-weight:600;">Volver al inicio</a>
+        </div>
         {% include 'core/_messages.html' %}
+        <div id="js-alert-container" style="position:fixed; top:90px; right:20px; z-index:2000; min-width:300px;"></div>
         <div class="wrap">
             <div class="left" style="flex:1">
                 <div class="invoice">
@@ -189,11 +193,25 @@
                 });
             }
 
+            function showJsAlert(message, type = 'danger', timeout = 3000) {
+                var container = document.getElementById('js-alert-container');
+                if (!container) return;
+                var alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type} alert-dismissible fade show shadow`;
+                alertDiv.role = 'alert';
+                alertDiv.innerHTML = message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
+                container.appendChild(alertDiv);
+                setTimeout(function(){
+                    if(alertDiv) alertDiv.classList.remove('show');
+                    setTimeout(function(){ if(alertDiv && alertDiv.parentNode) alertDiv.parentNode.removeChild(alertDiv); }, 400);
+                }, timeout);
+            }
+
             function addCardToInvoice(card){
                 if(!card) return;
                 var stock = parseInt(card.dataset.stock,10) || 0;
                 if(stock <= 0){
-                    alert('No hay stock disponible para "'+card.dataset.name+'"');
+                    showJsAlert('No hay stock disponible para "'+card.dataset.name+'"', 'warning');
                     return;
                 }
                 var id = card.dataset.id;
@@ -260,7 +278,7 @@
                 }).filter(function(it){ return it.id > 0 && it.qty > 0; });
 
                 if(!payloadItems.length){
-                    alert('No hay productos agregados para cobrar.');
+                    showJsAlert('No hay productos agregados para cobrar.', 'warning');
                     return;
                 }
 
@@ -276,14 +294,16 @@
                     });
                     const data = await res.json();
                     if (!res.ok || !data.success) {
-                        alert(data.error || 'No se pudo procesar el pago.');
+                        showJsAlert(data.error || 'No se pudo procesar el pago.', 'danger');
                         return;
                     }
 
-                    alert(data.message || 'Su pago ha sido procesado exitosamente.');
-                    window.location.href = data.redirect_url || '/caja/';
+                    showJsAlert(data.message || 'Su pago ha sido procesado exitosamente.', 'success', 2500);
+                    setTimeout(function(){
+                        window.location.href = data.redirect_url || '/caja/';
+                    }, 2000);
                 } catch(err){
-                    alert('Error al procesar el pago. Intenta de nuevo.');
+                    showJsAlert('Error al procesar el pago. Intenta de nuevo.', 'danger');
                 }
             });
         })();
