@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-PORT="${PORT:-8000}"
+PORT="${PORT:-8080}"
 APP_ROOT="${APP_ROOT:-/app/backend}"
 if [ -z "${MEDIA_ROOT:-}" ]; then
     if [ -d "/data" ]; then
