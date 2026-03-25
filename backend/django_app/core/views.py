@@ -165,6 +165,7 @@ def home(request):
 
         Productos = list(productos_qs)
 
+
         lista_productos_json = []
         for p in Productos:
             img_url = _safe_img_url(p)
@@ -178,6 +179,7 @@ def home(request):
                 'Categoria': p.categoria.nombre_categoria if p.categoria else ''
             })
         Productos_json = json.dumps(lista_productos_json)
+
     try:
         cart_count = len(request.session.get('cart', []))
     except Exception:
