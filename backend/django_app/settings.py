@@ -165,6 +165,7 @@ if DATABASE_URL.startswith(("mysql://", "mysql2://", "mysql+mysqlconnector://", 
     db_options.setdefault("read_timeout", DB_READ_TIMEOUT)
     db_options.setdefault("write_timeout", DB_WRITE_TIMEOUT)
 elif MYSQL_NAME and MYSQL_USER:
+    DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.mysql",
             "NAME": MYSQL_NAME,
