@@ -177,6 +177,7 @@ def home(request):
                 'desc': p.descripcion,
                 'Categoria': p.categoria.nombre_categoria if p.categoria else ''
             })
+        Productos_json = json.dumps(lista_productos_json)
     try:
         cart_count = len(request.session.get('cart', []))
     except Exception:
