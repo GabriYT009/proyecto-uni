@@ -22,716 +22,123 @@
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
     <link href="{% static 'css/main.css' %}" rel="stylesheet">
     <link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
-    <meta name="csrf-token" content="{{ csrf_token }}">
 
-</head>
-<body>
-    <div class="top-bar" id="topBar">
-        <div class="bar-inner">
-            <div class="group bar-left">
-                <a href="{% url 'home' %}" class="bar-logo-link" aria-label="Inicio">
-                    <span class="bar-logo-text">Solucionarte</span>
-                </a>
-            </div>
-
-            <div class="group bar-center">
+    {% load static %}
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <title>Catálogo</title>
+        <!-- Vendor CSS Files -->
+        <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+        <link href="{% static 'assets/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+        <link href="{% static 'assets/vendor/aos/aos.css' %}" rel="stylesheet">
+        <link href="{% static 'assets/vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
+        <link href="{% static 'assets/vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
+        <!-- Modern Custom CSS -->
+        <link href="{% static 'css/style.css' %}" rel="stylesheet">
+        <link href="{% static 'css/main.css' %}" rel="stylesheet">
+        <meta name="csrf-token" content="{{ csrf_token }}">
+    </head>
+    <body>
+        <header class="top-bar">
+            <div class="bar-inner">
+                <a href="{% url 'home' %}" class="bar-logo-link"><span class="bar-logo-text">Solucionarte</span></a>
                 <nav class="main-nav">
                     <a href="{% url 'catalog' %}" class="nav-link">Catálogo</a>
-                    <div class="clients-menu" style="position:relative;">
-                        <button id="clientsToggle" class="nav-link clients-toggle" aria-haspopup="true" aria-expanded="false">Clientes ▾</button>
-                        <div id="clientsDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
-                            <a href="{% url 'todos_clientes' %}" class="dropdown-item">Ver clientes</a>
-                            {% if 'admin' in user_groups %}
-                                <!-- Registrar Cliente removed from dropdown -->
-                            {% endif %}
-                        </div>
+                    <div class="dropdown">
+                        <button class="nav-link dropdown-toggle" type="button" id="clientsDropdown" data-bs-toggle="dropdown" aria-expanded="false">Clientes</button>
+                        <ul class="dropdown-menu" aria-labelledby="clientsDropdown">
+                            <li><a class="dropdown-item" href="{% url 'todos_clientes' %}">Ver clientes</a></li>
+                        </ul>
                     </div>
-                    <div class="product-menu" style="position:relative;">
-                        <button id="productToggle" class="nav-link product-toggle" aria-haspopup="true" aria-expanded="false" onclick="(function(e){ e.stopPropagation(); const pd=document.getElementById('productDropdown'); if(!pd) return; const opened = pd.classList.toggle('show'); this.setAttribute('aria-expanded', opened ? 'true' : 'false'); pd.setAttribute('aria-hidden', opened ? 'false' : 'true'); })(event);">Producto ▾</button>
-                        <div id="productDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
+                    <div class="dropdown">
+                        <button class="nav-link dropdown-toggle" type="button" id="productDropdown" data-bs-toggle="dropdown" aria-expanded="false">Producto</button>
+                        <ul class="dropdown-menu" aria-labelledby="productDropdown">
                             {% if 'admin' in user_groups %}
-                                <a href="{% url 'registrar_producto' %}" class="dropdown-item">Crear Producto</a>
+                            <li><a class="dropdown-item" href="{% url 'registrar_producto' %}">Crear Producto</a></li>
                             {% endif %}
-                        </div>
+                        </ul>
                     </div>
-                    {%  if 'admin' in user_groups %}
-                        <!-- Crear Producto removed from top nav -->
-                        <a href="{% url 'inventario' %}" class="nav-link">Inventario</a>
+                    {% if 'admin' in user_groups %}
+                    <a href="{% url 'inventario' %}" class="nav-link">Inventario</a>
                     {% endif %}
                     {% if 'admin' in user_groups or 'cajero' in user_groups %}
-                        <a href="{% url 'caja' %}" class="nav-link">Caja</a>
+                    <a href="{% url 'caja' %}" class="nav-link">Caja</a>
                     {% endif %}
                 </nav>
                 <div class="search-container">
                     <input type="text" class="search-input" placeholder="Buscar productos..." id="searchInput" value="{{ search_query }}">
-                    <button class="search-btn">🔍</button>
-                    <div class="search-results" id="searchResults"></div>
+                    <button class="search-btn"><i class="bi bi-search"></i></button>
                     <a href="{% url 'carrito' %}" class="cart-link-inline" aria-label="Carrito">
-                        <img src="{% static 'core/carrito.png' %}" alt="Carrito" class="cart-icon">
+                        <i class="bi bi-cart"></i>
                         <span id="cart-count" class="cart-count">{{ cart_count }}</span>
                     </a>
                 </div>
-            </div>
-
-            <div class="group bar-right">
-                {% if user.is_authenticated %}
-                    <div class="profile-menu">
-                        <button id="profileToggle" class="profile-btn" aria-haspopup="true" aria-expanded="false">
-                            <img src="{% static 'core/avatar.png' %}" alt="Avatar" class="avatar">{{ user.username }}
-                        </button>
-                        <div id="profileDropdown" class="profile-dropdown" role="menu" aria-hidden="true">
-                            <a href="{% url 'perfil' %}" class="dropdown-item">Mi perfil</a>
-                            <a href="{% url 'historial_compras' %}" class="dropdown-item">Historial de compras</a>
-                            <a href="{% url 'logout' %}" class="dropdown-item">Cerrar sesión</a>
-                        </div>
-                    </div>
-                {% else %}
+                <div class="profile-menu">
+                    {% if user.is_authenticated %}
+                    <button id="profileToggle" class="profile-btn" aria-haspopup="true" aria-expanded="false">
+                        <i class="bi bi-person-circle"></i> {{ user.username }}
+                    </button>
+                    <ul id="profileDropdown" class="profile-dropdown" role="menu" aria-hidden="true">
+                        <li><a href="{% url 'perfil' %}" class="dropdown-item">Mi perfil</a></li>
+                        <li><a href="{% url 'historial_compras' %}" class="dropdown-item">Historial de compras</a></li>
+                        <li><a href="{% url 'logout' %}" class="dropdown-item">Cerrar sesión</a></li>
+                    </ul>
+                    {% else %}
                     <a id="profileBtn" class="logout-button" href="{% url 'perfil' %}">Perfil</a>
-                {% endif %}
-            </div>
-        </div>
-        <button id="barToggle" class="bar-toggle" aria-expanded="false" aria-label="Abrir menu">
-            <span class="hamburger">
-                <span></span><span></span><span></span>
-            </span>
-        </button>
-        <div id="barNavMenu" class="nav-menu" role="menu" aria-hidden="true">
-            <a class="nav-item" href="{% url 'catalog' %}">Catalogo</a>
-            <div class="nav-item-group">
-                <button class="nav-item nav-subtoggle" type="button" data-target="catalogClientsSubMenu" aria-expanded="false">Clientes <span class="submenu-arrow">›</span></button>
-                <div id="catalogClientsSubMenu" class="nav-submenu" aria-hidden="true">
-                    <button class="nav-item nav-back" type="button" data-close-submenu="catalogClientsSubMenu">← Menu</button>
-                    <a class="nav-item" href="{% url 'todos_clientes' %}">Ver clientes</a>
-                </div>
-            </div>
-            <div class="nav-item-group">
-                <button class="nav-item nav-subtoggle" type="button" data-target="catalogProductsSubMenu" aria-expanded="false">Productos <span class="submenu-arrow">›</span></button>
-                <div id="catalogProductsSubMenu" class="nav-submenu" aria-hidden="true">
-                    <button class="nav-item nav-back" type="button" data-close-submenu="catalogProductsSubMenu">← Menu</button>
-                    {% if 'admin' in user_groups %}
-                        <a class="nav-item" href="{% url 'registrar_producto' %}">Crear producto</a>
-                    {% else %}
-                        <a class="nav-item" href="{% url 'catalog' %}">Ver productos</a>
                     {% endif %}
                 </div>
             </div>
-            {% if 'admin' in user_groups %}
-                <a class="nav-item" href="{% url 'inventario' %}">Inventario</a>
-            {% endif %}
-            {% if 'admin' in user_groups or 'cajero' in user_groups %}
-                <a class="nav-item" href="{% url 'caja' %}">Caja</a>
-            {% endif %}
-        </div>
-    </div>
-
-    <!-- El CSS de categorías debe ir en los archivos estáticos correspondientes. -->
-
-    <div class="giant-frame">
-        <div class="wrap">
-        <!-- Categories Section -->
-        <section class="categories">
-            <h2>Categorías</h2>
-            <div class="category-bar-wrap" aria-label="Barra de categorías">
-                <button type="button" class="cat-scroll-btn cat-scroll-left" aria-label="Anterior">◀</button>
-                <div class="category-grid category-bar" role="navigation">
-                    {% for categoria in categories %}
-                    <a href="?Categoria={{ categoria.nombre_categoria|urlencode }}" class="category-card {% if selected_Categoria == categoria.nombre_categoria %}active{% endif %}">
-                        <div class="category-icon">
-                            {% if categoria.nombre_categoria == 'Otros' %}
-                                🖥️
-                            {% else %}
-                                {% cycle '📦' '🎂' '🖨️' '📄' '🎨' '📝' %}
-                            {% endif %}
+        </header>
+        <main>
+            <div class="giant-frame">
+                <div class="wrap">
+                    <section class="categories">
+                        <h2>Categorías</h2>
+                        <div class="category-bar-wrap" aria-label="Barra de categorías">
+                            <div class="category-grid category-bar" role="navigation">
+                                <a href="{% url 'catalog' %}" class="category-card {% if not selected_Categoria %}active{% endif %}">
+                                    <div class="category-icon">🌟</div>
+                                    <span>Todas</span>
+                                </a>
+                                {% for categoria in categories %}
+                                <a href="?Categoria={{ categoria.nombre_categoria|urlencode }}" class="category-card {% if selected_Categoria == categoria.nombre_categoria %}active{% endif %}">
+                                    <div class="category-icon">
+                                        {% if categoria.nombre_categoria == 'Cajas' %}📦{% elif categoria.nombre_categoria == 'Toppers' %}🎂{% elif categoria.nombre_categoria == 'Sublimación' %}🖨️{% elif categoria.nombre_categoria == 'Impresión' %}📄{% elif categoria.nombre_categoria == 'Personalización' %}🎨{% elif categoria.nombre_categoria == 'Papelería' %}📝{% else %}🖥️{% endif %}
+                                    </div>
+                                    <span>{{ categoria.nombre_categoria }}</span>
+                                </a>
+                                {% endfor %}
+                            </div>
                         </div>
-                        <span>{{ categoria.nombre_categoria }}</span>
-                    </a>
-                    {% endfor %}
-                </div>
-                <button type="button" class="cat-scroll-btn cat-scroll-right" aria-label="Siguiente">▶</button>
-            </div>
-        </section>
-        
-
-        <section class="category-section">
-            <h2>{% if selected_Categoria %}Productos de {{ selected_Categoria }}{% else %}Todos los Productos{% endif %}</h2>
-            <div id="grid" class="grid">
-                {% for product in Productos %}
-                <div class="card">
-                    <img src="{{ product.img_url }}" alt="{{ product.nombre_producto }}" class="view" loading="lazy" decoding="async" data-id="{{ product.id }}" data-title="{{ product.nombre_producto }}" data-img="{{ product.img_url }}" data-desc="{{ product.descripcion }}" data-price="$ {{ product.precio_venta }}" role="button" tabindex="0" style="cursor:pointer;" onerror="this.onerror=null;this.src='{% static 'assets/img/logo.png' %}';">
-                    
-                    <h4 class="view" data-id="{{ product.id }}" role="button" tabindex="0" style="cursor:pointer;">{{ product.nombre_producto }}</h4>
-                    <p>{{ product.descripcion }}</p>
-                    <div class="ul">
-                        <strong class="price-usd" data-price="{{ product.precio_venta }}">$ {{ product.precio_venta }}</strong>
-                        <br>
-                        <strong class="total-bs">Bs. <span class="price-bs-value">0</span></strong>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            </div>
-        </section>
-    </div>
-    </div>
-
-        <!-- Pagination controls -->
-        {% if page_obj and page_obj.has_other_pages %}
-        <nav aria-label="Paginación" style="text-align:center; margin:30px 0;">
-            <ul style="display:inline-flex; list-style:none; gap:8px; padding:0;">
-                {% if page_obj.has_previous %}
-                <li><a href="?page={{ page_obj.previous_page_number }}{% if selected_Categoria %}&Categoria={{ selected_Categoria }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="btn-pagination">« Anterior</a></li>
-                {% endif %}
-
-                {% for num in paginator.page_range %}
-                    {% if num == page_obj.number %}
-                        <li><span class="btn-pagination active">{{ num }}</span></li>
-                    {% else %}
-                        <li><a href="?page={{ num }}{% if selected_Categoria %}&Categoria={{ selected_Categoria }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="btn-pagination">{{ num }}</a></li>
-                    {% endif %}
-                {% endfor %}
-
-                {% if page_obj.has_next %}
-                <li><a href="?page={{ page_obj.next_page_number }}{% if selected_Categoria %}&Categoria={{ selected_Categoria }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="btn-pagination">Siguiente »</a></li>
-                {% endif %}
-            </ul>
-        </nav>
-        {% endif %}
-
-        <!-- Detail modal -->
-        <div id="detailModal" role="dialog" aria-hidden="true" style="display:none;">
-            <div class="detail-modal" style="max-width:520px;margin:40px auto;padding:16px;background:#fff;border-radius:8px;">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <strong id="m-title">Título</strong>
-                </div>
-                <hr/>
-                <img id="m-img" src="" alt="" style="width:100%; height:200px; object-fit:cover; border-radius:6px; margin-bottom:8px;">
-                <p id="m-desc"></p>
-                <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
-                    <strong id="m-price"></strong>
-                    <div style="display:flex; gap:10px;">
-                        <button class="btn" id="m-add-cart">Añadir al carrito</button>
-                        
-                    </div>
+                    </section>
+                    <section class="category-section">
+                        <h2>{% if selected_Categoria %}Productos de {{ selected_Categoria }}{% else %}Todos los Productos{% endif %}</h2>
+                        <div id="grid" class="grid">
+                            {% for product in Productos %}
+                            <div class="card">
+                                {% if product.img_url %}
+                                <img src="{{ product.img_url }}" alt="{{ product.nombre_producto }}" class="view" loading="lazy" decoding="async" data-id="{{ product.id }}" data-title="{{ product.nombre_producto }}" data-img="{{ product.img_url }}" data-desc="{{ product.descripcion }}" data-price="{{ product.precio_venta }}" role="button" tabindex="0" onerror="this.onerror=null;this.src='{% static 'assets/img/logo.png' %}';">
+                                {% else %}
+                                <div class="no-image">Sin imagen</div>
+                                {% endif %}
+                                <h4 class="view" data-id="{{ product.id }}" role="button" tabindex="0">{{ product.nombre_producto }}</h4>
+                                <p>{{ product.descripcion }}</p>
+                                <div class="ul">
+                                    <strong class="price-usd" data-price="{{ product.precio_venta }}">$ {{ product.precio_venta }}</strong>
+                                    <br>
+                                    <strong class="total-bs">Bs. <span class="price-bs-value">0</span></strong>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </section>
                 </div>
             </div>
-        </div>
-
-    <script>
-        // Close product detail modal on backdrop click or Escape
-        (function(){
-            const detailModal = document.getElementById('detailModal');
-            if (!detailModal) return;
-
-            detailModal.addEventListener('click', function(e){
-                if (e.target === detailModal) {
-                    detailModal.classList.remove('show');
-                }
-            });
-
-            document.addEventListener('keydown', function(e){
-                if (e.key === 'Escape') {
-                    detailModal.classList.remove('show');
-                }
-            });
-        })();
-    </script>
-
-    <script src="{% static 'js/catalog.js' %}"></script>
-    <script>
-        // Provide the same `products` array used on the home page so the
-        // canonical `openDetail(id)` implementation is available and works
-        // identically on the catalog page.
-        products = {{ Productos_json|safe }};
-        console.log('Products loaded (catalog):', products && products.length);
-    </script>
-    <script>
-        // Live search functionality (copied from home page)
-        (function(){
-            const searchInput = document.getElementById('searchInput');
-            const searchResults = document.getElementById('searchResults');
-            if (!searchInput || !searchResults) return;
-
-            // Clear search input when page loads (for navigation)
-            try{ searchInput.value = ''; }catch(e){}
-
-            function performSearch(query) {
-                if (query.length < 2) { searchResults.classList.remove('show'); return; }
-                const filteredProducts = (products||[]).filter(product =>
-                    (product.title||'').toLowerCase().includes(query.toLowerCase()) ||
-                    (product.desc||'').toLowerCase().includes(query.toLowerCase())
-                ).slice(0,5);
-
-                if (filteredProducts.length > 0) {
-                    const resultsHtml = filteredProducts.map(product => `\n                        <div class="search-result-item" data-id="${product.id}">\n                            <img src="${product.img}" alt="${product.title}" class="search-result-img">\n                            <div class="search-result-info">\n                                <div class="search-result-title">${product.title}</div>\n                                <div class="search-result-price">$${product.price}</div>\n                            </div>\n                        </div>\n                    `).join('');
-                    searchResults.innerHTML = resultsHtml;
-                    searchResults.classList.add('show');
-                } else {
-                    searchResults.innerHTML = '<div class="search-result-item" style="text-align:center;color:#666">No se encontraron productos</div>';
-                    searchResults.classList.add('show');
-                }
-            }
-
-            let searchTimeout;
-            searchInput.addEventListener('input', function(e){ const q = e.target.value.trim(); clearTimeout(searchTimeout); searchTimeout = setTimeout(()=>performSearch(q), 300); });
-            searchInput.addEventListener('keydown', function(e){ if (e.key === 'Enter') { const q = e.target.value.trim(); if (q) window.location.href = `/catalogo/?search=${encodeURIComponent(q)}`; } });
-
-            document.addEventListener('click', function(e){ if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) searchResults.classList.remove('show'); });
-
-            searchResults.addEventListener('click', function(e){ const item = e.target.closest('.search-result-item'); if (item && item.dataset.id) { const product = (products||[]).find(p=>p.id==item.dataset.id); if (product) {
-                        document.getElementById('m-title').textContent = product.title;
-                        document.getElementById('m-img').src = product.img;
-                        document.getElementById('m-desc').textContent = product.desc;
-                        document.getElementById('m-price').textContent = '$' + product.price;
-                        document.getElementById('detailModal').dataset.productId = item.dataset.id;
-                        document.getElementById('detailModal').classList.add('show');
-                        window.currentProductId = item.dataset.id;
-                        searchResults.classList.remove('show');
-                        searchInput.value = '';
-                    }
-                }
-            });
-        })();
-    </script>
-    <script>
-        // Global helper to add product to cart via AJAX
-        (function(){
-            function getCsrf(){ const m = document.querySelector('meta[name="csrf-token"]'); return m?m.content:null; }
-            function clearAddToCartOverlays(){
-                try{
-                    const detailModal = document.getElementById('detailModal');
-                    if (detailModal) {
-                        detailModal.classList.remove('show');
-                        detailModal.setAttribute('aria-hidden','true');
-                        detailModal.style.display = 'none';
-                    }
-                } catch(e){}
-                try {
-                    document.documentElement.style.overflow = '';
-                    document.body.style.overflow = '';
-                    document.documentElement.style.paddingRight = '';
-                    document.body.style.paddingRight = '';
-                } catch(e){}
-                try {
-                    const loader = document.getElementById('pageLoaderOverlay');
-                    if (loader) loader.classList.remove('is-visible');
-                } catch(e){}
-                try { if (window.PageLoader && typeof window.PageLoader.hide === 'function') window.PageLoader.hide(); } catch(e){}
-            }
-            window.addToCart = async function(id){
-                try{
-                    const token = getCsrf();
-                    const res = await fetch('/add_to_cart/' + id + '/', {
-                        method: 'POST',
-                        headers: { 'X-CSRFToken': token, 'Content-Type': 'application/json' },
-                        credentials: 'include',
-                        body: JSON.stringify({})
-                    });
-                    const ctype = res.headers.get('content-type') || '';
-                    if (ctype.indexOf('application/json') !== -1) {
-                        const data = await res.json();
-                        try{ const cc = document.getElementById('cart-count'); if(cc) cc.textContent = data.count; }catch(e){}
-                        clearAddToCartOverlays();
-                        return;
-                    }
-                    if (res.redirected) {
-                        clearAddToCartOverlays();
-                        return;
-                    }
-                } catch(err){
-                    console.error('addToCart failed', err);
-                } finally {
-                    clearAddToCartOverlays();
-                }
-            };
-        })();
-    </script>
-    
-    <script>
-        // Ensure modal "Añadir al carrito" button posts directly to add_to_cart
-        (function(){
-            const btn = document.getElementById('m-add-cart');
-            function getCsrf(){ const m = document.querySelector('meta[name="csrf-token"]'); return m?m.content:null; }
-            if (btn) {
-                btn.addEventListener('click', async function(e){
-                    e.preventDefault();
-                    const id = window.currentProductId || (document.getElementById('detailModal') && document.getElementById('detailModal').dataset.productId);
-                    if (!id) return;
-                    if (window.addToCart) window.addToCart(id);
-                });
-            }
-        })();
-    </script>
-    <script>
-        // Ensure modal "Comprar" button redirects to comprar page
-        (function(){
-            const buyBtn = document.getElementById('m-buy');
-            if (!buyBtn) return;
-            buyBtn.addEventListener('click', function(e){
-                e.preventDefault();
-                const id = window.currentProductId || (document.getElementById('detailModal') && document.getElementById('detailModal').dataset.productId);
-                if (!id) return;
-                window.location.href = '/producto/' + id + '/comprar/';
-            });
-        })();
-    </script>
-    <script>
-        // Delegate click on in-card add buttons to addToCart
-        document.addEventListener('click', function(e){
-            const btn = e.target.closest && e.target.closest('.add-cart');
-            if (!btn) return;
-            e.preventDefault();
-            const id = btn.dataset.id;
-            if (window.addToCart && id) window.addToCart(id);
-        }, true);
-    </script>
-    <script>
-        // Ensure server-rendered product elements are bound to the products
-        // array and have the expected `data-*` attributes and `view` class so
-        // delegated handlers and `openDetail` work the same as on the home page.
-        (function(){
-            try {
-                const prods = window.products || products || [];
-                if (!prods || !prods.length) return;
-                function normalize(p){
-                    return {
-                        id: p.id || p.pk || p.ID || p.producto_id || null,
-                        title: p.title || p.nombre_producto || p.nombre || p.name || '',
-                        img: p.img || (p.imagen_producto && (typeof p.imagen_producto === 'string' ? p.imagen_producto : p.imagen_producto.url)) || p.imagen || '',
-                        desc: p.desc || p.descripcion || p.description || '',
-                        price: p.price || p.precio_venta || p.amount || ''
-                    };
-                }
-                document.addEventListener('DOMContentLoaded', function(){
-                    prods.forEach(raw => {
-                        const p = normalize(raw);
-                        if (p.id === null || typeof p.id === 'undefined') return;
-                        const selector = '[data-id="' + p.id + '"]';
-                        const els = document.querySelectorAll(selector);
-                        els.forEach(el => {
-                            if (!el.classList.contains('view')) el.classList.add('view');
-                            if (!el.getAttribute('role')) el.setAttribute('role','button');
-                            if (!el.dataset.title) el.dataset.title = p.title;
-                            if (!el.dataset.img) el.dataset.img = p.img;
-                            if (!el.dataset.desc) el.dataset.desc = p.desc;
-                            if (!el.dataset.price) el.dataset.price = p.price;
-                        });
-                    });
-                    console.log('[catalog-init] bound', prods.length, 'products to DOM');
-                });
-            } catch(e){ console.error('[catalog-init] error', e); }
-        })();
-    </script>
-    <script>
-        // Staggered entrance animation for catalog cards
-        document.addEventListener('DOMContentLoaded', function(){
-            const cards = document.querySelectorAll('.grid .card');
-            cards.forEach((c, i)=> setTimeout(()=> c.classList.add('animate'), i * 80));
-        });
-    </script>
-    <script>
-        // Subtle proximity effect: cards react as the cursor approaches
-        (function(){
-            const grid = document.querySelector('.grid');
-            if(!grid) return;
-            const cards = Array.from(grid.querySelectorAll('.card'));
-            let raf = null;
-
-            grid.addEventListener('mousemove', onMove);
-            grid.addEventListener('mouseleave', onLeave);
-
-            function onMove(e){
-                if(raf) cancelAnimationFrame(raf);
-                raf = requestAnimationFrame(()=> {
-                    const mouseX = e.clientX;
-                    const mouseY = e.clientY;
-                    const max = 220; // effect radius in px
-
-                    cards.forEach(card=>{
-                        const r = card.getBoundingClientRect();
-                        const cx = r.left + r.width/2;
-                        const cy = r.top + r.height/2;
-                        const dx = mouseX - cx;
-                        const dy = mouseY - cy;
-                        const dist = Math.sqrt(dx*dx + dy*dy);
-                        if(dist < max){
-                            const strength = (max - dist)/max; // 0..1
-                            const ty = -6 * strength; // translate up to -6px
-                            const sc = 1 + 0.02 * strength; // scale up to 1.02
-                            card.style.transform = `translateY(${ty}px) scale(${sc})`;
-                            card.style.zIndex = 100 + Math.round(strength*10);
-                        } else {
-                            card.style.transform = '';
-                            card.style.zIndex = '';
-                        }
-                    });
-                });
-            }
-
-            function onLeave(){
-                if(raf) cancelAnimationFrame(raf);
-                cards.forEach(card=>{
-                    card.style.transform = '';
-                    card.style.zIndex = '';
-                });
-            }
-        })();
-    </script>
-    <script>
-        // Hamburger menu toggle + click-outside to close
-        (function(){
-            const navToggle = document.getElementById('barToggle');
-            const navMenu = document.getElementById('barNavMenu');
-            if(!navToggle || !navMenu) return;
-            const submenuToggles = navMenu.querySelectorAll('.nav-subtoggle');
-
-            function closeSubmenus(){
-                navMenu.querySelectorAll('.nav-submenu.show').forEach(function(sm){
-                    sm.classList.remove('show');
-                    sm.setAttribute('aria-hidden','true');
-                });
-                submenuToggles.forEach(function(btn){ btn.setAttribute('aria-expanded','false'); });
-            }
-
-            function closeNav(){
-                navMenu.classList.remove('show');
-                closeSubmenus();
-                navToggle.setAttribute('aria-expanded','false');
-                navMenu.setAttribute('aria-hidden','true');
-            }
-
-            navToggle.addEventListener('click', function(e){
-                e.stopPropagation();
-                const opened = navMenu.classList.toggle('show');
-                navToggle.setAttribute('aria-expanded', opened ? 'true' : 'false');
-                navMenu.setAttribute('aria-hidden', opened ? 'false' : 'true');
-                if(!opened) closeSubmenus();
-            });
-
-            submenuToggles.forEach(function(btn){
-                btn.addEventListener('click', function(e){
-                    e.stopPropagation();
-                    const targetId = btn.getAttribute('data-target');
-                    const submenu = targetId ? document.getElementById(targetId) : null;
-                    if(!submenu) return;
-                    const opening = !submenu.classList.contains('show');
-                    closeSubmenus();
-                    if(opening){
-                        submenu.classList.add('show');
-                        submenu.setAttribute('aria-hidden','false');
-                        btn.setAttribute('aria-expanded','true');
-                    }
-                });
-            });
-
-            navMenu.querySelectorAll('[data-close-submenu]').forEach(function(btn){
-                btn.addEventListener('click', function(e){
-                    e.stopPropagation();
-                    closeSubmenus();
-                });
-            });
-
-            document.addEventListener('click', function(e){
-                if(!navToggle.contains(e.target) && !navMenu.contains(e.target)) closeNav();
-            });
-            document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeNav(); });
-        })();
-    </script>
-    <script>
-        // Profile dropdown toggle + click-outside to close
-        (function(){
-            const toggle = document.getElementById('profileToggle');
-            const dropdown = document.getElementById('profileDropdown');
-            if(!toggle || !dropdown) return;
-
-            function closeMenu(){
-                dropdown.classList.remove('show');
-                toggle.setAttribute('aria-expanded','false');
-                dropdown.setAttribute('aria-hidden','true');
-            }
-
-            toggle.addEventListener('click', function(e){
-                e.stopPropagation();
-                const opened = dropdown.classList.toggle('show');
-                toggle.setAttribute('aria-expanded', opened ? 'true' : 'false');
-                dropdown.setAttribute('aria-hidden', opened ? 'false' : 'true');
-            });
-
-            document.addEventListener('click', function(e){
-                if(!toggle.contains(e.target) && !dropdown.contains(e.target)){
-                    closeMenu();
-                }
-            });
-
-            document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeMenu(); });
-        })();
-    </script>
-        <script>
-            // Clients dropdown toggle
-            (function(){
-                const toggle = document.getElementById('clientsToggle');
-                const dropdown = document.getElementById('clientsDropdown');
-                if(!toggle || !dropdown) return;
-                function close(){ dropdown.classList.remove('show'); toggle.setAttribute('aria-expanded','false'); dropdown.setAttribute('aria-hidden','true'); }
-                toggle.addEventListener('click', function(e){ e.stopPropagation(); const opened = dropdown.classList.toggle('show'); toggle.setAttribute('aria-expanded', opened ? 'true' : 'false'); dropdown.setAttribute('aria-hidden', opened ? 'false' : 'true'); });
-                document.addEventListener('click', function(e){ if(!toggle.contains(e.target) && !dropdown.contains(e.target)) close(); });
-                document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
-            })();
-        </script>
-
-        <script>
-            // Category dropdown (shared)
-            (function(){
-                const catToggle = document.getElementById('categoryToggle');
-                const catDropdown = document.getElementById('categoryDropdown');
-                if(!catToggle || !catDropdown) return;
-
-                function closeCat(){
-                    catDropdown.classList.remove('show');
-                    catToggle.setAttribute('aria-expanded','false');
-                    catDropdown.setAttribute('aria-hidden','true');
-                }
-
-                catToggle.addEventListener('click', function(e){
-                    e.stopPropagation();
-                    const opened = catDropdown.classList.toggle('show');
-                    catToggle.setAttribute('aria-expanded', opened ? 'true' : 'false');
-                    catDropdown.setAttribute('aria-hidden', opened ? 'false' : 'true');
-                });
-
-                document.addEventListener('click', function(e){
-                    if(!catToggle.contains(e.target) && !catDropdown.contains(e.target)) closeCat();
-                });
-                document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeCat(); });
-            })();
-        </script>
-
-    <!-- Search functionality -->
-    <script>
-        // Clear search input when page loads (for navigation)
-        document.getElementById('searchInput').value = '';
-
-        // Handle Enter key to search
-        document.getElementById('searchInput').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                const query = e.target.value.trim();
-                if (query) {
-                    window.location.href = `/catalogo/?search=${encodeURIComponent(query)}`;
-                } else {
-                    window.location.href = '/catalogo/';
-                }
-            }
-        });
-    </script>
-
-    <script>
-        // Category bar scrolling controls (catalog)
-        (function(){
-            const left = document.querySelector('.cat-scroll-left');
-            const right = document.querySelector('.cat-scroll-right');
-            const bar = document.querySelector('.category-bar');
-            if (!bar) return;
-            const scrollBy = () => Math.round(bar.clientWidth * 0.6);
-            if (left) left.addEventListener('click', () => bar.scrollBy({ left: -scrollBy(), behavior: 'smooth' }));
-            if (right) right.addEventListener('click', () => bar.scrollBy({ left: scrollBy(), behavior: 'smooth' }));
-            function updateBtns(){
-                if (!left || !right) return;
-                left.style.display = bar.scrollLeft > 10 ? '' : 'none';
-                right.style.display = (bar.scrollLeft + bar.clientWidth + 10) < bar.scrollWidth ? '' : 'none';
-            }
-            bar.addEventListener('scroll', updateBtns);
-            window.addEventListener('resize', updateBtns);
-            updateBtns();
-        })();
-        (function(){
-            // Auto-advance categories by centering each card and looping back to start
-            // without duplicating the category elements.
-            const bar = document.querySelector('.category-bar');
-            if (!bar) return;
-            let cards = Array.from(bar.querySelectorAll('.category-card'));
-            if (!cards.length) return;
-            const intervalMs = 2200;
-            let timer = null;
-            let idx = 0;
-
-            function center(i){
-                const card = cards[i];
-                if (!card) return;
-                const left = Math.max(0, card.offsetLeft - Math.round((bar.clientWidth - card.clientWidth)/2));
-                try { bar.scrollTo({ left: left, behavior: 'smooth' }); } catch(e){ bar.scrollLeft = left; }
-            }
-
-            function step(){
-                idx += 1;
-                if (idx < cards.length) {
-                    center(idx);
-                    return;
-                }
-                // reached past the last card -> wrap to start without duplicating
-                // briefly show the last card, then jump to the beginning instantly
-                setTimeout(function(){
-                    try { bar.scrollTo({ left: 0, behavior: 'auto' }); } catch(e){ bar.scrollLeft = 0; }
-                    idx = 0;
-                }, 250);
-            }
-
-            function start(){ if (timer) return; timer = setInterval(step, intervalMs); }
-            function stop(){ if (timer) { clearInterval(timer); timer = null; } }
-
-            bar.addEventListener('mouseenter', stop);
-            bar.addEventListener('focusin', stop);
-            bar.addEventListener('mouseleave', function(){ if (!timer) start(); });
-
-            // initialize
-            setTimeout(function(){ idx = 0; center(0); start(); }, 500);
-            window.addEventListener('resize', function(){ cards = Array.from(bar.querySelectorAll('.category-card')); });
-        })();
-    </script>
-
-            <script>
-                (function(){
-                    // 1. Capturamos la tasa que envía Django
-                    var tasaBackend = parseFloat("{{ valor_dolar|default:0 }}") || 0;
-
-                    function calcularPreciosCatalogo() {
-                        // 2. Buscamos todas las tarjetas de producto en la pantalla
-                        var cards = document.querySelectorAll('.grid .card');
-
-                        cards.forEach(function(card) {
-                            // 3. Buscamos el elemento del precio en dólares
-                            var usdElement = card.querySelector('.price-usd');
-                            var bsElement = card.querySelector('.price-bs-value');
-
-                            if (usdElement && bsElement) {
-                                // 4. Tomamos el precio limpio gracias al atributo data-price
-                                var precioUsd = parseFloat(usdElement.getAttribute('data-price')) || 0;
-                                
-                                // 5. Calculamos en Bolívares
-                                var precioBs = precioUsd * tasaBackend;
-
-                                // 6. Inyectamos el valor con formato
-                                bsElement.textContent = precioBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                            }
-                        });
-                    }
-
-                    // Ejecutamos la función apenas cargue el script
-                    calcularPreciosCatalogo();
-                })();
-            </script>
-                            
-
-    <!-- Vendor JS Files -->
-    <script src="{% static 'assets/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
-    <script src="{% static 'assets/vendor/php-email-form/validate.js' %}"></script>
-    <script src="{% static 'assets/vendor/aos/aos.js' %}"></script>
-    <script src="{% static 'assets/vendor/glightbox/js/glightbox.min.js' %}"></script>
-    <script src="{% static 'assets/vendor/imagesloaded/imagesloaded.pkgd.min.js' %}"></script>
-    <script src="{% static 'assets/vendor/isotope-layout/isotope.pkgd.min.js' %}"></script>
-    <script src="{% static 'assets/vendor/swiper/swiper-bundle.min.js' %}"></script>
-
-    <!-- Main JS File -->
-    <script src="{% static 'assets/js/main.js' %}"></script>
-
-    <script src="{% static 'core/page-loader.js' %}"></script>
-</body>
-</html>
+        </main>
+        <script src="{% static 'assets/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+        <script src="{% static 'js/catalog.js' %}"></script>
+    </body>
+    </html>
