@@ -143,11 +143,10 @@ def home(request):
     Productos = []
     Productos_json = '[]'
     cart_count = 0
-    user_groups = []
 
+    # Obtener categorías y productos
     try:
         categories = _cached_categories()
-
         productos_qs = (
             Producto.objects
             .filter(status_producto=True)
@@ -162,10 +161,7 @@ def home(request):
             )
             .order_by('precio_venta')[:HOME_PRODUCTS_LIMIT]
         )
-
         Productos = list(productos_qs)
-
-
         lista_productos_json = []
         for p in Productos:
             img_url = _safe_img_url(p)
@@ -179,17 +175,31 @@ def home(request):
                 'Categoria': p.categoria.nombre_categoria if p.categoria else ''
             })
         Productos_json = json.dumps(lista_productos_json)
+    except Exception:
+        logger.exception("Home view fallback: database unavailable or timed out")
+        categories = []
+        Productos = []
+        Productos_json = '[]'
 
+    # Obtener cart_count
     try:
         cart_count = len(request.session.get('cart', []))
     except Exception:
         logger.exception("Home view fallback: session unavailable")
+        cart_count = 0
 
+    # Obtener user_groups
     try:
         user_groups = _user_groups(request.user)
     except Exception:
         logger.exception("Home view fallback: unable to read user groups")
+        user_groups = []
 
+    # Obtener tasa
+    try:
+        tasa = obtener_tasa_cambio()
+    except Exception:
+        tasa = 'N/A'
     try:
         tasa= obtener_tasa_cambio()
     except Exception:
