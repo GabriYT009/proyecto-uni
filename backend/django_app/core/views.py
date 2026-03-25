@@ -182,12 +182,18 @@ def home(request):
     except Exception:
         logger.exception("Home view fallback: unable to read user groups")
 
+    try:
+        tasa= obtener_tasa_cambio()
+    except Exception:
+        tasa = 'N/A'
+
     return render(request, 'core/home.html', {
         'categories': categories, 
         'Productos': Productos, 
         'Productos_json': Productos_json,
         'cart_count': cart_count,
         'user_groups': user_groups,
+        'valor_dolar':str(tasa),
     })
 
 def login_post(request):
@@ -647,6 +653,11 @@ def catalog(request):
         })
     Productos_json = json.dumps(lista_productos_json, ensure_ascii=False)
 
+    try:
+        tasa= obtener_tasa_cambio()
+    except Exception:
+        tasa = 'N/A'
+
     return render(request, 'core/catalog.html', {
         'Productos': page_obj, 
         'categories': categories, 
@@ -657,6 +668,7 @@ def catalog(request):
         'Productos_json': Productos_json,
         'page_obj': page_obj,
         'paginator': paginator,
+        'valor_dolar':str(tasa),
     })
 
 
@@ -813,11 +825,18 @@ def caja(request):
         .values('documento', 'nombre_cliente', 'apellido_cliente', 'direccion', 'telefono_cliente')
     )
 
+
+    try:
+        tasa= obtener_tasa_cambio()
+    except Exception:
+        tasa = 'N/A'
+
     return render(request, 'core/caja.html', {
         'productos': productos,
         'clientes': clientes,
         'cart_count': len(request.session.get('cart', [])),
-        'user_groups': _user_groups(request.user)
+        'user_groups': _user_groups(request.user),
+        'valor_dolar':str(tasa),
     })
 
 

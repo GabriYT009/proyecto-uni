@@ -118,12 +118,14 @@
                                 <th style="padding:6px; border:1px solid #ddd;">Código</th>
                                 <th style="padding:6px; border:1px solid #ddd;">Nombre</th>
                                 <th style="padding:6px; border:1px solid #ddd; width:60px;">Cant.</th>
-                                <th style="padding:6px; border:1px solid #ddd; width:80px; text-align:right;">Precio</th>
-                                <th style="padding:6px; border:1px solid #ddd; width:80px; text-align:right;">Total</th>
+                                <th style="padding:6px; border:1px solid #ddd; width:80px; text-align:right;">Precio $</th>
+                                <th style="padding:6px; border:1px solid #ddd; width:80px; text-align:right;">Precio Bs</th>
+                                <th style="padding:6px; border:1px solid #ddd; width:80px; text-align:right;">Total $</th>
+                                <th style="padding:6px; border:1px solid #ddd; width:80px; text-align:right;">Total Bs</th>
                             </tr>
                         </thead>
                         <tbody id="invoice-items">
-                            <!-- rows added here -->
+                            
                         </tbody>
                     </table>
                     </div>
@@ -131,6 +133,11 @@
                     <div class="totals" style="margin-top:12px; text-align:right; font-weight:700;">
                         <div style="font-size:18px; margin-top:6px">Total: $<span id="total">0.00</span></div>
                     </div>
+                    <div class="totals" style="margin-top:12px; text-align:right; font-weight:700;">
+                        <div style="font-size:18px; margin-top:6px">Total: $<span id="total">0.00</span></div>
+                        <div style="font-size:16px; margin-top:4px; color:#555">Total Bs: <span id="total-bs">0.00</span></div>
+                    </div>
+
 
                     <div class="actions" style="margin-top:10px; text-align:right;">
                         <button class="btn" id="clear-invoice">Limpiar</button>
@@ -148,7 +155,10 @@
                         <div class="card" data-id="{{ p.pk }}" data-code="{{ p.pk }}" data-name="{{ p.nombre_producto }}" data-price="{{ p.precio_venta }}" data-stock="{{ p.cantidad_disponible }}">
                             {% if p.img_url %}<img src="{{ p.img_url }}" class="card-img" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='{% static 'assets/img/logo.png' %}';" />{% else %}<img src="{% static 'assets/img/logo.png' %}" class="card-img" loading="lazy" decoding="async" />{% endif %}
                             <div class="title">{{ p.nombre_producto }}</div>
-                            <div class="price">${{ p.precio_venta }}</div>
+                            <div class="price price-usd">Precio: $ {{ p.precio_venta }}</div>
+
+
+                            <div class="price price-bs">Precio en Bs: <span class="price-bs-value">0</span></div>
                             <div class="stock">Stock: {{ p.cantidad_disponible }}</div>
                         </div>
                         {% endfor %}
@@ -176,8 +186,11 @@
                             container.style.display = 'none';
                         }, 10);
                     }
-        // Quick POS behavior: click inventory item to add to invoice
+// Quick POS behavior: click inventory item to add to invoice
         (function(){
+            // 1. Traemos la tasa del backend
+            var tasaBackend = parseFloat("{{ valor_dolar|default:0 }}") || 0;
+
             function format(n){ return parseFloat(n).toFixed(2); }
             var items = {};
 
@@ -196,9 +209,35 @@
                 return cookieValue;
             }
 
+            // 2. Función para calcular los Bs en las tarjetas del inventario (derecha)
+            function calcularPreciosInventario() {
+                var cards = document.querySelectorAll('#quick-products .card');
+                cards.forEach(function(card) {
+                    var bsElement = card.querySelector('.price-bs-value');
+                    if (bsElement) {
+                        var precioUsd = parseFloat(card.dataset.price) || 0;
+                        var precioBs = precioUsd * tasaBackend;
+                        bsElement.textContent = precioBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    }
+                });
+            }
+            // Ejecutar al cargar
+            calcularPreciosInventario();
+
+            // 3. calcula el total general en Bs de la factura (izquierda)
             function recalc(){
-                var total = 0; for(var k in items){ total += items[k].price * items[k].qty; }
+                var total = 0; 
+                for(var k in items){ total += items[k].price * items[k].qty; }
+                
+                // Actualizar total en USD
                 document.getElementById('total').textContent = format(total);
+                
+                // Actualizar total en Bs
+                var totalBs = total * tasaBackend;
+                var bsTotalElement = document.getElementById('total-bs');
+                if(bsTotalElement) {
+                    bsTotalElement.textContent = totalBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                }
             }
 
             function renderInvoice(){
@@ -403,5 +442,81 @@
         })();
     </script>
     <script src="{% static 'core/page-loader.js' %}"></script>
+                    <script>
+
+                        (function(){
+                            // 1. Capturamos el valor del backend. 
+                            // Usamos el filtro |default:0 para evitar errores si la variable llega vacía
+                            var tasaBackend = parseFloat("{{ valor_dolar|default:0 }}") || 0;
+
+                            function recalcularTotal() {
+                                // 2. Usamos la tasa que viene del backend en lugar del input
+                                var tasa = tasaBackend; 
+                                
+                                var inputs = document.querySelectorAll('input[name^="cantidad_"]');
+                                var granTotalUsd = 0;
+                                var granTotalBs = 0;
+
+                                inputs.forEach(function(inp){
+                                    var cantidad = parseInt(inp.value,10) || 0;
+                                    var pid = inp.id.replace('cantidad_','');
+                                    var row = document.getElementById('cantidad_' + pid).closest('.product-row');
+                                    
+                                    if(row) {
+                                        var priceText = '0';
+                                        try {
+                                            // Nota: Asegúrate que la clase sea .price-usd o .price según tu HTML
+                                            priceText = row.querySelector('.price-usd').textContent.replace('Precio:','').replace('$','').trim();
+                                        } catch(err) {
+                                            try { priceText = row.querySelector('.price').textContent.replace('Precio:','').replace('$','').trim(); } catch(e){}
+                                        }
+                                        
+                                        var precioUsd = parseFloat(priceText) || 0;
+                                        var subtotalUsd = precioUsd * cantidad;
+                                        var subtotalBs = subtotalUsd * tasa;
+
+                                        granTotalUsd += subtotalUsd;
+                                        granTotalBs += subtotalBs;
+
+                                        var bsNode = row.querySelector('.price-bs-value');
+                                        if (bsNode) {
+                                            bsNode.textContent = subtotalBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                        }
+                                    }
+                                });
+
+                                var divTotalUsd = document.getElementById('total');
+                                if (divTotalUsd) {
+                                    divTotalUsd.textContent = 'Total en $: ' + granTotalUsd.toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
+                                }
+
+                                var divTotalBs = document.getElementById('total_bs');
+                                if (divTotalBs) {
+                                    divTotalBs.textContent = 'Total en Bs: ' + granTotalBs.toLocaleString('es-VE', { minimumFractionDigits:2, maximumFractionDigits:2 });
+                                }
+                            }
+
+                        
+                        // Escuchar los clics en los botones + y -
+                                document.querySelectorAll('.btn-qty').forEach(function(b){
+                                    b.addEventListener('click', function(){
+                                        var id = this.dataset.id;
+                                        var action = this.dataset.action;
+                                        var inp = document.getElementById('cantidad_' + id);
+                                        if (!inp) return;
+                                        var v = parseInt(inp.value,10) || 0;
+                                        var max = parseInt(inp.max,10) || 0;
+                                        if (action === 'inc' && (max === 0 || v < max)) inp.value = v + 1;
+                                        if (action === 'dec' && v > 1) inp.value = v - 1;
+                                        
+                                        // Recalcular inmediatamente después del clic
+                                        recalcularTotal();
+                                    });
+                                });
+
+                            
+                        recalcularTotal();})();
+                    </script>
+
 </body>
 </html>
