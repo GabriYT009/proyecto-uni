@@ -585,7 +585,7 @@
                         <div class="note">Revisa los productos y cantidades antes de confirmar.</div>
                         <div class="items" aria-live="polite"></div>
                         <div class="total">Total: $ 0.00</div>
-                        <div class="price-bs-value">Total bs:  0.00</div>
+                        <div class="total-bs" style="text-align:right; font-weight:700; color:#555; margin-top:4px;">Total en Bs: 0.00</div>
                         <div class="actions">
                             <button type="button" class="btn-cancel">Cancelar</button>
                             <button type="button" class="btn-confirm">Confirmar compra</button>
@@ -704,19 +704,41 @@
                                     return false;
                                 }
 
-                                // build and open confirmation modal
+                                    // build and open confirmation modal
                                 var modal = document.getElementById('purchaseConfirmModal');
                                 var list = modal.querySelector('.items');
                                 list.innerHTML = '';
-                                var total = 0;
+                                
+                                var totalUsd = 0;
+                                var totalBs = 0;
+
                                 items.forEach(function(it){
                                     var line = document.createElement('div');
                                     line.className = 'item';
-                                    line.innerHTML = '<div>' + it.name + ' × ' + it.qty + '</div><div>$ ' + (it.price * it.qty).toFixed(2) + '</div>';
+                                    
+                                    // Cálculos por producto
+                                    var subtotalUsd = it.price * it.qty;
+                                    var subtotalBs = subtotalUsd * tasaBackend; 
+                                    
+                                    // HTML de la línea (incluye $ y Bs)
+                                    line.innerHTML = '<div>' + it.name + ' × ' + it.qty + '</div>' + 
+                                                    '<div style="text-align:right;">$ ' + subtotalUsd.toFixed(2) + 
+                                                    '<br><small style="color:#666; font-weight:normal;">Bs ' + subtotalBs.toLocaleString('es-VE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '</small></div>';
+                                    
                                     list.appendChild(line);
-                                    total += it.price * it.qty;
+                                    
+                                    totalUsd += subtotalUsd;
+                                    totalBs += subtotalBs;
                                 });
-                                modal.querySelector('.total').textContent = 'Total: $ ' + total.toFixed(2);
+
+                                // Actualizar totales en el modal
+                                modal.querySelector('.total').textContent = 'Total: $ ' + totalUsd.toFixed(2);
+                                
+                                var bsTotalDiv = modal.querySelector('.total-bs');
+                                if (bsTotalDiv) {
+                                    bsTotalDiv.textContent = 'Total en Bs: ' + totalBs.toLocaleString('es-VE', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                                }
+
                                 modal.classList.add('show');
 
                                 // wire confirm/cancel
