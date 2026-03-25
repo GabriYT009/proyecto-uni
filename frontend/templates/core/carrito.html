@@ -520,15 +520,7 @@
 
 
                     <div class="card" style="background:#eceaea; border-radius:12px;">
-                        <div class="card-body" style="padding:30px; background:#eceaea;">
-                            <div class="product-card">
-                                <h2 style="color:#9932CC; margin-top:0; text-transform:uppercase;">CARRITO DE COMPRAS</h2>
-                                <p class="note">Aquí puedes revisar las cantidades y proceder al pago para todos los productos del carrito.</p>
-                                {% if Productos and Productos|length > 0 %}
-                                <div>
-            <label>Tasa de cambio: </label>
-            
-            </div>
+                    
 
                         <form id="cartPurchaseForm" method="post" action="{% url 'comprar_carrito' %}" style="display:flex; flex-direction:column; gap:12px; margin-top:12px;">
                             {% csrf_token %}
