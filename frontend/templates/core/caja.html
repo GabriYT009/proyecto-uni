@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <style>
         body{ margin:0; padding:0; font-family: "Urbanist", "Segoe UI", Roboto, Arial, sans-serif; background: #fff !important; min-height: 100vh; }
+        html { background: #fff !important; }
+        .invoice { background: #fff !important; }
         .page-shell{ padding:20px; }
         .wrap{ max-width:1400px; margin:0 auto; display:flex; gap:20px; }
         .left{ flex:0 0 520px; background:#fff; padding:18px; border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,0.06); }
@@ -68,7 +70,7 @@
     <div class="top-bar" id="topBar" style="height:82px; background:rgb(72 13 102); border-bottom:1px solid rgba(153,50,204,0.12); box-shadow:0 16px 36px rgba(102,32,128,0.12); position:fixed; top:0; left:0; right:0; z-index:10000;">
         <div class="bar-inner" style="max-width:1400px; margin:0 auto; height:82px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; position:relative;">
             <div class="group bar-left" style="display:flex; align-items:center; gap:15px;">
-                <a href="/" class="bar-logo-link" aria-label="Inicio" style="display:flex; align-items:center; font-size:24px; font-weight:700; color:#fff !important; text-decoration:none;">
+                <a href="{% url 'home' %}" class="bar-logo-link" aria-label="Inicio" style="display:flex; align-items:center; font-size:24px; font-weight:700; color:#fff !important; text-decoration:none;">
                     <span class="bar-logo-text" style="font-size:24px; font-weight:700; color:#fff !important;">Solucionarte</span>
                 </a>
             </div>

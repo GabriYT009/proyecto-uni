@@ -399,7 +399,22 @@
                 <li><a href="?page={{ page_obj.next_page_number }}{% if selected_Categoria %}&Categoria={{ selected_Categoria }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="btn-pagination">Siguiente »</a></li>
                 {% endif %}
             </ul>
-        </nav>
+                    body {
+                        padding-top: 82px;
+                        background: #fff !important;
+                        font-family: 'Montserrat', sans-serif;
+                    }
+                    html {
+                        background: #fff !important;
+                    }
+                    /* Eliminar cualquier gradiente o fondo de la giant-frame y el wrap */
+                    .giant-frame {
+                        background: #fff !important;
+                        box-shadow: 0 8px 30px rgba(16,24,40,0.04);
+                    }
+                    .wrap {
+                        background: #fff !important;
+                    }
         {% endif %}
 
         <!-- Detail modal -->
