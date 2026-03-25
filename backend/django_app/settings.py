@@ -143,6 +143,11 @@ MYSQL_PASSWORD = os.environ.get("MYSQL_PASSWORD")
 MYSQL_HOST = os.environ.get("MYSQL_HOST", "127.0.0.1")
 MYSQL_PORT = os.environ.get("MYSQL_PORT", "3306")
 
+DB_CONNECT_TIMEOUT = int(os.environ.get("DB_CONNECT_TIMEOUT", "5"))
+DB_READ_TIMEOUT = int(os.environ.get("DB_READ_TIMEOUT", "10"))
+DB_WRITE_TIMEOUT = int(os.environ.get("DB_WRITE_TIMEOUT", "10"))
+MYSQL_SSL_REQUIRE = os.environ.get("MYSQL_SSL_REQUIRE", "False").lower() in ("1", "true", "yes")
+
 if DATABASE_URL.startswith(("mysql://", "mysql2://", "mysql+mysqlconnector://", "mysql+pymysql://")):
     # Si DATABASE_URL tiene el puerto de Railway default (3306) pero hay un MYSQL_PORT definido 
     # externamente (ej: 18795), sobrescribir el puerto temporalmente.
@@ -155,21 +160,11 @@ if DATABASE_URL.startswith(("mysql://", "mysql2://", "mysql+mysqlconnector://", 
     if 'HOST' in DATABASES['default'] and DATABASES['default']['HOST'] == 'mysql.railway.internal' and MYSQL_HOST != 'mysql.railway.internal':
         DATABASES['default']['HOST'] = MYSQL_HOST
 
-DB_CONNECT_TIMEOUT = int(os.environ.get("DB_CONNECT_TIMEOUT", "5"))
-DB_READ_TIMEOUT = int(os.environ.get("DB_READ_TIMEOUT", "10"))
-DB_WRITE_TIMEOUT = int(os.environ.get("DB_WRITE_TIMEOUT", "10"))
-MYSQL_SSL_REQUIRE = os.environ.get("MYSQL_SSL_REQUIRE", "False").lower() in ("1", "true", "yes")
-
-if DATABASE_URL.startswith(("mysql://", "mysql2://", "mysql+mysqlconnector://", "mysql+pymysql://")):
-    DATABASES = {
-        "default": dj_database_url.config(default=DATABASE_URL, conn_max_age=600, ssl_require=MYSQL_SSL_REQUIRE)
-    }
     db_options = DATABASES["default"].setdefault("OPTIONS", {})
     db_options.setdefault("connect_timeout", DB_CONNECT_TIMEOUT)
     db_options.setdefault("read_timeout", DB_READ_TIMEOUT)
     db_options.setdefault("write_timeout", DB_WRITE_TIMEOUT)
 elif MYSQL_NAME and MYSQL_USER:
-    DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.mysql",
             "NAME": MYSQL_NAME,
