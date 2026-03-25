@@ -142,6 +142,19 @@ MYSQL_USER = os.environ.get("MYSQL_USER")
 MYSQL_PASSWORD = os.environ.get("MYSQL_PASSWORD")
 MYSQL_HOST = os.environ.get("MYSQL_HOST", "127.0.0.1")
 MYSQL_PORT = os.environ.get("MYSQL_PORT", "3306")
+
+if DATABASE_URL.startswith(("mysql://", "mysql2://", "mysql+mysqlconnector://", "mysql+pymysql://")):
+    # Si DATABASE_URL tiene el puerto de Railway default (3306) pero hay un MYSQL_PORT definido 
+    # externamente (ej: 18795), sobrescribir el puerto temporalmente.
+    DATABASES = {
+        "default": dj_database_url.config(default=DATABASE_URL, conn_max_age=600, ssl_require=MYSQL_SSL_REQUIRE)
+    }
+    # Forzar puerto y host si las variables explícitas existen y la URL usa el puerto 3306 interno (por bug de Railway)
+    if 'PORT' in DATABASES['default'] and DATABASES['default']['PORT'] in ('3306', 3306) and MYSQL_PORT != "3306":
+        DATABASES['default']['PORT'] = MYSQL_PORT
+    if 'HOST' in DATABASES['default'] and DATABASES['default']['HOST'] == 'mysql.railway.internal' and MYSQL_HOST != 'mysql.railway.internal':
+        DATABASES['default']['HOST'] = MYSQL_HOST
+
 DB_CONNECT_TIMEOUT = int(os.environ.get("DB_CONNECT_TIMEOUT", "5"))
 DB_READ_TIMEOUT = int(os.environ.get("DB_READ_TIMEOUT", "10"))
 DB_WRITE_TIMEOUT = int(os.environ.get("DB_WRITE_TIMEOUT", "10"))

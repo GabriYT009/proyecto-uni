@@ -59,25 +59,31 @@ run_with_retries() {
 # Esperar a que MySQL esté disponible antes de cualquier operación con la BD
 # Usa las mismas variables que settings.py para garantizar consistencia
 wait_for_mysql() {
-    python -c "
-import os, sys, urllib.parse
+    python3 -c "
+import os
+import sys
+import urllib.parse
+import MySQLdb
 
 # Intentar primero con URL (misma prioridad que settings.py)
-url = (
-    os.environ.get('MYSQL_PRIVATE_URL') or
-    os.environ.get('DATABASE_PRIVATE_URL') or
-    os.environ.get('DATABASE_URL') or
-    os.environ.get('MYSQL_URL') or
-    os.environ.get('MYSQL_PUBLIC_URL') or ''
-)
+url = os.environ.get('MYSQL_PRIVATE_URL') or os.environ.get('DATABASE_PRIVATE_URL') or os.environ.get('DATABASE_URL') or os.environ.get('MYSQL_URL') or os.environ.get('MYSQL_PUBLIC_URL') or ''
 
 try:
-    import MySQLdb
     if url and url.startswith(('mysql://', 'mysql2://')):
         parsed = urllib.parse.urlparse(url.replace('mysql2://', 'mysql://'))
+        
+        # Railway bug workaround: si la URL apunta a internal:3306 pero hay un MYSQL_PORT/MYSQL_HOST público, usarlo
+        conn_host = parsed.hostname
+        if conn_host == 'mysql.railway.internal' and os.environ.get('MYSQL_HOST') and os.environ.get('MYSQL_HOST') != conn_host:
+            conn_host = os.environ.get('MYSQL_HOST')
+            
+        conn_port = parsed.port or 3306
+        if str(conn_port) == '3306' and os.environ.get('MYSQL_PORT') and os.environ.get('MYSQL_PORT') != '3306':
+            conn_port = int(os.environ.get('MYSQL_PORT'))
+
         MySQLdb.connect(
-            host=parsed.hostname,
-            port=parsed.port or 3306,
+            host=conn_host,
+            port=conn_port,
             user=parsed.username,
             passwd=parsed.password or '',
             db=(parsed.path or '').lstrip('/'),
