@@ -104,13 +104,5 @@ else
     echo "[entrypoint] Skipping auth bootstrap (set RUN_BOOTSTRAP_AUTH=1 to enable)"
 fi
 
-echo "[entrypoint] Starting gunicorn on 0.0.0.0:${PORT}"
-exec gunicorn django_app.wsgi:application \
-    --bind "0.0.0.0:${PORT}" \
-    --workers "${WEB_CONCURRENCY:-2}" \
-    --threads "${GUNICORN_THREADS:-2}" \
-    --timeout "${GUNICORN_TIMEOUT:-120}" \
-    --access-logfile - \
-    --error-logfile - \
-    --capture-output \
-    --enable-stdio-inheritance
+echo "[entrypoint] Starting Django development server on 0.0.0.0:${PORT}"
+exec python manage.py runserver 0.0.0.0:${PORT}

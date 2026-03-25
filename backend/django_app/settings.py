@@ -52,11 +52,7 @@ if railway_host:
 if render_host:
     base_hosts.append(render_host)
 
-_env_allowed = os.environ.get("ALLOWED_HOSTS", "")
-if _env_allowed.strip():
-    ALLOWED_HOSTS = [h for h in _env_allowed.split(",") if h]
-else:
-    ALLOWED_HOSTS = base_hosts
+ALLOWED_HOSTS = ["*"]
 
 if not ALLOWED_HOSTS:
     ALLOWED_HOSTS = base_hosts
