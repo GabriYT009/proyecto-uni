@@ -18,127 +18,291 @@
     <link href="{% static 'assets/vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
     <link href="{% static 'assets/vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
 
-    <!-- TU CSS personalizado SIEMPRE DESPUÉS de vendor -->
-    <link href="{% static 'css/style.css' %}" rel="stylesheet">
-    <link href="{% static 'css/main.css' %}" rel="stylesheet">
-    <link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
-
-    {% load static %}
     <!DOCTYPE html>
+    {% load static %}
     <html lang="es">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width,initial-scale=1">
         <title>Catálogo</title>
+        <!-- Fonts -->
+        <link href="https://fonts.googleapis.com" rel="preconnect">
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
         <!-- Vendor CSS Files -->
-        <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
-        <link href="{% static 'assets/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
-        <link href="{% static 'assets/vendor/aos/aos.css' %}" rel="stylesheet">
-        <link href="{% static 'assets/vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
-        <link href="{% static 'assets/vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
-        <!-- Modern Custom CSS -->
-        <link href="{% static 'css/style.css' %}" rel="stylesheet">
+        <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+        <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+        <link href="{% static 'vendor/aos/aos.css' %}" rel="stylesheet">
+        <link href="{% static 'vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
+        <link href="{% static 'vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
+        <!-- Main CSS File -->
         <link href="{% static 'css/main.css' %}" rel="stylesheet">
-        <meta name="csrf-token" content="{{ csrf_token }}">
+        <style>body{padding-top:82px;background:#fff;font-family:'Montserrat',sans-serif;}</style>
     </head>
     <body>
-        <header class="top-bar">
+        {% csrf_token %}
+        {% include 'core/_messages.html' %}
+        <!-- TOP BAR -->
+        <div class="top-bar" id="topBar">
             <div class="bar-inner">
-                <a href="{% url 'home' %}" class="bar-logo-link"><span class="bar-logo-text">Solucionarte</span></a>
-                <nav class="main-nav">
-                    <a href="{% url 'catalog' %}" class="nav-link">Catálogo</a>
-                    <div class="dropdown">
-                        <button class="nav-link dropdown-toggle" type="button" id="clientsDropdown" data-bs-toggle="dropdown" aria-expanded="false">Clientes</button>
-                        <ul class="dropdown-menu" aria-labelledby="clientsDropdown">
-                            <li><a class="dropdown-item" href="{% url 'todos_clientes' %}">Ver clientes</a></li>
-                        </ul>
-                    </div>
-                    <div class="dropdown">
-                        <button class="nav-link dropdown-toggle" type="button" id="productDropdown" data-bs-toggle="dropdown" aria-expanded="false">Producto</button>
-                        <ul class="dropdown-menu" aria-labelledby="productDropdown">
-                            {% if 'admin' in user_groups %}
-                            <li><a class="dropdown-item" href="{% url 'registrar_producto' %}">Crear Producto</a></li>
-                            {% endif %}
-                        </ul>
-                    </div>
-                    {% if 'admin' in user_groups %}
-                    <a href="{% url 'inventario' %}" class="nav-link">Inventario</a>
-                    {% endif %}
-                    {% if 'admin' in user_groups or 'cajero' in user_groups %}
-                    <a href="{% url 'caja' %}" class="nav-link">Caja</a>
-                    {% endif %}
-                </nav>
-                <div class="search-container">
-                    <input type="text" class="search-input" placeholder="Buscar productos..." id="searchInput" value="{{ search_query }}">
-                    <button class="search-btn"><i class="bi bi-search"></i></button>
-                    <a href="{% url 'carrito' %}" class="cart-link-inline" aria-label="Carrito">
-                        <i class="bi bi-cart"></i>
-                        <span id="cart-count" class="cart-count">{{ cart_count }}</span>
+                <div class="group bar-left">
+                    <a href="{% url 'home' %}" class="bar-logo-link" aria-label="Inicio">
+                        <span class="bar-logo-text">Solucionarte</span>
                     </a>
                 </div>
-                <div class="profile-menu">
+                <div class="group bar-center">
+                    <nav class="main-nav">
+                        <a href="{% url 'catalog' %}" class="nav-link">Catálogo</a>
+                        <div class="clients-menu" style="position:relative;">
+                            <button id="clientsToggle" class="nav-link clients-toggle" aria-haspopup="true" aria-expanded="false">Clientes ▾</button>
+                            <div id="clientsDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
+                                <a href="{% url 'todos_clientes' %}" class="dropdown-item">Ver clientes</a>
+                            </div>
+                        </div>
+                        {% if 'admin' in user_groups %}
+                            <a href="{% url 'inventario' %}" class="nav-link">Inventario</a>
+                        {% endif %}
+                        <div class="product-menu" style="position:relative;">
+                            <button id="productToggle" class="nav-link product-toggle" aria-haspopup="true" aria-expanded="false">Producto ▾</button>
+                            <div id="productDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
+                                {% if 'admin' in user_groups %}
+                                    <a href="{% url 'registrar_producto' %}" class="dropdown-item">Crear Producto</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if 'admin' in user_groups or 'cajero' in user_groups %}
+                            <a href="{% url 'caja' %}" class="nav-link">Caja</a>
+                        {% endif %}
+                    </nav>
+                    <div class="search-container">
+                        <input type="text" class="search-input" placeholder="Buscar productos..." id="searchInput" value="{{ search_query }}">
+                        <button class="search-btn">🔍</button>
+                        <a href="{% url 'carrito' %}" class="cart-link-inline" aria-label="Carrito">
+                            <img src="{% static 'core/carrito.png' %}" alt="Carrito" class="cart-icon">
+                            <span id="cart-count" class="cart-count">{{ cart_count }}</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="group bar-right">
                     {% if user.is_authenticated %}
-                    <button id="profileToggle" class="profile-btn" aria-haspopup="true" aria-expanded="false">
-                        <i class="bi bi-person-circle"></i> {{ user.username }}
-                    </button>
-                    <ul id="profileDropdown" class="profile-dropdown" role="menu" aria-hidden="true">
-                        <li><a href="{% url 'perfil' %}" class="dropdown-item">Mi perfil</a></li>
-                        <li><a href="{% url 'historial_compras' %}" class="dropdown-item">Historial de compras</a></li>
-                        <li><a href="{% url 'logout' %}" class="dropdown-item">Cerrar sesión</a></li>
-                    </ul>
+                        <div class="profile-menu">
+                            <button id="profileToggle" class="profile-btn" aria-haspopup="true" aria-expanded="false">
+                                <img src="{% static 'core/avatar.png' %}" alt="Avatar" class="avatar">{{ user.username }}
+                            </button>
+                            <div id="profileDropdown" class="profile-dropdown" role="menu" aria-hidden="true">
+                                <a href="{% url 'perfil' %}" class="dropdown-item">Mi perfil</a>
+                                <a href="{% url 'historial_compras' %}" class="dropdown-item">Historial de compras</a>
+                                <a href="{% url 'logout' %}" class="dropdown-item">Cerrar sesión</a>
+                            </div>
+                        </div>
                     {% else %}
-                    <a id="profileBtn" class="logout-button" href="{% url 'perfil' %}">Perfil</a>
+                        <a id="profileBtn" class="logout-button" href="{% url 'perfil' %}">Perfil</a>
                     {% endif %}
                 </div>
             </div>
-        </header>
-        <main>
-            <div class="giant-frame">
-                <div class="wrap">
-                    <section class="categories">
-                        <h2>Categorías</h2>
-                        <div class="category-bar-wrap" aria-label="Barra de categorías">
-                            <div class="category-grid category-bar" role="navigation">
-                                <a href="{% url 'catalog' %}" class="category-card {% if not selected_Categoria %}active{% endif %}">
-                                    <div class="category-icon">🌟</div>
-                                    <span>Todas</span>
-                                </a>
-                                {% for categoria in categories %}
-                                <a href="?Categoria={{ categoria.nombre_categoria|urlencode }}" class="category-card {% if selected_Categoria == categoria.nombre_categoria %}active{% endif %}">
-                                    <div class="category-icon">
-                                        {% if categoria.nombre_categoria == 'Cajas' %}📦{% elif categoria.nombre_categoria == 'Toppers' %}🎂{% elif categoria.nombre_categoria == 'Sublimación' %}🖨️{% elif categoria.nombre_categoria == 'Impresión' %}📄{% elif categoria.nombre_categoria == 'Personalización' %}🎨{% elif categoria.nombre_categoria == 'Papelería' %}📝{% else %}🖥️{% endif %}
-                                    </div>
-                                    <span>{{ categoria.nombre_categoria }}</span>
-                                </a>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </section>
-                    <section class="category-section">
-                        <h2>{% if selected_Categoria %}Productos de {{ selected_Categoria }}{% else %}Todos los Productos{% endif %}</h2>
-                        <div id="grid" class="grid">
-                            {% for product in Productos %}
-                            <div class="card">
-                                {% if product.img_url %}
-                                <img src="{{ product.img_url }}" alt="{{ product.nombre_producto }}" class="view" loading="lazy" decoding="async" data-id="{{ product.id }}" data-title="{{ product.nombre_producto }}" data-img="{{ product.img_url }}" data-desc="{{ product.descripcion }}" data-price="{{ product.precio_venta }}" role="button" tabindex="0" onerror="this.onerror=null;this.src='{% static 'assets/img/logo.png' %}';">
-                                {% else %}
-                                <div class="no-image">Sin imagen</div>
-                                {% endif %}
-                                <h4 class="view" data-id="{{ product.id }}" role="button" tabindex="0">{{ product.nombre_producto }}</h4>
-                                <p>{{ product.descripcion }}</p>
-                                <div class="ul">
-                                    <strong class="price-usd" data-price="{{ product.precio_venta }}">$ {{ product.precio_venta }}</strong>
-                                    <br>
-                                    <strong class="total-bs">Bs. <span class="price-bs-value">0</span></strong>
-                                </div>
-                            </div>
+            <button id="barToggle" class="bar-toggle" aria-expanded="false" aria-label="Abrir menu">
+                <span class="hamburger"><span></span><span></span><span></span></span>
+            </button>
+            <div id="barNavMenu" class="nav-menu" role="menu" aria-hidden="true">
+                <a class="nav-item" href="{% url 'catalog' %}">Catálogo</a>
+                <div class="nav-item-group">
+                    <button class="nav-item nav-subtoggle" type="button" data-target="catalogClientsSubMenu" aria-expanded="false">Clientes <span class="submenu-arrow">›</span></button>
+                    <div id="catalogClientsSubMenu" class="nav-submenu" aria-hidden="true">
+                        <button class="nav-item nav-back" type="button" data-close-submenu="catalogClientsSubMenu">← Menu</button>
+                        <a class="nav-item" href="{% url 'todos_clientes' %}">Ver clientes</a>
+                    </div>
+                </div>
+                <div class="nav-item-group">
+                    <button class="nav-item nav-subtoggle" type="button" data-target="catalogProductsSubMenu" aria-expanded="false">Productos <span class="submenu-arrow">›</span></button>
+                    <div id="catalogProductsSubMenu" class="nav-submenu" aria-hidden="true">
+                        <button class="nav-item nav-back" type="button" data-close-submenu="catalogProductsSubMenu">← Menu</button>
+                        {% if 'admin' in user_groups %}
+                            <a class="nav-item" href="{% url 'registrar_producto' %}">Crear producto</a>
+                        {% else %}
+                            <a class="nav-item" href="{% url 'catalog' %}">Ver productos</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if 'admin' in user_groups %}
+                    <a class="nav-item" href="{% url 'inventario' %}">Inventario</a>
+                {% endif %}
+                {% if 'admin' in user_groups or 'cajero' in user_groups %}
+                    <a class="nav-item" href="{% url 'caja' %}">Caja</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="giant-frame">
+            <div class="wrap">
+                <!-- Header Section -->
+                <div class="inventory-header">
+                    <div class="inventory-header-icon">
+                        <i class="bi bi-box-seam-fill"></i>
+                    </div>
+                    <div class="inventory-header-text">
+                        <p>
+                            Explora nuestro catálogo de productos. Puedes filtrar por categoría y buscar productos específicos.
+                        </p>
+                    </div>
+                </div>
+                <!-- Categorías -->
+                <div class="inventory-filters" style="margin-bottom:18px; display:flex; justify-content:center;">
+                    <div class="inventory-filters-inner" style="display:flex;gap:12px;align-items:center; max-width:920px; width:100%; justify-content:center;">
+                        <input id="catalogSearch" class="search-input" type="search" placeholder="Buscar por nombre..." style="flex:1;" value="{{ search_query }}" />
+                        <select id="catalogCategory" class="form-control" style="width:220px;">
+                            <option value="all">Todas las categorías</option>
+                            {% for cat in categories %}
+                            <option value="{{ cat.nombre_categoria }}" {% if selected_Categoria == cat.nombre_categoria %}selected{% endif %}>{{ cat.nombre_categoria }}</option>
                             {% endfor %}
+                            <option value="otros">Otros</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Productos -->
+                <div class="table-responsive">
+                    <div id="grid" class="grid">
+                        {% for product in Productos %}
+                        <div class="card" data-category="{{ product.categoria.nombre_categoria|default:'' }}">
+                            {% if product.img_url %}
+                            <img src="{{ product.img_url }}" alt="{{ product.nombre_producto }}" class="view" loading="lazy" decoding="async" data-id="{{ product.id }}" data-title="{{ product.nombre_producto }}" data-img="{{ product.img_url }}" data-desc="{{ product.descripcion }}" data-price="{{ product.precio_venta }}" role="button" tabindex="0" onerror="this.onerror=null;this.src='{% static 'assets/img/logo.png' %}';">
+                            {% else %}
+                            <div class="no-image">Sin imagen</div>
+                            {% endif %}
+                            <h4 class="view" data-id="{{ product.id }}" role="button" tabindex="0">{{ product.nombre_producto }}</h4>
+                            <p>{{ product.descripcion }}</p>
+                            <div class="ul">
+                                <strong class="price-usd" data-price="{{ product.precio_venta }}">$ {{ product.precio_venta }}</strong>
+                            </div>
                         </div>
-                    </section>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
-        </main>
-        <script src="{% static 'assets/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+        </div>
+
+        <!-- Scripts (idénticos a inventario para consistencia de UX) -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
+        <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+        <script src="{% static 'vendor/php-email-form/validate.js' %}"></script>
+        <script src="{% static 'vendor/aos/aos.js' %}"></script>
+        <script src="{% static 'vendor/glightbox/js/glightbox.min.js' %}"></script>
+        <script src="{% static 'vendor/imagesloaded/imagesloaded.pkgd.min.js' %}"></script>
+        <script src="{% static 'vendor/isotope-layout/isotope.pkgd.min.js' %}"></script>
+        <script src="{% static 'vendor/swiper/swiper-bundle.min.js' %}"></script>
         <script src="{% static 'js/catalog.js' %}"></script>
+        <script src="{% static 'core/page-loader.js' %}"></script>
+        <script>
+            // Dropdown toggles (idéntico a inventario)
+            (function(){
+                function setupDropdowns(){
+                    // Product dropdown
+                    const pt = document.getElementById('productToggle');
+                    const pd = document.getElementById('productDropdown');
+                    if (pt && pd) {
+                        function closeP(){ pd.classList.remove('show'); pt.setAttribute('aria-expanded','false'); pd.setAttribute('aria-hidden','true'); }
+                        pt.addEventListener('click', function(e){ e.stopPropagation(); const opened = pd.classList.toggle('show'); pt.setAttribute('aria-expanded', opened ? 'true' : 'false'); pd.setAttribute('aria-hidden', opened ? 'false' : 'true'); });
+                        document.addEventListener('click', function(e){ if(!pt.contains(e.target) && !pd.contains(e.target)) closeP(); });
+                        document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeP(); });
+                    }
+                    // Clients dropdown
+                    const ct = document.getElementById('clientsToggle');
+                    const cd = document.getElementById('clientsDropdown');
+                    if (ct && cd) {
+                        function closeC(){ cd.classList.remove('show'); ct.setAttribute('aria-expanded','false'); cd.setAttribute('aria-hidden','true'); }
+                        ct.addEventListener('click', function(e){ e.stopPropagation(); const opened = cd.classList.toggle('show'); ct.setAttribute('aria-expanded', opened ? 'true' : 'false'); cd.setAttribute('aria-hidden', opened ? 'false' : 'true'); });
+                        document.addEventListener('click', function(e){ if(!ct.contains(e.target) && !cd.contains(e.target)) closeC(); });
+                        document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeC(); });
+                    }
+                }
+                if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setupDropdowns); else setupDropdowns();
+            })();
+            // Hamburger nav menu (idéntico a inventario)
+            (function(){
+                const navToggle = document.getElementById('barToggle');
+                const navMenu = document.getElementById('barNavMenu');
+                if(!navToggle || !navMenu) return;
+                const submenuToggles = navMenu.querySelectorAll('.nav-subtoggle');
+                function closeSubmenus(){
+                    navMenu.querySelectorAll('.nav-submenu.show').forEach(function(sm){
+                        sm.classList.remove('show');
+                        sm.setAttribute('aria-hidden','true');
+                    });
+                    submenuToggles.forEach(function(btn){ btn.setAttribute('aria-expanded','false'); });
+                }
+                function closeNav(){
+                    navMenu.classList.remove('show');
+                    closeSubmenus();
+                    navToggle.setAttribute('aria-expanded','false');
+                    navMenu.setAttribute('aria-hidden','true');
+                }
+                navToggle.addEventListener('click', function(e){
+                    e.stopPropagation();
+                    const opened = navMenu.classList.toggle('show');
+                    navToggle.setAttribute('aria-expanded', opened ? 'true' : 'false');
+                    navMenu.setAttribute('aria-hidden', opened ? 'false' : 'true');
+                    if(!opened) closeSubmenus();
+                });
+                submenuToggles.forEach(function(btn){
+                    btn.addEventListener('click', function(e){
+                        e.stopPropagation();
+                        const targetId = btn.getAttribute('data-target');
+                        const submenu = targetId ? document.getElementById(targetId) : null;
+                        if(!submenu) return;
+                        const opening = !submenu.classList.contains('show');
+                        closeSubmenus();
+                        if(opening){
+                            submenu.classList.add('show');
+                            submenu.setAttribute('aria-hidden','false');
+                            btn.setAttribute('aria-expanded','true');
+                        }
+                    });
+                });
+                navMenu.querySelectorAll('[data-close-submenu]').forEach(function(btn){
+                    btn.addEventListener('click', function(e){
+                        e.stopPropagation();
+                        closeSubmenus();
+                    });
+                });
+                document.addEventListener('click', function(e){
+                    if(!navToggle.contains(e.target) && !navMenu.contains(e.target)) closeNav();
+                });
+                document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeNav(); });
+            })();
+            // Filtro de productos por nombre/categoría (cliente)
+            (function(){
+                const search = document.getElementById('catalogSearch');
+                const catSel = document.getElementById('catalogCategory');
+                function filterCatalog(){
+                    const q = search ? search.value.trim().toLowerCase() : '';
+                    const cat = catSel ? catSel.value : 'all';
+                    const cards = document.querySelectorAll('.card[data-category]');
+                    cards.forEach(card => {
+                        const name = (card.querySelector('h4') || {}).textContent || '';
+                        const rowCat = card.dataset.category || '';
+                        const matchesSearch = !q || name.toLowerCase().includes(q);
+                        const matchesCat = cat === 'all' || rowCat === cat;
+                        card.style.display = (matchesSearch && matchesCat) ? '' : 'none';
+                    });
+                }
+                if (search) search.addEventListener('input', filterCatalog);
+                if (catSel) catSel.addEventListener('change', filterCatalog);
+            })();
+            // Clear search input when page loads (for navigation)
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.value = '';
+                searchInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        const query = e.target.value.trim();
+                        if (query) {
+                            window.location.href = `/catalogo/?search=${encodeURIComponent(query)}`;
+                        } else {
+                            window.location.href = '/catalogo/';
+                        }
+                    }
+                });
+            }
+        </script>
     </body>
     </html>
