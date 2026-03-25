@@ -825,11 +825,18 @@ def caja(request):
         .values('documento', 'nombre_cliente', 'apellido_cliente', 'direccion', 'telefono_cliente')
     )
 
+
+    try:
+        tasa= obtener_tasa_cambio()
+    except Exception:
+        tasa = 'N/A'
+
     return render(request, 'core/caja.html', {
         'productos': productos,
         'clientes': clientes,
         'cart_count': len(request.session.get('cart', [])),
-        'user_groups': _user_groups(request.user)
+        'user_groups': _user_groups(request.user);
+        'valor_dolar':str(tasa),
     })
 
 
