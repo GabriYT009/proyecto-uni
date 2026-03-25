@@ -59,25 +59,26 @@
         .search-result-title{ font-weight:600; color:#333; font-size:14px; margin-bottom:2px }
         .search-result-price{ color:#9932CC; font-weight:500; font-size:13px }
         .search-input{ flex:1; border:none; background:transparent; padding:8px 15px; font-size:16px; outline:none; }
-    <script>
-        // Product dropdown toggle (catalog page) - ensure elements exist before attaching
-        (function(){
-            function setupProductDropdown(){
-                const pt = document.getElementById('productToggle');
-                const pd = document.getElementById('productDropdown');
-                if(!pt || !pd) return;
-                function closeP(){ pd.classList.remove('show'); pt.setAttribute('aria-expanded','false'); pd.setAttribute('aria-hidden','true'); }
-                pt.addEventListener('click', function(e){ e.stopPropagation(); const opened = pd.classList.toggle('show'); pt.setAttribute('aria-expanded', opened ? 'true' : 'false'); pd.setAttribute('aria-hidden', opened ? 'false' : 'true'); });
-                document.addEventListener('click', function(e){ if(!pt.contains(e.target) && !pd.contains(e.target)) closeP(); });
-                document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeP(); });
-            }
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', setupProductDropdown);
-            } else {
-                setupProductDropdown();
-            }
-        })();
-    </script>
+</style>
+<script>
+    // Product dropdown toggle (catalog page) - ensure elements exist before attaching
+    (function(){
+        function setupProductDropdown(){
+            const pt = document.getElementById('productToggle');
+            const pd = document.getElementById('productDropdown');
+            if(!pt || !pd) return;
+            function closeP(){ pd.classList.remove('show'); pt.setAttribute('aria-expanded','false'); pd.setAttribute('aria-hidden','true'); }
+            pt.addEventListener('click', function(e){ e.stopPropagation(); const opened = pd.classList.toggle('show'); pt.setAttribute('aria-expanded', opened ? 'true' : 'false'); pd.setAttribute('aria-hidden', opened ? 'false' : 'true'); });
+            document.addEventListener('click', function(e){ if(!pt.contains(e.target) && !pd.contains(e.target)) closeP(); });
+            document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeP(); });
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupProductDropdown);
+        } else {
+            setupProductDropdown();
+        }
+    })();
+</script>
         .search-btn{
             background: transparent !important;
             border: none !important;
