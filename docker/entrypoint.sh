@@ -57,20 +57,44 @@ run_with_retries() {
 }
 
 # Esperar a que MySQL esté disponible antes de cualquier operación con la BD
+# Usa las mismas variables que settings.py para garantizar consistencia
 wait_for_mysql() {
     python -c "
-import os, sys
+import os, sys, urllib.parse
+
+# Intentar primero con URL (misma prioridad que settings.py)
+url = (
+    os.environ.get('MYSQL_PRIVATE_URL') or
+    os.environ.get('DATABASE_PRIVATE_URL') or
+    os.environ.get('DATABASE_URL') or
+    os.environ.get('MYSQL_URL') or
+    os.environ.get('MYSQL_PUBLIC_URL') or ''
+)
+
 try:
     import MySQLdb
-    MySQLdb.connect(
-        host=os.environ.get('MYSQLHOST', os.environ.get('DB_HOST', 'localhost')),
-        port=int(os.environ.get('MYSQLPORT', os.environ.get('DB_PORT', 3306))),
-        user=os.environ.get('MYSQLUSER', os.environ.get('DB_USER', 'root')),
-        passwd=os.environ.get('MYSQLPASSWORD', os.environ.get('DB_PASSWORD', '')),
-        db=os.environ.get('MYSQLDATABASE', os.environ.get('DB_NAME', '')),
-    )
+    if url and url.startswith(('mysql://', 'mysql2://')):
+        parsed = urllib.parse.urlparse(url.replace('mysql2://', 'mysql://'))
+        MySQLdb.connect(
+            host=parsed.hostname,
+            port=parsed.port or 3306,
+            user=parsed.username,
+            passwd=parsed.password or '',
+            db=(parsed.path or '').lstrip('/'),
+            connect_timeout=5,
+        )
+    else:
+        MySQLdb.connect(
+            host=os.environ.get('MYSQL_HOST', '127.0.0.1'),
+            port=int(os.environ.get('MYSQL_PORT', 3306)),
+            user=os.environ.get('MYSQL_USER', 'root'),
+            passwd=os.environ.get('MYSQL_PASSWORD', ''),
+            db=os.environ.get('MYSQL_DATABASE') or os.environ.get('MYSQL_NAME', ''),
+            connect_timeout=5,
+        )
     sys.exit(0)
-except Exception:
+except Exception as e:
+    print(e, file=sys.stderr)
     sys.exit(1)
 "
 }
