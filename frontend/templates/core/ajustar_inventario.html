@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Ajustar Inventario</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        body{ background: #edececfa !important; min-height: 100vh; }
+        .ajustar-shell{ max-width:1200px; margin:32px auto; }
+        .ajustar-header{ color:#9932CC; font-size:2rem; font-weight:700; margin-bottom:24px; }
+        .ajustar-buscar{ display:flex; gap:6px; align-items:center; margin-bottom:18px; }
+        .ajustar-buscar input{ flex:1; padding:8px 12px; border:1px solid #ccc; border-radius:6px; font-size:1rem; }
+        .ajustar-productos{ display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:16px; }
+        .ajustar-card{ background:#fff; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.06); padding:18px; text-align:center; position:relative; border:2px solid transparent; transition:border 0.2s; }
+        .ajustar-card.selected{ border:2px solid #9932CC; }
+        .ajustar-card .nombre{ font-weight:700; margin-bottom:8px; }
+        .ajustar-card .stock{ font-size:1.1rem; color:#9932CC; font-weight:600; margin-bottom:8px; }
+        .ajustar-card .ajustar-controles{ display:flex; justify-content:center; gap:8px; margin-top:10px; }
+        .ajustar-card .ajustar-btn{ background:#9932CC; color:#fff; border:none; border-radius:6px; padding:6px 14px; font-size:1.2rem; cursor:pointer; transition:background 0.2s; }
+        .ajustar-card .ajustar-btn:active{ background:#7a2ea5; }
+        .ajustar-card .ajustar-cantidad{ width:48px; text-align:center; border:1px solid #ccc; border-radius:6px; font-size:1.1rem; }
+    </style>
+</head>
+<body>
+    <div class="ajustar-shell">
+        <div class="ajustar-header">Ajustar Inventario</div>
+        <div class="ajustar-buscar">
+            <input type="text" id="ajustar-buscar-input" placeholder="Buscar producto...">
+        </div>
+        <div class="ajustar-productos" id="ajustar-productos">
+            {% for p in productos %}
+            <div class="ajustar-card" data-id="{{ p.pk }}" data-nombre="{{ p.nombre_producto }}" data-stock="{{ p.cantidad_disponible }}">
+                <div class="nombre">{{ p.nombre_producto }}</div>
+                <div class="stock">Stock: <span class="stock-num">{{ p.cantidad_disponible }}</span></div>
+                <div class="ajustar-controles" style="display:none;">
+                    <button class="ajustar-btn restar">-</button>
+                    <input type="number" class="ajustar-cantidad" value="1" min="1">
+                    <button class="ajustar-btn sumar">+</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <script>
+    // Filtrado de productos
+    const buscarInput = document.getElementById('ajustar-buscar-input');
+    const productos = Array.from(document.querySelectorAll('.ajustar-card'));
+    let seleccionado = null;
+    buscarInput.addEventListener('input', function() {
+        const term = this.value.toLowerCase();
+        productos.forEach(card => {
+            const nombre = card.dataset.nombre.toLowerCase();
+            card.style.display = nombre.includes(term) ? '' : 'none';
+            if(nombre.includes(term)) {
+                if(!seleccionado || seleccionado !== card) {
+                    seleccionarCard(card);
+                }
+            }
+        });
+    });
+    function seleccionarCard(card) {
+        productos.forEach(c => {
+            c.classList.remove('selected');
+            c.querySelector('.ajustar-controles').style.display = 'none';
+        });
+        card.classList.add('selected');
+        card.querySelector('.ajustar-controles').style.display = 'flex';
+        seleccionado = card;
+    }
+    productos.forEach(card => {
+        card.addEventListener('click', function(e) {
+            if(!card.classList.contains('selected')) seleccionarCard(card);
+        });
+        // Sumar/restar stock
+        const btnSumar = card.querySelector('.sumar');
+        const btnRestar = card.querySelector('.restar');
+        const inputCantidad = card.querySelector('.ajustar-cantidad');
+        btnSumar.addEventListener('click', function(e) {
+            e.stopPropagation();
+            let cantidad = parseInt(inputCantidad.value) || 1;
+            let stock = parseInt(card.dataset.stock) || 0;
+            stock += cantidad;
+            card.dataset.stock = stock;
+            card.querySelector('.stock-num').textContent = stock;
+        });
+        btnRestar.addEventListener('click', function(e) {
+            e.stopPropagation();
+            let cantidad = parseInt(inputCantidad.value) || 1;
+            let stock = parseInt(card.dataset.stock) || 0;
+            stock = Math.max(0, stock - cantidad);
+            card.dataset.stock = stock;
+            card.querySelector('.stock-num').textContent = stock;
+        });
+    });
+    </script>
+</body>
+</html>
