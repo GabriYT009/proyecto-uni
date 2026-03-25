@@ -148,10 +148,7 @@
                         <div class="card" data-id="{{ p.pk }}" data-code="{{ p.pk }}" data-name="{{ p.nombre_producto }}" data-price="{{ p.precio_venta }}" data-stock="{{ p.cantidad_disponible }}">
                             {% if p.img_url %}<img src="{{ p.img_url }}" class="card-img" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='{% static 'assets/img/logo.png' %}';" />{% else %}<img src="{% static 'assets/img/logo.png' %}" class="card-img" loading="lazy" decoding="async" />{% endif %}
                             <div class="title">{{ p.nombre_producto }}</div>
-                            <div class="price price-usd">Precio: $ {{ p.precio_venta }}</div>
-
-
-                            <div class="price price-bs">Precio en Bs: <span class="price-bs-value">0</span></div>
+                            <div class="price">${{ p.precio_venta }}</div>
                             <div class="stock">Stock: {{ p.cantidad_disponible }}</div>
                         </div>
                         {% endfor %}
