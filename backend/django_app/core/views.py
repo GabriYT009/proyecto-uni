@@ -1,6 +1,7 @@
 import logging
 from collections import Counter
 
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import user_passes_test, login_required
@@ -11,12 +12,6 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.db.models import Q, F, Case, When, IntegerField
 from django.core.cache import cache
-def admin_only(view_func):
-    decorated_view_func = user_passes_test(is_admin, login_url='login')(login_required(view_func))
-    return decorated_view_func
-
-@login_required
-@admin_only
 from django.conf import settings
 
 def is_admin(user):
