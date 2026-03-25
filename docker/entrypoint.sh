@@ -104,5 +104,12 @@ else
     echo "[entrypoint] Skipping auth bootstrap (set RUN_BOOTSTRAP_AUTH=1 to enable)"
 fi
 
-echo "[entrypoint] Starting Django development server on 0.0.0.0:${PORT}"
-exec python manage.py runserver 0.0.0.0:${PORT}
+echo "[entrypoint] DEBUG: Antes de arrancar Django en 0.0.0.0:${PORT}"
+ls -l
+env
+echo "[entrypoint] Ejecutando: python manage.py runserver 0.0.0.0:${PORT}"
+python manage.py runserver 0.0.0.0:${PORT}
+status=$?
+echo "[entrypoint] Django terminó con código $status"
+sleep 30
+exit $status
