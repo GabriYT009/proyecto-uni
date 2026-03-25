@@ -182,12 +182,18 @@ def home(request):
     except Exception:
         logger.exception("Home view fallback: unable to read user groups")
 
+    try:
+        tasa= obtener_tasa_cambio()
+    except Exception:
+        tasa = 'N/A'
+
     return render(request, 'core/home.html', {
         'categories': categories, 
         'Productos': Productos, 
         'Productos_json': Productos_json,
         'cart_count': cart_count,
         'user_groups': user_groups,
+        'valor_dolar':str(tasa),
     })
 
 def login_post(request):

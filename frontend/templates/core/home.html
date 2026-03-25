@@ -616,9 +616,11 @@
 
                             <h4 class="view" data-id="{{ product.pk }}" role="button" tabindex="0" style="cursor:pointer;">{{ product.nombre_producto }}</h4>
                             <p>{{ product.descripcion }}</p>
-                            <div class="row">
-                                <strong>$ {{ product.precio_venta }}</strong>
-                            </div>
+                            <div class="ul">
+                        <strong class="price-usd" data-price="{{ product.precio_venta }}">$ {{ product.precio_venta }}</strong>
+                        <br>
+                        <strong class="total-bs">Bs. <span class="price-bs-value">0</span></strong>
+                    </div>
                         </div>
                     {% endif %}
                 {% endfor %}
@@ -1061,6 +1063,7 @@
             }
         });
     </script>
+
     <script>
         // Ensure addToCart is available globally for modal buttons
         (function(){
@@ -1218,6 +1221,7 @@
             document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
         })();
     </script>
+
     <script>
         // Product dropdown toggle (home page)
         (function(){
@@ -1230,5 +1234,38 @@
             document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeP(); });
         })();
     </script>
-</body>
+
+    
+            <script>
+                (function(){
+                    // 1. Capturamos la tasa que envía Django
+                    var tasaBackend = parseFloat("{{ valor_dolar|default:0 }}") || 0;
+
+                    function calcularPreciosCatalogo() {
+                        // 2. Buscamos todas las tarjetas de producto en la pantalla
+                        var cards = document.querySelectorAll('.grid .card');
+
+                        cards.forEach(function(card) {
+                            // 3. Buscamos el elemento del precio en dólares
+                            var usdElement = card.querySelector('.price-usd');
+                            var bsElement = card.querySelector('.price-bs-value');
+
+                            if (usdElement && bsElement) {
+                                // 4. Tomamos el precio limpio gracias al atributo data-price
+                                var precioUsd = parseFloat(usdElement.getAttribute('data-price')) || 0;
+                                
+                                // 5. Calculamos en Bolívares
+                                var precioBs = precioUsd * tasaBackend;
+
+                                // 6. Inyectamos el valor con formato
+                                bsElement.textContent = precioBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                            }
+                        });
+                    }
+
+                    // Ejecutamos la función apenas cargue el script
+                    calcularPreciosCatalogo();
+                })();
+            </script>
+    </body>
 </html>
