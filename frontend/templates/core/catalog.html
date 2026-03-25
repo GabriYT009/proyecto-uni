@@ -373,13 +373,11 @@
                     <h4 class="view" data-id="{{ product.id }}" role="button" tabindex="0" style="cursor:pointer;">{{ product.nombre_producto }}</h4>
                     <p>{{ product.descripcion }}</p>
                     <div class="row">
-                            <strong>$ {{ product.precio_venta }}</strong>
-                            <div id="total_bs">Precio en Bs: <span class="price-bs-value">0</span></div>
-                            <div>
-                                <!-- Comprar moved to modal; button removed from product card -->
+                        <strong class="price-usd" data-price="{{ product.precio_venta }}">$ {{ product.precio_venta }}</strong>
+                        <div class="total-bs">Precio en Bs: <span class="price-bs-value">0</span></div>
+                        <div>
                             </div>
-                        </div>
-                </div>
+                    </div>
                 {% endfor %}
             </div>
         </section>
@@ -899,61 +897,37 @@
         })();
     </script>
 
-                    <script>
+            <script>
+                (function(){
+                    // 1. Capturamos la tasa que envía Django
+                    var tasaBackend = parseFloat("{{ valor_dolar|default:0 }}") || 0;
 
-                        (function(){
-                            // 1. Capturamos el valor del backend. 
-                            // Usamos el filtro |default:0 para evitar errores si la variable llega vacía
-                            var tasaBackend = parseFloat("{{ valor_dolar|default:0 }}") || 0;
+                    function calcularPreciosCatalogo() {
+                        // 2. Buscamos todas las tarjetas de producto en la pantalla
+                        var cards = document.querySelectorAll('.grid .card');
 
-                            function recalcularTotal() {
-                                // 2. Usamos la tasa que viene del backend en lugar del input
-                                var tasa = tasaBackend; 
+                        cards.forEach(function(card) {
+                            // 3. Buscamos el elemento del precio en dólares
+                            var usdElement = card.querySelector('.price-usd');
+                            var bsElement = card.querySelector('.price-bs-value');
+
+                            if (usdElement && bsElement) {
+                                // 4. Tomamos el precio limpio gracias al atributo data-price
+                                var precioUsd = parseFloat(usdElement.getAttribute('data-price')) || 0;
                                 
-                                var inputs = document.querySelectorAll('input[name^="cantidad_"]');
-                                var granTotalUsd = 0;
-                                var granTotalBs = 0;
+                                // 5. Calculamos en Bolívares
+                                var precioBs = precioUsd * tasaBackend;
 
-                                inputs.forEach(function(inp){
-                                    var cantidad = parseInt(inp.value,10) || 0;
-                                    var pid = inp.id.replace('cantidad_','');
-                                    var row = document.getElementById('cantidad_' + pid).closest('.product-row');
-                                    
-                                    if(row) {
-                                        var priceText = '0';
-                                        try {
-                                            // Nota: Asegúrate que la clase sea .price-usd o .price según tu HTML
-                                            priceText = row.querySelector('.price-usd').textContent.replace('Precio:','').replace('$','').trim();
-                                        } catch(err) {
-                                            try { priceText = row.querySelector('.price').textContent.replace('Precio:','').replace('$','').trim(); } catch(e){}
-                                        }
-                                        
-                                        var precioUsd = parseFloat(priceText) || 0;
-                                        var subtotalUsd = precioUsd * cantidad;
-                                        var subtotalBs = subtotalUsd * tasa;
+                                // 6. Inyectamos el valor con formato
+                                bsElement.textContent = precioBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                            }
+                        });
+                    }
 
-                                        granTotalUsd += subtotalUsd;
-                                        granTotalBs += subtotalBs;
-
-                                        var bsNode = row.querySelector('.price-bs-value');
-                                        if (bsNode) {
-                                            bsNode.textContent = subtotalBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                                        }
-                                    }
-                                });
-
-                                var divTotalUsd = document.getElementById('total');
-                                if (divTotalUsd) {
-                                    divTotalUsd.textContent = 'Total en $: ' + granTotalUsd.toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
-                                }
-
-                                var divTotalBs = document.getElementById('total_bs');
-                                if (divTotalBs) {
-                                    divTotalBs.textContent = 'Total en Bs: ' + granTotalBs.toLocaleString('es-VE', { minimumFractionDigits:2, maximumFractionDigits:2 });
-                                }
-                            };})
-
-                            </script>
+                    // Ejecutamos la función apenas cargue el script
+                    calcularPreciosCatalogo();
+                })();
+            </script>
                             
 
     <!-- Vendor JS Files -->
