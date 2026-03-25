@@ -835,7 +835,7 @@ def caja(request):
         'productos': productos,
         'clientes': clientes,
         'cart_count': len(request.session.get('cart', [])),
-        'user_groups': _user_groups(request.user);
+        'user_groups': _user_groups(request.user),
         'valor_dolar':str(tasa),
     })
 
