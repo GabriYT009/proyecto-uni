@@ -179,7 +179,11 @@ def home(request):
                 'desc': p.descripcion,
                 'Categoria': p.categoria.nombre_categoria if p.categoria else ''
             })
-        Productos_json = json.dumps(lista_productos_json)
+        try:
+            Productos_json = json.dumps(lista_productos_json)
+        except Exception:
+            logger.exception("Failed to serialize Productos_json")
+            Productos_json = '[]'
     except Exception:
         logger.exception("Home view fallback: database unavailable or timed out")
         categories = []
