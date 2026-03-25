@@ -148,7 +148,8 @@
                         <div class="card" data-id="{{ p.pk }}" data-code="{{ p.pk }}" data-name="{{ p.nombre_producto }}" data-price="{{ p.precio_venta }}" data-stock="{{ p.cantidad_disponible }}">
                             {% if p.img_url %}<img src="{{ p.img_url }}" class="card-img" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='{% static 'assets/img/logo.png' %}';" />{% else %}<img src="{% static 'assets/img/logo.png' %}" class="card-img" loading="lazy" decoding="async" />{% endif %}
                             <div class="title">{{ p.nombre_producto }}</div>
-                            <div class="price">${{ p.precio_venta }}</div>
+                            <div class="price price-usd">Precio: $ {{ p.precio_venta }}</div>
+                            <div class="price price-bs">Precio en Bs: <span class="price-bs-value">0</span></div>
                             <div class="stock">Stock: {{ p.cantidad_disponible }}</div>
                         </div>
                         {% endfor %}
@@ -403,5 +404,81 @@
         })();
     </script>
     <script src="{% static 'core/page-loader.js' %}"></script>
+                    <script>
+
+                        (function(){
+                            // 1. Capturamos el valor del backend. 
+                            // Usamos el filtro |default:0 para evitar errores si la variable llega vacía
+                            var tasaBackend = parseFloat("{{ valor_dolar|default:0 }}") || 0;
+
+                            function recalcularTotal() {
+                                // 2. Usamos la tasa que viene del backend en lugar del input
+                                var tasa = tasaBackend; 
+                                
+                                var inputs = document.querySelectorAll('input[name^="cantidad_"]');
+                                var granTotalUsd = 0;
+                                var granTotalBs = 0;
+
+                                inputs.forEach(function(inp){
+                                    var cantidad = parseInt(inp.value,10) || 0;
+                                    var pid = inp.id.replace('cantidad_','');
+                                    var row = document.getElementById('cantidad_' + pid).closest('.product-row');
+                                    
+                                    if(row) {
+                                        var priceText = '0';
+                                        try {
+                                            // Nota: Asegúrate que la clase sea .price-usd o .price según tu HTML
+                                            priceText = row.querySelector('.price-usd').textContent.replace('Precio:','').replace('$','').trim();
+                                        } catch(err) {
+                                            try { priceText = row.querySelector('.price').textContent.replace('Precio:','').replace('$','').trim(); } catch(e){}
+                                        }
+                                        
+                                        var precioUsd = parseFloat(priceText) || 0;
+                                        var subtotalUsd = precioUsd * cantidad;
+                                        var subtotalBs = subtotalUsd * tasa;
+
+                                        granTotalUsd += subtotalUsd;
+                                        granTotalBs += subtotalBs;
+
+                                        var bsNode = row.querySelector('.price-bs-value');
+                                        if (bsNode) {
+                                            bsNode.textContent = subtotalBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                        }
+                                    }
+                                });
+
+                                var divTotalUsd = document.getElementById('total');
+                                if (divTotalUsd) {
+                                    divTotalUsd.textContent = 'Total en $: ' + granTotalUsd.toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
+                                }
+
+                                var divTotalBs = document.getElementById('total_bs');
+                                if (divTotalBs) {
+                                    divTotalBs.textContent = 'Total en Bs: ' + granTotalBs.toLocaleString('es-VE', { minimumFractionDigits:2, maximumFractionDigits:2 });
+                                }
+                            }
+
+                        
+                        // Escuchar los clics en los botones + y -
+                                document.querySelectorAll('.btn-qty').forEach(function(b){
+                                    b.addEventListener('click', function(){
+                                        var id = this.dataset.id;
+                                        var action = this.dataset.action;
+                                        var inp = document.getElementById('cantidad_' + id);
+                                        if (!inp) return;
+                                        var v = parseInt(inp.value,10) || 0;
+                                        var max = parseInt(inp.max,10) || 0;
+                                        if (action === 'inc' && (max === 0 || v < max)) inp.value = v + 1;
+                                        if (action === 'dec' && v > 1) inp.value = v - 1;
+                                        
+                                        // Recalcular inmediatamente después del clic
+                                        recalcularTotal();
+                                    });
+                                });
+
+                            
+                        recalcularTotal();})();
+                    </script>
+
 </body>
 </html>
