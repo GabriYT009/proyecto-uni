@@ -131,6 +131,11 @@
                     <div class="totals" style="margin-top:12px; text-align:right; font-weight:700;">
                         <div style="font-size:18px; margin-top:6px">Total: $<span id="total">0.00</span></div>
                     </div>
+                    <div class="totals" style="margin-top:12px; text-align:right; font-weight:700;">
+                        <div style="font-size:18px; margin-top:6px">Total: $<span id="total">0.00</span></div>
+                        <div style="font-size:16px; margin-top:4px; color:#555">Total Bs: <span id="total-bs">0.00</span></div>
+                    </div>
+
 
                     <div class="actions" style="margin-top:10px; text-align:right;">
                         <button class="btn" id="clear-invoice">Limpiar</button>
@@ -179,8 +184,11 @@
                             container.style.display = 'none';
                         }, 10);
                     }
-        // Quick POS behavior: click inventory item to add to invoice
+// Quick POS behavior: click inventory item to add to invoice
         (function(){
+            // 1. Traemos la tasa del backend
+            var tasaBackend = parseFloat("{{ valor_dolar|default:0 }}") || 0;
+
             function format(n){ return parseFloat(n).toFixed(2); }
             var items = {};
 
@@ -199,9 +207,35 @@
                 return cookieValue;
             }
 
+            // 2. Función para calcular los Bs en las tarjetas del inventario (derecha)
+            function calcularPreciosInventario() {
+                var cards = document.querySelectorAll('#quick-products .card');
+                cards.forEach(function(card) {
+                    var bsElement = card.querySelector('.price-bs-value');
+                    if (bsElement) {
+                        var precioUsd = parseFloat(card.dataset.price) || 0;
+                        var precioBs = precioUsd * tasaBackend;
+                        bsElement.textContent = precioBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    }
+                });
+            }
+            // Ejecutar al cargar
+            calcularPreciosInventario();
+
+            // 3. calcula el total general en Bs de la factura (izquierda)
             function recalc(){
-                var total = 0; for(var k in items){ total += items[k].price * items[k].qty; }
+                var total = 0; 
+                for(var k in items){ total += items[k].price * items[k].qty; }
+                
+                // Actualizar total en USD
                 document.getElementById('total').textContent = format(total);
+                
+                // Actualizar total en Bs
+                var totalBs = total * tasaBackend;
+                var bsTotalElement = document.getElementById('total-bs');
+                if(bsTotalElement) {
+                    bsTotalElement.textContent = totalBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                }
             }
 
             function renderInvoice(){
