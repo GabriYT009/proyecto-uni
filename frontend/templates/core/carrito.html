@@ -256,6 +256,15 @@
 
                 <nav class="main-nav">
                     <a href="{% url 'catalog' %}" class="nav-link">Catálogo</a>
+                    <div class="dropdown inventario-menu" style="position:relative;">
+                        <button id="inventarioToggle" class="nav-link inventario-toggle" aria-haspopup="true" aria-expanded="false">Inventario ▾</button>
+                        <div id="inventarioDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
+                            <a href="{% url 'inventario' %}" class="dropdown-item">Ver inventario</a>
+                            {% if 'admin' in user_groups %}
+                                <a href="{% url 'registrar_producto' %}" class="dropdown-item">Crear producto</a>
+                            {% endif %}
+                        </div>
+                    </div>
                     <div class="clients-menu" style="position:relative;">
                         <button id="clientsToggle" class="nav-link clients-toggle" aria-haspopup="true" aria-expanded="false">Clientes ▾</button>
                         <div id="clientsDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
@@ -273,13 +282,21 @@
                             {% endif %}
                         </div>
                     </div>
-                    {%  if 'admin' in user_groups %}
-                        <!-- Crear Producto removed from top nav -->
-                        <a href="{% url 'inventario' %}" class="nav-link">Inventario</a>
+                    {%  if 'admin' in user_groups or 'cajero' in user_groups %}
+                        <a href="{% url 'caja' %}" class="nav-link">Caja</a>
                     {% endif %}
-                    {% if 'admin' in user_groups or 'cajero' in user_groups %}
-                        <a href="#" class="nav-link">Caja</a>
-                    {% endif %}
+                    <script>
+                        // Inventario dropdown toggle
+                        (function(){
+                            const toggle = document.getElementById('inventarioToggle');
+                            const dropdown = document.getElementById('inventarioDropdown');
+                            if(!toggle || !dropdown) return;
+                            function close(){ dropdown.classList.remove('show'); toggle.setAttribute('aria-expanded','false'); dropdown.setAttribute('aria-hidden','true'); }
+                            toggle.addEventListener('click', function(e){ e.stopPropagation(); const opened = dropdown.classList.toggle('show'); toggle.setAttribute('aria-expanded', opened ? 'true' : 'false'); dropdown.setAttribute('aria-hidden', opened ? 'false' : 'true'); });
+                            document.addEventListener('click', function(e){ if(!toggle.contains(e.target) && !dropdown.contains(e.target)) close(); });
+                            document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
+                        })();
+                    </script>
                 </nav>
 
                 <div class="search-container">

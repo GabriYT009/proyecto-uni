@@ -44,4 +44,6 @@ urlpatterns = [
     path('todos_clientes/', views.todos_clientes, name='todos_clientes'),
     path('agregar_marca/', views.agregar_marca, name='agregar_marca'),
     
+    # Nueva ruta para ajuste masivo de inventario
+    path('ajustar_inventario/', views.ajustar_inventario_masivo, name='ajustar_inventario_masivo'),
 ]

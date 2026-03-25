@@ -1,3 +1,8 @@
+@login_required
+@admin_only
+def ajustar_inventario_masivo(request):
+    productos = Producto.objects.all().order_by('nombre_producto')
+    return render(request, 'core/ajustar_inventario.html', {'productos': productos})
 import logging
 from collections import Counter
 
