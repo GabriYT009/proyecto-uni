@@ -1,4 +1,17 @@
 {% load static %}
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Inicio</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <!-- Catalog vendor and main styles to match modal appearance -->
+    <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <script>
+        // Evitar diálogos alert bloqueantes heredados de JS antiguo
+        window.alert = function(msg){ try{ console.log('alert suppressed:', msg); }catch(e){} };
+    </script>
     <script>
     // Modal de detalle de producto en home (igual que catalog.js)
     (function(){
@@ -47,18 +60,7 @@
             }
         }, true);
     })();
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-        <script>
-            // Evitar diálogos alert bloqueantes heredados de JS antiguo
-            window.alert = function(msg){ try{ console.log('alert suppressed:', msg); }catch(e){} };
-        </script>
-    <title>Inicio</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <!-- Catalog vendor and main styles to match modal appearance -->
-    <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
-    <link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
-    <meta name="csrf-token" content="{{ csrf_token }}">
+    </script>
     <style>
         .hero:before {
             content: "";
@@ -483,10 +485,27 @@
                             {% endif %}
                         </div>
                     </div>
-                    {%  if 'admin' in user_groups %}
-                    <!-- Crear Producto removed from top nav -->
-                    <a href="{% url 'inventario' %}" class="nav-link">Inventario</a>
+                    {% if 'admin' in user_groups %}
+                    <div class="inventario-menu" style="position:relative;">
+                        <button id="inventarioToggle" class="nav-link inventario-toggle" aria-haspopup="true" aria-expanded="false">Inventario ▾</button>
+                        <div id="inventarioDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
+                            <a href="{% url 'inventario' %}" class="dropdown-item">Ver inventario</a>
+                            <a href="{% url 'ajustar_inventario' %}" class="dropdown-item">Ajustar inventario</a>
+                        </div>
+                    </div>
                     {% endif %}
+                        <script>
+                        // Inventario dropdown toggle (home page)
+                        (function(){
+                            const toggle = document.getElementById('inventarioToggle');
+                            const dropdown = document.getElementById('inventarioDropdown');
+                            if(!toggle || !dropdown) return;
+                            function close(){ dropdown.classList.remove('show'); toggle.setAttribute('aria-expanded','false'); dropdown.setAttribute('aria-hidden','true'); }
+                            toggle.addEventListener('click', function(e){ e.stopPropagation(); const opened = dropdown.classList.toggle('show'); toggle.setAttribute('aria-expanded', opened ? 'true' : 'false'); dropdown.setAttribute('aria-hidden', opened ? 'false' : 'true'); });
+                            document.addEventListener('click', function(e){ if(!toggle.contains(e.target) && !dropdown.contains(e.target)) close(); });
+                            document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
+                        })();
+                        </script>
                     {% if 'admin' in user_groups or 'cajero' in user_groups %}
                         <a href="{% url 'caja' %}" class="nav-link">Caja</a>
                     {% endif %}
