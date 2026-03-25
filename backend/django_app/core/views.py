@@ -175,17 +175,8 @@ def home(request):
                 'price': p.precio_venta,
                 'img': img_url,
                 'desc': p.descripcion,
-                'Categoria': p.categoria.nombre_categoria if p.categoria else '',
-
-
-        logger.exception("Home view fallback: database unavailable or timed out")
-                if not hasattr(user, 'is_authenticated') or not user.is_authenticated:
-                    return False
-                return user.groups.filter(name='admin').exists()
-
-
-                decorated_view_func = user_passes_test(is_admin, login_url='login')(login_required(view_func))
-                return decorated_view_func
+                'Categoria': p.categoria.nombre_categoria if p.categoria else ''
+            })
     try:
         cart_count = len(request.session.get('cart', []))
     except Exception:
