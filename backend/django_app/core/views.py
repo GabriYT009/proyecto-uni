@@ -176,12 +176,16 @@ def home(request):
                 'img': img_url,
                 'desc': p.descripcion,
                 'Categoria': p.categoria.nombre_categoria if p.categoria else '',
-            })
 
-        Productos_json = json.dumps(lista_productos_json, ensure_ascii=False)
-    except Exception:
+
         logger.exception("Home view fallback: database unavailable or timed out")
+                if not hasattr(user, 'is_authenticated') or not user.is_authenticated:
+                    return False
+                return user.groups.filter(name='admin').exists()
 
+
+                decorated_view_func = user_passes_test(is_admin, login_url='login')(login_required(view_func))
+                return decorated_view_func
     try:
         cart_count = len(request.session.get('cart', []))
     except Exception:
