@@ -56,6 +56,28 @@ run_with_retries() {
     done
 }
 
+# Esperar a que MySQL esté disponible antes de cualquier operación con la BD
+wait_for_mysql() {
+    python -c "
+import os, sys
+try:
+    import MySQLdb
+    MySQLdb.connect(
+        host=os.environ.get('MYSQLHOST', os.environ.get('DB_HOST', 'localhost')),
+        port=int(os.environ.get('MYSQLPORT', os.environ.get('DB_PORT', 3306))),
+        user=os.environ.get('MYSQLUSER', os.environ.get('DB_USER', 'root')),
+        passwd=os.environ.get('MYSQLPASSWORD', os.environ.get('DB_PASSWORD', '')),
+        db=os.environ.get('MYSQLDATABASE', os.environ.get('DB_NAME', '')),
+    )
+    sys.exit(0)
+except Exception:
+    sys.exit(1)
+"
+}
+echo "[entrypoint] Esperando conexión a MySQL..."
+run_with_retries "mysql-wait" wait_for_mysql
+echo "[entrypoint] MySQL disponible"
+
 if [ "$RUN_MIGRATIONS" = "1" ] || [ "$RUN_MIGRATIONS" = "true" ] || [ "$RUN_MIGRATIONS" = "yes" ]; then
     echo "[entrypoint] Running migrations"
     run_with_retries "migrations" python manage.py migrate --noinput
@@ -104,12 +126,9 @@ else
     echo "[entrypoint] Skipping auth bootstrap (set RUN_BOOTSTRAP_AUTH=1 to enable)"
 fi
 
-echo "[entrypoint] DEBUG: Antes de arrancar Django en 0.0.0.0:${PORT}"
-ls -l
-env
-echo "[entrypoint] Ejecutando: python manage.py runserver 0.0.0.0:${PORT}"
-python manage.py runserver 0.0.0.0:${PORT}
-status=$?
-echo "[entrypoint] Django terminó con código $status"
-sleep 30
-exit $status
+echo "[entrypoint] Iniciando gunicorn en 0.0.0.0:${PORT}"
+exec gunicorn django_app.wsgi:application \
+    --bind "0.0.0.0:${PORT}" \
+    --workers "${GUNICORN_WORKERS:-2}" \
+    --timeout "${GUNICORN_TIMEOUT:-120}" \
+    --log-level info
