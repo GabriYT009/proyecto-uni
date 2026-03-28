@@ -59,8 +59,6 @@
         .search-result-title{ font-weight:600; color:#333; font-size:14px; margin-bottom:2px }
         .search-result-price{ color:#9932CC; font-weight:500; font-size:13px }
         .search-input{ flex:1; border:none; background:transparent; padding:8px 15px; font-size:16px; outline:none; }
-    </style>
-
     <script>
         // Product dropdown toggle (catalog page) - ensure elements exist before attaching
         (function(){
@@ -68,8 +66,8 @@
                 const pt = document.getElementById('productToggle');
                 const pd = document.getElementById('productDropdown');
                 if(!pt || !pd) return;
-                function closeP(){ pd.classList.remove('show'); pt.setAttribute('aria-expanded','false'); pt.setAttribute('aria-hidden','true'); }
-                pt.addEventListener('click', function(e){ e.stopPropagation(); const opened = pd.classList.toggle('show'); pt.setAttribute('aria-expanded', opened ? 'true' : 'false'); pt.setAttribute('aria-hidden', opened ? 'false' : 'true'); });
+                function closeP(){ pd.classList.remove('show'); pt.setAttribute('aria-expanded','false'); pd.setAttribute('aria-hidden','true'); }
+                pt.addEventListener('click', function(e){ e.stopPropagation(); const opened = pd.classList.toggle('show'); pt.setAttribute('aria-expanded', opened ? 'true' : 'false'); pd.setAttribute('aria-hidden', opened ? 'false' : 'true'); });
                 document.addEventListener('click', function(e){ if(!pt.contains(e.target) && !pd.contains(e.target)) closeP(); });
                 document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeP(); });
             }
@@ -255,26 +253,9 @@
                             {% endif %}
                         </div>
                     </div>
-                    {% if 'admin' in user_groups %}
-                    <div class="inventario-menu" style="position:relative;">
-                        <button id="inventarioToggle" class="nav-link inventario-toggle" aria-haspopup="true" aria-expanded="false">Inventario ▾</button>
-                        <div id="inventarioDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
-                            <a href="{% url 'inventario' %}" class="dropdown-item">Ver inventario</a>
-                            <a href="{% url 'ajustar_inventario_masivo' %}" class="dropdown-item">Ajustar inventario</a>
-                        </div>
-                    </div>
-                    <script>
-                    // Inventario dropdown toggle (catalog page)
-                    (function(){
-                        const toggle = document.getElementById('inventarioToggle');
-                        const dropdown = document.getElementById('inventarioDropdown');
-                        if(!toggle || !dropdown) return;
-                        function close(){ dropdown.classList.remove('show'); toggle.setAttribute('aria-expanded','false'); dropdown.setAttribute('aria-hidden','true'); }
-                        toggle.addEventListener('click', function(e){ e.stopPropagation(); const opened = dropdown.classList.toggle('show'); toggle.setAttribute('aria-expanded', opened ? 'true' : 'false'); dropdown.setAttribute('aria-hidden', opened ? 'false' : 'true'); });
-                        document.addEventListener('click', function(e){ if(!toggle.contains(e.target) && !dropdown.contains(e.target)) close(); });
-                        document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
-                    })();
-                    </script>
+                    {%  if 'admin' in user_groups %}
+                        <!-- Crear Producto removed from top nav -->
+                        <a href="{% url 'inventario' %}" class="nav-link">Inventario</a>
                     {% endif %}
                     {% if 'admin' in user_groups or 'cajero' in user_groups %}
                         <a href="{% url 'caja' %}" class="nav-link">Caja</a>
@@ -381,7 +362,7 @@
             <div id="grid" class="grid">
                 {% for product in Productos %}
                 <div class="card">
-                    <img src="{{ product.img_url }}" alt="{{ product.nombre_producto }}" class="view" loading="lazy" decoding="async" data-id="{{ product.id }}" data-title="{{ product.nombre_producto }}" data-img="{{ product.img_url }}" data-desc="{{ product.descripcion }}" data-price="$ {{ product.precio_venta }}" role="button" tabindex="0" style="cursor:pointer;" onerror="this.onerror=null;this.src='{% static 'assets/img/logo.png' %}';" />
+                    <img src="{{ product.img_url }}" alt="{{ product.nombre_producto }}" class="view" loading="lazy" decoding="async" data-id="{{ product.id }}" data-title="{{ product.nombre_producto }}" data-img="{{ product.img_url }}" data-desc="{{ product.descripcion }}" data-price="$ {{ product.precio_venta }}" role="button" tabindex="0" style="cursor:pointer;" onerror="this.onerror=null;this.src='{% static 'assets/img/logo.png' %}';">
                     
                     <h4 class="view" data-id="{{ product.id }}" role="button" tabindex="0" style="cursor:pointer;">{{ product.nombre_producto }}</h4>
                     <p>{{ product.descripcion }}</p>
@@ -418,22 +399,7 @@
                 <li><a href="?page={{ page_obj.next_page_number }}{% if selected_Categoria %}&Categoria={{ selected_Categoria }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="btn-pagination">Siguiente »</a></li>
                 {% endif %}
             </ul>
-                    body {
-                        padding-top: 82px;
-                        background: #fff !important;
-                        font-family: 'Montserrat', sans-serif;
-                    }
-                    html {
-                        background: #fff !important;
-                    }
-                    /* Eliminar cualquier gradiente o fondo de la giant-frame y el wrap */
-                    .giant-frame {
-                        background: #fff !important;
-                        box-shadow: 0 8px 30px rgba(16,24,40,0.04);
-                    }
-                    .wrap {
-                        background: #fff !important;
-                    }
+        </nav>
         {% endif %}
 
         <!-- Detail modal -->
@@ -480,7 +446,7 @@
         // Provide the same `products` array used on the home page so the
         // canonical `openDetail(id)` implementation is available and works
         // identically on the catalog page.
-        var products = {{ Productos_json|safe }};
+        products = {{ Productos_json|safe }};
         console.log('Products loaded (catalog):', products && products.length);
     </script>
     <script>
