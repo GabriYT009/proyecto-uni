@@ -56,6 +56,58 @@ run_with_retries() {
     done
 }
 
+# Esperar a que MySQL esté disponible antes de cualquier operación con la BD
+# Usa las mismas variables que settings.py para garantizar consistencia
+wait_for_mysql() {
+    python3 -c "
+import os
+import sys
+import urllib.parse
+import MySQLdb
+
+# Intentar primero con URL (misma prioridad que settings.py)
+url = os.environ.get('MYSQL_PRIVATE_URL') or os.environ.get('DATABASE_PRIVATE_URL') or os.environ.get('DATABASE_URL') or os.environ.get('MYSQL_URL') or os.environ.get('MYSQL_PUBLIC_URL') or ''
+
+try:
+    if url and url.startswith(('mysql://', 'mysql2://')):
+        parsed = urllib.parse.urlparse(url.replace('mysql2://', 'mysql://'))
+        
+        # Railway bug workaround: si la URL apunta a internal:3306 pero hay un MYSQL_PORT/MYSQL_HOST público, usarlo
+        conn_host = parsed.hostname
+        if conn_host == 'mysql.railway.internal' and os.environ.get('MYSQL_HOST') and os.environ.get('MYSQL_HOST') != conn_host:
+            conn_host = os.environ.get('MYSQL_HOST')
+            
+        conn_port = parsed.port or 3306
+        if str(conn_port) == '3306' and os.environ.get('MYSQL_PORT') and os.environ.get('MYSQL_PORT') != '3306':
+            conn_port = int(os.environ.get('MYSQL_PORT'))
+
+        MySQLdb.connect(
+            host=conn_host,
+            port=conn_port,
+            user=parsed.username,
+            passwd=parsed.password or '',
+            db=(parsed.path or '').lstrip('/'),
+            connect_timeout=5,
+        )
+    else:
+        MySQLdb.connect(
+            host=os.environ.get('MYSQL_HOST', '127.0.0.1'),
+            port=int(os.environ.get('MYSQL_PORT', 3306)),
+            user=os.environ.get('MYSQL_USER', 'root'),
+            passwd=os.environ.get('MYSQL_PASSWORD', ''),
+            db=os.environ.get('MYSQL_DATABASE') or os.environ.get('MYSQL_NAME', ''),
+            connect_timeout=5,
+        )
+    sys.exit(0)
+except Exception as e:
+    print(e, file=sys.stderr)
+    sys.exit(1)
+"
+}
+echo "[entrypoint] Esperando conexión a MySQL..."
+run_with_retries "mysql-wait" wait_for_mysql
+echo "[entrypoint] MySQL disponible"
+
 if [ "$RUN_MIGRATIONS" = "1" ] || [ "$RUN_MIGRATIONS" = "true" ] || [ "$RUN_MIGRATIONS" = "yes" ]; then
     echo "[entrypoint] Running migrations"
     run_with_retries "migrations" python manage.py migrate --noinput
@@ -104,12 +156,9 @@ else
     echo "[entrypoint] Skipping auth bootstrap (set RUN_BOOTSTRAP_AUTH=1 to enable)"
 fi
 
-echo "[entrypoint] DEBUG: Antes de arrancar Django en 0.0.0.0:${PORT}"
-ls -l
-env
-echo "[entrypoint] Ejecutando: python manage.py runserver 0.0.0.0:${PORT}"
-python manage.py runserver 0.0.0.0:${PORT}
-status=$?
-echo "[entrypoint] Django terminó con código $status"
-sleep 30
-exit $status
+echo "[entrypoint] Iniciando gunicorn en 0.0.0.0:${PORT}"
+exec gunicorn django_app.wsgi:application \
+    --bind "0.0.0.0:${PORT}" \
+    --workers "${GUNICORN_WORKERS:-2}" \
+    --timeout "${GUNICORN_TIMEOUT:-120}" \
+    --log-level info
