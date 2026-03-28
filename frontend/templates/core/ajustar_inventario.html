@@ -26,14 +26,17 @@
 <body>
     <div class="ajustar-shell">
         <div class="ajustar-header">Ajustar Inventario</div>
+        <div style="margin-bottom: 18px;">
+            <a href="{% url 'inventario' %}" style="background:#9932CC; color:#fff; padding:8px 18px; border-radius:8px; text-decoration:none; font-weight:600; font-size:1.1rem;">Volver al inventario</a>
+        </div>
         <div class="ajustar-buscar">
             <input type="text" id="ajustar-buscar-input" placeholder="Buscar producto...">
         </div>
         <div class="ajustar-productos" id="ajustar-productos">
             {% for p in productos %}
-            <div class="ajustar-card" data-id="{{ p.pk }}" data-nombre="{{ p.nombre_producto }}" data-stock="{{ p.cantidad_disponible }}">
+            <div class="ajustar-card" data-id="{{ p.pk }}" data-nombre="{{ p.nombre_producto }}" data-stock="0">
                 <div class="nombre">{{ p.nombre_producto }}</div>
-                <div class="stock">Stock: <span class="stock-num">{{ p.cantidad_disponible }}</span></div>
+                <div class="stock">Stock: <span class="stock-num">0</span></div>
                 <div class="ajustar-controles" style="display:none;">
                     <button class="ajustar-btn restar">-</button>
                     <input type="number" class="ajustar-cantidad" value="1" min="1">
@@ -89,7 +92,7 @@
             e.stopPropagation();
             let cantidad = parseInt(inputCantidad.value) || 1;
             let stock = parseInt(card.dataset.stock) || 0;
-            stock = Math.max(0, stock - cantidad);
+            stock = stock - cantidad;
             card.dataset.stock = stock;
             card.querySelector('.stock-num').textContent = stock;
         });
