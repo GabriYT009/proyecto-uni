@@ -490,9 +490,7 @@
                         <button id="inventarioToggle" class="nav-link inventario-toggle" aria-haspopup="true" aria-expanded="false">Inventario ▾</button>
                         <div id="inventarioDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
                             <a href="{% url 'inventario' %}" class="dropdown-item">Ver inventario</a>
-                            {% if Productos and Productos|length > 0 %}
-                                <a href="{% url 'ajustar_inventario' Productos.0.pk %}" class="dropdown-item">Ajustar inventario</a>
-                            {% endif %}
+                            <a href="{% url 'ajustar_inventario_masivo' %}" class="dropdown-item">Ajustar inventario</a>
                         </div>
                     </div>
                     {% endif %}
