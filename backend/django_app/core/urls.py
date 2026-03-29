@@ -1,6 +1,7 @@
 from django.urls import path
 from django.views.generic import RedirectView
 from . import views
+from . import views_inventario_api
 
 urlpatterns = [
     path('', views.login_view, name='login'),
