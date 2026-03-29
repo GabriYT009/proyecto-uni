@@ -46,4 +46,6 @@ urlpatterns = [
     
     # Nueva ruta para ajuste masivo de inventario
     path('ajustar_inventario/', views.ajustar_inventario_masivo, name='ajustar_inventario_masivo'),
+    # API para ajuste de stock
+    path('api/ajustar_stock/', views_inventario_api.ajustar_stock_producto, name='api_ajustar_stock'),
 ]

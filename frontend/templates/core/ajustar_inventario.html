@@ -41,6 +41,7 @@
                     <button class="ajustar-btn restar">-</button>
                     <input type="number" class="ajustar-cantidad" value="1" min="1">
                     <button class="ajustar-btn sumar">+</button>
+                    <button class="ajustar-btn aplicar-ajuste" style="background:#28a745; margin-left:10px;">Agregar</button>
                 </div>
             </div>
             {% endfor %}
@@ -80,6 +81,7 @@
         const btnSumar = card.querySelector('.sumar');
         const btnRestar = card.querySelector('.restar');
         const inputCantidad = card.querySelector('.ajustar-cantidad');
+        const btnAplicar = card.querySelector('.aplicar-ajuste');
         btnSumar.addEventListener('click', function(e) {
             e.stopPropagation();
             let cantidad = parseInt(inputCantidad.value) || 1;
@@ -95,6 +97,32 @@
             stock = stock - cantidad;
             card.dataset.stock = stock;
             card.querySelector('.stock-num').textContent = stock;
+        });
+        btnAplicar.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const productoId = card.dataset.id;
+            const cantidad = card.dataset.stock;
+            fetch('/api/ajustar_stock/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    producto_id: productoId,
+                    cantidad: cantidad
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    alert('Stock actualizado a ' + data.nuevo_stock + ' para ' + card.dataset.nombre);
+                } else {
+                    alert('Error: ' + (data.error || 'No se pudo actualizar el stock.'));
+                }
+            })
+            .catch(err => {
+                alert('Error de red o servidor: ' + err);
+            });
         });
     });
     </script>
