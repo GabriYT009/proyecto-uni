@@ -26,8 +26,9 @@
 <body>
     <div class="ajustar-shell">
         <div class="ajustar-header">Ajustar Inventario</div>
-        <div style="margin-bottom: 18px;">
+        <div style="margin-bottom: 18px; display: flex; gap: 12px;">
             <a href="{% url 'inventario' %}" style="background:#9932CC; color:#fff; padding:8px 18px; border-radius:8px; text-decoration:none; font-weight:600; font-size:1.1rem;">Volver al inventario</a>
+            <button id="agregar-ajuste-global" style="background:#9932CC; color:#fff; padding:8px 18px; border-radius:8px; border:none; font-weight:600; font-size:1.1rem; cursor:pointer;">Agregar</button>
         </div>
         <div class="ajustar-buscar">
             <input type="text" id="ajustar-buscar-input" placeholder="Buscar producto...">
@@ -36,12 +37,10 @@
             {% for p in productos %}
             <div class="ajustar-card" data-id="{{ p.pk }}" data-nombre="{{ p.nombre_producto }}" data-stock="0">
                 <div class="nombre">{{ p.nombre_producto }}</div>
-                <div class="stock">Stock: <span class="stock-num">0</span></div>
-                <div class="ajustar-controles" style="display:none;">
+                <div class="stock" style="margin-bottom: 12px;">Stock: <span class="stock-num">0</span></div>
+                <div class="ajustar-controles" style="display:none; justify-content:center; gap:8px;">
                     <button class="ajustar-btn restar">-</button>
-                    <input type="number" class="ajustar-cantidad" value="1" min="1">
                     <button class="ajustar-btn sumar">+</button>
-                    <button class="ajustar-btn aplicar-ajuste" style="background:#28a745; margin-left:10px;">Agregar</button>
                 </div>
             </div>
             {% endfor %}
@@ -77,52 +76,54 @@
         card.addEventListener('click', function(e) {
             if(!card.classList.contains('selected')) seleccionarCard(card);
         });
-        // Sumar/restar stock
+        // Sumar/restar stock de a 1
         const btnSumar = card.querySelector('.sumar');
         const btnRestar = card.querySelector('.restar');
-        const inputCantidad = card.querySelector('.ajustar-cantidad');
-        const btnAplicar = card.querySelector('.aplicar-ajuste');
         btnSumar.addEventListener('click', function(e) {
             e.stopPropagation();
-            let cantidad = parseInt(inputCantidad.value) || 1;
             let stock = parseInt(card.dataset.stock) || 0;
-            stock += cantidad;
+            stock += 1;
             card.dataset.stock = stock;
             card.querySelector('.stock-num').textContent = stock;
         });
         btnRestar.addEventListener('click', function(e) {
             e.stopPropagation();
-            let cantidad = parseInt(inputCantidad.value) || 1;
             let stock = parseInt(card.dataset.stock) || 0;
-            stock = stock - cantidad;
+            stock -= 1;
             card.dataset.stock = stock;
             card.querySelector('.stock-num').textContent = stock;
         });
-        btnAplicar.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const productoId = card.dataset.id;
-            const cantidad = card.dataset.stock;
-            fetch('/api/ajustar_stock/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    producto_id: productoId,
-                    cantidad: cantidad
-                })
+    });
+
+    // Botón global para aplicar el ajuste al producto seleccionado
+    const btnAgregarGlobal = document.getElementById('agregar-ajuste-global');
+    btnAgregarGlobal.addEventListener('click', function() {
+        if (!seleccionado) {
+            alert('Selecciona un producto para ajustar el stock.');
+            return;
+        }
+        const productoId = seleccionado.dataset.id;
+        const cantidad = seleccionado.dataset.stock;
+        fetch('/api/ajustar_stock/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                producto_id: productoId,
+                cantidad: cantidad
             })
-            .then(response => response.json())
-            .then(data => {
-                if(data.success) {
-                    alert('Stock actualizado a ' + data.nuevo_stock + ' para ' + card.dataset.nombre);
-                } else {
-                    alert('Error: ' + (data.error || 'No se pudo actualizar el stock.'));
-                }
-            })
-            .catch(err => {
-                alert('Error de red o servidor: ' + err);
-            });
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                alert('Stock actualizado a ' + data.nuevo_stock + ' para ' + seleccionado.dataset.nombre);
+            } else {
+                alert('Error: ' + (data.error || 'No se pudo actualizar el stock.'));
+            }
+        })
+        .catch(err => {
+            alert('Error de red o servidor: ' + err);
         });
     });
     </script>
