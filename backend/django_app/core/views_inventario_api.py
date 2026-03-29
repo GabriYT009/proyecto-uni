@@ -14,7 +14,9 @@ def ajustar_stock_producto(request):
         if producto_id is None:
             return JsonResponse({'success': False, 'error': 'ID de producto requerido'}, status=400)
         producto = Producto.objects.get(pk=producto_id)
-        producto.cantidad_disponible = cantidad
+        if producto.cantidad_disponible is None:
+            producto.cantidad_disponible = 0
+        producto.cantidad_disponible += cantidad
         producto.save()
         return JsonResponse({'success': True, 'nuevo_stock': producto.cantidad_disponible})
     except Producto.DoesNotExist:

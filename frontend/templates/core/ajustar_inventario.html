@@ -117,7 +117,9 @@
         .then(response => response.json())
         .then(data => {
             if(data.success) {
-                alert('Stock actualizado a ' + data.nuevo_stock + ' para ' + seleccionado.dataset.nombre);
+                alert('¡Se agregó el stock al inventario! Nuevo stock de ' + seleccionado.dataset.nombre + ': ' + data.nuevo_stock);
+                seleccionado.dataset.stock = 0;
+                seleccionado.querySelector('.stock-num').textContent = data.nuevo_stock;
             } else {
                 alert('Error: ' + (data.error || 'No se pudo actualizar el stock.'));
             }
