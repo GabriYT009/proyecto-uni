@@ -261,8 +261,15 @@
             function renderInvoice(){
                 var tbody = document.getElementById('invoice-items');
                 tbody.innerHTML = '';
+                
                 Object.keys(items).forEach(function(k){
                     var it = items[k];
+                    
+                    // Cálculos
+                    var precioBs = it.price * tasaBackend;
+                    var totalUsd = it.price * it.qty;
+                    var totalBs = totalUsd * tasaBackend;
+                    
                     var tr = document.createElement('tr');
                     tr.innerHTML =
                         '<td style="padding:4px; border:1px solid #ddd;">'+(it.code||k)+'</td>'+
@@ -271,11 +278,13 @@
                             '<input type="number" min="1" value="'+it.qty+'" data-id="'+k+'" style="width:50px; text-align:center" />'+
                         '</td>'+
                         '<td style="padding:4px; border:1px solid #ddd; text-align:right;">$ '+format(it.price)+'</td>'+
-                        '<td style="padding:4px; border:1px solid #ddd; text-align:right;">$ '+format(precioBs)+'</td>'+
+                        '<td style="padding:4px; border:1px solid #ddd; text-align:right;">Bs '+format(precioBs)+'</td>'+
                         '<td style="padding:4px; border:1px solid #ddd; text-align:right;">$ '+format(totalUsd)+'</td>'+
-                        '<td style="padding:4px; border:1px solid #ddd; text-align:right;">$ '+format(totalBs)+'</td>'+
-                        '<td style="padding:4px; border:1px solid #ddd; text-align:right;">$ '+format(it.price * it.qty)+'</td>';
+                        '<td style="padding:4px; border:1px solid #ddd; text-align:right;">Bs '+format(totalBs)+'</td>';
+                        
                     tbody.appendChild(tr);
+                    
+                    // Actualizar cantidades
                     tr.querySelector('input').addEventListener('input', function(e){
                         var v = parseInt(this.value,10) || 1;
                         items[k].qty = v;
