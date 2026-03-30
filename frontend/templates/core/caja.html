@@ -485,7 +485,7 @@
                                     if(row) {
                                         var priceText = '0';
                                         try {
-                                            // Nota: Asegúrate que la clase sea .price-usd o .price según tu HTML
+                                            
                                             priceText = row.querySelector('.price-usd').textContent.replace('Precio:','').replace('$','').trim();
                                         } catch(err) {
                                             try { priceText = row.querySelector('.price').textContent.replace('Precio:','').replace('$','').trim(); } catch(e){}
