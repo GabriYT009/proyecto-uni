@@ -370,6 +370,7 @@
                             <strong>$ {{ product.precio_venta }}</strong>
                             <div>
                                 <!-- Comprar moved to modal; button removed from product card -->
+                            <strong class="total-bs">Bs. <span class="price-bs-value"></span></strong>
                             </div>
                         </div>
                 </div>
@@ -891,6 +892,39 @@
             window.addEventListener('resize', function(){ cards = Array.from(bar.querySelectorAll('.category-card')); });
         })();
     </script>
+
+    
+            <script>
+                (function(){
+                    // 1. Capturamos la tasa que envía Django
+                    var tasaBackend = parseFloat("{{ valor_dolar|default:0 }}") || 0;
+
+                    function calcularPreciosCatalogo() {
+                        // 2. Buscamos todas las tarjetas de producto en la pantalla
+                        var cards = document.querySelectorAll('.grid .card');
+
+                        cards.forEach(function(card) {
+                            // 3. Buscamos el elemento del precio en dólares
+                            var usdElement = card.querySelector('.price-usd');
+                            var bsElement = card.querySelector('.price-bs-value');
+
+                            if (usdElement && bsElement) {
+                                // 4. Tomamos el precio limpio gracias al atributo data-price
+                                var precioUsd = parseFloat(usdElement.getAttribute('data-price')) || 0;
+                                
+                                // 5. Calculamos en Bolívares
+                                var precioBs = precioUsd * tasaBackend;
+
+                                // 6. Inyectamos el valor con formato
+                                bsElement.textContent = precioBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                            }
+                        });
+                    }
+
+                    // Ejecutamos la función apenas cargue el script
+                    calcularPreciosCatalogo();
+                })();
+            </script>
 
     <!-- Vendor JS Files -->
     <script src="{% static 'assets/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
