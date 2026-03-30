@@ -273,7 +273,7 @@
                             '<input type="number" min="1" value="'+it.qty+'" data-id="'+k+'" style="width:50px; text-align:center" />'+
                         '</td>'+
                         '<td style="padding:4px; border:1px solid #ddd; text-align:right;">$ '+format(it.price)+'</td>'+
-                        '<td style="padding:4px; border:1px solid #ddd; text-align:right;">$ '+format(it.price)+'</td>'+
+                        
                         '<td style="padding:4px; border:1px solid #ddd; text-align:right;">$ '+format(it.price * it.qty)+'</td>';
                     tbody.appendChild(tr);
                     tr.querySelector('input').addEventListener('input', function(e){
