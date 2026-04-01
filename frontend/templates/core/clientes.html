@@ -241,6 +241,31 @@
                 document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
             })();
 
+            // Product dropdown toggle (clientes page)
+            (function(){
+                const toggle = document.getElementById('productToggle');
+                const dropdown = document.getElementById('productDropdown');
+                if(!toggle || !dropdown) return;
+
+                function closeProduct(){
+                    dropdown.classList.remove('show');
+                    toggle.setAttribute('aria-expanded','false');
+                    dropdown.setAttribute('aria-hidden','true');
+                }
+
+                toggle.addEventListener('click', function(e){
+                    e.stopPropagation();
+                    const opened = dropdown.classList.toggle('show');
+                    toggle.setAttribute('aria-expanded', opened ? 'true' : 'false');
+                    dropdown.setAttribute('aria-hidden', opened ? 'false' : 'true');
+                });
+
+                document.addEventListener('click', function(e){
+                    if(!toggle.contains(e.target) && !dropdown.contains(e.target)) closeProduct();
+                });
+                document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeProduct(); });
+            })();
+
             // Profile dropdown toggle (clientes page)
             (function(){
                 const profileToggle = document.getElementById('profileToggle');
