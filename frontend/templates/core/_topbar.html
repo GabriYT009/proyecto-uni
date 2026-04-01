@@ -1,5 +1,40 @@
 {% load static %}
 
+<style>
+	.cart-link-inline {
+		margin-left: 5px;
+		position: relative;
+		display: inline-block;
+	}
+
+	.cart-link-inline .cart-icon {
+		width: 24px;
+		height: 24px;
+		object-fit: contain;
+		display: block;
+	}
+
+	.search-results {
+		position: absolute;
+		top: 100%;
+		left: 0;
+		right: 0;
+		background: #fff;
+		border-radius: 8px;
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+		max-height: 300px;
+		overflow-y: auto;
+		z-index: 1000;
+		display: none;
+		border: 1px solid #e0e0e0;
+		margin-top: 5px;
+	}
+
+	.search-results.show {
+		display: block;
+	}
+</style>
+
 <div class="top-bar" id="topBar">
 	<div class="bar-inner">
 		<div class="group bar-left">
