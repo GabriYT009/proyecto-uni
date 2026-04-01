@@ -10,6 +10,51 @@
         body{ margin:0; padding:0; font-family: "Urbanist", "Segoe UI", Roboto, Arial, sans-serif; background: #fff !important; min-height: 100vh; }
         html { background: #fff !important; }
         .invoice { background: #fff !important; }
+        .top-bar {
+            height: 82px !important;
+            background: rgb(72 13 102) !important;
+            border-bottom: 1px solid rgba(153, 50, 204, 0.12) !important;
+            box-shadow: 0 16px 36px rgba(102, 32, 128, 0.12) !important;
+            backdrop-filter: blur(18px) !important;
+            -webkit-backdrop-filter: blur(18px) !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10000;
+        }
+        .top-bar .bar-inner{ max-width:1400px; margin:0 auto; height:82px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; }
+        .bar-logo-link{ display:flex; align-items:center; font-size:24px; font-weight:700; color:#ffffff !important; text-decoration:none; }
+        .bar-logo-text{ font-size:24px; font-weight:700; color:#ffffff !important; }
+        .main-nav{ display:flex; gap:22px; }
+        .nav-link{ color:#333; text-decoration:none; font-weight:600; font-size:15px; padding:6px 10px; border-radius:6px; }
+        .nav-link:hover{ background:#f0f0f0; color:#9932CC; }
+        .search-container{ display:flex; align-items:center; background:#f5f5f5; border-radius:25px; padding:4px; width:360px; position:relative; }
+        .search-input{ flex:1; border:none; background:transparent; padding:8px 12px; font-size:14px; outline:none; }
+        .search-btn{ background:#fff; color:#9932CC; border:none; border-radius:20px; width:34px; height:34px; display:flex; align-items:center; justify-content:center; cursor:pointer; margin-right:6px; }
+        .profile-menu{ position:relative; display:inline-block; }
+        .profile-btn{ background:#fff; color:#9932CC; padding:6px 10px; border-radius:18px; border:none; display:flex; align-items:center; gap:8px; cursor:pointer; }
+        .profile-dropdown{ position:absolute; right:0; top:calc(100% + 8px); background:#fff; border:1px solid rgba(0,0,0,0.06); border-radius:8px; display:none; min-width:160px; z-index:10005; }
+        .profile-dropdown.show{ display:block; }
+        .avatar{ width:24px; height:24px; border-radius:50%; object-fit:cover; margin-right:8px; }
+        .bar-toggle{ display:none; align-items:center; justify-content:center; width:40px; height:40px; border-radius:10px; border:1px solid rgba(255,255,255,0.35); background:rgba(255,255,255,0.12); cursor:pointer; position:absolute; top:21px; left:10px; }
+        .bar-toggle .hamburger{ width:20px; height:14px; position:relative; display:inline-block; }
+        .bar-toggle .hamburger span{ position:absolute; left:0; right:0; height:2px; background:#fff; border-radius:2px; }
+        .bar-toggle .hamburger span:nth-child(1){ top:0; }
+        .bar-toggle .hamburger span:nth-child(2){ top:6px; }
+        .bar-toggle .hamburger span:nth-child(3){ top:12px; }
+        .nav-menu{ position:absolute; left:12px; right:12px; top:86px; background:#fff; border:1px solid rgba(0,0,0,0.08); border-radius:12px; box-shadow:0 14px 34px rgba(0,0,0,0.14); display:none; z-index:10006; overflow:visible; }
+        .nav-menu.show{ display:block; }
+        .nav-menu .nav-item{ display:block; padding:12px 14px; color:#2a2231; text-decoration:none; font-weight:700; border-bottom:1px solid #efefef; background:#fff; }
+        .nav-menu .nav-item:last-child{ border-bottom:none; }
+        .nav-item-group{ position:relative; }
+        .nav-subtoggle{ width:100%; border:none; background:#fff; text-align:left; cursor:pointer; display:flex; align-items:center; justify-content:space-between; }
+        .submenu-arrow{ font-weight:900; color:#7a2ea5; }
+        .nav-submenu{ position:absolute; top:0; right:-8px; width:220px; background:#fff; border:1px solid rgba(0,0,0,0.08); border-radius:10px; box-shadow:0 14px 34px rgba(0,0,0,0.16); display:none; z-index:10007; overflow:hidden; }
+        .nav-submenu.show{ display:block; }
+        .nav-submenu .nav-item{ border-bottom:1px solid #efefef; }
+        .nav-submenu .nav-item:last-child{ border-bottom:none; }
+        .nav-submenu .nav-back{ background:#f7f2fb; color:#5b2b80; }
         .page-shell{ padding:20px; }
         .wrap{ max-width:1400px; margin:0 auto; display:flex; gap:20px; }
         .left{ flex:0 0 520px; background:#fff; padding:18px; border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,0.06); }
@@ -39,6 +84,13 @@
         .invoice-table-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
 
         @media (max-width: 768px){
+            body { padding-top: 92px; }
+            .bar-toggle{ display:flex; }
+            .bar-inner .bar-center{ display:none; }
+            .top-bar .bar-inner{ padding-left:56px; }
+            .top-bar .bar-right{ display:flex; margin-left:auto; }
+            .profile-btn{ padding:6px 8px; font-size:13px; }
+            .avatar{ width:20px; height:20px; margin-right:4px; }
             .page-shell{ padding:10px; }
             .wrap{ display:block; }
             .left{ flex:1 1 auto; padding:12px; border-radius:10px; }
@@ -152,6 +204,126 @@
     </div>
 
     <script>
+        // Hamburger nav menu (caja page)
+        (function(){
+            const navToggle = document.getElementById('barToggle');
+            const navMenu = document.getElementById('barNavMenu');
+            if(!navToggle || !navMenu) return;
+            const submenuToggles = navMenu.querySelectorAll('.nav-subtoggle');
+
+            function closeSubmenus(){
+                navMenu.querySelectorAll('.nav-submenu.show').forEach(function(sm){
+                    sm.classList.remove('show');
+                    sm.setAttribute('aria-hidden','true');
+                });
+                submenuToggles.forEach(function(btn){ btn.setAttribute('aria-expanded','false'); });
+            }
+
+            function closeNav(){
+                navMenu.classList.remove('show');
+                closeSubmenus();
+                navToggle.setAttribute('aria-expanded','false');
+                navMenu.setAttribute('aria-hidden','true');
+            }
+
+            navToggle.addEventListener('click', function(e){
+                e.stopPropagation();
+                const opened = navMenu.classList.toggle('show');
+                navToggle.setAttribute('aria-expanded', opened ? 'true' : 'false');
+                navMenu.setAttribute('aria-hidden', opened ? 'false' : 'true');
+                if(!opened) closeSubmenus();
+            });
+
+            submenuToggles.forEach(function(btn){
+                btn.addEventListener('click', function(e){
+                    e.stopPropagation();
+                    const targetId = btn.getAttribute('data-target');
+                    const submenu = targetId ? document.getElementById(targetId) : null;
+                    if(!submenu) return;
+                    const opening = !submenu.classList.contains('show');
+                    closeSubmenus();
+                    if(opening){
+                        submenu.classList.add('show');
+                        submenu.setAttribute('aria-hidden','false');
+                        btn.setAttribute('aria-expanded','true');
+                    }
+                });
+            });
+
+            navMenu.querySelectorAll('[data-close-submenu]').forEach(function(btn){
+                btn.addEventListener('click', function(e){
+                    e.stopPropagation();
+                    closeSubmenus();
+                });
+            });
+
+            document.addEventListener('click', function(e){
+                if(!navToggle.contains(e.target) && !navMenu.contains(e.target)) closeNav();
+            });
+            document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeNav(); });
+        })();
+
+        // Clients dropdown toggle (caja page)
+        (function(){
+            const toggle = document.getElementById('clientsToggle');
+            const dropdown = document.getElementById('clientsDropdown');
+            if(!toggle || !dropdown) return;
+            function close(){ dropdown.classList.remove('show'); toggle.setAttribute('aria-expanded','false'); dropdown.setAttribute('aria-hidden','true'); }
+            toggle.addEventListener('click', function(e){ e.stopPropagation(); const opened = dropdown.classList.toggle('show'); toggle.setAttribute('aria-expanded', opened ? 'true' : 'false'); dropdown.setAttribute('aria-hidden', opened ? 'false' : 'true'); });
+            document.addEventListener('click', function(e){ if(!toggle.contains(e.target) && !dropdown.contains(e.target)) close(); });
+            document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
+        })();
+
+        // Product dropdown toggle (caja page)
+        (function(){
+            const toggle = document.getElementById('productToggle');
+            const dropdown = document.getElementById('productDropdown');
+            if(!toggle || !dropdown) return;
+
+            function closeProduct(){
+                dropdown.classList.remove('show');
+                toggle.setAttribute('aria-expanded','false');
+                dropdown.setAttribute('aria-hidden','true');
+            }
+
+            toggle.addEventListener('click', function(e){
+                e.stopPropagation();
+                const opened = dropdown.classList.toggle('show');
+                toggle.setAttribute('aria-expanded', opened ? 'true' : 'false');
+                dropdown.setAttribute('aria-hidden', opened ? 'false' : 'true');
+            });
+
+            document.addEventListener('click', function(e){
+                if(!toggle.contains(e.target) && !dropdown.contains(e.target)) closeProduct();
+            });
+            document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeProduct(); });
+        })();
+
+        // Profile dropdown toggle (caja page)
+        (function(){
+            const profileToggle = document.getElementById('profileToggle');
+            const profileDropdown = document.getElementById('profileDropdown');
+            if(!profileToggle || !profileDropdown) return;
+
+            function closeProfile(){
+                profileDropdown.classList.remove('show');
+                profileToggle.setAttribute('aria-expanded','false');
+                profileDropdown.setAttribute('aria-hidden','true');
+            }
+
+            profileToggle.addEventListener('click', function(e){
+                e.stopPropagation();
+                const opened = profileDropdown.classList.toggle('show');
+                profileToggle.setAttribute('aria-expanded', opened ? 'true' : 'false');
+                profileDropdown.setAttribute('aria-hidden', opened ? 'false' : 'true');
+            });
+
+            document.addEventListener('click', function(e){
+                if(!profileToggle.contains(e.target) && !profileDropdown.contains(e.target)) closeProfile();
+            });
+            document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeProfile(); });
+        })();
+
                     // Limpieza extra de residuos de texto en el contenedor de la alerta
                     function cleanAlertContainer() {
                         var container = document.getElementById('js-alert-container');
