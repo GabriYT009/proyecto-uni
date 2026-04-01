@@ -115,13 +115,11 @@
                     </div>
 
                     <div class="totals" style="margin-top:12px; text-align:right; font-weight:700;">
-                        <div style="font-size:18px; margin-top:6px">Total: $<span id="total">0.00</span></div>
+                        <div style="font-size:18px; margin-top:6px"> Total $:<span id="total"></span></div>
+                        <div style="font-size:18px; margin-top:6px;">Total Bs: <span id="total-bs">N/A</span></div>
                     </div>
-                    <div class="totals" style="margin-top:12px; text-align:right; font-weight:700;">
-                        <div style="font-size:18px; margin-top:6px">Total: $<span id="total">0.00</span></div>
-                        <div style="font-size:16px; margin-top:4px; color:#555">Total Bs: <span id="total-bs">0.00</span></div>
-                    </div>
-
+                    
+                    
 
                     <div class="actions" style="margin-top:10px; text-align:right;">
                         <button class="btn" id="clear-invoice">Limpiar</button>
@@ -227,8 +225,15 @@
             function renderInvoice(){
                 var tbody = document.getElementById('invoice-items');
                 tbody.innerHTML = '';
+                
                 Object.keys(items).forEach(function(k){
                     var it = items[k];
+                    
+                    // Cálculos
+                    var precioBs = it.price * tasaBackend;
+                    var totalUsd = it.price * it.qty;
+                    var totalBs = totalUsd * tasaBackend;
+                    
                     var tr = document.createElement('tr');
                     tr.innerHTML =
                         '<td style="padding:4px; border:1px solid #ddd;">'+(it.code||k)+'</td>'+
@@ -237,8 +242,13 @@
                             '<input type="number" min="1" value="'+it.qty+'" data-id="'+k+'" style="width:50px; text-align:center" />'+
                         '</td>'+
                         '<td style="padding:4px; border:1px solid #ddd; text-align:right;">$ '+format(it.price)+'</td>'+
-                        '<td style="padding:4px; border:1px solid #ddd; text-align:right;">$ '+format(it.price * it.qty)+'</td>';
+                        '<td style="padding:4px; border:1px solid #ddd; text-align:right;">Bs '+format(precioBs)+'</td>'+
+                        '<td style="padding:4px; border:1px solid #ddd; text-align:right;">$ '+format(totalUsd)+'</td>'+
+                        '<td style="padding:4px; border:1px solid #ddd; text-align:right;">Bs '+format(totalBs)+'</td>';
+                        
                     tbody.appendChild(tr);
+                    
+                    // Actualizar cantidades
                     tr.querySelector('input').addEventListener('input', function(e){
                         var v = parseInt(this.value,10) || 1;
                         items[k].qty = v;
@@ -426,6 +436,7 @@
         })();
     </script>
     <script src="{% static 'core/page-loader.js' %}"></script>
+
                     <script>
 
                         (function(){
@@ -449,7 +460,7 @@
                                     if(row) {
                                         var priceText = '0';
                                         try {
-                                            // Nota: Asegúrate que la clase sea .price-usd o .price según tu HTML
+                                            
                                             priceText = row.querySelector('.price-usd').textContent.replace('Precio:','').replace('$','').trim();
                                         } catch(err) {
                                             try { priceText = row.querySelector('.price').textContent.replace('Precio:','').replace('$','').trim(); } catch(e){}
@@ -471,12 +482,12 @@
 
                                 var divTotalUsd = document.getElementById('total');
                                 if (divTotalUsd) {
-                                    divTotalUsd.textContent = 'Total en $: ' + granTotalUsd.toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
+                                    divTotalUsd.textContent = granTotalUsd.toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
                                 }
 
-                                var divTotalBs = document.getElementById('total_bs');
+                                var divTotalBs = document.getElementById('total-bs');
                                 if (divTotalBs) {
-                                    divTotalBs.textContent = 'Total en Bs: ' + granTotalBs.toLocaleString('es-VE', { minimumFractionDigits:2, maximumFractionDigits:2 });
+                                    divTotalBs.textContent = granTotalBs.toLocaleString('es-VE', { minimumFractionDigits:2, maximumFractionDigits:2 });
                                 }
                             }
 
