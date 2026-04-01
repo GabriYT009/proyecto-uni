@@ -1662,12 +1662,17 @@ def todos_clientes(request):
     paginator = Paginator(clientes_qs, 25)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+    cart_session = request.session.get('cart', {})
+    if isinstance(cart_session, dict):
+        cart_count = sum((item or {}).get('cantidad', 0) for item in cart_session.values())
+    else:
+        cart_count = len(cart_session)
 
     return render(request, 'core/clientes.html', {
         'clientes': page_obj,
         'page_obj': page_obj,
         'is_paginated': page_obj.has_other_pages(),
-        'cart_count': len(request.session.get('cart', [])),
+        'cart_count': cart_count,
         'user_groups': _user_groups(request.user)
     })
 
