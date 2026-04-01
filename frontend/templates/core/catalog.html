@@ -208,6 +208,36 @@
 <body>
     {% include 'core/_topbar.html' %}
 
+    <script>
+        // Dropdown de Producto en la barra superior (catalogo)
+        (function(){
+            const toggle = document.getElementById('productToggle');
+            const dropdown = document.getElementById('productDropdown');
+            if(!toggle || !dropdown) return;
+
+            function closeProductMenu(){
+                dropdown.classList.remove('show');
+                toggle.setAttribute('aria-expanded', 'false');
+                dropdown.setAttribute('aria-hidden', 'true');
+            }
+
+            toggle.addEventListener('click', function(e){
+                e.stopPropagation();
+                const opened = dropdown.classList.toggle('show');
+                toggle.setAttribute('aria-expanded', opened ? 'true' : 'false');
+                dropdown.setAttribute('aria-hidden', opened ? 'false' : 'true');
+            });
+
+            document.addEventListener('click', function(e){
+                if(!toggle.contains(e.target) && !dropdown.contains(e.target)) closeProductMenu();
+            });
+
+            document.addEventListener('keydown', function(e){
+                if(e.key === 'Escape') closeProductMenu();
+            });
+        })();
+    </script>
+
     <style>
     .category-bar-wrap{ display:flex; align-items:center; gap:2px; margin:12px 0; }
     .cat-scroll-btn{ background:#fff; border:1px solid #e0e0e0; padding:6px 9px; border-radius:6px; cursor:pointer; font-weight:700; color:#9932CC; line-height:1; }
