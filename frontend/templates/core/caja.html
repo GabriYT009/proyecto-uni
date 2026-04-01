@@ -66,43 +66,7 @@
     </style>
 </head>
 <body>
-    <!-- Barra superior igual que inventario -->
-    <div class="top-bar" id="topBar" style="height:82px; background:rgb(72 13 102); border-bottom:1px solid rgba(153,50,204,0.12); box-shadow:0 16px 36px rgba(102,32,128,0.12); position:fixed; top:0; left:0; right:0; z-index:10000;">
-        <div class="bar-inner" style="max-width:1400px; margin:0 auto; height:82px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; position:relative;">
-            <div class="group bar-left" style="display:flex; align-items:center; gap:15px;">
-                <a href="{% url 'home' %}" class="bar-logo-link" aria-label="Inicio" style="display:flex; align-items:center; font-size:24px; font-weight:700; color:#fff !important; text-decoration:none;">
-                    <span class="bar-logo-text" style="font-size:24px; font-weight:700; color:#fff !important;">Solucionarte</span>
-                </a>
-            </div>
-            <div class="group bar-center" style="flex:1 1 auto; display:flex; justify-content:center;">
-                <nav class="main-nav" style="display:flex; gap:30px; margin-right:30px;">
-                    <div class="inventario-menu" style="position:relative;">
-                        <button id="inventarioToggle" class="nav-link inventario-toggle" aria-haspopup="true" aria-expanded="false">Inventario ▾</button>
-                        <div id="inventarioDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
-                            <a href="{% url 'inventario' %}" class="dropdown-item">Ver inventario</a>
-                            <a href="{% url 'ajustar_inventario_masivo' %}" class="dropdown-item">Ajustar inventario</a>
-                        </div>
-                    </div>
-                    <script>
-                    // Inventario dropdown toggle (caja page)
-                    (function(){
-                        const toggle = document.getElementById('inventarioToggle');
-                        const dropdown = document.getElementById('inventarioDropdown');
-                        if(!toggle || !dropdown) return;
-                        function close(){ dropdown.classList.remove('show'); toggle.setAttribute('aria-expanded','false'); dropdown.setAttribute('aria-hidden','true'); }
-                        toggle.addEventListener('click', function(e){ e.stopPropagation(); const opened = dropdown.classList.toggle('show'); toggle.setAttribute('aria-expanded', opened ? 'true' : 'false'); dropdown.setAttribute('aria-hidden', opened ? 'false' : 'true'); });
-                        document.addEventListener('click', function(e){ if(!toggle.contains(e.target) && !dropdown.contains(e.target)) close(); });
-                        document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
-                    })();
-                    </script>
-                    <a href="/catalogo/" class="nav-link" style="color:#333; text-decoration:none; font-weight:600; font-size:16px; padding:8px 12px; border-radius:6px; transition:all 0.3s ease;">Catálogo</a>
-                    <a href="/clientes/" class="nav-link" style="color:#333; text-decoration:none; font-weight:600; font-size:16px; padding:8px 12px; border-radius:6px; transition:all 0.3s ease;">Clientes</a>
-                    <a href="/caja/" class="nav-link active" style="background:#f0f0f0; color:#9932CC; text-decoration:none; font-weight:600; font-size:16px; padding:8px 12px; border-radius:6px; transition:all 0.3s ease;">Caja</a>
-                </nav>
-            </div>
-            <div class="group bar-right" style="display:flex; align-items:center; gap:15px;"></div>
-        </div>
-    </div>
+    {% include 'core/_topbar.html' %}
     <div class="page-shell">
     <div style="max-width:1200px; margin:12px auto;">
         <h2 style="color:#9932CC; margin-top:100px;">Caja</h2>

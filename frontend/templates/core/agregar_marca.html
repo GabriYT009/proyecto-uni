@@ -250,60 +250,7 @@
     </style>
 </head>
 <body>
-    <!-- Top Bar -->
-    <div class="top-bar">
-        <div class="bar-inner">
-            <div class="group bar-left">
-                <a href="{% url 'home' %}" class="bar-logo-link" aria-label="Inicio">
-                    <span class="bar-logo-text">SolucionArte</span>
-                </a>
-            </div>
-
-            <div class="group bar-center">
-                <nav class="main-nav">
-                    <a href="{% url 'catalog' %}" class="nav-link">Catálogo</a>
-                    <div class="clients-menu" style="position:relative;">
-                        <button id="clientsToggle" class="nav-link clients-toggle" aria-haspopup="true" aria-expanded="false">Clientes ▾</button>
-                        <div id="clientsDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px; right:auto;">
-                            <a href="{% url 'todos_clientes' %}" class="dropdown-item">Ver clientes</a>
-                        </div>
-                    </div>
-                    <div class="product-menu" style="position:relative;">
-                        <button id="productToggle" class="nav-link product-toggle" aria-haspopup="true" aria-expanded="false">Producto ▾</button>
-                        <div id="productDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px; right:auto;">
-                            {% if 'admin' in user_groups %}
-                                <a href="{% url 'registrar_producto' %}" class="dropdown-item">Crear Producto</a>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <a href="{% url 'inventario' %}" class="nav-link">Inventario</a>
-                    <a href="{% url 'caja' %}" class="nav-link">Caja</a>
-                </nav>
-
-                <div class="search-container">
-                    <input type="text" class="search-input" placeholder="Buscar productos..." id="searchInput">
-                    <button class="search-btn">🔍</button>
-                    <a href="{% url 'carrito' %}" class="cart-link-inline" aria-label="Carrito">
-                        <img src="{% static 'core/carrito.png' %}" alt="Carrito" class="cart-icon">
-                        <span id="cart-count" class="cart-count">{{ cart_count }}</span>
-                    </a>
-                </div>
-            </div>
-
-            <div class="group bar-right">
-                <div class="profile-menu">
-                    <button id="profileToggle" class="profile-btn" aria-haspopup="true" aria-expanded="false">
-                        <i class="bi bi-person-circle"></i>
-                        {{ user.username }}
-                    </button>
-                    <div class="profile-dropdown" id="profileDropdown" aria-hidden="true">
-                        <a href="{% url 'perfil' %}" class="dropdown-item">Perfil</a>
-                        <a href="{% url 'logout' %}" class="dropdown-item">Cerrar Sesión</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    {% include 'core/_topbar.html' %}
 
     <!-- Main Content -->
     <div class="giant-frame">
