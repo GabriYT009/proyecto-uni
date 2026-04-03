@@ -1222,6 +1222,62 @@ def pago_exitoso(request, salida_id):
     })
 
 
+@admin_only
+def aprobar_pagos(request):
+    if request.method == 'POST':
+        salida_id = request.POST.get('salida_id')
+        accion = (request.POST.get('accion') or '').strip().lower()
+        salida = get_object_or_404(Salida, pk=salida_id, comprobante_pago__isnull=False)
+
+        if salida.estado_pago != Salida.ESTADO_PAGO_PENDIENTE:
+            messages.info(request, 'Este pago ya fue revisado.')
+            return redirect('aprobar_pagos')
+
+        if accion == 'aprobar':
+            salida.estado_pago = Salida.ESTADO_PAGO_APROBADO
+            messages.success(request, f'Pago #{salida.pk} aprobado correctamente.')
+        elif accion == 'rechazar':
+            salida.estado_pago = Salida.ESTADO_PAGO_RECHAZADO
+            messages.warning(request, f'Pago #{salida.pk} marcado como rechazado.')
+        else:
+            messages.error(request, 'Acción no válida.')
+            return redirect('aprobar_pagos')
+
+        salida.revisado_por = request.user
+        salida.fecha_revision = timezone.now()
+        salida.save(update_fields=['estado_pago', 'revisado_por', 'fecha_revision'])
+        return redirect('aprobar_pagos')
+
+    salidas = list(
+        Salida.objects
+        .filter(comprobante_pago__isnull=False, estado_pago=Salida.ESTADO_PAGO_PENDIENTE)
+        .select_related('usuario', 'carrito_de_compras', 'revisado_por')
+        .order_by('-date', '-id')
+    )
+
+    carrito_ids = [s.carrito_de_compras_id for s in salidas if s.carrito_de_compras_id]
+    items_by_carrito = {}
+    if carrito_ids:
+        items_qs = (
+            OrdenDeDespacho.objects
+            .filter(carrito_de_compras_id__in=carrito_ids)
+            .select_related('producto')
+            .only('id', 'carrito_de_compras_id', 'cantidad_item', 'sub_total_item', 'producto_id', 'producto__nombre_producto')
+        )
+        for item in items_qs:
+            items_by_carrito.setdefault(item.carrito_de_compras_id, []).append(item)
+
+    for salida in salidas:
+        salida.items = items_by_carrito.get(salida.carrito_de_compras_id, [])
+
+    return render(request, 'core/aprobar_pagos.html', {
+        'salidas': salidas,
+        'total_pendientes': len(salidas),
+        'cart_count': len(request.session.get('cart', [])),
+        'user_groups': _user_groups(request.user),
+    })
+
+
 @login_required
 def detalles_salida(request, salida_id):
     """Mostrar todos los productos incluidos en una Salida (orden) específica."""
@@ -1251,6 +1307,7 @@ def comprar_carrito(request):
         return redirect('carrito')
 
     payment_proof = request.FILES.get('payment_proof')
+    saved_proof_path = None
     if payment_proof:
         content_type = (payment_proof.content_type or '').lower()
         if not content_type.startswith('image/'):
@@ -1264,8 +1321,8 @@ def comprar_carrito(request):
         ext = (ext or '.jpg').lower()
         proof_name = f"payment_proofs/{request.user.pk}_{timezone.now().strftime('%Y%m%d_%H%M%S_%f')}{ext}"
         try:
-            saved_path = default_storage.save(proof_name, payment_proof)
-            logger.info('Comprobante de pago guardado: user=%s path=%s', request.user.pk, saved_path)
+            saved_proof_path = default_storage.save(proof_name, payment_proof)
+            logger.info('Comprobante de pago guardado: user=%s path=%s', request.user.pk, saved_proof_path)
         except Exception:
             logger.exception('No se pudo guardar el comprobante de pago movil.')
             messages.error(request, 'No se pudo guardar la imagen del comprobante.')
@@ -1318,6 +1375,8 @@ def comprar_carrito(request):
                 carrito_de_compras=carrito,
                 metodo_pago=None,
                 usuario=request.user,
+                comprobante_pago=saved_proof_path,
+                estado_pago=Salida.ESTADO_PAGO_PENDIENTE,
                 total=total,
                 date=timezone.now()
             )

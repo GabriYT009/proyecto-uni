@@ -24,6 +24,12 @@
             <h2 style="color:#28a745">Pago procesado correctamente ✅</h2>
             <p>Orden ID: <strong>#{{ salida.pk }}</strong></p>
             <p>Total: <strong>$ {{ salida.total }}</strong></p>
+            <p>Estado: <strong>{{ salida.get_estado_pago_display }}</strong></p>
+            {% if salida.estado_pago == 'pendiente' %}
+                <div class="alert alert-warning" role="alert" style="margin-top:12px; text-align:left;">
+                    Tu comprobante quedó enviado para revisión. La orden se aprobará cuando el equipo valide el pago.
+                </div>
+            {% endif %}
 
             <h4 style="margin-top:16px">Detalle de compras</h4>
             <p style="margin-top:8px; margin-bottom:12px;">

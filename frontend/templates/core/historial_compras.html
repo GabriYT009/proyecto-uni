@@ -244,6 +244,7 @@
                             <div>
                                 <div class="order-id">Orden #{{ s.pk }}</div>
                                 <div class="order-date">{{ s.date }}</div>
+                                <div class="order-date">Estado: <strong>{{ s.get_estado_pago_display }}</strong></div>
                             </div>
                             <div class="order-total">$ {{ s.total }}</div>
                         </div>

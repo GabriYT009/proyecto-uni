@@ -119,6 +119,7 @@
 						<div id="inventarioDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
 							<a href="{% url 'inventario' %}" class="dropdown-item">Ver inventario</a>
 							<a href="{% url 'ajustar_inventario_masivo' %}" class="dropdown-item">Ajustar inventario</a>
+							<a href="{% url 'aprobar_pagos' %}" class="dropdown-item">Aprobar pagos</a>
 						</div>
 					</div>
 				{% endif %}
@@ -184,6 +185,7 @@
 		</div>
 		{% if 'admin' in user_groups %}
 			<a class="nav-item" href="{% url 'inventario' %}">Inventario</a>
+			<a class="nav-item" href="{% url 'aprobar_pagos' %}">Aprobar pagos</a>
 		{% endif %}
 		{% if 'admin' in user_groups or 'cajero' in user_groups %}
 			<a class="nav-item" href="{% url 'caja' %}">Caja</a>

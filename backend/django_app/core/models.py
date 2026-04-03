@@ -177,10 +177,29 @@ class CarritoDeCompras(models.Model):
 
 
 class Salida(models.Model):
+    ESTADO_PAGO_PENDIENTE = 'pendiente'
+    ESTADO_PAGO_APROBADO = 'aprobado'
+    ESTADO_PAGO_RECHAZADO = 'rechazado'
+    ESTADO_PAGO_CHOICES = [
+        (ESTADO_PAGO_PENDIENTE, 'Pendiente'),
+        (ESTADO_PAGO_APROBADO, 'Aprobado'),
+        (ESTADO_PAGO_RECHAZADO, 'Rechazado'),
+    ]
+
     bcv = models.ForeignKey(Bcv, on_delete=models.SET_NULL, null=True, blank=True)
     carrito_de_compras = models.ForeignKey(CarritoDeCompras, on_delete=models.SET_NULL, null=True, blank=True)
     metodo_pago = models.ForeignKey(MetodoPago, on_delete=models.SET_NULL, null=True, blank=True)
     usuario = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True, blank=True)
+    comprobante_pago = models.ImageField(upload_to='payment_proofs/', blank=True, null=True)
+    estado_pago = models.CharField(max_length=20, choices=ESTADO_PAGO_CHOICES, default=ESTADO_PAGO_PENDIENTE)
+    revisado_por = models.ForeignKey(
+        Usuario,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='salidas_revisadas',
+    )
+    fecha_revision = models.DateTimeField(blank=True, null=True)
     
     total = models.FloatField(blank=True, null=True)
     date = models.DateTimeField(blank=True, null=True)
