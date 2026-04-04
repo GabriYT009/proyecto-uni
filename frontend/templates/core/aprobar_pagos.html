@@ -80,6 +80,32 @@
             white-space: nowrap;
         }
 
+        .hero-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 10px 14px;
+            border: 1px solid #d9c7ea;
+            color: #5f2f87;
+            text-decoration: none;
+            font-weight: 700;
+            background: #fff;
+        }
+
+        .btn-back:hover {
+            color: #4b216e;
+            border-color: #c9afe0;
+            background: #faf5ff;
+        }
+
         .stack {
             display: grid;
             gap: 14px;
@@ -246,7 +272,10 @@
                     <h1>Aprobar pagos</h1>
                     <p class="subtitle">Revisa los comprobantes enviados por los clientes y decide si el pago queda aprobado o rechazado.</p>
                 </div>
-                <div class="badge-count">{{ total_pendientes }} pagos pendientes</div>
+                <div class="hero-actions">
+                    <a href="{% url 'home' %}" class="btn-back">Volver</a>
+                    <div class="badge-count">{{ total_pendientes }} pagos pendientes</div>
+                </div>
             </div>
         </section>
 
