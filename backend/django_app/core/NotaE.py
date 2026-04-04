@@ -1,5 +1,5 @@
 from fpdf import FPDF
-
+from datetime import datetime,timedelta
 
 class PDF(FPDF):
     def __init__(self,total_registros,titulo ,*args, **kwargs):

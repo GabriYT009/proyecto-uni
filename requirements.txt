@@ -18,3 +18,4 @@ setuptools>=65.0.0
 dj-database-url==2.3.0
 python-dotenv==1.0.1
 fpdf==1.7.2
+datetime==6.0.0
