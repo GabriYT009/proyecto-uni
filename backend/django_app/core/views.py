@@ -31,7 +31,7 @@ def ajustar_inventario_masivo(request):
 import re
 import os
 import json
-from .models import Producto, Cliente, Categoria, Historial_Inventario, MetodoPago, CarritoDeCompras, OrdenDeDespacho, Salida
+from .models import Producto, Cliente, Categoria, Historial_Inventario, MetodoPago, CarritoDeCompras, OrdenDeDespacho
 from django.core.paginator import Paginator
 from .forms import ProductForm
 from django.utils import timezone
