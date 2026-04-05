@@ -924,7 +924,7 @@ def cobrar_caja(request):
                 estado_pago='APROBADO', # Al ser en caja, usualmente ya está pagado
                 fecha=timezone.now(),
                 total=0.0,
-                bcv=f"{float(valor_bcv):.2f}",
+                bcv=valor_bcv,
             )
 
             total_acumulado = 0.0
