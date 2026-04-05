@@ -881,9 +881,6 @@ def cobrar_caja(request):
     valor_bcv = float(tasa) if tasa != 'N/A' else 0.00
 
 
-
-    print(f"VALOR RECIBIDO DEL FRONT: '{cliente_doc}'")
-
     try:
         payload = json.loads(request.body or '{}')
     except Exception:
@@ -927,7 +924,7 @@ def cobrar_caja(request):
                 estado_pago='APROBADO', # Al ser en caja, usualmente ya está pagado
                 fecha=timezone.now(),
                 total=0.0,
-                bcv=valor_bcv,
+                bcv=f"{float(tasa):.2f}",
             )
 
             total_acumulado = 0.0
