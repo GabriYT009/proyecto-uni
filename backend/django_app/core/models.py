@@ -185,7 +185,7 @@ class Nota_Entrega(models.Model):
         ('RECHAZADO', 'Rechazado'),
     ]
 
-    bcv = models.DecimalField(max_digits=20, decimal_places=4, null=True, blank=True)
+    #bcv = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
     carrito_de_compras = models.ForeignKey(CarritoDeCompras, on_delete=models.SET_NULL, null=True, blank=True)
     metodo_pago = models.ForeignKey(MetodoPago, on_delete=models.SET_NULL, null=True, blank=True)
     cliente = models.ForeignKey(Cliente, on_delete=models.PROTECT, null=True, blank=True)
