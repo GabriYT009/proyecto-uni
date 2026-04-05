@@ -917,7 +917,7 @@ def cobrar_caja(request):
             # En caja, el cliente podría ser opcional o un "Cliente Genérico"
             cliente_datos = Cliente.objects.filter(documento__iexact=cliente_doc).first() 
             nota = Nota_Entrega.objects.create(
-                cliente=cliente_datos,
+                cliente=cliente_datos.id,
                 estado_pago='APROBADO', # Al ser en caja, usualmente ya está pagado
                 fecha=timezone.now(),
                 total=0.0
