@@ -915,7 +915,7 @@ def cobrar_caja(request):
         with transaction.atomic():
             # PASO A: Crear la Nota de Entrega (Cabecera de la venta)
             # En caja, el cliente podría ser opcional o un "Cliente Genérico"
-            Cliente = cliente_doc
+            Cliente = Cliente.objects.filter(documento__iexact=cliente_doc).first() if cliente_doc else None
             nota = Nota_Entrega.objects.create(
                 cliente=Cliente,
                 estado_pago='APROBADO', # Al ser en caja, usualmente ya está pagado
