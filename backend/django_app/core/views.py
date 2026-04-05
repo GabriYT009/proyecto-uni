@@ -25,6 +25,7 @@ from django.urls import reverse
 from django.core.files.storage import default_storage
 
 from .bcv import obtener_tasa_cambio
+from .NotaE import generar_nota_entrega
 
 from .models import Producto, Nota_Entrega, CarritoDeCompras, Historial_Inventario, Cliente
 
@@ -874,6 +875,8 @@ def cobrar_caja(request):
     """Procesa cobro desde Caja usando Nota_Entrega y CarritoDeCompras como detalle."""
     if request.method != 'POST':
         return JsonResponse({'success': False, 'error': 'Metodo no permitido'}, status=405)
+    
+    cliente_doc= request.POST.get('cliente_doc', '').strip()
 
     try:
         payload = json.loads(request.body or '{}')
@@ -912,7 +915,7 @@ def cobrar_caja(request):
         with transaction.atomic():
             # PASO A: Crear la Nota de Entrega (Cabecera de la venta)
             # En caja, el cliente podría ser opcional o un "Cliente Genérico"
-            Cliente = getattr(request.user, 'cliente', None)
+            Cliente = int(cliente_doc)
             nota = Nota_Entrega.objects.create(
                 cliente=Cliente,
                 estado_pago='APROBADO', # Al ser en caja, usualmente ya está pagado
