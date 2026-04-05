@@ -25,7 +25,7 @@ from django.urls import reverse
 from django.core.files.storage import default_storage
 
 from .bcv import obtener_tasa_cambio
-from .NotaE import generar_nota_entrega
+#from .NotaE import generar_nota_entrega
 
 from .models import Producto, Nota_Entrega, CarritoDeCompras, Historial_Inventario, Cliente
 
