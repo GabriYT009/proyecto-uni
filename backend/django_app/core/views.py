@@ -877,6 +877,7 @@ def cobrar_caja(request):
         return JsonResponse({'success': False, 'error': 'Metodo no permitido'}, status=405)
     
     cliente_doc= request.POST.get('cliente_doc', '').strip()
+    print(f"VALOR RECIBIDO DEL FRONT: '{cliente_doc}'")
 
     try:
         payload = json.loads(request.body or '{}')
@@ -915,9 +916,9 @@ def cobrar_caja(request):
         with transaction.atomic():
             # PASO A: Crear la Nota de Entrega (Cabecera de la venta)
             # En caja, el cliente podría ser opcional o un "Cliente Genérico"
-            cliente_datos = Cliente.objects.filter(documento__iexact=cliente_doc).first() 
+            cliente_datos = Cliente.objects.filter(documento__contains=cliente_doc).first() 
             nota = Nota_Entrega.objects.create(
-                cliente=cliente_datos.id,
+                cliente=cliente_datos,
                 estado_pago='APROBADO', # Al ser en caja, usualmente ya está pagado
                 fecha=timezone.now(),
                 total=0.0
