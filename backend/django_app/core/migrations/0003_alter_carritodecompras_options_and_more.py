@@ -17,42 +17,8 @@ class Migration(migrations.Migration):
             name='carritodecompras',
             options={},
         ),
-        migrations.AddField(
-            model_name='carritodecompras',
-            name='Cantidad',
-            field=models.PositiveIntegerField(default=1),
-        ),
-        migrations.AddField(
-            model_name='carritodecompras',
-            name='Producto',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.PROTECT, to='core.producto'),
-            preserve_default=False,
-        ),
-        migrations.AddField(
-            model_name='carritodecompras',
-            name='precio_unitario',
-            field=models.DecimalField(decimal_places=2, default=1, max_digits=10),
-            preserve_default=False,
-        ),
-        migrations.CreateModel(
-            name='Nota_Entrega',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('estado_pago', models.CharField(choices=[('PENDIENTE', 'Pendiente'), ('APROBADO', 'Aprobado'), ('RECHAZADO', 'Rechazado')], default='PENDIENTE', max_length=20)),
-                ('fecha_revision', models.DateTimeField(blank=True, null=True)),
-                ('total', models.FloatField(blank=True, null=True)),
-                ('fecha', models.DateTimeField(blank=True, null=True)),
-                ('bcv', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.bcv')),
-                ('carrito_de_compras', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.carritodecompras')),
-                ('cliente', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='core.cliente')),
-                ('metodo_pago', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.metodopago')),
-                ('revisado_por', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='Nota_Entrega_revisadas', to=settings.AUTH_USER_MODEL)),
-            ],
-            options={
-                'verbose_name': 'Nota_Entrega (Venta)',
-                'verbose_name_plural': 'Nota_Entrega',
-            },
-        ),
+
+        
         migrations.AddField(
             model_name='carritodecompras',
             name='Nota_Entrega',
