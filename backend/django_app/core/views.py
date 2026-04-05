@@ -922,7 +922,7 @@ def cobrar_caja(request):
                 estado_pago='APROBADO', # Al ser en caja, usualmente ya está pagado
                 fecha=timezone.now(),
                 total=0.0,
-                bcv=obtener_tasa_cambio() if obtener_tasa_cambio() != 0.00
+                bcv=obtener_tasa_cambio() if obtener_tasa_cambio() != 'N/A' else 0.00
             )
 
             total_acumulado = 0.0
