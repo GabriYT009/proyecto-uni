@@ -168,7 +168,7 @@ class Producto(models.Model):
 
 
 class CarritoDeCompras(models.Model):
-    Nota_Entrega = models.ForeignKey(Nota_Entrega, related_name='detalles', on_delete=models.CASCADE)
+    Nota_Entrega = models.ForeignKey('Nota_Entrega', related_name='detalles', on_delete=models.CASCADE)
     Producto = models.ForeignKey(Producto, on_delete=models.PROTECT)
     Cantidad=models.PositiveIntegerField(default=1)
     status_carrito = models.BooleanField(default=False)
@@ -178,7 +178,7 @@ class CarritoDeCompras(models.Model):
 
 #paso 1
 class Nota_Entrega(models.Model):
-
+ 
     ESTADO_PAGO = [
         ('PENDIENTE', 'Pendiente'),
         ('APROBADO', 'Aprobado'),
