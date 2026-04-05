@@ -925,6 +925,8 @@ def cobrar_caja(request):
                 fecha=timezone.now(),
                 total=0.0,
                 bcv=valor_bcv,
+                fecha_revision=timezone.now(),
+                revisado_por_id=request.user.pk,
             )
 
             total_acumulado = 0.0
