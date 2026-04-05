@@ -128,6 +128,7 @@
             <div class="left" style="flex:1">
                 <div class="invoice">
                     <div class="invoice-header" style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <form action="">
                         <div class="customer-info" style="font-size:14px; line-height:1.4;">
                             <div>Documento: <input type="text" id="client-doc" list="clients-list" placeholder="Cédula" style="width:120px;padding:2px;" /></div>
                             <datalist id="clients-list">
@@ -146,7 +147,7 @@
                             <div>Fecha: <span id="invoice-date">{{ now|date:"d-m-Y" }}</span></div>
                         </div>
                     </div>
-
+                        </form>
                     <div class="invoice-table-wrap">
                     <table id="invoice-table" style="width:100%; border-collapse:collapse; margin-top:12px; min-width:520px;">
                         <thead>
@@ -684,6 +685,7 @@
                             
                         recalcularTotal();})();
                     </script>
+
 
 </body>
 </html>

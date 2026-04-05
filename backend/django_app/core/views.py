@@ -912,9 +912,9 @@ def cobrar_caja(request):
         with transaction.atomic():
             # PASO A: Crear la Nota de Entrega (Cabecera de la venta)
             # En caja, el cliente podría ser opcional o un "Cliente Genérico"
-            cliente_obj = getattr(request.user, 'cliente', None)
+            Cliente = getattr(request.user, 'cliente', None)
             nota = Nota_Entrega.objects.create(
-                cliente=cliente_obj,
+                cliente=Cliente,
                 estado_pago='APROBADO', # Al ser en caja, usualmente ya está pagado
                 fecha=timezone.now(),
                 total=0.0
@@ -968,6 +968,8 @@ def cobrar_caja(request):
             'message': 'Pago procesado exitosamente.',
             'redirect_url': reverse('caja'),
         })
+    
+
 
     except ValueError as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
