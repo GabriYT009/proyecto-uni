@@ -130,14 +130,14 @@
                     <div class="invoice-header" style="display:flex; justify-content:space-between; align-items:flex-start;">
                         <form action="">
                         <div class="customer-info" style="font-size:14px; line-height:1.4;">
-                            <div>Documento: <input type="text" name="client-doc" id="client-doc" list="clients-list" placeholder="Cédula" style="width:120px;padding:2px;" /></div>
+                            <div>Documento: <input type="text"  id="client-doc" list="clients-list" placeholder="Cédula" style="width:120px;padding:2px;" /></div>
                             <datalist id="clients-list">
                                 {% for c in clientes %}
                                     <option value="{{ c.documento }}">{{ c.nombre_cliente }} {{ c.apellido_cliente }}</option>
                                 {% endfor %}
                             </datalist>
                             <div>Cliente: <strong id="client-name">Consumidor Final</strong></div>
-                            <div>R.I.F: <span id="client-rif">-</span></div>
+                            <div>R.I.F: <span id="client-rif" name="client-doc">-</span></div>
                             <div>Dirección: <span id="client-dir">-</span></div>
                             <div>Teléfono: <span id="client-phone">-</span></div>
                         </div>
