@@ -17,10 +17,6 @@ class Migration(migrations.Migration):
             name='carritodecompras',
             options={},
         ),
-        migrations.RemoveField(
-            model_name='carritodecompras',
-            name='usuario',
-        ),
         migrations.AddField(
             model_name='carritodecompras',
             name='Cantidad',
