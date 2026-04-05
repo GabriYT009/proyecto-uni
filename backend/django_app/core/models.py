@@ -178,7 +178,7 @@ class CarritoDeCompras(models.Model):
 
 #paso 1
 class Nota_Entrega(models.Model):
-
+ 
     ESTADO_PAGO = [
         ('PENDIENTE', 'Pendiente'),
         ('APROBADO', 'Aprobado'),
