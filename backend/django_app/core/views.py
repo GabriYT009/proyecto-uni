@@ -877,6 +877,8 @@ def cobrar_caja(request):
         return JsonResponse({'success': False, 'error': 'Metodo no permitido'}, status=405)
     
     cliente_doc= request.POST.get('cliente_doc', '').strip()
+    tasa = obtener_tasa_cambio()
+    valor_bcv = float(tasa) if tasa != 'N/A' else 0.00
     print(f"VALOR RECIBIDO DEL FRONT: '{cliente_doc}'")
 
     try:
@@ -922,7 +924,7 @@ def cobrar_caja(request):
                 estado_pago='APROBADO', # Al ser en caja, usualmente ya está pagado
                 fecha=timezone.now(),
                 total=0.0,
-                bcv=round( float( obtener_tasa_cambio() if obtener_tasa_cambio() != 'N/A' else 0.00),2)
+                bcv=round( valor_bcv,2),
             )
 
             total_acumulado = 0.0
