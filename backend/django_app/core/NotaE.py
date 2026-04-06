@@ -67,9 +67,15 @@ class Generar_NE(FPDF):
 
         for item in self.items:
             producto = item.Producto
-            cantidad = item.cantidad_item
-            precio_unit = producto.precio_venta or 0
-            subtotal = item.sub_total_item or 0
+            
+            # 1. Usamos el nombre exacto de tu modelo (con C mayúscula)
+            cantidad = item.Cantidad
+            
+            # 2. Tomamos el precio que guardaste en el carrito (o del producto si falla)
+            precio_unit = item.precio_unitario or producto.precio_venta or 0
+            
+            # 3. Como no tienes un campo 'sub_total_item', lo calculamos aquí mismo:
+            subtotal = float(cantidad) * float(precio_unit)
             
             # Ahora suma correctamente
             total_usd += subtotal

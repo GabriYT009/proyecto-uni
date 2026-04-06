@@ -174,7 +174,7 @@ class CarritoDeCompras(models.Model):
     status_carrito = models.BooleanField(default=False)
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
     def __str__(self):
-        return f"{self.cantidad} x {self.Producto.nombre} (Nota de Entrega {self.Nota_Entrega.id})"
+        return f"{self.Cantidad} x {self.Producto.nombre} (Nota de Entrega {self.Nota_Entrega.id})"
 
 #paso 1
 class Nota_Entrega(models.Model):
