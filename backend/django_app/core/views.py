@@ -1,6 +1,7 @@
 import logging
 from collections import Counter
-
+from django.views import View
+from django.template.loader import render_to_string
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
@@ -25,7 +26,7 @@ from django.urls import reverse
 from django.core.files.storage import default_storage
 
 from .bcv import obtener_tasa_cambio
-#from .NotaE import generar_nota_entrega
+from .NotaE import Generar_NE
 
 from .models import Producto, Nota_Entrega, CarritoDeCompras, Historial_Inventario, Cliente
 
@@ -974,6 +975,7 @@ def cobrar_caja(request):
         messages.success(request, 'Venta en caja procesada exitosamente.')
         return JsonResponse({
             'success': True,
+            'nota_id': nota.id,
             'message': 'Pago procesado exitosamente.',
             'redirect_url': reverse('caja'),
         })
@@ -984,6 +986,12 @@ def cobrar_caja(request):
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
     except Exception as e:
         return JsonResponse({'success': False, 'error': f"Error interno: {str(e)}"}, status=500)
+
+@login_required
+def descargar_factura_ne(request, pk):
+    nota = get_object_or_404(Nota_Entrega, pk=pk)
+    pdf = Generar_NE(nota) # Instanciamos tu clase
+    return pdf.generate_invoice() # Llamamos al método que retorna la HttpResponse
 
 @login_required
 @admin_only

@@ -1,13 +1,13 @@
 from fpdf import FPDF
 from datetime import datetime
-from .models import Salida, OrdenDeDespacho, Cliente
+from .models import CarritoDeCompras, OrdenDeDespacho, Cliente
 from django.shortcuts import render,HttpResponse
 
 class Generar_NE(FPDF):
-    def __init__(self, salida, *args, **kwargs):
+    def __init__(self, nota_obj, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.salida = salida
-        self.items = OrdenDeDespacho.objects.filter(carrito_de_compras=salida.carrito_de_compras).select_related('producto')
+        self.salida = nota_obj
+        self.items = CarritoDeCompras.objects.filter(Nota_Entrega=nota_obj).select_related('Producto')
 
     def header(self):
         # Logo or company info
@@ -61,17 +61,18 @@ class Generar_NE(FPDF):
         total = 0
 
         for item in self.items:
-            producto = item.producto
+            producto = item.Producto
             cantidad = item.cantidad_item
             precio_unit = producto.precio_venta or 0
             subtotal = item.sub_total_item or 0
-            total += subtotal
+            total_usd += subtotal
 
             # Product name (may need to wrap long names)
             self.cell(80, 8, producto.nombre_producto[:35], 1, 0, 'L')
             self.cell(20, 8, str(cantidad), 1, 0, 'C')
             self.cell(30, 8, f'${precio_unit:.2f}', 1, 0, 'R')
             self.cell(30, 8, f'${subtotal:.2f}', 1, 1, 'R')
+        
 
             # If description is long, add it in next row
             if len(producto.nombre_producto) > 35:
@@ -80,19 +81,26 @@ class Generar_NE(FPDF):
                 self.cell(30, 6, '', 1, 0, 'R')
                 self.cell(30, 6, '', 1, 1, 'R')
 
-        # Total
+        # Totales con conversión a Bolívares
         self.ln(5)
         self.set_font('Arial', 'B', 12)
-        self.cell(130, 10, 'TOTAL:', 0, 0, 'R')
-        self.cell(30, 10, f'${total:.2f}', 0, 1, 'R')
+        
+        # Total en Dólares
+        self.cell(130, 10, 'TOTAL USD:', 0, 0, 'R')
+        self.cell(30, 10, f'${total_usd:.2f}', 0, 1, 'R')
 
         # Payment method if available
-        if self.salida.metodo_pago:
-            self.ln(5)
-            self.set_font('Arial', '', 10)
-            self.cell(0, 8, f'Método de Pago: {self.salida.metodo_pago.nombre_metodo_pago}', 0, 1, 'L')
+        if self.salida.bcv:
+            total_bs = total_usd * float(self.salida.bcv)
+            self.set_font('Arial', 'B', 10)
+            self.cell(130, 8, f'Tasa BCV: {self.salida.bcv}', 0, 0, 'R')
+            self.cell(30, 8, '', 0, 1, 'R')
+            self.set_font('Arial', 'B', 12)
+            self.cell(130, 10, 'TOTAL Bs:', 0, 0, 'R')
+            self.cell(30, 10, f'{total_bs:.2f}', 0, 1, 'R')
 
-        pdf_bytes = self.output(dest='S').encode('latin1')  # 'S' retorna el PDF como string
+        # Retornar la respuesta para Django
+        pdf_bytes = self.output(dest='S').encode('latin1')
         response = HttpResponse(pdf_bytes, content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="Listado General de Empleados {datetime.now().strftime("%d/%m/%Y")}.pdf"'
+        response['Content-Disposition'] = f'attachment; filename="Nota_Entrega_{self.salida.pk}.pdf"'
         return response

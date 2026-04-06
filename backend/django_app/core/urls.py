@@ -2,7 +2,7 @@ from django.urls import path
 from django.views.generic import RedirectView
 from . import views
 from . import views_inventario_api
-
+from .views import cobrar_caja, descargar_factura_ne
 urlpatterns = [
     path('', views.login_view, name='login'),
     path('home', views.home, name='home'),
@@ -45,9 +45,10 @@ urlpatterns = [
     path('comprar_producto/<int:producto_id>/', RedirectView.as_view(url='/producto/%(producto_id)s/comprar/', permanent=False)),
     path('todos_clientes/', views.todos_clientes, name='todos_clientes'),
     path('agregar_marca/', views.agregar_marca, name='agregar_marca'),
-    
+    path('factura/descargar/<int:pk>/', descargar_factura_ne, name='descargar_factura_ne'),
     # Nueva ruta para ajuste masivo de inventario
     path('ajustar_inventario/', views.ajustar_inventario_masivo, name='ajustar_inventario_masivo'),
     # API para ajuste de stock
     path('api/ajustar_stock/', views_inventario_api.ajustar_stock_producto, name='api_ajustar_stock'),
+    path('cobrar-caja/', cobrar_caja, name='cobrar_caja'),
 ]
