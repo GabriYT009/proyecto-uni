@@ -34,9 +34,9 @@ class Generar_NE(FPDF):
         if self.salida.cliente:
             cliente = self.salida.cliente
             # Tomamos los datos asumiendo que tu modelo Cliente usa estos nombres (como en tu HTML)
-            nombre = getattr(cliente, 'nombre_cliente', '')
-            apellido = getattr(cliente, 'apellido_cliente', '')
-            documento = getattr(cliente, 'documento', '')
+            nombre = cliente.nombre_cliente 
+            apellido = cliente.apellido_cliente
+            documento = cliente.documento
             
             self.cell(0, 8, f'Cliente: {nombre} {apellido}'.strip(), 0, 1, 'L')
             
