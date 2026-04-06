@@ -877,21 +877,23 @@ def cobrar_caja(request):
     if request.method != 'POST':
         return JsonResponse({'success': False, 'error': 'Metodo no permitido'}, status=405)
     
-    cliente_doc= request.POST.get('cliente_doc', '').strip()
     tasa = obtener_tasa_cambio()
     valor_bcv = float(tasa) if tasa != 'N/A' else 0.00
 
-
+    # 1. Primero decodificamos el JSON
     try:
         payload = json.loads(request.body or '{}')
     except Exception:
         return JsonResponse({'success': False, 'error': 'Payload JSON invalido'}, status=400)
 
+    # 2. AHORA SÍ sacamos la cédula y los items del payload decodificado
+    cliente_doc = payload.get('cliente_doc', '').strip()
     raw_items = payload.get('items') or []
+    
     if not isinstance(raw_items, list) or not raw_items:
         return JsonResponse({'success': False, 'error': 'No hay productos para cobrar'}, status=400)
 
-    # 1. Agrupar cantidades por producto
+    # Agrupar cantidades por producto
     qty_by_product = {}
     for item in raw_items:
         try:
@@ -906,7 +908,7 @@ def cobrar_caja(request):
     if not qty_by_product:
         return JsonResponse({'success': False, 'error': 'No hay productos validos para cobrar'}, status=400)
 
-    # 2. Cargar productos y validar existencia
+    # Cargar productos y validar existencia
     productos = {
         p.pk: p for p in Producto.objects.filter(pk__in=qty_by_product.keys(), status_producto=True)
     }
@@ -917,12 +919,16 @@ def cobrar_caja(request):
 
     try:
         with transaction.atomic():
-            # PASO A: Crear la Nota de Entrega (Cabecera de la venta)
-            # En caja, el cliente podría ser opcional o un "Cliente Genérico"
-            cliente_datos = Cliente.objects.filter(documento__contains=cliente_doc).first() 
+            # PASO A: Buscar el cliente de forma ESTRICTA (no con contains)
+            cliente_datos = None
+            if cliente_doc:
+                # Usamos documento=cliente_doc para buscar coincidencia exacta
+                cliente_datos = Cliente.objects.filter(documento=cliente_doc).first() 
+
+            # Crear la Nota de Entrega
             nota = Nota_Entrega.objects.create(
                 cliente=cliente_datos,
-                estado_pago='APROBADO', # Al ser en caja, usualmente ya está pagado
+                estado_pago='APROBADO',
                 fecha=timezone.now(),
                 total=0.0,
                 bcv=valor_bcv,
@@ -938,8 +944,7 @@ def cobrar_caja(request):
                 disponible = producto.cantidad_disponible or 0
 
                 if cantidad > disponible:
-                    # El rollback ocurre automáticamente por la excepción
-                    raise ValueError(f'Stock insuficiente para "{producto.nombre}". Disponible: {disponible}.')
+                    raise ValueError(f'Stock insuficiente para "{producto.nombre_producto}". Disponible: {disponible}.')
 
                 subtotal_item = float(producto.precio_venta or 0) * cantidad
                 
@@ -979,8 +984,6 @@ def cobrar_caja(request):
             'message': 'Pago procesado exitosamente.',
             'redirect_url': reverse('caja'),
         })
-    
-
 
     except ValueError as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=400)

@@ -572,7 +572,7 @@
 
 
             document.getElementById('clear-invoice').addEventListener('click', function(){ items = {}; renderInvoice(); recalc(); });
-            document.getElementById('checkout').addEventListener('click', async function(){
+document.getElementById('checkout').addEventListener('click', async function(){
                 var payloadItems = Object.keys(items).map(function(k){
                     return { id: Number(items[k].id), qty: Number(items[k].qty || 1) };
                 }).filter(function(it){ return it.id > 0 && it.qty > 0; });
@@ -582,6 +582,9 @@
                     return;
                 }
 
+                // 1. CAPTURAR LA CÉDULA DEL INPUT
+                var clienteDoc = document.getElementById('client-doc').value.trim();
+
                 try {
                     const res = await fetch('/caja/cobrar/', {
                         method: 'POST',
@@ -590,9 +593,15 @@
                             'X-CSRFToken': getCookie('csrftoken') || ''
                         },
                         credentials: 'include',
-                        body: JSON.stringify({ items: payloadItems })
+                        body: JSON.stringify({ 
+                            items: payloadItems,
+                            cliente_doc: clienteDoc // 2. ENVIAR LA CÉDULA A DJANGO
+                        })
                     });
+                    
                     const data = await res.json();
+                    
+                    // ... (el resto del código sigue igual, con el window.open)
                     if (!res.ok || !data.success) {
                         showJsAlert(data.error || 'No se pudo procesar el pago.', 'danger');
                         return;
