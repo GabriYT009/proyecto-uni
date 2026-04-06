@@ -26,19 +26,25 @@ class Generar_NE(FPDF):
         self.set_font('Arial', 'B', 12)
         self.cell(0, 8, f'N° Factura: {self.salida.pk}', 0, 1, 'L')
         
-        # Validación de fecha por si acaso
-        if hasattr(self.salida, 'date') and self.salida.date:
-            self.cell(0, 8, f'Fecha: {self.salida.date.strftime("%d/%m/%Y %H:%M")}', 0, 1, 'L')
+        # Validación de fecha (tu campo se llama 'fecha')
+        if self.salida.fecha:
+            self.cell(0, 8, f'Fecha: {self.salida.fecha.strftime("%d/%m/%Y %H:%M")}', 0, 1, 'L')
 
-        # Client info if available
-        if getattr(self.salida, 'usuario', None):
-            cliente = getattr(self.salida.usuario, 'cliente', None)
-            if cliente:
-                self.cell(0, 8, f'Cliente: {cliente.nombre_cliente} {cliente.apellido_cliente}', 0, 1, 'L')
-                if getattr(cliente, 'documento', None):
-                    self.cell(0, 8, f'Cédula/RIF: {cliente.documento}', 0, 1, 'L')
-            else:
-                self.cell(0, 8, f'Usuario: {self.salida.usuario.username}', 0, 1, 'L')
+        # Información del cliente (conectado directamente a tu modelo Nota_Entrega)
+        if self.salida.cliente:
+            cliente = self.salida.cliente
+            # Tomamos los datos asumiendo que tu modelo Cliente usa estos nombres (como en tu HTML)
+            nombre = getattr(cliente, 'nombre_cliente', '')
+            apellido = getattr(cliente, 'apellido_cliente', '')
+            documento = getattr(cliente, 'documento', '')
+            
+            self.cell(0, 8, f'Cliente: {nombre} {apellido}'.strip(), 0, 1, 'L')
+            
+            if documento:
+                self.cell(0, 8, f'Cédula/RIF: {documento}', 0, 1, 'L')
+        else:
+            # Si no hay cliente asociado (ej. venta rápida), ponemos Consumidor Final
+            self.cell(0, 8, 'Cliente: Consumidor Final', 0, 1, 'L')
 
         self.ln(10)
 
