@@ -604,19 +604,14 @@
                         // 1. Construimos la URL usando el ID que nos mandó Django (ej: /factura/descargar/45/)
                         const urlDescarga = `/factura/descargar/${data.nota_id}/`;
 
-                        // 2. Creamos un link invisible y lo clickeamos para que el navegador descargue el PDF
-                        const link = document.createElement('a');
-                        link.href = urlDescarga;
-                        link.download = `Nota_Entrega_${data.nota_id}.pdf`; 
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
+                        // 2. Abrimos el PDF en una pestaña nueva para que no se corte la descarga
+                        window.open(urlDescarga, '_blank');
 
                         // 3. Mostrar mensaje de éxito y recargar la página para limpiar la caja
-                        showJsAlert("Venta procesada y factura generada.", 'success', 2500);
+                        showJsAlert("Venta procesada y factura generada.", 'success', 3500);
                         setTimeout(function(){
                             window.location.reload();
-                        }, 2000);
+                        }, 3500); // <-- Aumentamos el tiempo a 3.5 segundos
                     }
                 } catch(err){
                     showJsAlert('Error al procesar el pago. Intenta de nuevo.', 'danger');
