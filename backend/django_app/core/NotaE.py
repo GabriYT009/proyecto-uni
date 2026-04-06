@@ -45,7 +45,6 @@ class Generar_NE(FPDF):
         self.cell(0, 10, f'Página {self.page_no()}/{{nb}}', 0, 0, 'C')
         self.ln(5)
         self.cell(0, 10, 'Gracias por su compra - SolucionArte', 0, 0, 'C')
-
     def generate_invoice(self):
         self.add_page()
 
@@ -58,14 +57,18 @@ class Generar_NE(FPDF):
 
         # Table content
         self.set_font('Arial', '', 10)
-        total = 0
+        
+        
+        total_usd = 0 
 
         for item in self.items:
             producto = item.Producto
             cantidad = item.cantidad_item
             precio_unit = producto.precio_venta or 0
             subtotal = item.sub_total_item or 0
-            total_usd += subtotal
+            
+        
+            total_usd += subtotal 
 
             # Product name (may need to wrap long names)
             self.cell(80, 8, producto.nombre_producto[:35], 1, 0, 'L')
@@ -73,7 +76,6 @@ class Generar_NE(FPDF):
             self.cell(30, 8, f'${precio_unit:.2f}', 1, 0, 'R')
             self.cell(30, 8, f'${subtotal:.2f}', 1, 1, 'R')
         
-
             # If description is long, add it in next row
             if len(producto.nombre_producto) > 35:
                 self.cell(80, 6, producto.nombre_producto[35:], 1, 0, 'L')
@@ -99,8 +101,14 @@ class Generar_NE(FPDF):
             self.cell(130, 10, 'TOTAL Bs:', 0, 0, 'R')
             self.cell(30, 10, f'{total_bs:.2f}', 0, 1, 'R')
 
-        # Retornar la respuesta para Django
-        pdf_bytes = self.output(dest='S').encode('latin1')
+        
+        try:
+            
+            pdf_bytes = bytes(self.output()) 
+        except TypeError:
+            
+            pdf_bytes = self.output(dest='S').encode('latin1') 
+            
         response = HttpResponse(pdf_bytes, content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="Nota_Entrega_{self.salida.pk}.pdf"'
         return response
