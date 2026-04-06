@@ -572,13 +572,10 @@
 
 
             document.getElementById('clear-invoice').addEventListener('click', function(){ items = {}; renderInvoice(); recalc(); });
-document.getElementById('checkout').addEventListener('click', async function(){
+            document.getElementById('checkout').addEventListener('click', async function(){
                 var payloadItems = Object.keys(items).map(function(k){
                     return { id: Number(items[k].id), qty: Number(items[k].qty || 1) };
                 }).filter(function(it){ return it.id > 0 && it.qty > 0; });
-
-                // Agregamos el documento del cliente al payload para que Django lo reciba
-                var clienteDoc = document.getElementById('client-doc').value.trim();
 
                 if(!payloadItems.length){
                     showJsAlert('No hay productos agregados para cobrar.', 'warning');
@@ -593,44 +590,23 @@ document.getElementById('checkout').addEventListener('click', async function(){
                             'X-CSRFToken': getCookie('csrftoken') || ''
                         },
                         credentials: 'include',
-                        // Enviamos items y el cliente_doc
-                        body: JSON.stringify({ 
-                            items: payloadItems,
-                            cliente_doc: clienteDoc 
-                        })
+                        body: JSON.stringify({ items: payloadItems })
                     });
-                    
                     const data = await res.json();
-
                     if (!res.ok || !data.success) {
                         showJsAlert(data.error || 'No se pudo procesar el pago.', 'danger');
                         return;
                     }
 
-                    // --- INICIO LÓGICA DE DESCARGA AUTOMÁTICA ---
-                    if (data.nota_id) {
-                        const urlDescarga = `/factura/descargar/${data.nota_id}/`;
-                        const link = document.createElement('a');
-                        link.href = urlDescarga;
-                        // El nombre que sugerimos al navegador
-                        link.download = `Nota_Entrega_${data.nota_id}.pdf`; 
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                    }
-                    // --- FIN LÓGICA DE DESCARGA ---
-
-                    showJsAlert(data.message || 'Pago procesado y factura generada.', 'success', 2500);
-                    
+                    showJsAlert(data.message || 'Su pago ha sido procesado exitosamente.', 'success', 2500);
                     setTimeout(function(){
                         window.location.href = data.redirect_url || '/caja/';
                     }, 2000);
-
                 } catch(err){
-                    console.error(err);
                     showJsAlert('Error al procesar el pago. Intenta de nuevo.', 'danger');
                 }
             });
+        })();
     </script>
     <script src="{% static 'core/page-loader.js' %}"></script>
 
