@@ -2,7 +2,7 @@ import logging
 from collections import Counter
 from django.views import View
 from django.template.loader import render_to_string
-
+import traceback
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import user_passes_test, login_required
@@ -24,7 +24,7 @@ from django.utils import timezone
 from django.db import transaction
 from django.urls import reverse
 from django.core.files.storage import default_storage
-
+from django.http import HttpResponse
 from .bcv import obtener_tasa_cambio
 from .NotaE import Generar_NE
 
@@ -989,10 +989,20 @@ def cobrar_caja(request):
 
 @login_required
 def descargar_factura_ne(request, pk):
-    nota = get_object_or_404(Nota_Entrega, pk=pk)
-    pdf = Generar_NE(nota) # Instanciamos tu clase
-    return pdf.generate_invoice() # Llamamos al método que retorna la HttpResponse
-
+    try:
+        nota = get_object_or_404(Nota_Entrega, pk=pk)
+        pdf = Generar_NE(nota)
+        return pdf.generate_invoice()
+    except Exception as e:
+        # Esto atrapa el error oculto y lo formatea
+        error_trace = traceback.format_exc()
+        print(error_trace) # Lo fuerza a salir en la consola de Docker
+        
+        # Y te lo muestra en la pestaña nueva del navegador
+        return HttpResponse(
+            f"<h1>Error generando PDF:</h1><pre style='background:#f4f4f4; padding:15px; border:1px solid #ccc;'>{error_trace}</pre>", 
+            status=500
+        )
 @login_required
 @admin_only
 def inventario(request):
