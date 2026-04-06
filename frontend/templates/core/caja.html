@@ -596,12 +596,28 @@
                     if (!res.ok || !data.success) {
                         showJsAlert(data.error || 'No se pudo procesar el pago.', 'danger');
                         return;
+                    
                     }
 
-                    showJsAlert(data.message || 'Su pago ha sido procesado exitosamente.', 'success', 2500);
-                    setTimeout(function(){
-                        window.location.href = data.redirect_url || '/caja/';
-                    }, 2000);
+                    // Procesar el éxito: descargar el PDF y recargar la página
+                    if (data.success) {
+                        // 1. Construimos la URL usando el ID que nos mandó Django (ej: /factura/descargar/45/)
+                        const urlDescarga = `/factura/descargar/${data.nota_id}/`;
+
+                        // 2. Creamos un link invisible y lo clickeamos para que el navegador descargue el PDF
+                        const link = document.createElement('a');
+                        link.href = urlDescarga;
+                        link.download = `Nota_Entrega_${data.nota_id}.pdf`; 
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+
+                        // 3. Mostrar mensaje de éxito y recargar la página para limpiar la caja
+                        showJsAlert("Venta procesada y factura generada.", 'success', 2500);
+                        setTimeout(function(){
+                            window.location.reload();
+                        }, 2000);
+                    }
                 } catch(err){
                     showJsAlert('Error al procesar el pago. Intenta de nuevo.', 'danger');
                 }
