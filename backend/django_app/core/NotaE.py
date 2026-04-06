@@ -1,7 +1,7 @@
 from fpdf import FPDF
 from datetime import datetime
 from .models import CarritoDeCompras, OrdenDeDespacho, Cliente
-from django.shortcuts import render,HttpResponse
+from django.shortcuts import render, HttpResponse, get_object_or_404
 
 class Generar_NE(FPDF):
     def __init__(self, nota_obj, *args, **kwargs):
@@ -25,14 +25,17 @@ class Generar_NE(FPDF):
         # Invoice details
         self.set_font('Arial', 'B', 12)
         self.cell(0, 8, f'N° Factura: {self.salida.pk}', 0, 1, 'L')
-        self.cell(0, 8, f'Fecha: {self.salida.date.strftime("%d/%m/%Y %H:%M")}', 0, 1, 'L')
+        
+        # Validación de fecha por si acaso
+        if hasattr(self.salida, 'date') and self.salida.date:
+            self.cell(0, 8, f'Fecha: {self.salida.date.strftime("%d/%m/%Y %H:%M")}', 0, 1, 'L')
 
         # Client info if available
-        if self.salida.usuario:
+        if getattr(self.salida, 'usuario', None):
             cliente = getattr(self.salida.usuario, 'cliente', None)
             if cliente:
                 self.cell(0, 8, f'Cliente: {cliente.nombre_cliente} {cliente.apellido_cliente}', 0, 1, 'L')
-                if cliente.documento:
+                if getattr(cliente, 'documento', None):
                     self.cell(0, 8, f'Cédula/RIF: {cliente.documento}', 0, 1, 'L')
             else:
                 self.cell(0, 8, f'Usuario: {self.salida.usuario.username}', 0, 1, 'L')
@@ -45,6 +48,7 @@ class Generar_NE(FPDF):
         self.cell(0, 10, f'Página {self.page_no()}/{{nb}}', 0, 0, 'C')
         self.ln(5)
         self.cell(0, 10, 'Gracias por su compra - SolucionArte', 0, 0, 'C')
+
     def generate_invoice(self):
         self.add_page()
 
@@ -58,8 +62,8 @@ class Generar_NE(FPDF):
         # Table content
         self.set_font('Arial', '', 10)
         
-        
-        total_usd = 0 
+        # --- AQUÍ ESTABA EL ERROR: Declarar total_usd en lugar de total ---
+        total_usd = 0
 
         for item in self.items:
             producto = item.Producto
@@ -67,18 +71,20 @@ class Generar_NE(FPDF):
             precio_unit = producto.precio_venta or 0
             subtotal = item.sub_total_item or 0
             
-        
-            total_usd += subtotal 
+            # Ahora suma correctamente
+            total_usd += subtotal
+
+            nombre_prod = producto.nombre_producto or "Producto sin nombre"
 
             # Product name (may need to wrap long names)
-            self.cell(80, 8, producto.nombre_producto[:35], 1, 0, 'L')
+            self.cell(80, 8, nombre_prod[:35], 1, 0, 'L')
             self.cell(20, 8, str(cantidad), 1, 0, 'C')
             self.cell(30, 8, f'${precio_unit:.2f}', 1, 0, 'R')
             self.cell(30, 8, f'${subtotal:.2f}', 1, 1, 'R')
-        
+
             # If description is long, add it in next row
-            if len(producto.nombre_producto) > 35:
-                self.cell(80, 6, producto.nombre_producto[35:], 1, 0, 'L')
+            if len(nombre_prod) > 35:
+                self.cell(80, 6, nombre_prod[35:70], 1, 0, 'L')
                 self.cell(20, 6, '', 1, 0, 'C')
                 self.cell(30, 6, '', 1, 0, 'R')
                 self.cell(30, 6, '', 1, 1, 'R')
@@ -92,22 +98,25 @@ class Generar_NE(FPDF):
         self.cell(30, 10, f'${total_usd:.2f}', 0, 1, 'R')
 
         # Payment method if available
-        if self.salida.bcv:
-            total_bs = total_usd * float(self.salida.bcv)
-            self.set_font('Arial', 'B', 10)
-            self.cell(130, 8, f'Tasa BCV: {self.salida.bcv}', 0, 0, 'R')
-            self.cell(30, 8, '', 0, 1, 'R')
-            self.set_font('Arial', 'B', 12)
-            self.cell(130, 10, 'TOTAL Bs:', 0, 0, 'R')
-            self.cell(30, 10, f'{total_bs:.2f}', 0, 1, 'R')
+        if getattr(self.salida, 'bcv', None):
+            try:
+                total_bs = total_usd * float(self.salida.bcv)
+                self.set_font('Arial', 'B', 10)
+                self.cell(130, 8, f'Tasa BCV: {self.salida.bcv}', 0, 0, 'R')
+                self.cell(30, 8, '', 0, 1, 'R')
+                self.set_font('Arial', 'B', 12)
+                self.cell(130, 10, 'TOTAL Bs:', 0, 0, 'R')
+                self.cell(30, 10, f'{total_bs:.2f}', 0, 1, 'R')
+            except (ValueError, TypeError):
+                pass # Evita que colapse si bcv viene nulo o con texto extraño
 
-        
+        # Retornar la respuesta para Django asegurando compatibilidad con la versión de FPDF
         try:
-            
+            # Versión nueva (fpdf2)
             pdf_bytes = bytes(self.output()) 
         except TypeError:
-            
-            pdf_bytes = self.output(dest='S').encode('latin1') 
+            # Versión vieja (fpdf clásico)
+            pdf_bytes = self.output(dest='S').encode('latin1')
             
         response = HttpResponse(pdf_bytes, content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="Nota_Entrega_{self.salida.pk}.pdf"'
