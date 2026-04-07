@@ -1164,8 +1164,8 @@ def comprar_producto(request, producto_id):
                 cliente_obj = getattr(request.user, 'cliente', None)
                 nota = Nota_Entrega.objects.create(
                     cliente=cliente_obj,
-                    estado_pago='pendiente',
-                    fecha_emision=timezone.now()
+                    estado_pago='PENDIENTE',
+                    fecha=timezone.now()
                 )
                 carrito_item = CarritoDeCompras.objects.create(Nota_Entrega=nota, Producto = producto, cantidad=cantidad, status_carrito=True, precio_unitario=producto.precio_venta
                 ) 
@@ -1239,17 +1239,17 @@ def aprobar_pagos(request):
     if request.method == 'POST':
         salida_id = request.POST.get('salida_id')
         accion = (request.POST.get('accion') or '').strip().lower()
-        salida = get_object_or_404(Salida, pk=salida_id, comprobante_pago__isnull=False)
+        salida = get_object_or_404(Nota_Entrega, pk=salida_id, comprobante_pago__isnull=False)
 
-        if salida.estado_pago != Salida.ESTADO_PAGO_PENDIENTE:
+        if salida.estado_pago != Nota_Entrega.ESTADO_PAGO_PENDIENTE:
             messages.info(request, 'Este pago ya fue revisado.')
             return redirect('aprobar_pagos')
 
         if accion == 'aprobar':
-            salida.estado_pago = Salida.ESTADO_PAGO_APROBADO
+            salida.estado_pago = Nota_Entrega.ESTADO_PAGO_APROBADO
             messages.success(request, f'Pago #{salida.pk} aprobado correctamente.')
         elif accion == 'rechazar':
-            salida.estado_pago = Salida.ESTADO_PAGO_RECHAZADO
+            salida.estado_pago = Nota_Entrega.ESTADO_PAGO_RECHAZADO
             messages.warning(request, f'Pago #{salida.pk} marcado como rechazado.')
         else:
             messages.error(request, 'Acción no válida.')
@@ -1261,10 +1261,10 @@ def aprobar_pagos(request):
         return redirect('aprobar_pagos')
 
     salidas = list(
-        Salida.objects
-        .filter(comprobante_pago__isnull=False, estado_pago=Salida.ESTADO_PAGO_PENDIENTE)
-        .select_related('usuario', 'carrito_de_compras', 'revisado_por')
-        .order_by('-date', '-id')
+        Nota_Entrega.objects
+        .filter(comprobante_pago__isnull=False, estado_pago=Nota_Entrega.ESTADO_PAGO_PENDIENTE)
+        .select_related('cliente', 'cliente__user', 'carrito_de_compras', 'revisado_por')
+        .order_by('-fecha', '-id')
     )
 
     carrito_ids = [s.carrito_de_compras_id for s in salidas if s.carrito_de_compras_id]

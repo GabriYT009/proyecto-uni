@@ -189,6 +189,7 @@ class Nota_Entrega(models.Model):
     carrito_de_compras = models.ForeignKey(CarritoDeCompras, on_delete=models.SET_NULL, null=True, blank=True)
     metodo_pago = models.ForeignKey(MetodoPago, on_delete=models.SET_NULL, null=True, blank=True)
     cliente = models.ForeignKey(Cliente, on_delete=models.PROTECT, null=True, blank=True)
+    comprobante_pago = models.ImageField(upload_to='payment_proofs/', blank=True, null=True)
 
     estado_pago = models.CharField(max_length=20, choices=ESTADO_PAGO, default='PENDIENTE')
     revisado_por = models.ForeignKey(

@@ -295,8 +295,8 @@
                             <div>
                                 <h2 class="payment-title">Orden #{{ salida.pk }}</h2>
                                 <div class="payment-meta">
-                                    <span>Cliente: {{ salida.usuario.username|default:'Sin usuario' }}</span>
-                                    <span>Fecha: {{ salida.date }}</span>
+                                    <span>Cliente: {% if salida.cliente %}{% if salida.cliente.user %}{{ salida.cliente.user.username }}{% else %}{{ salida.cliente.nombre_cliente|default:'Sin usuario' }}{% endif %}{% else %}Sin cliente{% endif %}</span>
+                                    <span>Fecha: {{ salida.fecha|default:salida.fecha_revision }}</span>
                                     <span>Total: $ {{ salida.total }}</span>
                                 </div>
                             </div>
