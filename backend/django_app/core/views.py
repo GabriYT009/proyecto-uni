@@ -1,6 +1,7 @@
 import logging
 from collections import Counter
-
+from django.views import View
+from django.template.loader import render_to_string
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
@@ -13,6 +14,21 @@ from django.contrib import messages
 from django.db.models import Q, F, Case, When, IntegerField
 from django.core.cache import cache
 from django.conf import settings
+import re
+import os
+import json
+from .models import Producto, Cliente, Categoria, Historial_Inventario, MetodoPago, CarritoDeCompras, OrdenDeDespacho
+from django.core.paginator import Paginator
+from .forms import ProductForm
+from django.utils import timezone
+from django.db import transaction
+from django.urls import reverse
+from django.core.files.storage import default_storage
+
+from .bcv import obtener_tasa_cambio
+from .NotaE import Generar_NE
+
+from .models import Producto, Nota_Entrega, CarritoDeCompras, Historial_Inventario, Cliente
 
 def is_admin(user):
     if not hasattr(user, 'is_authenticated') or not user.is_authenticated:
@@ -28,18 +44,6 @@ def admin_only(view_func):
 def ajustar_inventario_masivo(request):
     productos = Producto.objects.all().order_by('nombre_producto')
     return render(request, 'core/ajustar_inventario.html', {'productos': productos})
-import re
-import os
-import json
-from .models import Producto, Cliente, Categoria, Historial_Inventario, MetodoPago, CarritoDeCompras, OrdenDeDespacho, Salida
-from django.core.paginator import Paginator
-from .forms import ProductForm
-from django.utils import timezone
-from django.db import transaction
-from django.urls import reverse
-from django.core.files.storage import default_storage
-
-from .bcv import obtener_tasa_cambio
 
 
 logger = logging.getLogger(__name__)
@@ -866,23 +870,30 @@ def caja(request):
         'valor_dolar':str(tasa),
     })
 
-
 @login_required
 @shared_access
 def cobrar_caja(request):
-    """Procesa cobro desde la vista Caja y devuelve JSON para feedback en UI."""
+    """Procesa cobro desde Caja usando Nota_Entrega y CarritoDeCompras como detalle."""
     if request.method != 'POST':
         return JsonResponse({'success': False, 'error': 'Metodo no permitido'}, status=405)
+    
+    tasa = obtener_tasa_cambio()
+    valor_bcv = float(tasa) if tasa != 'N/A' else 0.00
 
+    # 1. Primero decodificamos el JSON
     try:
         payload = json.loads(request.body or '{}')
     except Exception:
         return JsonResponse({'success': False, 'error': 'Payload JSON invalido'}, status=400)
 
+    # 2. AHORA SÍ sacamos la cédula y los items del payload decodificado
+    cliente_doc = payload.get('cliente_doc', '').strip()
     raw_items = payload.get('items') or []
+    
     if not isinstance(raw_items, list) or not raw_items:
         return JsonResponse({'success': False, 'error': 'No hay productos para cobrar'}, status=400)
 
+    # Agrupar cantidades por producto
     qty_by_product = {}
     for item in raw_items:
         try:
@@ -897,6 +908,7 @@ def cobrar_caja(request):
     if not qty_by_product:
         return JsonResponse({'success': False, 'error': 'No hay productos validos para cobrar'}, status=400)
 
+    # Cargar productos y validar existencia
     productos = {
         p.pk: p for p in Producto.objects.filter(pk__in=qty_by_product.keys(), status_producto=True)
     }
@@ -907,28 +919,45 @@ def cobrar_caja(request):
 
     try:
         with transaction.atomic():
-            carrito = CarritoDeCompras.objects.create(usuario=request.user, status_carrito=True)
-            total = 0.0
+            # PASO A: Buscar el cliente de forma ESTRICTA (no con contains)
+            cliente_datos = None
+            if cliente_doc:
+                # Usamos documento=cliente_doc para buscar coincidencia exacta
+                cliente_datos = Cliente.objects.filter(documento=cliente_doc).first() 
 
+            # Crear la Nota de Entrega
+            nota = Nota_Entrega.objects.create(
+                cliente=cliente_datos,
+                estado_pago='APROBADO',
+                fecha=timezone.now(),
+                total=0.0,
+                bcv=valor_bcv,
+                fecha_revision=timezone.now(),
+                revisado_por_id=request.user.pk,
+            )
+
+            total_acumulado = 0.0
+
+            # PASO B: Procesar cada producto y crear sus detalles
             for pid, cantidad in qty_by_product.items():
                 producto = productos[pid]
                 disponible = producto.cantidad_disponible or 0
 
                 if cantidad > disponible:
-                    return JsonResponse({
-                        'success': False,
-                        'error': f'Stock insuficiente para "{producto.nombre_producto}". Disponible: {disponible}.'
-                    }, status=400)
+                    raise ValueError(f'Stock insuficiente para "{producto.nombre_producto}". Disponible: {disponible}.')
 
-                subtotal = float(producto.precio_venta or 0) * cantidad
-                OrdenDeDespacho.objects.create(
-                    carrito_de_compras=carrito,
-                    producto=producto,
-                    cantidad_item=cantidad,
-                    sub_total_item=subtotal,
-                    estado_disponibilidad=True,
+                subtotal_item = float(producto.precio_venta or 0) * cantidad
+                
+                # Crear el detalle vinculado a la Nota_Entrega
+                CarritoDeCompras.objects.create(
+                    Nota_Entrega=nota,
+                    Producto=producto,
+                    Cantidad=cantidad,
+                    precio_unitario=producto.precio_venta,
+                    status_carrito=True
                 )
 
+                # PASO C: Actualizar inventario e historial
                 cantidad_anterior = producto.cantidad_disponible or 0
                 producto.cantidad_disponible = max(0, cantidad_anterior - cantidad)
                 producto.save(update_fields=['cantidad_disponible'])
@@ -936,31 +965,36 @@ def cobrar_caja(request):
                 Historial_Inventario.objects.create(
                     producto=producto,
                     cantidad_anterior=cantidad_anterior,
-                    cantidad_nueva=producto.cantidad_disponible or 0,
+                    cantidad_nueva=producto.cantidad_disponible,
                     tipo_movimiento='venta',
-                    motivo=f'Cobro en caja por {request.user.username} (cantidad {cantidad})',
+                    motivo=f'Cobro en caja (Nota #{nota.id})',
                     usuario_responsable=request.user.username,
                 )
 
-                total += subtotal
+                total_acumulado += subtotal_item
 
-            Salida.objects.create(
-                carrito_de_compras=carrito,
-                metodo_pago=None,
-                usuario=request.user,
-                total=total,
-                date=timezone.now(),
-            )
+            # PASO D: Actualizar el total final de la nota
+            nota.total = total_acumulado
+            nota.save()
 
-        messages.success(request, 'Pago procesado exitosamente.')
+        messages.success(request, 'Venta en caja procesada exitosamente.')
         return JsonResponse({
             'success': True,
+            'nota_id': nota.id,
             'message': 'Pago procesado exitosamente.',
             'redirect_url': reverse('caja'),
         })
 
+    except ValueError as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
     except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+        return JsonResponse({'success': False, 'error': f"Error interno: {str(e)}"}, status=500)
+
+@login_required
+def descargar_factura_ne(request, pk):
+    nota = get_object_or_404(Nota_Entrega, pk=pk)
+    pdf = Generar_NE(nota) # Instanciamos tu clase
+    return pdf.generate_invoice() # Llamamos al método que retorna la HttpResponse
 
 @login_required
 @admin_only
@@ -1045,33 +1079,34 @@ def producto_detalle(request, producto_id):
 
 @login_required
 def detalles_compra_producto(request, producto_id):
-    """Muestra las compras del usuario que incluyen este producto."""
+    """Muestra las Notas de Entrega del usuario que incluyen un producto específico."""
     producto = get_object_or_404(Producto, pk=producto_id)
 
-    # Buscar órdenes relacionadas con este producto y el usuario actual
-    ordenes = OrdenDeDespacho.objects.filter(
-        producto=producto,
-        carrito_de_compras__usuario=request.user
-    ).select_related('carrito_de_compras', 'producto')
+    # 1. Buscamos todos los registros en CarritoDeCompras que tengan este producto
+    # y pertenezcan al cliente asociado al usuario actual.
+    detalles = (
+        CarritoDeCompras.objects
+        .filter(
+            Producto=producto,
+            Nota_Entrega__cliente__usuario=request.user
+        )
+        .select_related('Nota_Entrega', 'Nota_Entrega__cliente')
+        .order_by('-Nota_Entrega__fecha')
+    )
 
-    # Agrupar por carrito (cada carrito puede tener una Salida asociada)
-    agrupado = {}
+    # 2. Estructuramos la data para el template
+    # Como cada CarritoDeCompras ya apunta a su Nota_Entrega, 
+    # podemos agruparlos o listarlo directamente.
     compras = []
-    for o in ordenes:
-        cid = o.carrito_de_compras_id
-        if cid not in agrupado:
-            salida = Salida.objects.filter(carrito_de_compras_id=cid, usuario=request.user).first()
-            agrupado[cid] = {'salida': salida, 'items': []}
-            compras.append(agrupado[cid])
-        agrupado[cid]['items'].append(o)
+    for detalle in detalles:
+        compras.append({
+            'salida': detalle.Nota_Entrega, # Equivalente a la antigua Salida
+            'items': [detalle] # El item específico que compró
+        })
 
-    # Encontrar la última salida (pago) entre las compras del usuario
-    latest_salida = None
-    for c in compras:
-        s = c.get('salida')
-        if s:
-            if latest_salida is None or (hasattr(s, 'date') and s.date and latest_salida.date and s.date > latest_salida.date):
-                latest_salida = s
+    # 3. Obtener la última Nota de Entrega (la más reciente)
+    # Gracias al order_by('-Nota_Entrega__fecha'), el primero es el último
+    latest_salida = detalles.first().Nota_Entrega if detalles.exists() else None
 
     return render(request, 'core/detalles_compra_producto.html', {
         'producto': producto,
@@ -1081,48 +1116,32 @@ def detalles_compra_producto(request, producto_id):
         'user_groups': list(request.user.groups.values_list('name', flat=True))
     })
 
-
 @login_required
 def historial_compras(request):
-    """Muestra el historial de compras (salidas) del usuario."""
-    salidas = list(
-        Salida.objects
-        .filter(usuario=request.user)
-        .select_related('carrito_de_compras')
-        .only('id', 'date', 'total', 'carrito_de_compras_id')
-        .order_by('-date')
+    """Muestra el historial de compras (Nota_Entrega) del usuario."""
+    
+    # 1. Buscamos las Notas de Entrega asociadas al cliente del usuario actual.
+    # Si 'cliente' no existe en tu modelo User, ajusta el filtro según tu lógica.
+    notas = (
+        Nota_Entrega.objects
+        .filter(cliente__usuario=request.user) # O el filtro que uses para vincular usuario con cliente
+        .prefetch_related('detalles__Producto') # Trae todos los items y sus productos en una sola consulta
+        .only('id', 'fecha', 'total', 'estado_pago')
+        .order_by('-fecha')
     )
 
-    carrito_ids = [s.carrito_de_compras_id for s in salidas if s.carrito_de_compras_id]
-    items_by_carrito = {}
-    if carrito_ids:
-        items_qs = (
-            OrdenDeDespacho.objects
-            .filter(carrito_de_compras_id__in=carrito_ids)
-            .select_related('producto')
-            .only(
-                'id',
-                'carrito_de_compras_id',
-                'cantidad_item',
-                'sub_total_item',
-                'producto_id',
-                'producto__nombre_producto',
-            )
-        )
-        for it in items_qs:
-            items_by_carrito.setdefault(it.carrito_de_compras_id, []).append(it)
-
-    for s in salidas:
-        s.items = items_by_carrito.get(s.carrito_de_compras_id, [])
+    # Con prefetch_related, ya no necesitamos armar el diccionario 'items_by_carrito' manualmente.
+    # Django ya asoció cada item de CarritoDeCompras a su Nota_Entrega correspondiente.
 
     return render(request, 'core/historial_compras.html', {
-        'salidas': salidas,
+        'salidas': notas, # Mantenemos el nombre 'salidas' para no romper el template
         'cart_count': len(request.session.get('cart', [])),
-        'user_groups': _user_groups(request.user)
+        'user_groups': list(request.user.groups.values_list('name', flat=True))
     })
 
 
 @login_required
+
 def comprar_producto(request, producto_id):
     producto = get_object_or_404(Producto, pk=producto_id)
     producto.img_url = _safe_img_url(producto)
@@ -1142,15 +1161,16 @@ def comprar_producto(request, producto_id):
         # Procesar compra (simulada) dentro de una transacción
         try:
             with transaction.atomic():
-                carrito = CarritoDeCompras.objects.create(usuario=request.user, status_carrito=True)
-                subtotal = float(producto.precio_venta or 0) * cantidad
-                OrdenDeDespacho.objects.create(
-                    carrito_de_compras=carrito,
-                    producto=producto,
-                    cantidad_item=cantidad,
-                    sub_total_item=subtotal,
-                    estado_disponibilidad=True
+                cliente_obj = getattr(request.user, 'cliente', None)
+                nota = Nota_Entrega.objects.create(
+                    cliente=cliente_obj,
+                    estado_pago='pendiente',
+                    fecha_emision=timezone.now()
                 )
+                carrito_item = CarritoDeCompras.objects.create(Nota_Entrega=nota, Producto = producto, cantidad=cantidad, status_carrito=True, precio_unitario=producto.precio_venta
+                ) 
+                nota.carrito_de_compras = carrito_item
+                nota.save()
 
                 # Restar inventario
                 cantidad_anterior = producto.cantidad_disponible or 0
@@ -1166,26 +1186,21 @@ def comprar_producto(request, producto_id):
                     motivo=f'Compra por usuario {request.user.username} (cantidad {cantidad})',
                     usuario_responsable=request.user.username
                 )
+                
 
-                salida = Salida.objects.create(
-                    carrito_de_compras=carrito,
-                    metodo_pago=None,
-                    usuario=request.user,
-                    total=subtotal,
-                    date=timezone.now()
-                )
 
             # Quitar el producto comprado del carrito en la sesión
-            try:
-                cart = request.session.get('cart', []) or []
-                if producto.pk in cart:
-                    cart.remove(producto.pk)
-                    request.session['cart'] = cart
-            except Exception:
-                pass
+            # Limpieza de sesión
+            cart = request.session.get('cart', [])
+            if producto.pk in cart:
+                cart.remove(producto.pk)
+                request.session['cart'] = cart
+                request.session.modified = True
 
-            messages.success(request, 'Compra procesada exitosamente.')
-            return redirect('pago_exitoso', salida_id=salida.pk)
+            messages.success(request, 'Nota de entrega generada exitosamente.')
+            # Redirigir usando el ID de la nota (antes era salida_id)
+            return redirect('pago_exitoso', nota_id=nota.pk)
+        
         except Exception as e:
             messages.error(request, f'Error al procesar la compra: {e}')
             return redirect('comprar_producto', producto_id=producto_id)
@@ -1206,19 +1221,16 @@ def comprar_producto(request, producto_id):
 
 
 @login_required
-def pago_exitoso(request, salida_id):
-    salida = get_object_or_404(Salida, pk=salida_id)
+def pago_exitoso(request, nota_id):
+    nota = get_object_or_404(Nota_Entrega, pk=nota_id)
     # Intentar recuperar items del carrito si existen
-    items = (
-        OrdenDeDespacho.objects
-        .filter(carrito_de_compras=salida.carrito_de_compras)
-        .select_related('producto')
-    )
+    items = nota.detalles.all().select_related('Producto')
+
     return render(request, 'core/pago_exitoso.html', {
-        'salida': salida,
+        'salida': nota,  
         'items': items,
         'cart_count': len(request.session.get('cart', [])),
-        'user_groups': _user_groups(request.user)
+        'user_groups': list(request.user.groups.values_list('name', flat=True))
     })
 
 
@@ -1280,24 +1292,26 @@ def aprobar_pagos(request):
 
 @login_required
 def detalles_salida(request, salida_id):
-    """Mostrar todos los productos incluidos en una Salida (orden) específica."""
-    salida = get_object_or_404(Salida, pk=salida_id)
+    """Mostrar todos los productos incluidos en una Nota de Entrega (antes Salida) específica."""
+    nota = get_object_or_404(Nota_Entrega, pk=salida_id)
+    
+
     items = (
-        OrdenDeDespacho.objects
-        .filter(carrito_de_compras=salida.carrito_de_compras)
-        .select_related('producto')
+        nota.detalles  # Esto accede a todos los CarritoDeCompras asociados a esta Nota
+        .all()
+        .select_related('Producto')  # Optimización de base de datos
     )
+    
+    # Retornamos al template
     return render(request, 'core/detalles_salida.html', {
-        'salida': salida,
+        'salida': nota,  # Mantenemos 'salida' para que el template siga funcionando sin cambios masivos
         'items': items,
         'cart_count': len(request.session.get('cart', [])),
-        'user_groups': _user_groups(request.user)
+        'user_groups': list(request.user.groups.values_list('name', flat=True))
     })
-
 
 @login_required
 def comprar_carrito(request):
-    """Procesa la compra de todos los productos en el carrito (envío desde _purchase_summary)."""
     if request.method != 'POST':
         return redirect('carrito')
 
@@ -1313,7 +1327,8 @@ def comprar_carrito(request):
         if not content_type.startswith('image/'):
             messages.error(request, 'El comprobante debe ser una imagen valida.')
             return redirect('carrito')
-        if payment_proof.size and payment_proof.size > (5 * 1024 * 1024):
+        
+        if payment_proof.size > (5 * 1024 * 1024):
             messages.error(request, 'El comprobante supera el tamano maximo de 5 MB.')
             return redirect('carrito')
 
@@ -1322,9 +1337,7 @@ def comprar_carrito(request):
         proof_name = f"payment_proofs/{request.user.pk}_{timezone.now().strftime('%Y%m%d_%H%M%S_%f')}{ext}"
         try:
             saved_proof_path = default_storage.save(proof_name, payment_proof)
-            logger.info('Comprobante de pago guardado: user=%s path=%s', request.user.pk, saved_proof_path)
         except Exception:
-            logger.exception('No se pudo guardar el comprobante de pago movil.')
             messages.error(request, 'No se pudo guardar la imagen del comprobante.')
             return redirect('carrito')
 
@@ -1332,65 +1345,70 @@ def comprar_carrito(request):
 
     try:
         with transaction.atomic():
-            carrito = CarritoDeCompras.objects.create(usuario=request.user, status_carrito=True)
-            total = 0.0
+            # PASO 1: Obtener cliente y crear la cabecera (Nota_Entrega)
+            cliente_obj = getattr(request.user, 'cliente', None)
+            nota = Nota_Entrega.objects.create(
+                cliente=cliente_obj,
+                estado_pago='PENDIENTE',
+                fecha=timezone.now(),
+                total=0.0
+            )
+
+            total_acumulado = 0.0
+
+            # PASO 2: Procesar cada producto del carrito
             for p in productos:
-                # aceptar campos de cantidad con prefijos posibles
-                qty = request.POST.get(f'cantidad_{p.pk}') or request.POST.get(f'qty_{p.pk}') or request.POST.get(str(p.pk)) or 1
+                qty = request.POST.get(f'cantidad_{p.pk}') or request.POST.get(f'qty_{p.pk}') or 1
                 try:
                     cantidad = int(qty)
-                except Exception:
+                except:
                     cantidad = 1
 
                 available = p.cantidad_disponible or 0
                 if cantidad <= 0 or cantidad > available:
-                    messages.error(request, f'Cantidad no disponible para {p.nombre_producto}.')
-                    raise ValueError('cantidad invalida')
+                    messages.error(request, f'Cantidad no disponible para {p.nombre}.')
+                    raise ValueError('stock insuficiente')
 
                 subtotal = float(p.precio_venta or 0) * cantidad
-                OrdenDeDespacho.objects.create(
-                    carrito_de_compras=carrito,
-                    producto=p,
-                    cantidad_item=cantidad,
-                    sub_total_item=subtotal,
-                    estado_disponibilidad=True
+                
+                # PASO 3: Crear el detalle en CarritoDeCompras vinculado a la Nota
+                CarritoDeCompras.objects.create(
+                    Nota_Entrega=nota,
+                    Producto=p,
+                    Cantidad=cantidad,
+                    precio_unitario=p.precio_venta,
+                    status_carrito=True
                 )
 
-                # actualizar inventario y registrar historial
-                cantidad_anterior = p.cantidad_disponible or 0
-                p.cantidad_disponible = max(0, cantidad_anterior - cantidad)
+                # PASO 4: Actualizar inventario e historial
+                cant_anterior = p.cantidad_disponible or 0
+                p.cantidad_disponible = max(0, cant_anterior - cantidad)
                 p.save()
+
                 Historial_Inventario.objects.create(
                     producto=p,
-                    cantidad_anterior=cantidad_anterior,
-                    cantidad_nueva=p.cantidad_disponible or 0,
+                    cantidad_anterior=cant_anterior,
+                    cantidad_nueva=p.cantidad_disponible,
                     tipo_movimiento='venta',
-                    motivo=f'Compra por usuario {request.user.username} (cantidad {cantidad})',
+                    motivo=f'Venta múltiple - Nota #{nota.id}',
                     usuario_responsable=request.user.username
                 )
 
-                total += subtotal
+                total_acumulado += subtotal
 
-            salida = Salida.objects.create(
-                carrito_de_compras=carrito,
-                metodo_pago=None,
-                usuario=request.user,
-                comprobante_pago=saved_proof_path,
-                estado_pago=Salida.ESTADO_PAGO_PENDIENTE,
-                total=total,
-                date=timezone.now()
-            )
+            # PASO 5: Actualizar el total final de la Nota
+            nota.total = total_acumulado
+            nota.save()
 
-            # limpiar carrito en sesión
             request.session['cart'] = []
 
     except ValueError:
         return redirect('carrito')
     except Exception as e:
-        messages.error(request, f'Error al procesar la compra del carrito: {e}')
+        messages.error(request, f'Error al procesar la compra: {e}')
         return redirect('carrito')
 
-    return redirect('pago_exitoso', salida_id=salida.pk)
+    return redirect('pago_exitoso', nota_id=nota.pk)
 
 
 @login_required
@@ -1430,9 +1448,11 @@ def pago_movil(request):
     })
 
 
+
+
 @login_required
 def comprar_producto_ajax(request, producto_id):
-    """Procesa la compra de un solo producto vía AJAX, devuelve JSON con resultado."""
+    """Procesa la compra de un solo producto vía AJAX usando Nota_Entrega."""
     if request.method != 'POST':
         return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
 
@@ -1448,47 +1468,54 @@ def comprar_producto_ajax(request, producto_id):
 
     try:
         with transaction.atomic():
-            carrito = CarritoDeCompras.objects.create(usuario=request.user, status_carrito=True)
+            # PASO 1: Crear la Nota de Entrega (Cabecera)
+            cliente_obj = getattr(request.user, 'cliente', None)
             subtotal = float(producto.precio_venta or 0) * cantidad
-            OrdenDeDespacho.objects.create(
-                carrito_de_compras=carrito,
-                producto=producto,
-                cantidad_item=cantidad,
-                sub_total_item=subtotal,
-                estado_disponibilidad=True
+            
+            nota = Nota_Entrega.objects.create(
+                cliente=cliente_obj,
+                estado_pago='PENDIENTE',
+                total=subtotal,
+                fecha=timezone.now()
             )
 
+            # PASO 2: Crear el detalle en CarritoDeCompras vinculado a la Nota
+            item_carrito = CarritoDeCompras.objects.create(
+                Nota_Entrega=nota,
+                Producto=producto,
+                Cantidad=cantidad,
+                precio_unitario=producto.precio_venta,
+                status_carrito=True
+            )
+
+            # PASO 3: Actualizar inventario
             cantidad_anterior = producto.cantidad_disponible or 0
             producto.cantidad_disponible = max(0, cantidad_anterior - cantidad)
             producto.save()
 
+            # PASO 4: Registrar historial de inventario
             Historial_Inventario.objects.create(
                 producto=producto,
                 cantidad_anterior=cantidad_anterior,
-                cantidad_nueva=producto.cantidad_disponible or 0,
+                cantidad_nueva=producto.cantidad_disponible,
                 tipo_movimiento='venta',
-                motivo=f'Compra AJAX por usuario {request.user.username} (cantidad {cantidad})',
+                motivo=f'Compra AJAX (Nota #{nota.id})',
                 usuario_responsable=request.user.username
             )
 
-            salida = Salida.objects.create(
-                carrito_de_compras=carrito,
-                metodo_pago=None,
-                usuario=request.user,
-                total=subtotal,
-                date=timezone.now()
-            )
-
-            # quitar del carrito en sesión si estaba
+            # PASO 5: Limpiar el producto de la sesión si existía
             try:
                 cart = request.session.get('cart', []) or []
                 if producto.pk in cart:
                     cart.remove(producto.pk)
                     request.session['cart'] = cart
+                    request.session.modified = True
             except Exception:
                 pass
 
-        return JsonResponse({'success': True, 'salida_id': salida.pk})
+        # Retornar éxito con el ID de la nota
+        return JsonResponse({'success': True, 'nota_id': nota.pk})
+
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 

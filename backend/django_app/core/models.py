@@ -168,49 +168,50 @@ class Producto(models.Model):
 
 
 class CarritoDeCompras(models.Model):
-    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, null=True, blank=True)
+    Nota_Entrega = models.ForeignKey('Nota_Entrega', related_name='detalles', on_delete=models.CASCADE)
+    Producto = models.ForeignKey(Producto, on_delete=models.PROTECT)
+    Cantidad=models.PositiveIntegerField(default=1)
     status_carrito = models.BooleanField(default=False)
+    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
+    def __str__(self):
+        return f"{self.Cantidad} x {self.Producto.nombre} (Nota de Entrega {self.Nota_Entrega.id})"
 
-    class Meta:
-        verbose_name = 'Carrito de Compras'
-        verbose_name_plural = 'Carritos de Compras'
+#paso 1
+class Nota_Entrega(models.Model):
 
-
-class Salida(models.Model):
-    ESTADO_PAGO_PENDIENTE = 'pendiente'
-    ESTADO_PAGO_APROBADO = 'aprobado'
-    ESTADO_PAGO_RECHAZADO = 'rechazado'
-    ESTADO_PAGO_CHOICES = [
-        (ESTADO_PAGO_PENDIENTE, 'Pendiente'),
-        (ESTADO_PAGO_APROBADO, 'Aprobado'),
-        (ESTADO_PAGO_RECHAZADO, 'Rechazado'),
+    ESTADO_PAGO = [
+        ('PENDIENTE', 'Pendiente'),
+        ('APROBADO', 'Aprobado'),
+        ('RECHAZADO', 'Rechazado'),
     ]
 
-    bcv = models.ForeignKey(Bcv, on_delete=models.SET_NULL, null=True, blank=True)
+    bcv = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
     carrito_de_compras = models.ForeignKey(CarritoDeCompras, on_delete=models.SET_NULL, null=True, blank=True)
     metodo_pago = models.ForeignKey(MetodoPago, on_delete=models.SET_NULL, null=True, blank=True)
-    usuario = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True, blank=True)
-    comprobante_pago = models.ImageField(upload_to='payment_proofs/', blank=True, null=True)
-    estado_pago = models.CharField(max_length=20, choices=ESTADO_PAGO_CHOICES, default=ESTADO_PAGO_PENDIENTE)
+    cliente = models.ForeignKey(Cliente, on_delete=models.PROTECT, null=True, blank=True)
+
+    estado_pago = models.CharField(max_length=20, choices=ESTADO_PAGO, default='PENDIENTE')
     revisado_por = models.ForeignKey(
         Usuario,
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         null=True,
         blank=True,
-        related_name='salidas_revisadas',
+        related_name='Nota_Entrega_revisadas',
     )
     fecha_revision = models.DateTimeField(blank=True, null=True)
     
     total = models.FloatField(blank=True, null=True)
-    date = models.DateTimeField(blank=True, null=True)
+    fecha = models.DateTimeField(blank=True, null=True)
 
     class Meta:
-        verbose_name = 'Salida (Venta)'
-        verbose_name_plural = 'Salidas'
+        verbose_name = 'Nota_Entrega (Venta)'
+        verbose_name_plural = 'Nota_Entrega'
 
+#paso 2
 
 class OrdenDeDespacho(models.Model):
     # Esto parece funcionar como un "CartItem" o detalle del carrito
+
     carrito_de_compras = models.ForeignKey(CarritoDeCompras, on_delete=models.CASCADE, null=True, blank=True)
     producto = models.ForeignKey(Producto, on_delete=models.SET_NULL, null=True, blank=True)
     

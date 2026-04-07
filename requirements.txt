@@ -1,4 +1,5 @@
 asgiref==3.11.0
+fpdf2==2.7
 blinker==1.9.0
 click==8.3.1
 colorama==0.4.6
@@ -17,3 +18,5 @@ whitenoise==6.12.0
 setuptools>=65.0.0
 dj-database-url==2.3.0
 python-dotenv==1.0.1
+
+datetime==6.0.0
