@@ -725,6 +725,75 @@
         console.log('Products loaded (home):', products && products.length);
     </script>
     <script>
+        // Robust product open handler for Home: open modal, fallback to detail page.
+        (function(){
+            function findProduct(id){
+                const list = window.products || products || [];
+                return list.find(function(p){ return Number(p.id) === Number(id); }) || null;
+            }
+
+            function openHomeProduct(id, trigger){
+                const modal = document.getElementById('detailModal');
+                const titleEl = document.getElementById('m-title');
+                const imgEl = document.getElementById('m-img');
+                const descEl = document.getElementById('m-desc');
+                const priceEl = document.getElementById('m-price');
+
+                const card = trigger && trigger.closest ? trigger.closest('.card[data-id]') : null;
+                const product = findProduct(id);
+
+                const title = (product && product.title) || (trigger && trigger.dataset && trigger.dataset.title) || (card && card.dataset && card.dataset.title) || '';
+                const img = (product && product.img) || (trigger && trigger.dataset && trigger.dataset.img) || (card && card.dataset && card.dataset.img) || '';
+                const desc = (product && product.desc) || (trigger && trigger.dataset && trigger.dataset.desc) || (card && card.dataset && card.dataset.desc) || '';
+                const price = (product && product.price) || (trigger && trigger.dataset && trigger.dataset.price) || (card && card.dataset && card.dataset.price) || '';
+
+                if (!modal || !titleEl || !imgEl || !descEl || !priceEl) {
+                    window.location.href = '/producto/' + id + '/';
+                    return;
+                }
+
+                titleEl.textContent = title;
+                imgEl.src = img || '{% static 'assets/img/logo.png' %}';
+                imgEl.onerror = function(){ this.onerror = null; this.src = '{% static 'assets/img/logo.png' %}'; };
+                descEl.textContent = desc;
+                priceEl.textContent = String(price).indexOf('$') === 0 ? String(price) : ('$ ' + price);
+
+                modal.dataset.productId = String(id);
+                window.currentProductId = String(id);
+                modal.classList.add('show');
+                modal.setAttribute('aria-hidden', 'false');
+                modal.style.display = 'flex';
+                modal.style.visibility = 'visible';
+                modal.style.opacity = '1';
+            }
+
+            document.addEventListener('click', function(e){
+                const trigger = e.target && e.target.closest ? e.target.closest('.card[data-id], .view[data-id]') : null;
+                if (!trigger) return;
+
+                const card = trigger.closest ? trigger.closest('.card[data-id]') : null;
+                const id = (trigger.dataset && trigger.dataset.id) || (card && card.dataset && card.dataset.id);
+                if (!id) return;
+
+                e.preventDefault();
+                e.stopPropagation();
+                openHomeProduct(id, trigger);
+            }, true);
+
+            document.addEventListener('keydown', function(e){
+                if (e.key !== 'Enter' && e.key !== ' ') return;
+                const trigger = e.target && e.target.closest ? e.target.closest('.card[data-id], .view[data-id]') : null;
+                if (!trigger) return;
+
+                const id = trigger.dataset && trigger.dataset.id ? trigger.dataset.id : null;
+                if (!id) return;
+
+                e.preventDefault();
+                openHomeProduct(id, trigger);
+            }, true);
+        })();
+    </script>
+    <script>
         // bind server-rendered product elements to the products array
         (function(){
             try {
