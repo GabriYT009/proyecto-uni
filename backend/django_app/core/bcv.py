@@ -6,8 +6,24 @@ def obtener_tasa_cambio():
     MI_API_KEY= "eeb48306e200fe4256ad51f5bdf6e2cbd52dc6aab667b46a5c54b02be2332881"
     HEADERS = {"x-dolarvzla-key": MI_API_KEY}
 
-    response = requests.get(URL,headers=HEADERS)
-    datos= response.json()
-    return datos['current']['usd']
+    try:
+        response = requests.get(URL, headers=HEADERS, timeout=10)
+        response.raise_for_status()
+        datos = response.json()
+        tasa = datos.get('current', {}).get('usd')
+        if tasa:
+            return tasa
+    except Exception:
+        pass
+
+    try:
+        from .models import Bcv
+        ultimo = Bcv.objects.order_by('-id').first()
+        if ultimo and ultimo.precio_actual:
+            return ultimo.precio_actual
+    except Exception:
+        pass
+
+    return 'N/A'
 
 
