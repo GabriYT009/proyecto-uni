@@ -213,10 +213,6 @@ def home(request):
         tasa = obtener_tasa_cambio()
     except Exception:
         tasa = 'N/A'
-    try:
-        tasa= obtener_tasa_cambio()
-    except Exception:
-        tasa = 'N/A'
 
     return render(request, 'core/home.html', {
         'categories': categories, 
@@ -685,7 +681,7 @@ def catalog(request):
     Productos_json = json.dumps(lista_productos_json, ensure_ascii=False)
 
     try:
-        tasa= obtener_tasa_cambio()
+        tasa = obtener_tasa_cambio()
     except Exception:
         tasa = 'N/A'
 
