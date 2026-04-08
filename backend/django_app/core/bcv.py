@@ -1,17 +1,55 @@
+import re
+
 import requests
+from django.utils import timezone
+
+
+BCV_FALLBACK_RATE = 475.0083
+
+
+def _persist_rate(rate):
+    try:
+        from .models import Bcv
+
+        latest = Bcv.objects.order_by('-id').first()
+        if latest:
+            latest.precio_actual = rate
+            latest.fecha = timezone.now()
+            latest.save(update_fields=['precio_actual', 'fecha'])
+        else:
+            Bcv.objects.create(precio_actual=rate, fecha=timezone.now())
+    except Exception:
+        pass
 
 
 def obtener_tasa_cambio():
-    URL= "https://api.dolarvzla.com/public/bcv/exchange-rate"
-    MI_API_KEY= "eeb48306e200fe4256ad51f5bdf6e2cbd52dc6aab667b46a5c54b02be2332881"
+    URL_OFICIAL = "https://www.bcv.org.ve/"
+    URL_API = "https://api.dolarvzla.com/public/bcv/exchange-rate"
+    MI_API_KEY = "eeb48306e200fe4256ad51f5bdf6e2cbd52dc6aab667b46a5c54b02be2332881"
     HEADERS = {"x-dolarvzla-key": MI_API_KEY}
 
     try:
-        response = requests.get(URL, headers=HEADERS, timeout=10)
+        response = requests.get(URL_OFICIAL, timeout=15)
+        response.raise_for_status()
+        html = response.text
+        match = re.search(r'USD\s*([0-9]{1,3}(?:[.,][0-9]{1,10})?)', html, re.IGNORECASE)
+        if match:
+            tasa_texto = match.group(1).replace('.', '').replace(',', '.')
+            tasa = float(tasa_texto)
+            if tasa > 0:
+                _persist_rate(tasa)
+                return tasa
+    except Exception:
+        pass
+
+    try:
+        response = requests.get(URL_API, headers=HEADERS, timeout=10)
         response.raise_for_status()
         datos = response.json()
         tasa = datos.get('current', {}).get('usd')
         if tasa:
+            tasa = float(tasa)
+            _persist_rate(tasa)
             return tasa
     except Exception:
         pass
@@ -24,6 +62,7 @@ def obtener_tasa_cambio():
     except Exception:
         pass
 
-    return 'N/A'
+    _persist_rate(BCV_FALLBACK_RATE)
+    return BCV_FALLBACK_RATE
 
 
