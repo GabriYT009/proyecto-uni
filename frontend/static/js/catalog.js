@@ -170,10 +170,13 @@ if (viewCatalogBtn) {
 }
 
 document.addEventListener('click', function(event) {
-    const trigger = event.target && event.target.closest ? event.target.closest('.view') : null;
+    const trigger = event.target && event.target.closest ? event.target.closest('.view, .card[data-id]') : null;
     if (!trigger) return;
 
-    const id = trigger.dataset && trigger.dataset.id ? Number(trigger.dataset.id) : null;
+    const idFromTrigger = trigger.dataset && trigger.dataset.id ? Number(trigger.dataset.id) : null;
+    const parentCard = trigger.closest ? trigger.closest('.card[data-id]') : null;
+    const idFromCard = parentCard && parentCard.dataset && parentCard.dataset.id ? Number(parentCard.dataset.id) : null;
+    const id = Number.isFinite(idFromTrigger) ? idFromTrigger : (Number.isFinite(idFromCard) ? idFromCard : null);
     if (id === null) return;
 
     event.preventDefault();
@@ -182,12 +185,24 @@ document.addEventListener('click', function(event) {
     openDetail(id);
 }, true);
 
+document.addEventListener('keydown', function(event) {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    const trigger = event.target && event.target.closest ? event.target.closest('.card[data-id], .view[data-id]') : null;
+    if (!trigger) return;
+
+    const id = trigger.dataset && trigger.dataset.id ? Number(trigger.dataset.id) : null;
+    if (!Number.isFinite(id)) return;
+
+    event.preventDefault();
+    openDetail(id);
+}, true);
+
 (function bindModalClose() {
     if (window.__detailModalGlobalCloseBound) return;
     window.__detailModalGlobalCloseBound = true;
 
     document.addEventListener('click', function(event) {
-        if (event.target && event.target.closest && event.target.closest('.view')) return;
+        if (event.target && event.target.closest && event.target.closest('.view, .card[data-id]')) return;
 
         const modalElement = document.getElementById('detailModal');
         if (!modalElement || !modalElement.classList.contains('show')) return;
