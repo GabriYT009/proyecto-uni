@@ -118,8 +118,7 @@
         .then(data => {
             if(data.success) {
                 alert('¡Se agregó el stock al inventario! Nuevo stock de ' + seleccionado.dataset.nombre + ': ' + data.nuevo_stock);
-                seleccionado.dataset.stock = 0;
-                seleccionado.querySelector('.stock-num').textContent = data.nuevo_stock;
+                window.location.href = '{% url 'inventario' %}';
             } else {
                 alert('Error: ' + (data.error || 'No se pudo actualizar el stock.'));
             }
