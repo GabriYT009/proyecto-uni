@@ -29,6 +29,68 @@
 		margin-right: 10px;
 	}
 
+	.top-bar .nav-link,
+	.top-bar .clients-toggle,
+	.top-bar .product-toggle,
+	.top-bar .inventario-toggle {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		background: transparent;
+		border: none;
+		color: #333;
+		text-decoration: none;
+		font-weight: 600;
+		font-size: 16px;
+		padding: 8px 12px;
+		border-radius: 6px;
+		transition: background 0.3s ease, color 0.3s ease;
+		cursor: pointer;
+		appearance: none;
+		-webkit-appearance: none;
+	}
+
+	.top-bar .nav-link:hover,
+	.top-bar .clients-toggle:hover,
+	.top-bar .product-toggle:hover,
+	.top-bar .inventario-toggle:hover,
+	.top-bar .clients-toggle[aria-expanded="true"],
+	.top-bar .product-toggle[aria-expanded="true"],
+	.top-bar .inventario-toggle[aria-expanded="true"] {
+		background: #f0f0f0;
+		color: #9932CC;
+	}
+
+	.top-bar .clients-menu,
+	.top-bar .product-menu,
+	.top-bar .inventario-menu {
+		position: relative;
+	}
+
+	.top-bar .clients-menu > .profile-dropdown,
+	.top-bar .product-menu > .profile-dropdown,
+	.top-bar .inventario-menu > .profile-dropdown {
+		left: 0;
+		top: calc(100% + 8px);
+		min-width: 180px;
+	}
+
+	.top-bar .profile-dropdown .dropdown-item {
+		display: block;
+		padding: 8px 12px;
+		color: #333;
+		text-decoration: none;
+		font-weight: 600;
+		font-size: 16px;
+		border-radius: 6px;
+		transition: background 0.3s ease, color 0.3s ease;
+	}
+
+	.top-bar .profile-dropdown .dropdown-item:hover {
+		background: #f0f0f0;
+		color: #9932CC;
+	}
+
 	.cart-link-inline {
 		margin-left: 5px;
 		position: relative;
