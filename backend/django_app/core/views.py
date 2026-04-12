@@ -1131,7 +1131,7 @@ def historial_compras(request):
             .prefetch_related('detalles__Producto')
             .order_by('-fecha')
         )
-    
+    print(len(notas))
     return render(request, 'core/historial_compras.html', {
         'salidas': notas, 
         'cart_count': len(request.session.get('cart', [])),
