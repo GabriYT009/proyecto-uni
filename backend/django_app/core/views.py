@@ -1124,12 +1124,13 @@ def historial_compras(request):
     # Si 'cliente' no existe en tu modelo User, ajusta el filtro según tu lógica.
     notas = (
         Nota_Entrega.objects
-        .filter(cliente__user=request.user) # O el filtro que uses para vincular usuario con cliente
-
+        .filter(cliente__user=request.user)
+        .prefetch_related('detalles__Producto')
+        .order_by('-fecha')
     )
 
     # Con prefetch_related, ya no necesitamos armar el diccionario 'items_by_carrito' manualmente.
-    # Django ya asoció cada item de CarritoDeCompras a su Nota_Entrega correspondiente.ssadasdsa
+    # Django ya asoció cada item de CarritoDeCompras a su Nota_Entrega correspondiente.
 
     return render(request, 'core/historial_compras.html', {
         'salidas': notas, 
