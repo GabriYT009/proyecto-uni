@@ -261,10 +261,10 @@
                                     </span>
                                     <span class="item-meta">Cantidad: {{ it.cantidad_item }} | Subtotal: $ {{ it.sub_total_item }}</span>
                                 </li>
-                            
+                            {% empty %}
                                 <li>
-                                    <a href="{% url 'descargar_factura_ne' s.pk %}">Descargar Factura</a>
-                                    
+                                    <a href="{% url 'descargar_factura_ne' s.pk %}">dasadsads</a>
+                                    <span class="item-name">Sin items registrados para esta compra.</span>
                                 </li>
                             {% endfor %}
                         </ul>
