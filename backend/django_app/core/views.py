@@ -1262,20 +1262,20 @@ def aprobar_pagos(request):
         .order_by('-fecha', '-id')
     )
 
-    carrito_ids = [s.carrito_de_compras_id for s in salidas if s.carrito_de_compras_id]
-    items_by_carrito = {}
-    if carrito_ids:
+    nota_ids = [s.pk for s in salidas]
+    items_by_nota = {}
+    if nota_ids:
         items_qs = (
-            OrdenDeDespacho.objects
-            .filter(carrito_de_compras_id__in=carrito_ids)
-            .select_related('producto')
-            .only('id', 'carrito_de_compras_id', 'cantidad_item', 'sub_total_item', 'producto_id', 'producto__nombre_producto')
+            CarritoDeCompras.objects
+            .filter(Nota_Entrega_id__in=nota_ids)
+            .select_related('Producto')
+            .only('id', 'Nota_Entrega_id', 'Cantidad', 'precio_unitario', 'Producto__nombre_producto')
         )
         for item in items_qs:
-            items_by_carrito.setdefault(item.carrito_de_compras_id, []).append(item)
+            items_by_nota.setdefault(item.Nota_Entrega_id, []).append(item)
 
     for salida in salidas:
-        salida.items = items_by_carrito.get(salida.carrito_de_compras_id, [])
+        salida.items = items_by_nota.get(salida.pk, [])
 
     return render(request, 'core/aprobar_pagos.html', {
         'salidas': salidas,
