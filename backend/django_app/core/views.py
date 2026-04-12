@@ -1256,17 +1256,23 @@ def aprobar_pagos(request):
         salida.save(update_fields=['estado_pago', 'revisado_por', 'fecha_revision'])
         return redirect('aprobar_pagos')
 
-    salidas = (
-        Nota_Entrega.objects
-        .filter(comprobante_pago__isnull=False, estado_pago=Nota_Entrega.ESTADO_PAGO_PENDIENTE)
-        .select_related('cliente', 'cliente__user', 'revisado_por')
-        .prefetch_related('detalles__Producto')
-        .order_by('-fecha', '-id')
-    )
+    try:
+        salidas = (
+            Nota_Entrega.objects
+            .filter(comprobante_pago__isnull=False, estado_pago=Nota_Entrega.ESTADO_PAGO_PENDIENTE)
+            .select_related('cliente', 'cliente__user', 'revisado_por')
+            .prefetch_related('detalles__Producto')
+            .order_by('-fecha', '-id')
+        )
+        total_pendientes = salidas.count()
+    except Exception as e:
+        logger.error(f'Error al cargar pagos pendientes: {e}', exc_info=True)
+        salidas = []
+        total_pendientes = 0
 
     return render(request, 'core/aprobar_pagos.html', {
         'salidas': salidas,
-        'total_pendientes': salidas.count(),
+        'total_pendientes': total_pendientes,
         'cart_count': len(request.session.get('cart', [])),
         'user_groups': _user_groups(request.user),
     })
