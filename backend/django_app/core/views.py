@@ -1127,9 +1127,6 @@ def historial_compras(request):
     if cliente:
         notas = (
             Nota_Entrega.objects
-            .filter(cliente=cliente)
-            .prefetch_related('detalles__Producto')
-            .order_by('-fecha')
         )
     print(len(notas))
     return render(request, 'core/historial_compras.html', {
