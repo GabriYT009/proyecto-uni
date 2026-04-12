@@ -1124,7 +1124,7 @@ def historial_compras(request):
     # Si 'cliente' no existe en tu modelo User, ajusta el filtro según tu lógica.
     notas = (
         Nota_Entrega.objects
-        .filter(cliente__usuario=request.user) # O el filtro que uses para vincular usuario con cliente
+        .filter(cliente__user=request.user) # O el filtro que uses para vincular usuario con cliente
         .prefetch_related('detalles__Producto') # Trae todos los items y sus productos en una sola consulta
         .only('id', 'fecha', 'total', 'estado_pago')
         .order_by('-fecha')
