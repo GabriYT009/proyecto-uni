@@ -305,40 +305,38 @@
 
                         <div class="payment-body">
                             <div class="items-box">
-                                <div class="section-label">Productos</div>
-                                {% if salida.detalles.exists %}
-                                    <ul class="items-list">
-                                        {% for item in salida.detalles.all %}
-                                            <li>
-                                                <div>
-                                                    <div class="item-name">{% if item.Producto %}{{ item.Producto.nombre_producto }}{% else %}Producto no disponible{% endif %}</div>
-                                                    <div class="item-sub">Cantidad: {{ item.Cantidad }}</div>
-                                                </div>
-                                                <div class="item-sub">$ {{ item.precio_unitario }}</div>
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
-                                {% else %}
-                                    <div class="empty-state" style="padding:24px; min-height: auto;">
-                                        No hay productos cargados para esta orden.
-                                    </div>
-                                {% endif %}
+    <div class="section-label">Productos</div>
+    
+    {% if salida.detalles.all %}
+        <ul class="items-list">
+            
+            {% for item in salida.detalles.all %}
+                <li>
+                    <div>
+                        <div class="item-name">
+                            {% if item.Producto %}
+                                {{ item.Producto.nombre }} 
+                            {% else %}
+                                Producto no disponible
+                            {% endif %}
+                        </div>
+                        <div class="item-sub">Cantidad: {{ item.Cantidad }}</div>
+                    </div>
+                    <div class="item-sub">$ {{ item.precio_unitario }}</div>
+                </li>
+            {% endfor %}
+            
+        </ul>
+    {% else %}
+        <div class="empty-state" style="padding:24px; min-height: auto;">
+            No hay productos cargados para esta orden.
+        </div>
+    {% endif %}
 
-                                <div class="actions">
-                                    <form method="post" style="display:inline;">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="salida_id" value="{{ salida.pk }}">
-                                        <input type="hidden" name="accion" value="aprobar">
-                                        <button type="submit" class="btn-approve">Aprobar</button>
-                                    </form>
-                                    <form method="post" style="display:inline;">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="salida_id" value="{{ salida.pk }}">
-                                        <input type="hidden" name="accion" value="rechazar">
-                                        <button type="submit" class="btn-reject">Rechazar</button>
-                                    </form>
-                                </div>
-                            </div>
+    <div class="actions">
+        ... 
+    </div>
+</div>
 
                             <div class="proof-box">
                                 <div class="section-label">Comprobante</div>
