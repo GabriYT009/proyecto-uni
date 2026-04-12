@@ -1131,7 +1131,7 @@ def historial_compras(request):
     )
 
     # Con prefetch_related, ya no necesitamos armar el diccionario 'items_by_carrito' manualmente.
-    # Django ya asoció cada item de CarritoDeCompras a su Nota_Entrega correspondiente.
+    # Django ya asoció cada item de CarritoDeCompras a su Nota_Entrega correspondiente.ssadasdsa
 
     return render(request, 'core/historial_compras.html', {
         'salidas': notas, # Mantenemos el nombre 'salidas' para no romper el template
