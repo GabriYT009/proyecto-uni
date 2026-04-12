@@ -1237,6 +1237,7 @@ def aprobar_pagos(request):
         salida = get_object_or_404(Nota_Entrega, pk=salida_id, comprobante_pago__isnull=False)
 
         if salida.estado_pago != Nota_Entrega.ESTADO_PAGO_PENDIENTE:
+            print("asda")
             messages.info(request, 'Este pago ya fue revisado.')
             return redirect('aprobar_pagos')
 
