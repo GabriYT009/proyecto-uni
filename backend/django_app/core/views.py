@@ -1088,7 +1088,7 @@ def detalles_compra_producto(request, producto_id):
         CarritoDeCompras.objects
         .filter(
             Producto=producto,
-            Nota_Entrega__cliente__usuario=request.user
+            Nota_Entrega__cliente__user=request.user
         )
         .select_related('Nota_Entrega', 'Nota_Entrega__cliente')
         .order_by('-Nota_Entrega__fecha')
@@ -1120,12 +1120,12 @@ def detalles_compra_producto(request, producto_id):
 def historial_compras(request):
     """Muestra el historial de compras (Nota_Entrega) del usuario."""
     
-    # Buscamos las Notas de Entrega asociadas al cliente del usuario actual.
+    # Filtramos las notas donde el cliente asociado tiene como 'user' al usuario actual
     notas = (
         Nota_Entrega.objects
-        .filter(cliente__user=request.user)
-        .prefetch_related('detalles__Producto')
-        .order_by('-fecha')
+        .filter(cliente__user=request.user) # 'cliente' es el campo en Nota_Entrega, 'user' es el campo en Cliente
+        .prefetch_related('detalles__Producto') # Trae los productos de forma eficiente
+        .order_by('-fecha') # De más reciente a más antigua
     )
 
     return render(request, 'core/historial_compras.html', {
