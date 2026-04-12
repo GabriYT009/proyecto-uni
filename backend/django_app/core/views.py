@@ -1120,16 +1120,24 @@ def detalles_compra_producto(request, producto_id):
 def historial_compras(request):
     """Muestra el historial de compras (Nota_Entrega) del usuario."""
     
-    # Filtramos las notas donde el cliente asociado tiene como 'user' al usuario actual
-    notas = (
+    notas_qs = (
         Nota_Entrega.objects
-        .filter(cliente__id=request.user.id) # 'cliente' es el campo en Nota_Entrega, 'user' es el campo en Cliente
-        .prefetch_related('detalles__Producto') # Trae los productos de forma eficiente
-        .order_by('-fecha') # De más reciente a más antigua
+        .filter(cliente__user=request.user)
+        .prefetch_related('detalles__Producto')
+        .order_by('-fecha')
     )
 
+    paginator = Paginator(notas_qs, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Preparar el listado de items por nota para el template
+    for nota in page_obj.object_list:
+        nota.items = nota.detalles.all()
+
     return render(request, 'core/historial_compras.html', {
-        'salidas': notas,
+        'salidas': page_obj.object_list,
+        'page_obj': page_obj,
         'cart_count': len(request.session.get('cart', [])),
         'user_groups': list(request.user.groups.values_list('name', flat=True))
     })
