@@ -1267,12 +1267,12 @@ def aprobar_pagos(request):
     if nota_ids:
         items_qs = (
             CarritoDeCompras.objects
-            .filter(Nota_Entrega_id__in=nota_ids)
+            .filter(nota_entrega_id__in=nota_ids)
             .select_related('Producto')
-            .only('id', 'Nota_Entrega_id', 'Cantidad', 'precio_unitario', 'Producto__nombre_producto')
+            .only('id', 'nota_entrega_id', 'Cantidad', 'precio_unitario', 'Producto__nombre_producto')
         )
         for item in items_qs:
-            items_by_nota.setdefault(item.Nota_Entrega_id, []).append(item)
+            items_by_nota.setdefault(item.nota_entrega_id, []).append(item)
 
     for salida in salidas:
         salida.items = items_by_nota.get(salida.pk, [])
