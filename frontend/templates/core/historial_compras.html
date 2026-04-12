@@ -263,7 +263,7 @@
                                 </li>
                             {% empty %}
                                 <li>
-                                    <a href="{{% url 'descargar_factura_ne' s.pk %}}"></a>
+                                    <a href="{% url 'descargar_factura_ne' s.pk %}"></a>
                                     <span class="item-name">Sin items registrados para esta compra.</span>
                                 </li>
                             {% endfor %}
