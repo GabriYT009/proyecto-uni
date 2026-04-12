@@ -1123,7 +1123,7 @@ def historial_compras(request):
     # Obtener el cliente asociado al usuario actual basado en el email
     cliente = Cliente.objects.filter(user__iexact=request.user).first()
     
-    notas = []
+    notas = ['2asdasdasdsadas']
     if cliente:
         notas = (
             Nota_Entrega.objects
