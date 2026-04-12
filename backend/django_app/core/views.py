@@ -1118,26 +1118,26 @@ def detalles_compra_producto(request, producto_id):
 
 @login_required
 def historial_compras(request):
-    """Muestra el historial de items comprados por el usuario."""
+    """Muestra el historial de compras (Nota_Entrega) del usuario."""
     
-    # Consultamos directamente CarritoDeCompras
-    items_comprados = (
-        CarritoDeCompras.objects
-        # 1. Filtramos cruzando la relación hacia Nota_Entrega para llegar al usuario
-        .filter(Nota_Entrega__cliente__user=request.user) 
-        
-        # 2. select_related hace un SQL JOIN para traer los datos del producto 
-
-        .select_related('Nota_Entrega', 'Producto') 
-        
-        # 3. Ordenamos usando la fecha de la Nota_Entrega vinculada (de más reciente a más antigua)
-        .order_by('-Nota_Entrega__fecha')
+    # 1. Buscamos las Notas de Entrega asociadas al cliente del usuario actual.
+    # Si 'cliente' no existe en tu modelo User, ajusta el filtro según tu lógica.
+    notas = (
+        Nota_Entrega.objects
+        .filter(cliente__user=request.user) # O el filtro que uses para vincular usuario con cliente
+        .select_related('Nota_Entrega', 'Producto') # Trae todos los items y sus productos en una sola consulta
+        .only('id', 'fecha', 'total', 'estado_pago')
+        .order_by('-fecha')
     )
-    context = {
-        'items_comprados': items_comprados
-    }
-    
-    return render(request, 'tu_app/historial.html', context)
+
+    # Con prefetch_related, ya no necesitamos armar el diccionario 'items_by_carrito' manualmente.
+    # Django ya asoció cada item de CarritoDeCompras a su Nota_Entrega correspondiente.ssadasdsa
+
+    return render(request, 'core/historial_compras.html', {
+        'salidas': notas, 
+        'cart_count': len(request.session.get('cart', [])),
+        'user_groups': list(request.user.groups.values_list('name', flat=True))
+    })
 
 
 @login_required
