@@ -306,15 +306,15 @@
                         <div class="payment-body">
                             <div class="items-box">
                                 <div class="section-label">Productos</div>
-                                {% if salida.items %}
+                                {% if salida.detalles.all %}
                                     <ul class="items-list">
-                                        {% for item in salida.items %}
+                                        {% for item in salida.detalles.all %}
                                             <li>
                                                 <div>
-                                                    <div class="item-name">{% if item.producto %}{{ item.producto.nombre_producto }}{% else %}Producto no disponible{% endif %}</div>
-                                                    <div class="item-sub">Cantidad: {{ item.cantidad_item }}</div>
+                                                    <div class="item-name">{% if item.Producto %}{{ item.Producto.nombre_producto }}{% else %}Producto no disponible{% endif %}</div>
+                                                    <div class="item-sub">Cantidad: {{ item.Cantidad }}</div>
                                                 </div>
-                                                <div class="item-sub">$ {{ item.sub_total_item }}</div>
+                                                <div class="item-sub">$ {{ item.precio_unitario }}</div>
                                             </li>
                                         {% endfor %}
                                     </ul>

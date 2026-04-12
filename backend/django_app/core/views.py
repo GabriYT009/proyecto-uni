@@ -1255,31 +1255,17 @@ def aprobar_pagos(request):
         salida.save(update_fields=['estado_pago', 'revisado_por', 'fecha_revision'])
         return redirect('aprobar_pagos')
 
-    salidas = list(
+    salidas = (
         Nota_Entrega.objects
         .filter(comprobante_pago__isnull=False, estado_pago=Nota_Entrega.ESTADO_PAGO_PENDIENTE)
-        .select_related('cliente', 'cliente__user', 'carrito_de_compras', 'revisado_por')
+        .select_related('cliente', 'cliente__user', 'revisado_por')
+        .prefetch_related('detalles__Producto')
         .order_by('-fecha', '-id')
     )
 
-    nota_ids = [s.pk for s in salidas]
-    items_by_nota = {}
-    if nota_ids:
-        items_qs = (
-            CarritoDeCompras.objects
-            .filter(nota_entrega_id__in=nota_ids)
-            .select_related('Producto')
-            .only('id', 'nota_entrega_id', 'Cantidad', 'precio_unitario', 'Producto__nombre_producto')
-        )
-        for item in items_qs:
-            items_by_nota.setdefault(item.nota_entrega_id, []).append(item)
-
-    for salida in salidas:
-        salida.items = items_by_nota.get(salida.pk, [])
-
     return render(request, 'core/aprobar_pagos.html', {
         'salidas': salidas,
-        'total_pendientes': len(salidas),
+        'total_pendientes': salidas.count(),
         'cart_count': len(request.session.get('cart', [])),
         'user_groups': _user_groups(request.user),
     })
