@@ -1120,22 +1120,16 @@ def detalles_compra_producto(request, producto_id):
 def historial_compras(request):
     """Muestra el historial de compras (Nota_Entrega) del usuario."""
     
-    # Obtener el cliente asociado al usuario actual basado en el email
-    cliente = Cliente.objects.filter(email__iexact=request.user.email).first()
-    
-    notas = []
-    if cliente:
-        notas = (
-            Nota_Entrega.objects
-            .filter(cliente=cliente)
-            .prefetch_related('detalles__Producto')
-            .order_by('-fecha')
-        )
+    # Buscamos las Notas de Entrega asociadas al cliente del usuario actual.
+    notas = (
+        Nota_Entrega.objects
+        .filter(cliente__user=request.user)
+        .prefetch_related('detalles__Producto')
+        .order_by('-fecha')
+    )
 
-        notas = ['asdasdsadasasd','asdas','asdas']
-    print(len(notas))
     return render(request, 'core/historial_compras.html', {
-        'salidas': notas, 
+        'salidas': notas,
         'cart_count': len(request.session.get('cart', [])),
         'user_groups': list(request.user.groups.values_list('name', flat=True))
     })
