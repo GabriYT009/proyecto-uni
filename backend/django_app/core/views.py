@@ -1123,7 +1123,7 @@ def historial_compras(request):
     # Filtramos las notas donde el cliente asociado tiene como 'user' al usuario actual
     notas = (
         Nota_Entrega.objects
-        .filter(cliente__user=request.user) # 'cliente' es el campo en Nota_Entrega, 'user' es el campo en Cliente
+        .filter(cliente__id=request.user.id) # 'cliente' es el campo en Nota_Entrega, 'user' es el campo en Cliente
         .prefetch_related('detalles__Producto') # Trae los productos de forma eficiente
         .order_by('-fecha') # De más reciente a más antigua
     )
