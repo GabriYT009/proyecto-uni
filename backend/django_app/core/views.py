@@ -1259,7 +1259,7 @@ def aprobar_pagos(request):
     try:
         salidas = (
             Nota_Entrega.objects
-            .filter(comprobante_pago__isnull=False, estado_pago=Nota_Entrega.ESTADO_PAGO_PENDIENTE)
+            .filter(comprobante_pago__isnull=False, estado_pago='PENDIENTE')
             .select_related('cliente', 'cliente__user', 'revisado_por')
             .prefetch_related('detalles__Producto')
             .order_by('-fecha', '-id')
