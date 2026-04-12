@@ -1125,6 +1125,7 @@ def historial_compras(request):
     notas = (
         Nota_Entrega.objects
         .filter(cliente__user=request.user) # O el filtro que uses para vincular usuario con cliente
+
     )
 
     # Con prefetch_related, ya no necesitamos armar el diccionario 'items_by_carrito' manualmente.
