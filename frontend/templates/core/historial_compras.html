@@ -233,17 +233,17 @@
                 <h1>Historial de compras</h1>
                 <p>Revisa tus pedidos con detalle de fecha, productos y totales.</p>
             </div>
-            <div class="orders-count">{{ page_obj.paginator.count }} ordenes</div>
+            <div class="orders-count">{{ salidas|length }} ordenes</div>
         </div>
 
         <div class="history-content">
-            {% if page_obj and page_obj.object_list %}
-                {% for s in page_obj.object_list %}
+            {% if salidas and salidas|length > 0 %}
+                {% for s in salidas %}
                     <article class="order-card">
                         <div class="order-top">
                             <div>
                                 <div class="order-id">Orden #{{ s.pk }}</div>
-                                <div class="order-date">{{ s.fecha|date:'d/m/Y H:i' }}</div>
+                                <div class="order-date">{{ s.date }}</div>
                                 <div class="order-date">Estado: <strong>{{ s.get_estado_pago_display }}</strong></div>
                             </div>
                             <div class="order-total">$ {{ s.total }}</div>
@@ -251,40 +251,16 @@
 
                         <ul class="items-list">
                             {% for it in s.items %}
-                                <li>
-                                    <span class="item-name">{{ it.Producto.nombre_producto }}</span>
-                                    <span class="item-meta">Cant: {{ it.Cantidad }} • Precio: ${{ it.precio_unitario }}</span>
-                                </li>
+
                             {% empty %}
                                 <li>
-                                    <span>No hay detalles disponibles para esta orden.</span>
+                                <a href="{% url 'descargar_factura_ne' s.pk %}">Descargar Nota de entrega</a>
+                                    
                                 </li>
                             {% endfor %}
                         </ul>
                     </article>
                 {% endfor %}
-
-                <nav aria-label="Paginación de historial" class="pagination-nav">
-                    <ul class="pagination">
-                        {% if page_obj.has_previous %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
-                            </li>
-                        {% else %}
-                            <li class="page-item disabled"><span class="page-link">Anterior</span></li>
-                        {% endif %}
-
-                        <li class="page-item disabled"><span class="page-link">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span></li>
-
-                        {% if page_obj.has_next %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a>
-                            </li>
-                        {% else %}
-                            <li class="page-item disabled"><span class="page-link">Siguiente</span></li>
-                        {% endif %}
-                    </ul>
-                </nav>
             {% else %}
                 <div class="empty-state">
                     <h3>Aun no tienes compras registradas</h3>
