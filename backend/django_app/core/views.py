@@ -1120,18 +1120,18 @@ def detalles_compra_producto(request, producto_id):
 def historial_compras(request):
     """Muestra el historial de compras (Nota_Entrega) del usuario."""
     
-    # 1. Buscamos las Notas de Entrega asociadas al cliente del usuario actual.
-    # Si 'cliente' no existe en tu modelo User, ajusta el filtro según tu lógica.
-    notas = (
-        Nota_Entrega.objects
-        .filter(cliente__user=request.user)
-        .prefetch_related('detalles__Producto')
-        .order_by('-fecha')
-    )
-
-    # Con prefetch_related, ya no necesitamos armar el diccionario 'items_by_carrito' manualmente.
-    # Django ya asoció cada item de CarritoDeCompras a su Nota_Entrega correspondiente.
-
+    # Obtener el cliente asociado al usuario actual basado en el email
+    cliente = Cliente.objects.filter(email__iexact=request.user.email).first()
+    
+    notas = []
+    if cliente:
+        notas = (
+            Nota_Entrega.objects
+            .filter(cliente=cliente)
+            .prefetch_related('detalles__Producto')
+            .order_by('-fecha')
+        )
+    
     return render(request, 'core/historial_compras.html', {
         'salidas': notas, 
         'cart_count': len(request.session.get('cart', [])),
