@@ -930,15 +930,10 @@ def cobrar_caja(request):
                 cliente=cliente_datos,
                 estado_pago='APROBADO',
                 fecha=timezone.now(),
-<<<<<<< HEAD
-                total=0.0,
-                bcv=obtener_tasa_cambio() or 0.0, # Guardamos la tasa al momento de la venta
-=======
                 total=0.0,
                 bcv=valor_bcv,
                 fecha_revision=timezone.now(),
                 revisado_por_id=request.user.pk,
->>>>>>> 55c2f80a966e632f99833fb6588656140ca40793
             )
 
             total_acumulado = 0.0
