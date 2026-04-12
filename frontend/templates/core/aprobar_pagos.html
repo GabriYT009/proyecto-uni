@@ -306,7 +306,7 @@
                         <div class="payment-body">
                             <div class="items-box">
                                 <div class="section-label">Productos</div>
-                                {% if salida.detalles.all %}
+                                {% if salida.detalles.exists %}
                                     <ul class="items-list">
                                         {% for item in salida.detalles.all %}
                                             <li>
