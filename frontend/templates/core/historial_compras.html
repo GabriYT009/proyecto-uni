@@ -252,6 +252,7 @@
                         <ul class="items-list">
                             {% for it in s.items %}
 
+                            {% empty %}
                                 <li>
                                 <a href="{% url 'descargar_factura_ne' s.pk %}">Descargar Nota de entrega</a>
                                     
