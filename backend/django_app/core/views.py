@@ -1125,7 +1125,7 @@ def historial_compras(request):
     notas = (
         Nota_Entrega.objects
         .filter(cliente__user=request.user) # O el filtro que uses para vincular usuario con cliente
-        .select_related('Nota_Entrega', 'Producto') # Trae todos los items y sus productos en una sola consulta
+        .prefetch_related('detalles__Producto') # Trae todos los items y sus productos en una sola consulta
         .only('id', 'fecha', 'total', 'estado_pago')
         .order_by('-fecha')
     )
