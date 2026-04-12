@@ -1132,7 +1132,7 @@ def historial_compras(request):
             .order_by('-fecha')
         )
 
-        notas = ['asdasdsadasasd']
+        notas = ['asdasdsadasasd','asdas','asdas']
     print(len(notas))
     return render(request, 'core/historial_compras.html', {
         'salidas': notas, 
