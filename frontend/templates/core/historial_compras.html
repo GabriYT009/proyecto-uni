@@ -233,12 +233,12 @@
                 <h1>Historial de compras</h1>
                 <p>Revisa tus pedidos con detalle de fecha, productos y totales.</p>
             </div>
-            <div class="orders-count">{{ salidas|length }} ordenes</div>
+            <div class="orders-count">{% if page_obj %}{{ page_obj.paginator.count }}{% else %}{{ salidas|length }}{% endif %} ordenes</div>
         </div>
 
         <div class="history-content">
-            {% if salidas and salidas|length > 0 %}
-                {% for s in salidas %}
+            {% if page_obj or salidas %}
+                {% for s in page_obj|default:salidas %}
                     <article class="order-card">
                         <div class="order-top">
                             <div>
@@ -261,11 +261,33 @@
                         </ul>
                     </article>
                 {% endfor %}
-            {% else %}
+            {% endif %}
+
+            {% if not page_obj and not salidas %}
                 <div class="empty-state">
                     <h3>Aun no tienes compras registradas</h3>
                     <p>Cuando completes una compra, aparecera aqui con todos sus detalles.</p>
                 </div>
+            {% endif %}
+
+            {% if page_obj and page_obj.has_other_pages %}
+                <nav class="pagination-wrap" aria-label="Paginación de historial">
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}" class="page-link">« Anterior</a>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <span class="page-link active">{{ num }}</span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <a href="?page={{ num }}" class="page-link">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="page-link">Siguiente »</a>
+                    {% endif %}
+                </nav>
             {% endif %}
         </div>
 
