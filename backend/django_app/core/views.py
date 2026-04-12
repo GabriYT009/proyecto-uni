@@ -1236,16 +1236,16 @@ def aprobar_pagos(request):
         accion = (request.POST.get('accion') or '').strip().lower()
         salida = get_object_or_404(Nota_Entrega, pk=salida_id, comprobante_pago__isnull=False)
 
-        if salida.estado_pago != Nota_Entrega.ESTADO_PAGO_PENDIENTE:
+        if salida.estado_pago != "PENDIENTE":
             print("asda")
             messages.info(request, 'Este pago ya fue revisado.')
             return redirect('aprobar_pagos')
 
         if accion == 'aprobar':
-            salida.estado_pago = Nota_Entrega.ESTADO_PAGO_APROBADO
+            salida.estado_pago = "APROBADO"
             messages.success(request, f'Pago #{salida.pk} aprobado correctamente.')
         elif accion == 'rechazar':
-            salida.estado_pago = Nota_Entrega.ESTADO_PAGO_RECHAZADO
+            salida.estado_pago = "RECHAZADO"
             messages.warning(request, f'Pago #{salida.pk} marcado como rechazado.')
         else:
             messages.error(request, 'Acción no válida.')
