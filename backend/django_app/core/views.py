@@ -1342,7 +1342,7 @@ def comprar_carrito(request):
                 total=0.0
             )
             logger.info(f'Nota_Entrega creada: {nota.pk} para usuario {request.user.username}')
-
+            
             total_acumulado = 0.0
 
             # PASO 2: Procesar cada producto del carrito

@@ -295,7 +295,7 @@
                             <div>
                                 <h2 class="payment-title">Orden #{{ salida.pk }}</h2>
                                 <div class="payment-meta">
-                                    <span>Cliente: {{ salida.cliente_id }} </span>
+                                    <span>Cliente: {{ salida.cliente_id.nombre_cliente }} </span>
                                     <span>Fecha: {{ salida.fecha|default:salida.fecha_revision }}</span>
                                     <span>Total: $ {{ salida.total }}</span>
                                 </div>
