@@ -25,10 +25,12 @@ class Generar_NE(FPDF):
         # Invoice details
         self.set_font('Arial', 'B', 12)
         self.cell(0, 8, f'N° Factura: {self.salida.pk}', 0, 1, 'L')
-        
+        self.cell(0, 8, f'Estado del Pedido: {self.salida.estado_pago}', 0, 1, 'L')
         # Validación de fecha (tu campo se llama 'fecha')
         if self.salida.fecha:
             self.cell(0, 8, f'Fecha: {self.salida.fecha.strftime("%d/%m/%Y %H:%M")}', 0, 1, 'L')
+
+        
 
         # Información del cliente (conectado directamente a tu modelo Nota_Entrega)
         if self.salida.cliente:
