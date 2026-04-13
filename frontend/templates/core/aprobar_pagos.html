@@ -298,7 +298,7 @@
                                     <span>Cliente: {{ salida.cliente.nombre_cliente }} {{ salida.cliente.apellido_cliente }} </span>
                                     <span>Cédula  {{ salida.cliente.documento }}</span>
                                     <span>Fecha: {{ salida.fecha|default:salida.fecha_revision }}</span>
-                                    
+                                    <span>Total: $ {{ salida.total }}</span>
                                 </div>
                             </div>
                             <div class="status-pill status-pending">{{ salida.get_estado_pago_display }}</div>
