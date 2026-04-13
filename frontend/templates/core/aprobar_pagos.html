@@ -307,7 +307,7 @@
                             <div class="items-box">
     <div class="section-label">Productos</div>
     
-    {% if salida.detalles.all %}
+    {% if salida.detalles.exists %}
         <ul class="items-list">
             
             {% for item in salida.detalles.all %}
@@ -315,7 +315,7 @@
                     <div>
                         <div class="item-name">
                             {% if item.Producto %}
-                                {{ item.Producto.nombre }} 
+                                {{ item.Producto.nombre_producto }}
                             {% else %}
                                 Producto no disponible
                             {% endif %}
