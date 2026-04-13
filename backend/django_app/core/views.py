@@ -1123,7 +1123,7 @@ def historial_compras(request):
     # Filtramos las notas donde el cliente asociado tiene como 'user' al usuario actual
     notas = (
         Nota_Entrega.objects
-        .filter(cliente__id=request.user.id) # 'cliente' es el campo en Nota_Entrega, 'user' es el campo en Cliente
+        .filter(cliente__user=request.user)  # Corregido: usar cliente__user en lugar de cliente__id
         .prefetch_related('detalles__Producto') # Trae los productos de forma eficiente
         .order_by('-fecha') # De más reciente a más antigua
     )
@@ -1341,6 +1341,7 @@ def comprar_carrito(request):
                 fecha=timezone.now(),
                 total=0.0
             )
+            logger.info(f'Nota_Entrega creada: {nota.pk} para usuario {request.user.username}')
 
             total_acumulado = 0.0
 
@@ -1386,13 +1387,18 @@ def comprar_carrito(request):
 
             # PASO 5: Actualizar el total final de la Nota
             nota.total = total_acumulado
+            if saved_proof_path:
+                nota.comprobante_pago = saved_proof_path
+                logger.info(f'Comprobante asignado a nota {nota.pk}: {saved_proof_path}')
             nota.save()
+            logger.info(f'Nota {nota.pk} guardada con total {total_acumulado}')
 
             request.session['cart'] = []
 
     except ValueError:
         return redirect('carrito')
     except Exception as e:
+        logger.error(f'Error en comprar_carrito para usuario {request.user.username}: {e}', exc_info=True)
         messages.error(request, f'Error al procesar la compra: {e}')
         return redirect('carrito')
 
