@@ -1217,7 +1217,7 @@ def comprar_producto(request, producto_id):
 
 @login_required
 def pago_exitoso(request, salida_id):
-    nota = get_object_or_404(Nota_Entrega, pk=nota_id)
+    nota = get_object_or_404(Nota_Entrega, pk=salida_id)
     # Intentar recuperar items del carrito si existen
     items = nota.detalles.all().select_related('Producto')
 
