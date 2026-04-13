@@ -1194,7 +1194,7 @@ def comprar_producto(request, producto_id):
 
             messages.success(request, 'Nota de entrega generada exitosamente.')
             # Redirigir usando el ID de la nota (antes era salida_id)
-            return redirect('pago_exitoso', nota_id=nota.pk)
+            return redirect('pago_exitoso', salida_id=nota.pk)
         
         except Exception as e:
             messages.error(request, f'Error al procesar la compra: {e}')
@@ -1402,7 +1402,7 @@ def comprar_carrito(request):
         messages.error(request, f'Error al procesar la compra: {e}')
         return redirect('carrito')
 
-    return redirect('pago_exitoso', nota_id=nota.pk)
+    return redirect('pago_exitoso', salida_id=nota.pk)
 
 
 @login_required
