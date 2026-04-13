@@ -1088,7 +1088,7 @@ def detalles_compra_producto(request, producto_id):
         CarritoDeCompras.objects
         .filter(
             Producto=producto,
-            Nota_Entrega__cliente__usuario=request.user
+            Nota_Entrega__cliente__user=request.user
         )
         .select_related('Nota_Entrega', 'Nota_Entrega__cliente')
         .order_by('-Nota_Entrega__fecha')
@@ -1120,21 +1120,16 @@ def detalles_compra_producto(request, producto_id):
 def historial_compras(request):
     """Muestra el historial de compras (Nota_Entrega) del usuario."""
     
-    # 1. Buscamos las Notas de Entrega asociadas al cliente del usuario actual.
-    # Si 'cliente' no existe en tu modelo User, ajusta el filtro según tu lógica.
+    # Filtramos las notas donde el cliente asociado tiene como 'user' al usuario actual
     notas = (
         Nota_Entrega.objects
-        .filter(cliente__usuario=request.user) # O el filtro que uses para vincular usuario con cliente
-        .prefetch_related('detalles__Producto') # Trae todos los items y sus productos en una sola consulta
-        .only('id', 'fecha', 'total', 'estado_pago')
-        .order_by('-fecha')
+        .filter(cliente__user=request.user)  # Corregido: usar cliente__user en lugar de cliente__id
+        .prefetch_related('detalles__Producto') # Trae los productos de forma eficiente
+        .order_by('-fecha') # De más reciente a más antigua
     )
 
-    # Con prefetch_related, ya no necesitamos armar el diccionario 'items_by_carrito' manualmente.
-    # Django ya asoció cada item de CarritoDeCompras a su Nota_Entrega correspondiente.
-
     return render(request, 'core/historial_compras.html', {
-        'salidas': notas, # Mantenemos el nombre 'salidas' para no romper el template
+        'salidas': notas,
         'cart_count': len(request.session.get('cart', [])),
         'user_groups': list(request.user.groups.values_list('name', flat=True))
     })
@@ -1199,7 +1194,7 @@ def comprar_producto(request, producto_id):
 
             messages.success(request, 'Nota de entrega generada exitosamente.')
             # Redirigir usando el ID de la nota (antes era salida_id)
-            return redirect('pago_exitoso', nota_id=nota.pk)
+            return redirect('pago_exitoso', salida_id=nota.pk)
         
         except Exception as e:
             messages.error(request, f'Error al procesar la compra: {e}')
@@ -1221,8 +1216,8 @@ def comprar_producto(request, producto_id):
 
 
 @login_required
-def pago_exitoso(request, nota_id):
-    nota = get_object_or_404(Nota_Entrega, pk=nota_id)
+def pago_exitoso(request, salida_id):
+    nota = get_object_or_404(Nota_Entrega, pk=salida_id)
     # Intentar recuperar items del carrito si existen
     items = nota.detalles.all().select_related('Producto')
 
@@ -1241,15 +1236,16 @@ def aprobar_pagos(request):
         accion = (request.POST.get('accion') or '').strip().lower()
         salida = get_object_or_404(Nota_Entrega, pk=salida_id, comprobante_pago__isnull=False)
 
-        if salida.estado_pago != Nota_Entrega.ESTADO_PAGO_PENDIENTE:
+        if salida.estado_pago != "PENDIENTE":
+            print("asda")
             messages.info(request, 'Este pago ya fue revisado.')
             return redirect('aprobar_pagos')
 
         if accion == 'aprobar':
-            salida.estado_pago = Nota_Entrega.ESTADO_PAGO_APROBADO
+            salida.estado_pago = "APROBADO"
             messages.success(request, f'Pago #{salida.pk} aprobado correctamente.')
         elif accion == 'rechazar':
-            salida.estado_pago = Nota_Entrega.ESTADO_PAGO_RECHAZADO
+            salida.estado_pago = "RECHAZADO"
             messages.warning(request, f'Pago #{salida.pk} marcado como rechazado.')
         else:
             messages.error(request, 'Acción no válida.')
@@ -1260,31 +1256,23 @@ def aprobar_pagos(request):
         salida.save(update_fields=['estado_pago', 'revisado_por', 'fecha_revision'])
         return redirect('aprobar_pagos')
 
-    salidas = list(
-        Nota_Entrega.objects
-        .filter(comprobante_pago__isnull=False, estado_pago=Nota_Entrega.ESTADO_PAGO_PENDIENTE)
-        .select_related('cliente', 'cliente__user', 'carrito_de_compras', 'revisado_por')
-        .order_by('-fecha', '-id')
-    )
-
-    carrito_ids = [s.carrito_de_compras_id for s in salidas if s.carrito_de_compras_id]
-    items_by_carrito = {}
-    if carrito_ids:
-        items_qs = (
-            OrdenDeDespacho.objects
-            .filter(carrito_de_compras_id__in=carrito_ids)
-            .select_related('producto')
-            .only('id', 'carrito_de_compras_id', 'cantidad_item', 'sub_total_item', 'producto_id', 'producto__nombre_producto')
+    try:
+        salidas = (
+            Nota_Entrega.objects
+            .filter(comprobante_pago__isnull=False, estado_pago='PENDIENTE')
+            .select_related('cliente', 'cliente__user', 'revisado_por')
+            .prefetch_related('detalles__Producto')
+            .order_by('-fecha', '-id')
         )
-        for item in items_qs:
-            items_by_carrito.setdefault(item.carrito_de_compras_id, []).append(item)
-
-    for salida in salidas:
-        salida.items = items_by_carrito.get(salida.carrito_de_compras_id, [])
+        total_pendientes = salidas.count()
+    except Exception as e:
+        logger.error(f'Error al cargar pagos pendientes: {e}', exc_info=True)
+        salidas = []
+        total_pendientes = 0
 
     return render(request, 'core/aprobar_pagos.html', {
         'salidas': salidas,
-        'total_pendientes': len(salidas),
+        'total_pendientes': total_pendientes,
         'cart_count': len(request.session.get('cart', [])),
         'user_groups': _user_groups(request.user),
     })
@@ -1353,7 +1341,8 @@ def comprar_carrito(request):
                 fecha=timezone.now(),
                 total=0.0
             )
-
+            logger.info(f'Nota_Entrega creada: {nota.pk} para usuario {request.user.username}')
+            
             total_acumulado = 0.0
 
             # PASO 2: Procesar cada producto del carrito
@@ -1398,17 +1387,22 @@ def comprar_carrito(request):
 
             # PASO 5: Actualizar el total final de la Nota
             nota.total = total_acumulado
+            if saved_proof_path:
+                nota.comprobante_pago = saved_proof_path
+                logger.info(f'Comprobante asignado a nota {nota.pk}: {saved_proof_path}')
             nota.save()
+            logger.info(f'Nota {nota.pk} guardada con total {total_acumulado}')
 
             request.session['cart'] = []
 
     except ValueError:
         return redirect('carrito')
     except Exception as e:
+        logger.error(f'Error en comprar_carrito para usuario {request.user.username}: {e}', exc_info=True)
         messages.error(request, f'Error al procesar la compra: {e}')
         return redirect('carrito')
 
-    return redirect('pago_exitoso', nota_id=nota.pk)
+    return redirect('pago_exitoso', salida_id=nota.pk)
 
 
 @login_required

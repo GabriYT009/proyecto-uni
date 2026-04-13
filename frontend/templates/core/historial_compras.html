@@ -251,19 +251,11 @@
 
                         <ul class="items-list">
                             {% for it in s.items %}
-                                <li>
-                                    <span class="item-name">
-                                        {% if it.producto and it.producto.nombre_producto %}
-                                            {{ it.producto.nombre_producto }}
-                                        {% else %}
-                                            Producto no disponible
-                                        {% endif %}
-                                    </span>
-                                    <span class="item-meta">Cantidad: {{ it.cantidad_item }} | Subtotal: $ {{ it.sub_total_item }}</span>
-                                </li>
+
                             {% empty %}
                                 <li>
-                                    <span class="item-name">Sin items registrados para esta compra.</span>
+                                <a href="{% url 'descargar_factura_ne' s.pk %}">Descargar Nota de entrega</a>
+                                    
                                 </li>
                             {% endfor %}
                         </ul>
