@@ -51,6 +51,76 @@
 		-webkit-appearance: none;
 	}
 
+	/* Keep all dropdown toggles with the same visual pattern. */
+	.top-bar .clients-toggle,
+	.top-bar .product-toggle,
+	.top-bar .inventario-toggle,
+	.top-bar .pagos-toggle {
+		position: relative;
+		font-size: 0;
+		line-height: 1;
+		color: transparent;
+	}
+
+	.top-bar .clients-toggle::before,
+	.top-bar .product-toggle::before,
+	.top-bar .inventario-toggle::before,
+	.top-bar .pagos-toggle::before {
+		font-size: 16px;
+		font-weight: 600;
+		line-height: 1;
+		color: #333;
+	}
+
+	.top-bar .clients-toggle::before { content: "Clientes"; }
+	.top-bar .product-toggle::before { content: "Producto"; }
+	.top-bar .inventario-toggle::before { content: "Inventario"; }
+	.top-bar .pagos-toggle::before { content: "Pagos"; }
+
+	.top-bar .clients-toggle::after,
+	.top-bar .product-toggle::after,
+	.top-bar .inventario-toggle::after,
+	.top-bar .pagos-toggle::after {
+		content: "";
+		width: 0;
+		height: 0;
+		border-left: 4px solid transparent;
+		border-right: 4px solid transparent;
+		border-top: 5px solid #333;
+		margin-left: 6px;
+		transform-origin: center;
+		transition: transform 0.2s ease, border-top-color 0.2s ease;
+	}
+
+	.top-bar .clients-toggle:hover::before,
+	.top-bar .product-toggle:hover::before,
+	.top-bar .inventario-toggle:hover::before,
+	.top-bar .pagos-toggle:hover::before,
+	.top-bar .clients-toggle[aria-expanded="true"]::before,
+	.top-bar .product-toggle[aria-expanded="true"]::before,
+	.top-bar .inventario-toggle[aria-expanded="true"]::before,
+	.top-bar .pagos-toggle[aria-expanded="true"]::before {
+		color: #9932CC;
+	}
+
+	.top-bar .clients-toggle:hover::after,
+	.top-bar .product-toggle:hover::after,
+	.top-bar .inventario-toggle:hover::after,
+	.top-bar .pagos-toggle:hover::after,
+	.top-bar .clients-toggle[aria-expanded="true"]::after,
+	.top-bar .product-toggle[aria-expanded="true"]::after,
+	.top-bar .inventario-toggle[aria-expanded="true"]::after,
+	.top-bar .pagos-toggle[aria-expanded="true"]::after {
+		border-top-color: #9932CC;
+	}
+
+	.top-bar .clients-toggle[aria-expanded="true"]::after,
+	.top-bar .product-toggle[aria-expanded="true"]::after,
+	.top-bar .inventario-toggle[aria-expanded="true"]::after,
+	.top-bar .pagos-toggle[aria-expanded="true"]::after {
+		transform: rotate(180deg);
+	}
+
 	.top-bar .nav-link:hover,
 	.top-bar .clients-toggle:hover,
 	.top-bar .product-toggle:hover,
