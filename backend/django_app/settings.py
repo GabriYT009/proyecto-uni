@@ -95,6 +95,14 @@ USE_CLOUDINARY_MEDIA = bool(
 )
 
 if USE_CLOUDINARY_MEDIA:
+    cloudinary_url = os.environ.get("CLOUDINARY_URL")
+    if not cloudinary_url and os.environ.get("CLOUDINARY_CLOUD_NAME") and os.environ.get("CLOUDINARY_API_KEY") and os.environ.get("CLOUDINARY_API_SECRET"):
+        cloudinary_url = (
+            f"cloudinary://{os.environ.get('CLOUDINARY_API_KEY')}:{os.environ.get('CLOUDINARY_API_SECRET')}"
+            f"@{os.environ.get('CLOUDINARY_CLOUD_NAME')}"
+        )
+        os.environ["CLOUDINARY_URL"] = cloudinary_url
+
     INSTALLED_APPS += [
         'cloudinary',
         'cloudinary_storage',
@@ -264,6 +272,10 @@ if USE_CLOUDINARY_MEDIA:
     # Optional Cloudinary integration: when env vars are present, user-uploaded
     # media is stored remotely instead of Railway ephemeral disk.
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    STORAGES = globals().get('STORAGES', {})
+    STORAGES['default'] = {
+        'BACKEND': 'cloudinary_storage.storage.MediaCloudinaryStorage',
+    }
 
     # Support both CLOUDINARY_URL and explicit variables.
     if os.environ.get("CLOUDINARY_CLOUD_NAME"):
