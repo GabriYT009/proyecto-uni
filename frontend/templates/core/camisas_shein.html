@@ -289,10 +289,10 @@
             border: 1px solid #f1dd92;
         }
 
-        .modal-backdrop {
+        .sublimation-backdrop {
             position: fixed;
             inset: 0;
-            background: rgba(16, 12, 20, 0.62);
+            background: rgba(16, 12, 20, 0.78);
             display: none;
             align-items: center;
             justify-content: center;
@@ -300,13 +300,14 @@
             padding: 18px;
         }
 
-        .modal-backdrop.show { display: flex; }
+        .sublimation-backdrop.is-open { display: flex; }
 
-        .modal-card {
+        .sublimation-card {
             width: min(720px, 100%);
             background: #fff;
+            border: 1px solid rgba(143, 43, 210, 0.18);
             border-radius: 24px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.34);
             overflow: hidden;
         }
 
@@ -471,8 +472,8 @@
         </section>
     </main>
 
-    <div class="modal-backdrop" id="sublimationModal" aria-hidden="true">
-        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="sublimationTitle">
+    <div class="sublimation-backdrop" id="sublimationModal" aria-hidden="true">
+        <div class="sublimation-card" role="dialog" aria-modal="true" aria-labelledby="sublimationTitle">
             <div class="modal-head">
                 <h2 id="sublimationTitle">Agregar sublimación</h2>
                 <button type="button" class="modal-close" id="closeModalBtn" aria-label="Cerrar">&times;</button>
@@ -687,12 +688,12 @@
 
             openModalBtn.addEventListener('click', function(){
                 setTalla(tallaInput.value || 'M');
-                modal.classList.add('show');
+                modal.classList.add('is-open');
                 modal.setAttribute('aria-hidden', 'false');
             });
 
             function closeModal() {
-                modal.classList.remove('show');
+                modal.classList.remove('is-open');
                 modal.setAttribute('aria-hidden', 'true');
             }
 
