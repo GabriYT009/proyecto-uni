@@ -65,3 +65,17 @@ Abre `http://localhost:8000`.
 
   Con esta configuración, las subidas `ImageField` quedan persistentes entre reinicios y nuevos deploys.
 - **MySQL**: usa un servicio gestionado (Railway, PlanetScale, Aiven, etc.) y configura `DATABASE_URL` o `MYSQL_*`.
+
+### Alternativa recomendada si no tienes Volumes: Cloudinary
+
+Si tu plan/proyecto no muestra la pestaña `Volumes`, puedes guardar las imágenes en Cloudinary.
+
+1. Crea una cuenta en Cloudinary y copia tus credenciales.
+2. En Railway, en el servicio backend, agrega variables:
+  - `CLOUDINARY_CLOUD_NAME`
+  - `CLOUDINARY_API_KEY`
+  - `CLOUDINARY_API_SECRET`
+  - (Opcional) `CLOUDINARY_URL` en formato `cloudinary://<api_key>:<api_secret>@<cloud_name>`
+3. Redeploy del servicio.
+
+Con estas variables, Django activará automáticamente `django-cloudinary-storage` para `ImageField` y las subidas ya no dependerán del disco local de Railway.

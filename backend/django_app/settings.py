@@ -85,6 +85,21 @@ INSTALLED_APPS = [
     'django_app.core.apps.CoreConfig',
 ]
 
+USE_CLOUDINARY_MEDIA = bool(
+    os.environ.get("CLOUDINARY_URL")
+    or (
+        os.environ.get("CLOUDINARY_CLOUD_NAME")
+        and os.environ.get("CLOUDINARY_API_KEY")
+        and os.environ.get("CLOUDINARY_API_SECRET")
+    )
+)
+
+if USE_CLOUDINARY_MEDIA:
+    INSTALLED_APPS += [
+        'cloudinary',
+        'cloudinary_storage',
+    ]
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.middleware.gzip.GZipMiddleware',
@@ -244,6 +259,20 @@ elif Path('/data').exists():
     MEDIA_ROOT = Path('/data/media')
 else:
     MEDIA_ROOT = BASE_DIR / 'media'
+
+if USE_CLOUDINARY_MEDIA:
+    # Optional Cloudinary integration: when env vars are present, user-uploaded
+    # media is stored remotely instead of Railway ephemeral disk.
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+    # Support both CLOUDINARY_URL and explicit variables.
+    if os.environ.get("CLOUDINARY_CLOUD_NAME"):
+        CLOUDINARY_STORAGE = {
+            'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+            'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+            'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+            'SECURE': True,
+        }
 
 # In production, prefer a single canonical static tree to avoid duplicate paths
 # during collectstatic. Local development can opt into the legacy trees.
