@@ -16,6 +16,14 @@ RUN_BOOTSTRAP_AUTH="${RUN_BOOTSTRAP_AUTH:-${RUN_STARTUP_TASKS}}"
 RUN_COLLECTSTATIC="${RUN_COLLECTSTATIC:-0}"
 export PORT
 
+HAS_DATABASE_CONFIG="0"
+for _db_var in MYSQL_PRIVATE_URL DATABASE_PRIVATE_URL DATABASE_URL MYSQL_URL MYSQL_PUBLIC_URL MYSQL_NAME MYSQL_USER; do
+    if [ -n "${!_db_var:-}" ]; then
+        HAS_DATABASE_CONFIG="1"
+        break
+    fi
+done
+
 echo "[entrypoint] Starting application"
 echo "[entrypoint] PORT=${PORT} APP_ROOT=${APP_ROOT} MEDIA_ROOT=${MEDIA_ROOT}"
 
@@ -68,8 +76,8 @@ run_with_retries() {
     done
 }
 
-# Esperar a que MySQL esté disponible antes de cualquier operación con la BD
-# Usa las mismas variables que settings.py para garantizar consistencia
+# Esperar a que MySQL esté disponible antes de cualquier operación con la BD.
+# Si no hay configuración de BD en Railway, arrancamos igual para evitar un 502.
 wait_for_mysql() {
     python3 -c "
 import os
@@ -116,11 +124,15 @@ except Exception as e:
     sys.exit(1)
 "
 }
-echo "[entrypoint] Esperando conexión a MySQL..."
-run_with_retries "mysql-wait" wait_for_mysql
-echo "[entrypoint] MySQL disponible"
+if [ "$HAS_DATABASE_CONFIG" = "1" ]; then
+    echo "[entrypoint] Esperando conexión a MySQL..."
+    run_with_retries "mysql-wait" wait_for_mysql
+    echo "[entrypoint] MySQL disponible"
+else
+    echo "[entrypoint] No database env vars found; skipping MySQL wait so the app can boot"
+fi
 
-if [ "$RUN_MIGRATIONS" = "1" ] || [ "$RUN_MIGRATIONS" = "true" ] || [ "$RUN_MIGRATIONS" = "yes" ]; then
+if [ "$HAS_DATABASE_CONFIG" = "1" ] && { [ "$RUN_MIGRATIONS" = "1" ] || [ "$RUN_MIGRATIONS" = "true" ] || [ "$RUN_MIGRATIONS" = "yes" ]; }; then
     echo "[entrypoint] Running migrations"
     run_with_retries "migrations" python manage.py migrate --noinput
 else
@@ -134,7 +146,7 @@ else
     echo "[entrypoint] Skipping collectstatic (set RUN_COLLECTSTATIC=1 to enable)"
 fi
 
-if [ "$RUN_BOOTSTRAP_AUTH" = "1" ] || [ "$RUN_BOOTSTRAP_AUTH" = "true" ] || [ "$RUN_BOOTSTRAP_AUTH" = "yes" ]; then
+if [ "$HAS_DATABASE_CONFIG" = "1" ] && { [ "$RUN_BOOTSTRAP_AUTH" = "1" ] || [ "$RUN_BOOTSTRAP_AUTH" = "true" ] || [ "$RUN_BOOTSTRAP_AUTH" = "yes" ]; }; then
 echo "[entrypoint] Ensuring auth groups"
 run_with_retries "auth group setup" python -c "
 import os, django
