@@ -272,10 +272,6 @@ if USE_CLOUDINARY_MEDIA:
     # Optional Cloudinary integration: when env vars are present, user-uploaded
     # media is stored remotely instead of Railway ephemeral disk.
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    STORAGES = globals().get('STORAGES', {})
-    STORAGES['default'] = {
-        'BACKEND': 'cloudinary_storage.storage.MediaCloudinaryStorage',
-    }
 
     # Support both CLOUDINARY_URL and explicit variables.
     if os.environ.get("CLOUDINARY_CLOUD_NAME"):
@@ -306,11 +302,24 @@ STATICFILES_DIRS = [d for d in _static_dirs if os.path.exists(d)]
 # Use WhiteNoise to serve static files in production (especially when running under Waitress).
 # See https://whitenoise.evans.io/en/stable/
 USE_MANIFEST_STATICFILES = os.environ.get("USE_MANIFEST_STATICFILES", "False").lower() in ("1", "true", "yes")
-STATICFILES_STORAGE = (
+_staticfiles_backend = (
     'whitenoise.storage.CompressedManifestStaticFilesStorage'
     if USE_MANIFEST_STATICFILES else
     'whitenoise.storage.CompressedStaticFilesStorage'
 )
+_default_storage_backend = (
+    'cloudinary_storage.storage.MediaCloudinaryStorage'
+    if USE_CLOUDINARY_MEDIA else
+    'django.core.files.storage.FileSystemStorage'
+)
+STORAGES = {
+    'default': {
+        'BACKEND': _default_storage_backend,
+    },
+    'staticfiles': {
+        'BACKEND': _staticfiles_backend,
+    },
+}
 WHITENOISE_MAX_AGE = 31536000 if not DEBUG else 0
 
 # Cookie-backed session/messages avoid hard dependency on DB during template rendering.
