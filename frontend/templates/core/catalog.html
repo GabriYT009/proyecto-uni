@@ -262,7 +262,7 @@
                 <div class="category-grid category-bar" role="navigation">
                     {% for categoria in categories %}
                     <a href="?Categoria={{ categoria.nombre_categoria|urlencode }}" class="category-card {% if selected_Categoria == categoria.nombre_categoria %}active{% endif %}">
-                        <div class="category-icon">{% if categoria.nombre_categoria == 'Cajas' %}📦{% elif categoria.nombre_categoria == 'Toppers' %}🎂{% elif categoria.nombre_categoria == 'Sublimación' %}🖨️{% elif categoria.nombre_categoria == 'Impresión' %}📄{% elif categoria.nombre_categoria == 'Personalización' %}🎨{% elif categoria.nombre_categoria == 'Papelería' %}📝{% elif categoria.nombre_categoria == 'Otros' %}🧩{% else %}📁{% endif %}</div>
+                        <div class="category-icon">{% if categoria.nombre_categoria == 'Cajas' %}📦{% elif categoria.nombre_categoria == 'Toppers' %}🎂{% elif categoria.nombre_categoria == 'Sublimación' %}🖨️{% elif categoria.nombre_categoria == 'Impresión' %}📄{% elif categoria.nombre_categoria == 'Personalización' %}🎨{% elif categoria.nombre_categoria == 'Papelería' %}📝{% elif categoria.nombre_categoria == 'Camisas' %}👕{% elif categoria.nombre_categoria == 'Tazas' %}☕{% elif categoria.nombre_categoria == 'Otros' %}🧩{% else %}📁{% endif %}</div>
                         <span>{{ categoria.nombre_categoria }}</span>
                     </a>
                     {% endfor %}

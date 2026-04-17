@@ -56,6 +56,8 @@ ALLOWED_CATEGORY_NAMES = [
     'Impresión',
     'Personalización',
     'Papelería',
+    'Camisas',
+    'Tazas',
 ]
 
 
