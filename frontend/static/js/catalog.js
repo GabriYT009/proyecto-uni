@@ -95,6 +95,12 @@ function openDetail(id) {
         return;
     }
 
+    const productCategory = String(product.category || product.Categoria || '').trim();
+    if (productCategory === 'Camisas') {
+        window.location.href = '/producto/' + id + '/camisas/';
+        return;
+    }
+
     mTitle.textContent = product.title || '';
     mImg.src = product.img || '/static/assets/img/logo.png';
     mImg.onerror = function() {

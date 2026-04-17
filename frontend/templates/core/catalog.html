@@ -398,7 +398,9 @@
 
             document.addEventListener('click', function(e){ if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) searchResults.classList.remove('show'); });
 
-            searchResults.addEventListener('click', function(e){ const item = e.target.closest('.search-result-item'); if (item && item.dataset.id) { const product = (products||[]).find(p=>p.id==item.dataset.id); if (product) {
+                    searchResults.addEventListener('click', function(e){ const item = e.target.closest('.search-result-item'); if (item && item.dataset.id) { const product = (products||[]).find(p=>p.id==item.dataset.id); if (product) {
+                        const category = String(product.category || product.Categoria || '').trim();
+                        if (category === 'Camisas') { window.location.href = '/producto/' + item.dataset.id + '/camisas/'; return; }
                         document.getElementById('m-title').textContent = product.title;
                         document.getElementById('m-img').src = product.img;
                         document.getElementById('m-desc').textContent = product.desc;
