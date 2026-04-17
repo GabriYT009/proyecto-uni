@@ -234,8 +234,11 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = os.environ.get("MEDIA_URL", '/media/')
 _media_root_env = os.environ.get("MEDIA_ROOT")
+_railway_volume_mount = os.environ.get("RAILWAY_VOLUME_MOUNT_PATH")
 if _media_root_env:
     MEDIA_ROOT = Path(_media_root_env)
+elif _railway_volume_mount:
+    MEDIA_ROOT = Path(_railway_volume_mount) / 'media'
 elif Path('/data').exists():
     # Railway volume path (when mounted) without requiring manual env setup.
     MEDIA_ROOT = Path('/data/media')

@@ -24,6 +24,18 @@ cd "$APP_ROOT"
 # Ensure media directory exists (important when MEDIA_ROOT points to a Railway volume).
 mkdir -p "$MEDIA_ROOT"
 
+# Keep a legacy path in sync for deployments that still read media from ${APP_ROOT}/media.
+LEGACY_MEDIA_DIR="${APP_ROOT}/media"
+if [ "$LEGACY_MEDIA_DIR" != "$MEDIA_ROOT" ]; then
+    if [ -d "$LEGACY_MEDIA_DIR" ] && [ ! -L "$LEGACY_MEDIA_DIR" ]; then
+        cp -a "$LEGACY_MEDIA_DIR/." "$MEDIA_ROOT/" 2>/dev/null || true
+        rm -rf "$LEGACY_MEDIA_DIR" 2>/dev/null || true
+    else
+        rm -f "$LEGACY_MEDIA_DIR" 2>/dev/null || true
+    fi
+    ln -s "$MEDIA_ROOT" "$LEGACY_MEDIA_DIR" 2>/dev/null || true
+fi
+
 # Optionally seed MEDIA_ROOT with bundled media files on first run.
 # Useful when migrating from repo-bundled media to a persistent mounted volume.
 INIT_MEDIA_FROM_BUNDLED="${INIT_MEDIA_FROM_BUNDLED:-1}"
