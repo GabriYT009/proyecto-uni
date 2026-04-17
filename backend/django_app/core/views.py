@@ -63,28 +63,42 @@ ALLOWED_CATEGORY_NAMES = [
 
 def _safe_img_url(producto):
     fallback = settings.STATIC_URL + 'assets/img/logo.png'
-    try:
-        if producto.imagen_producto and producto.imagen_producto.url:
-            # In production, uploaded images should be served from MEDIA_URL directly.
-            # This avoids relying on runtime writes under /static.
-            return producto.imagen_producto.url
+    image_field = getattr(producto, 'imagen_producto', None)
 
+    def _normalize_media_url(raw_url):
+        if not raw_url:
+            return ''
+        if raw_url.startswith(('http://', 'https://', '/')):
+            return raw_url
+        media_base = settings.MEDIA_URL or '/media/'
+        if not media_base.endswith('/'):
+            media_base += '/'
+        return media_base + raw_url.lstrip('/')
+
+    if not image_field:
+        return fallback
+
+    image_name = (getattr(image_field, 'name', '') or '').strip()
+    if not image_name:
+        return fallback
+
+    try:
+        if image_field.storage.exists(image_name):
+            return _normalize_media_url(image_field.url)
     except Exception:
-        pass
+        # Some storage backends may not support exists(); keep URL as best effort.
+        try:
+            normalized = _normalize_media_url(image_field.url)
+            if normalized:
+                return normalized
+        except Exception:
+            pass
 
     try:
-        if producto.imagen_producto and producto.imagen_producto.name:
-            image_name = producto.imagen_producto.name
-            try:
-                if producto.imagen_producto.storage.exists(image_name):
-                    return producto.imagen_producto.url
-            except Exception:
-                pass
-
-            image_basename = os.path.basename(image_name)
-            static_fallback_path = os.path.join(settings.FRONTEND_DIR, 'static', 'product-images', image_basename)
-            if os.path.exists(static_fallback_path):
-                return settings.STATIC_URL + 'product-images/' + image_basename
+        image_basename = os.path.basename(image_name)
+        static_fallback_path = os.path.join(settings.FRONTEND_DIR, 'static', 'product-images', image_basename)
+        if os.path.exists(static_fallback_path):
+            return settings.STATIC_URL + 'product-images/' + image_basename
     except Exception:
         pass
     return fallback
