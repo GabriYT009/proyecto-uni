@@ -65,6 +65,15 @@ def _safe_img_url(producto):
     fallback = settings.STATIC_URL + 'assets/img/logo.png'
     try:
         if producto.imagen_producto and producto.imagen_producto.url:
+            # In production, uploaded images should be served from MEDIA_URL directly.
+            # This avoids relying on runtime writes under /static.
+            return producto.imagen_producto.url
+
+    except Exception:
+        pass
+
+    try:
+        if producto.imagen_producto and producto.imagen_producto.name:
             image_name = producto.imagen_producto.name
             try:
                 if producto.imagen_producto.storage.exists(image_name):
