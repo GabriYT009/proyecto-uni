@@ -293,7 +293,7 @@
                     <article class="payment-card">
                         <div class="payment-head">
                             <div>
-                                <h2 class="payment-title">Orden #{{ salida.pk }}</h2>
+                                <a href="{% url 'descargar_factura_ne' factura.pk %}"><h2 class="payment-title">Orden #{{ salida.pk }}</h2></a>
                                 <div class="payment-meta">
                                     <span>Cliente: {{ salida.cliente.nombre_cliente }} {{ salida.cliente.apellido_cliente }} </span>
                                     <span>Cédula  {{ salida.cliente.documento }}</span>
