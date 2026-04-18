@@ -100,7 +100,8 @@ Si Cloudinary no está disponible en tu país, puedes usar un bucket S3-compatib
   - `AWS_S3_REGION_NAME=<region>` (si aplica; para R2 puedes usar `auto`)
   - (Opcional) `AWS_MEDIA_LOCATION=media`
   - (Opcional) `AWS_S3_FILE_OVERWRITE=False`
-  - (Opcional) `AWS_QUERYSTRING_AUTH=False`
+  - Si el bucket es privado, usa `AWS_QUERYSTRING_AUTH=True`
+  - Si el bucket es público, puedes usar `AWS_QUERYSTRING_AUTH=False`
 4. Redeploy.
 
 Con esto, `ImageField` guardará archivos en el bucket remoto y no se perderán al redeploy.

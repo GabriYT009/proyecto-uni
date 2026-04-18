@@ -378,7 +378,7 @@ if USE_S3_MEDIA:
         'location': (os.environ.get('AWS_MEDIA_LOCATION') or 'media').strip('/'),
         'default_acl': None,
         'file_overwrite': _is_true(os.environ.get('AWS_S3_FILE_OVERWRITE', 'False')),
-        'querystring_auth': _is_true(os.environ.get('AWS_QUERYSTRING_AUTH', 'False')),
+        'querystring_auth': _is_true(os.environ.get('AWS_QUERYSTRING_AUTH', 'True')),
         'addressing_style': (os.environ.get('AWS_S3_ADDRESSING_STYLE') or 'auto'),
     }
 
