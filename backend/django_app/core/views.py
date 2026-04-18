@@ -1091,6 +1091,7 @@ def descargar_factura_ne(request, pk):
 @login_required
 @admin_only
 def inventario(request):
+    debug_media = request.GET.get('debug_media', '').strip().lower() in ('1', 'true', 'yes')
     productos = (
         Producto.objects
         .select_related('categoria')
@@ -1145,7 +1146,8 @@ def inventario(request):
         'paginator': paginator,
         'categories': _cached_categories(),
         'cart_count': len(request.session.get('cart', [])),
-        'user_groups': _user_groups(request.user)
+        'user_groups': _user_groups(request.user),
+        'debug_media': debug_media,
     })
 
 @login_required
