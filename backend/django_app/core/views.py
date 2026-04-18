@@ -620,6 +620,7 @@ def crear_Productoo(request):
             post_data = request.POST.copy()
             categoria_custom = post_data.get('categoria_custom')
             otra_categoria = post_data.get('otra_categoria')
+            
             # Si seleccionó 'otros', crear la categoría si no existe y usarla
             if categoria_custom == 'otros' and otra_categoria:
                 cat_obj, _ = Categoria.objects.get_or_create(
@@ -639,6 +640,7 @@ def crear_Productoo(request):
                 messages.error(request, 'Por favor corrige los errores en el formulario.')
         else:
             form = ProductForm()
+            marcas= Marca_producto.objects.all()
     except Exception as e:
         import traceback
         print('Error en crear_Productoo:', e)
@@ -648,6 +650,7 @@ def crear_Productoo(request):
 
     return render(request, 'core/crear_productoo.html', {
         'form': form,
+        'marcas': marcas,
         'user_groups': list(request.user.groups.values_list('name', flat=True)),
         'cart_count': len(request.session.get('cart', []))
     })
