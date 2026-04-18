@@ -121,13 +121,22 @@ class Cliente(models.Model):
 
     def __str__(self):
         return f"{self.nombre_cliente} {self.apellido_cliente}"
+    
+class Marca_producto(models.Model):
+    nombre_marca = models.CharField(max_length=45, blank=True, null=True)
 
+    class Meta:
+        verbose_name = 'Marca de Producto'
+        verbose_name_plural = 'Marcas de Productos'
+
+    def __str__(self):
+        return self.nombre_marca
 
 class Producto(models.Model):
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, null=True, blank=True)
     nombre_producto = models.CharField(max_length=45, blank=True, null=True)
     descripcion = models.CharField(max_length=45, blank=True, null=True)
-    marca_producto = models.CharField(max_length=45, blank=True, null=True)
+    marca_producto = models.ForeignKey(Marca_producto, on_delete=models.SET_NULL, null=True, blank=True)
     max_producto = models.IntegerField(blank=True, null=True)
     precio_venta = models.FloatField(blank=True, null=True)
     status_producto = models.BooleanField(default=True) # TINYINT(1)
