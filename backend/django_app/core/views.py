@@ -1903,7 +1903,15 @@ def editar_producto(request, producto_id):
         except Exception as e:
             # Imprimir el error en la consola te ayudará a ver qué pasó realmente
             print(f"Error detallado: {e}") 
-            messages.error(request, f'Error al actualizar el producto: {str(e)}')
+            error_text = str(e)
+            if 'Unknown API key' in error_text or 'api_key' in error_text:
+                messages.error(
+                    request,
+                    'Error al subir la imagen: credenciales de Cloudinary inválidas. '
+                    'Revisa CLOUDINARY_* o usa almacenamiento local.'
+                )
+            else:
+                messages.error(request, f'Error al actualizar el producto: {error_text}')
 
     return redirect('inventario')
 

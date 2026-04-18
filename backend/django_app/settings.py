@@ -85,7 +85,9 @@ INSTALLED_APPS = [
     'django_app.core.apps.CoreConfig',
 ]
 
-USE_CLOUDINARY_MEDIA = bool(
+ENABLE_CLOUDINARY_MEDIA = os.environ.get("ENABLE_CLOUDINARY_MEDIA", "False").lower() in ("1", "true", "yes")
+
+USE_CLOUDINARY_MEDIA = ENABLE_CLOUDINARY_MEDIA and bool(
     os.environ.get("CLOUDINARY_URL")
     or (
         os.environ.get("CLOUDINARY_CLOUD_NAME")
@@ -93,6 +95,38 @@ USE_CLOUDINARY_MEDIA = bool(
         and os.environ.get("CLOUDINARY_API_SECRET")
     )
 )
+
+
+def _has_placeholder(value):
+    value = (value or "").strip().lower()
+    if not value:
+        return True
+    placeholder_tokens = (
+        '<',
+        '>',
+        'your_',
+        'example',
+        'changeme',
+        'api_key',
+        'api_secret',
+        'cloud_name',
+    )
+    return any(token in value for token in placeholder_tokens)
+
+
+# Avoid crashing uploads when Cloudinary env vars are present but invalid placeholders.
+if USE_CLOUDINARY_MEDIA:
+    raw_cloudinary_url = os.environ.get("CLOUDINARY_URL", "")
+    raw_cloud_name = os.environ.get("CLOUDINARY_CLOUD_NAME", "")
+    raw_api_key = os.environ.get("CLOUDINARY_API_KEY", "")
+    raw_api_secret = os.environ.get("CLOUDINARY_API_SECRET", "")
+
+    if _has_placeholder(raw_cloudinary_url) and (
+        _has_placeholder(raw_cloud_name)
+        or _has_placeholder(raw_api_key)
+        or _has_placeholder(raw_api_secret)
+    ):
+        USE_CLOUDINARY_MEDIA = False
 
 if USE_CLOUDINARY_MEDIA:
     cloudinary_url = os.environ.get("CLOUDINARY_URL")
