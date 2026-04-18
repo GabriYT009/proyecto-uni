@@ -462,15 +462,15 @@
         <div class="item-name">{{ detalle.Producto.nombre_producto }} x {{ detalle.Cantidad|default:detalle.cantidad|default:1 }}</div>
         <div class="item-sub">Talla: {{ detalle.talla|default:'-' }}</div>
 
-        {% with subs=detalle.sublimaciones_pendientes %}
+        {% with subs=detalle.solicitudes_sublimacion.all %}
             {% if subs %}
                 {% for sub in subs %}
                     <div class="sub-box">
                         <strong>Sublimación solicitada</strong>
                         {% if sub.comentario %}<div style="margin-top:6px;">{{ sub.comentario }}</div>{% endif %}
-                        {% if sub.imagen_url %}
-                            <a href="{{ sub.imagen_url }}" target="_blank" rel="noopener">
-                                <img src="{{ sub.imagen_url }}" alt="Diseno de sublimacion de la orden {{ salida.pk }}" class="sub-image">
+                        {% if sub.imagen_sublimacion %}
+                            <a href="{{ sub.imagen_sublimacion.url }}" target="_blank" rel="noopener">
+                                <img src="{{ sub.imagen_sublimacion.url }}" alt="Diseno de sublimacion de la orden {{ salida.pk }}" class="sub-image">
                             </a>
                         {% endif %}
                     </div>
@@ -492,9 +492,9 @@
 
                             <div class="proof-box">
                                 <div class="section-label">Comprobante</div>
-                                {% if salida.comprobante_url %}
-                                    <a href="{{ salida.comprobante_url }}" target="_blank" rel="noopener">
-                                    <img src="{{ salida.comprobante_url }}" alt="Comprobante de pago de la orden {{ salida.pk }}" class="proof-preview">            
+                                {% if salida.comprobante_pago %}
+                                    <a href="{{ salida.comprobante_pago.url }}" target="_blank" rel="noopener">
+                                    <img src="{{ salida.comprobante_pago.img_url }}" alt="Comprobante de pago de la orden {{ salida.pk }}" class="proof-preview">            
                                     </a> 
                                     
                                 {% else %}
