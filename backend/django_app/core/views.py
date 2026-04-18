@@ -1486,7 +1486,7 @@ def aprobar_pagos(request):
             .order_by('-fecha', '-id')
         )
         total_pendientes = queryset.count()
-        paginator = Paginator(queryset, 10)
+        paginator = Paginator(queryset, 5)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
     except Exception as e:
