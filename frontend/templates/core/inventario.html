@@ -173,116 +173,25 @@
             }
 
             .inventory-filters {
-                margin-bottom: 18px !important;
-                display: block !important;
+                margin-bottom: 14px !important;
+                justify-content: stretch !important;
             }
-
-            .inventory-filters-card {
-                background: #ffffff;
-                border-radius: 18px;
-                box-shadow: 0 14px 40px rgba(0, 0, 0, 0.08);
-                padding: 20px;
-                border: 1px solid rgba(153, 50, 204, 0.12);
+            .inventory-filters-inner {
+                display: grid !important;
+                grid-template-columns: 1fr;
+                gap: 10px !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                min-width: 0;
             }
-
-            .filters-grid {
-                display: grid;
-                grid-template-columns: repeat(4, minmax(160px, 1fr));
-                gap: 16px;
-                align-items: end;
-            }
-
-            .filter-field {
-                display: grid;
-                gap: 8px;
-            }
-
-            .filter-label {
-                font-size: 0.9rem;
-                font-weight: 600;
-                color: #4b286f;
-            }
-
-            .search-container {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                background: #f8f5fd;
-                border: 1px solid #e7dff5;
-                border-radius: 12px;
-                padding: 6px 10px;
-            }
-
-            .search-btn {
-                background: #fff;
-                color: #9932cc;
-                border: 1px solid #e7dff5;
-                border-radius: 10px;
-                width: 38px;
-                min-height: 38px;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-            }
-
-            .filter-btn {
-                width: 100%;
-                background: #6c757d;
-                color: #fff;
-                border: none;
-                border-radius: 12px;
-                padding: 12px 16px;
-                font-weight: 700;
-                cursor: pointer;
-            }
-
-            .filter-btn:hover {
-                background: #5a6268;
-            }
-
-            .filters-grid .search-input,
-            .filters-grid select {
-                width: 100%;
-                padding: 12px 14px;
-                border-radius: 12px;
-                border: 1px solid #dbd3e4;
-                background: #fff;
-                font-size: 0.95rem;
-                color: #1f2430;
-            }
-
-            .filters-grid select {
-                appearance: none;
-                -webkit-appearance: none;
-            }
-
-            .filters-grid .search-input::placeholder {
-                color: #a97cd1;
-            }
-
-            .inventory-filters .filter-actions {
-                display: flex;
-                align-items: center;
-                justify-content: flex-end;
-            }
-
-            @media (max-width: 960px) {
-                .filters-grid {
-                    grid-template-columns: 1fr 1fr;
-                }
-            }
-
-            @media (max-width: 720px) {
-                .filters-grid {
-                    grid-template-columns: 1fr;
-                }
-                .inventory-filters-card {
-                    padding: 16px;
-                }
-                .inventory-filters .filter-actions {
-                    justify-content: stretch;
-                }
+            #inventorySearch,
+            #inventoryCategory,
+            #inventoryStatus,
+            #inventoryClear,
+            .inventory-filters-inner .btn {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin-left: 0 !important;
             }
 
             .table-responsive {
@@ -892,43 +801,26 @@
 
             <!-- SFI-V2-master Style Table -->
             <!-- Search & Filters -->
-            <div class="inventory-filters">
-                <div class="inventory-filters-card">
-                    <div class="filters-grid">
-                        <div class="filter-field">
-                            <label for="inventorySearch" class="filter-label">Buscar producto</label>
-                            <div class="search-container">
-                                <button type="button" class="search-btn" aria-label="Buscar">
-                                    <i class="bi bi-search"></i>
-                                </button>
-                                <input id="inventorySearch" class="search-input" type="search" placeholder="Buscar por nombre..." />
-                            </div>
-                        </div>
+            <div class="inventory-filters" style="margin-bottom:18px; display:flex; justify-content:center;">
+                <div class="inventory-filters-inner" style="display:flex;gap:12px;align-items:center; max-width:920px; width:100%; justify-content:center;">
+                    <input id="inventorySearch" class="search-input" type="search" placeholder="Buscar por nombre..." style="flex:1;" />
 
-                        <div class="filter-field">
-                            <label for="inventoryCategory" class="filter-label">Categoría</label>
-                            <select id="inventoryCategory" class="form-control">
-                                <option value="all">Todas las categorías</option>
-                                {% for cat in categories %}
-                                <option value="{{ cat.nombre_categoria }}">{{ cat.nombre_categoria }}</option>
-                                {% endfor %}
-                                <option value="otros">Otros</option>
-                            </select>
-                        </div>
+                    <select id="inventoryCategory" class="form-control" style="width:220px;">
+                        <option value="all">Todas las categorías</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.nombre_categoria }}">{{ cat.nombre_categoria }}</option>
+                        {% endfor %}
+                        <option value="otros">Otros</option>
+                    </select>
 
-                        <div class="filter-field">
-                            <label for="inventoryStatus" class="filter-label">Estado</label>
-                            <select id="inventoryStatus" class="form-control">
-                                <option value="all">Todos</option>
-                                <option value="activo">Activo</option>
-                                <option value="inactivo">Inactivo</option>
-                            </select>
-                        </div>
+                    <select id="inventoryStatus" class="form-control" style="width:160px;">
+                        <option value="all">Todos</option>
+                        <option value="activo">Activo</option>
+                        <option value="inactivo">Inactivo</option>
+                    </select>
 
-                        <div class="filter-actions">
-                            <button id="inventoryClear" type="button" class="btn filter-btn">Limpiar filtros</button>
-                        </div>
-                    </div>
+                    <button id="inventoryClear" type="button" style="margin-left:6px;">Limpiar</button>
+
                 </div>
             </div>
 
