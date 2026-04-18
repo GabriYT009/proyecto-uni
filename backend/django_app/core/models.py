@@ -245,7 +245,7 @@ class DetalleServicio(models.Model):
     carrito_de_compras = models.ForeignKey(CarritoDeCompras, on_delete=models.CASCADE, null=True, blank=True)
     
     sub_total_servicio = models.FloatField(blank=True, null=True)
-
+ 
 
 class SolicitudSublimacion(models.Model):
     ESTADOS = [
