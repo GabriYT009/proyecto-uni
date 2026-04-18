@@ -156,8 +156,12 @@ class Producto(models.Model):
         if self.imagen_producto and self.imagen_producto.name:
             import shutil, os
             from django.conf import settings
-            # Ruta absoluta de la imagen en media
-            media_path = self.imagen_producto.path
+            # Algunos storage remotos (R2/S3/Cloudinary) no soportan `.path`.
+            try:
+                media_path = self.imagen_producto.path
+            except Exception:
+                return
+
             # Nombre base del archivo
             image_basename = os.path.basename(media_path)
             # Destino en static/product-images/
@@ -167,7 +171,7 @@ class Producto(models.Model):
             try:
                 if not os.path.exists(static_path):
                     shutil.copy2(media_path, static_path)
-            except Exception as e:
+            except Exception:
                 # No interrumpir el guardado si falla la copia
                 pass
 
