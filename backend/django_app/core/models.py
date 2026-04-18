@@ -198,7 +198,11 @@ class Nota_Entrega(models.Model):
         ('APROBADO', 'Aprobado'),
         ('RECHAZADO', 'Rechazado'),
     ]
-
+    Tipo_pago = [
+        ('EFECTIVO', 'Efectivo'),
+        ('PAGO MOVIL', 'Pago Móvil'),
+        ('TARJETA', 'Tarjeta')]
+    
     bcv = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
     carrito_de_compras = models.ForeignKey(CarritoDeCompras, on_delete=models.SET_NULL, null=True, blank=True)
     metodo_pago = models.ForeignKey(MetodoPago, on_delete=models.SET_NULL, null=True, blank=True)
@@ -213,8 +217,10 @@ class Nota_Entrega(models.Model):
         blank=True,
         related_name='Nota_Entrega_revisadas',
     )
+
     fecha_revision = models.DateTimeField(blank=True, null=True)
-    
+    tipo_pago = models.CharField(max_length=20, choices=Tipo_pago, blank=True, null=True)
+    referencia_pago = models.CharField(max_length=100, blank=True, null=True)
     total = models.FloatField(blank=True, null=True)
     fecha = models.DateTimeField(blank=True, null=True)
 

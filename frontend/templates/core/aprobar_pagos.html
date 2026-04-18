@@ -253,11 +253,93 @@
             background: #fcfafc;
         }
 
+        .pagination {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 18px;
+            padding: 14px 0;
+            border-top: 1px solid #e8dee6;
+        }
+
+        .page-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+            padding: 8px 12px;
+            border-radius: 12px;
+            border: 1px solid #d9c7ea;
+            background: #fff;
+            color: var(--ink);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .page-link:hover,
+        .page-link:focus {
+            background: #f7f0ff;
+            border-color: #c9afe0;
+        }
+
+        .page-link.active {
+            background: var(--brand);
+            color: #fff;
+            border-color: var(--brand);
+        }
+
+        .page-link.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
         .actions {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
             margin-top: 16px;
+            align-items: center;
+        }
+
+        .header-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
+        .status-action {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 8px;
+        }
+
+        .status-select {
+            min-width: 190px;
+            border: 1px solid #d9c7ea;
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 0.95rem;
+            color: var(--ink);
+            background: #fff;
+            appearance: none;
+        }
+
+        .btn-submit {
+            border: none;
+            border-radius: 12px;
+            padding: 10px 16px;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(135deg, #5b3dc4, #8f58dc);
+            cursor: pointer;
+        }
+
+        .btn-submit:hover {
+            opacity: 0.95;
         }
 
         .btn-approve, .btn-reject {
@@ -321,16 +403,28 @@
             </div>
         {% endif %}
 
-        {% if salidas %}
+        {% if page_obj and page_obj.object_list %}
             <div class="stack">
-                {% for salida in salidas %}
+                {% for salida in page_obj.object_list %}
                     <article class="payment-card">
                         <div class="payment-head">
                             <div>
                                 <a href="{% url 'descargar_factura_ne' salida.pk %}"><h2 class="payment-title">Orden #{{ salida.pk }}</h2></a>
-                                
                             </div>
-                            <div class="status-pill status-pending">{{ salida.get_estado_pago_display }}</div>
+                            <div class="header-actions">
+                                <div class="status-pill {% if salida.estado_pago == 'APROBADO' %}status-approved{% elif salida.estado_pago == 'RECHAZADO' %}status-rejected{% else %}status-pending{% endif %}">{{ salida.get_estado_pago_display }}</div>
+                                <form method="post" class="status-action" novalidate>
+                                    {% csrf_token %}
+                                    <input type="hidden" name="salida_id" value="{{ salida.pk }}">
+                                    <label for="accion-{{ salida.pk }}">Estado</label>
+                                    <select id="accion-{{ salida.pk }}" name="accion" class="status-select" required>
+                                        <option value="" disabled selected>Seleccionar acción</option>
+                                        <option value="aprobar">Aprobar pago</option>
+                                        <option value="rechazar">Rechazar pago</option>
+                                    </select>
+                                    <button type="submit" class="btn-submit">Guardar</button>
+                                </form>
+                            </div>
                         </div>
 
                         <div class="payment-body">
@@ -339,7 +433,11 @@
 
 <dl class="payment-info">
     <dt>Beneficiario</dt>
+    {% if salida.cliente %}
     <dd>{{ salida.cliente.nombre_cliente }} {{ salida.cliente.apellido_cliente }}</dd>
+    {% else %}
+    <dd>No disponible</dd>
+    {% endif %}
 
     <dt>Cédula / RIF</dt>
     <dd>{{ salida.cliente.documento }}</dd>
@@ -349,6 +447,13 @@
 
     <dt class="total-label">Monto Total</dt>
     <dd class="total-amount">$ {{ salida.total }}</dd>
+    <dt>Número de referencia</dt>
+    {% if salida.referencia_pago %}
+
+    <dd>{{ salida.referencia_pago }}</dd>
+    {% else %}
+    <dd>No disponible</dd>
+    {% endif %}
 </dl>
 
 <div class="section-label" style="margin-top:14px;">Productos y Sublimación</div>
@@ -389,8 +494,9 @@
                                 <div class="section-label">Comprobante</div>
                                 {% if salida.comprobante_pago %}
                                     <a href="{{ salida.comprobante_pago.url }}" target="_blank" rel="noopener">
-                                        <img src="{{ salida.comprobante_pago.url }}" alt="Comprobante de pago de la orden {{ salida.pk }}" class="proof-preview">
-                                    </a>
+                                    <img src="{{ salida.comprobante_pago.img_url }}" alt="Comprobante de pago de la orden {{ salida.pk }}" class="proof-preview">            
+                                    </a> 
+                                    
                                 {% else %}
                                     <div class="proof-empty">
                                         No se cargó un comprobante para esta orden.
@@ -401,6 +507,39 @@
                     </article>
                 {% endfor %}
             </div>
+            {% if page_obj and page_obj.has_other_pages %}
+                <div class="pagination" aria-label="Paginación de pagos pendientes">
+                    {% if page_obj.has_previous %}
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">← Anterior</a>
+                    {% else %}
+                        <span class="page-link disabled">← Anterior</span>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if num == page_obj.number %}
+                            <span class="page-link active">{{ num }}</span>
+                        {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        {% elif num == 1 %}
+                            <a class="page-link" href="?page=1">1</a>
+                            {% if page_obj.number > 3 %}
+                                <span class="page-link disabled">…</span>
+                            {% endif %}
+                        {% elif num == page_obj.paginator.num_pages %}
+                            {% if page_obj.number < page_obj.paginator.num_pages|add:'-2' %}
+                                <span class="page-link disabled">…</span>
+                            {% endif %}
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente →</a>
+                    {% else %}
+                        <span class="page-link disabled">Siguiente →</span>
+                    {% endif %}
+                </div>
+            {% endif %}
         {% else %}
             <div class="empty-state">
                 <h2>No hay pagos pendientes</h2>
