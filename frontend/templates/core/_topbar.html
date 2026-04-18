@@ -247,6 +247,7 @@
 					<div id="productDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
 						{% if 'admin' in user_groups %}
 							<a href="{% url 'registrar_producto' %}" class="dropdown-item">Crear producto</a>
+							<a href="{% url 'agregar_marca' %}" class="dropdown-item;">Agregar Marca</a>
 						{% endif %}
 					</div>
 				</div>

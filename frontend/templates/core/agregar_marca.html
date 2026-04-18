@@ -457,7 +457,7 @@
         <div class="marca-form">
             <form method="post">
                 {% csrf_token %}
-                <div class="form-group">
+                <!-- <div class="form-group">
                     <label for="producto_id">Seleccionar Producto:</label>
                     <select name="producto_id" id="producto_id" class="form-control" required>
                         <option value="">-- Seleccionar Producto --</option>
@@ -467,7 +467,7 @@
                             </option>
                         {% endfor %}
                     </select>
-                </div>
+                </div> -->
                 <div class="form-group">
                     <label for="marca_producto">Marca del Producto:</label>
                     <input type="text" name="marca_producto" id="marca_producto" class="form-control" placeholder="Ingrese la marca" required>
@@ -479,7 +479,7 @@
             </form>
         </div>
 
-        {% if productos_sin_marca %}
+        <!-- {% if productos_sin_marca %}
             <div class="mt-4">
                 <h3>Productos sin Marca ({{ productos_sin_marca|length }})</h3>
                 <ul class="list-group">
@@ -492,7 +492,7 @@
             <div class="mt-4 alert alert-success">
                 ¡Todos los productos tienen marca asignada!
             </div>
-        {% endif %}
+        {% endif %} -->
     </div>
 
     <!-- Bootstrap JS -->

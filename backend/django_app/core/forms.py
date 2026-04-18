@@ -1,6 +1,6 @@
 from django import forms
 from django.db.models import Case, When, IntegerField
-from .models import Producto, Categoria
+from .models import Producto, Categoria,Marca_producto
 
 ALLOWED_CATEGORY_NAMES = [
     'Cajas',
@@ -40,6 +40,16 @@ class ProductForm(forms.ModelForm):
         self.fields['categoria'].choices = [
             (cat.pk, cat.nombre_categoria) for cat in categorias
         ] + [('otros', 'Otros')]
+
+        self.fields['marca_producto'] = forms.ModelChoiceField(
+            queryset=Marca_producto.objects.all(),
+            empty_label="Selecciona una marca",
+            required=False, # Ponlo en True si es obligatorio
+            widget=forms.Select(attrs={'class': 'form-control'})
+        )
+
+    
+        
     
     class Meta:
         model = Producto  # Modelo actualizado
@@ -51,10 +61,11 @@ class ProductForm(forms.ModelForm):
                 'placeholder': 'Nombre de producto', 
                 'class': 'form-control'
             }),
-            'marca_producto': forms.TextInput(attrs={
-                'placeholder': 'Marca del producto', 
+            'marca_producto': forms.Select(attrs={
+                'placeholder': 'Marca', 
                 'class': 'form-control'
             }),
+
             'precio_venta': forms.NumberInput(attrs={
                 'step': '0.01', 
                 'placeholder': 'Precio', 

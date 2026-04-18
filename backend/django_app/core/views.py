@@ -28,7 +28,7 @@ from django.core.files.storage import default_storage
 from .bcv import obtener_tasa_cambio
 from .NotaE import Generar_NE
 
-from .models import Producto, Nota_Entrega, CarritoDeCompras, Historial_Inventario, Cliente
+from .models import Producto, Nota_Entrega, CarritoDeCompras, Historial_Inventario, Cliente,Marca_producto
 
 def is_admin(user):
     if not hasattr(user, 'is_authenticated') or not user.is_authenticated:
@@ -623,11 +623,15 @@ def crear_usuario(request):
 @admin_only
 
 def crear_Productoo(request):
+    marcas = []
     try:
+        marcas= Marca_producto.objects.all()
         if request.method == 'POST':
             post_data = request.POST.copy()
             categoria_custom = post_data.get('categoria_custom')
             otra_categoria = post_data.get('otra_categoria')
+            
+            
             # Si seleccionó 'otros', crear la categoría si no existe y usarla
             if categoria_custom == 'otros' and otra_categoria:
                 cat_obj, _ = Categoria.objects.get_or_create(
@@ -647,6 +651,7 @@ def crear_Productoo(request):
                 messages.error(request, 'Por favor corrige los errores en el formulario.')
         else:
             form = ProductForm()
+            
     except Exception as e:
         import traceback
         print('Error en crear_Productoo:', e)
@@ -656,6 +661,7 @@ def crear_Productoo(request):
 
     return render(request, 'core/crear_productoo.html', {
         'form': form,
+        'marcas': marcas,
         'user_groups': list(request.user.groups.values_list('name', flat=True)),
         'cart_count': len(request.session.get('cart', []))
     })
@@ -1335,7 +1341,7 @@ def comprar_producto(request, producto_id):
 
 
             # Quitar el producto comprado del carrito en la sesión
-            # Limpieza de sesión
+            # Limpieza de sesión asd
             cart = request.session.get('cart', [])
             if producto.pk in cart:
                 cart.remove(producto.pk)
@@ -1930,45 +1936,47 @@ def todos_clientes(request):
 @admin_only
 def agregar_marca(request):
     if request.method == 'POST':
-        producto_id = request.POST.get('producto_id')
-        marca = request.POST.get('marca_producto', '').strip()
-        
-        if producto_id and marca:
-            try:
-                producto = Producto.objects.get(pk=producto_id)
-                marca_anterior = (producto.marca_producto or '').strip()
-                producto.marca_producto = marca
-                producto.save()
-                if marca_anterior and marca_anterior.lower() != marca.lower():
-                    messages.success(
-                        request,
-                        f'Marca actualizada en "{producto.nombre_producto}": "{marca_anterior}" -> "{marca}".'
-                    )
-                elif marca_anterior and marca_anterior.lower() == marca.lower():
-                    messages.success(
-                        request,
-                        f'La marca de "{producto.nombre_producto}" ya estaba en "{marca}".'
-                    )
-                else:
-                    messages.success(request, f'Marca "{marca}" agregada al producto "{producto.nombre_producto}".')
-            except Producto.DoesNotExist:
-                messages.error(request, 'Producto no encontrado.')
-            except Exception as e:
-                messages.error(request, f'Error al agregar la marca: {str(e)}')
-        else:
-            messages.error(request, 'Debes seleccionar un producto y proporcionar una marca.')
+        # producto_id = request.POST.get('producto_id')
+        nueva_marca = request.POST.get('marca_producto', '').strip()
+        try:
+            Marca_producto.objects.create(nombre_marca=nueva_marca)
+        except Exception as e:
+            messages.error(request, f'Error al agregar la marca: {str(e)}')
+        # if producto_id and marca:
+        #     try:
+        #         producto = Producto.objects.get(pk=producto_id)
+        #         marca_anterior = (producto.marca_producto or '').strip()
+        #         producto.marca_producto = marca
+        #         producto.save()
+        #         if marca_anterior and marca_anterior.lower() != marca.lower():
+        #             messages.success(
+        #                 request,
+        #                 f'Marca actualizada en "{producto.nombre_producto}": "{marca_anterior}" -> "{marca}".'
+        #             )
+        #         elif marca_anterior and marca_anterior.lower() == marca.lower():
+        #             messages.success(
+        #                 request,
+        #                 f'La marca de "{producto.nombre_producto}" ya estaba en "{marca}".'
+        #             )
+        #         else:
+        #             messages.success(request, f'Marca "{marca}" agregada al producto "{producto.nombre_producto}".')
+        #     except Producto.DoesNotExist:
+        #         messages.error(request, 'Producto no encontrado.')
+        #     except Exception as e:
+        #         messages.error(request, f'Error al agregar la marca: {str(e)}')
+        # else:
+        #     messages.error(request, 'Debes seleccionar un producto y proporcionar una marca.')
         
         return redirect('agregar_marca')
     
     # Obtener todos los productos para permitir seleccionar cualquiera
-    productos = Producto.objects.all().order_by('nombre_producto')
+    # productos = Producto.objects.all().order_by('nombre_producto')
 
-    # Mantener a la vista los no marcados para información, pero no bloquea
-    productos_sin_marca = productos.filter(Q(marca_producto__isnull=True) | Q(marca_producto=''))
+
 
     return render(request, 'core/agregar_marca.html', {
-        'productos': productos,
-        'productos_sin_marca': productos_sin_marca,
+
+
         'cart_count': len(request.session.get('cart', [])),
         'user_groups': list(request.user.groups.values_list('name', flat=True))
     })
