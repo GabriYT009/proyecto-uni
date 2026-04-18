@@ -94,7 +94,11 @@ ENABLE_S3_MEDIA = _is_true(os.environ.get("ENABLE_S3_MEDIA", "False"))
 _aws_bucket = (os.environ.get("AWS_STORAGE_BUCKET_NAME") or "").strip()
 _aws_access_key = (os.environ.get("AWS_ACCESS_KEY_ID") or "").strip()
 _aws_secret_key = (os.environ.get("AWS_SECRET_ACCESS_KEY") or "").strip()
-_aws_region = (os.environ.get("AWS_S3_REGION_NAME") or "").strip()
+_aws_region = (
+    os.environ.get("AWS_S3_REGION_NAME")
+    or os.environ.get("AWS_REGION_NAME")
+    or ""
+).strip()
 _aws_endpoint = (os.environ.get("AWS_S3_ENDPOINT_URL") or "").strip()
 
 # S3-compatible media backend (AWS S3, Cloudflare R2, Backblaze B2, Spaces, etc.).

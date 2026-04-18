@@ -82,25 +82,28 @@ def _safe_img_url(producto):
     if not image_name:
         return fallback
 
-    # Keep a best-effort URL available even when the storage backend cannot
-    # reliably answer exists() for remote files.
-    raw_url = ''
+    # Prefer direct FieldFile URL first (signed URL on private S3/R2 buckets).
     try:
         raw_url = image_field.url
-    except Exception:
-        raw_url = ''
-
-    try:
-        if image_field.storage.exists(image_name):
-            return _normalize_media_url(image_field.url)
-    except Exception:
-        # Some storage backends may not support exists(); keep URL as best effort.
-        pass
-
-    if raw_url:
         normalized = _normalize_media_url(raw_url)
         if normalized:
             return normalized
+    except Exception:
+        pass
+
+    # Handle legacy names that already include the media location (e.g. media/products/..)
+    # so S3 backends don't build duplicated paths like /media/media/products/..
+    media_location = (os.environ.get('AWS_MEDIA_LOCATION') or 'media').strip('/')
+    if media_location and image_name.startswith(media_location + '/'):
+        trimmed_name = image_name[len(media_location) + 1:]
+        if trimmed_name:
+            try:
+                alt_url = image_field.storage.url(trimmed_name)
+                normalized = _normalize_media_url(alt_url)
+                if normalized:
+                    return normalized
+            except Exception:
+                pass
 
     try:
         image_basename = os.path.basename(image_name)
