@@ -224,6 +224,40 @@
             gap: 10px;
             flex-wrap: wrap;
             margin-top: 16px;
+            align-items: center;
+        }
+
+        .status-action {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 18px;
+        }
+
+        .status-select {
+            min-width: 190px;
+            border: 1px solid #d9c7ea;
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 0.95rem;
+            color: var(--ink);
+            background: #fff;
+            appearance: none;
+        }
+
+        .btn-submit {
+            border: none;
+            border-radius: 12px;
+            padding: 10px 16px;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(135deg, #5b3dc4, #8f58dc);
+            cursor: pointer;
+        }
+
+        .btn-submit:hover {
+            opacity: 0.95;
         }
 
         .btn-approve, .btn-reject {
@@ -296,7 +330,7 @@
                                 <a href="{% url 'descargar_factura_ne' salida.pk %}"><h2 class="payment-title">Orden #{{ salida.pk }}</h2></a>
                                 
                             </div>
-                            <div class="status-pill status-pending">{{ salida.get_estado_pago_display }}</div>
+                            <div class="status-pill {% if salida.estado_pago == 'APROBADO' %}status-approved{% elif salida.estado_pago == 'RECHAZADO' %}status-rejected{% else %}status-pending{% endif %}">{{ salida.get_estado_pago_display }}</div>
                         </div>
 
                         <div class="payment-body">
@@ -340,6 +374,18 @@
                                         No se cargó un comprobante para esta orden.
                                     </div>
                                 {% endif %}
+
+                                <form method="post" class="status-action" novalidate>
+                                    {% csrf_token %}
+                                    <input type="hidden" name="salida_id" value="{{ salida.pk }}">
+                                    <label for="accion-{{ salida.pk }}" class="visually-hidden">Cambiar estado</label>
+                                    <select id="accion-{{ salida.pk }}" name="accion" class="status-select" required>
+                                        <option value="" disabled selected>Seleccionar acción</option>
+                                        <option value="aprobar">Aprobar pago</option>
+                                        <option value="rechazar">Rechazar pago</option>
+                                    </select>
+                                    <button type="submit" class="btn-submit">Guardar</button>
+                                </form>
                             </div>
                         </div>
                     </article>
