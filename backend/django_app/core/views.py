@@ -28,7 +28,7 @@ from django.core.files.storage import default_storage
 from .bcv import obtener_tasa_cambio
 from .NotaE import Generar_NE
 
-from .models import Producto, Nota_Entrega, CarritoDeCompras, Historial_Inventario, Cliente
+from .models import Producto, Nota_Entrega, CarritoDeCompras, Historial_Inventario, Cliente,Marca_producto
 
 def is_admin(user):
     if not hasattr(user, 'is_authenticated') or not user.is_authenticated:
@@ -1922,43 +1922,46 @@ def todos_clientes(request):
 @admin_only
 def agregar_marca(request):
     if request.method == 'POST':
-        producto_id = request.POST.get('producto_id')
-        marca = request.POST.get('marca_producto', '').strip()
-        
-        if producto_id and marca:
-            try:
-                producto = Producto.objects.get(pk=producto_id)
-                marca_anterior = (producto.marca_producto or '').strip()
-                producto.marca_producto = marca
-                producto.save()
-                if marca_anterior and marca_anterior.lower() != marca.lower():
-                    messages.success(
-                        request,
-                        f'Marca actualizada en "{producto.nombre_producto}": "{marca_anterior}" -> "{marca}".'
-                    )
-                elif marca_anterior and marca_anterior.lower() == marca.lower():
-                    messages.success(
-                        request,
-                        f'La marca de "{producto.nombre_producto}" ya estaba en "{marca}".'
-                    )
-                else:
-                    messages.success(request, f'Marca "{marca}" agregada al producto "{producto.nombre_producto}".')
-            except Producto.DoesNotExist:
-                messages.error(request, 'Producto no encontrado.')
-            except Exception as e:
-                messages.error(request, f'Error al agregar la marca: {str(e)}')
-        else:
-            messages.error(request, 'Debes seleccionar un producto y proporcionar una marca.')
+        # producto_id = request.POST.get('producto_id')
+        nueva_marca = request.POST.get('marca_producto', '').strip()
+        try:
+            Marca_producto.objects.create(nombre_marca=nueva_marca)
+        except Exception as e:
+            messages.error(request, f'Error al agregar la marca: {str(e)}')
+        # if producto_id and marca:
+        #     try:
+        #         producto = Producto.objects.get(pk=producto_id)
+        #         marca_anterior = (producto.marca_producto or '').strip()
+        #         producto.marca_producto = marca
+        #         producto.save()
+        #         if marca_anterior and marca_anterior.lower() != marca.lower():
+        #             messages.success(
+        #                 request,
+        #                 f'Marca actualizada en "{producto.nombre_producto}": "{marca_anterior}" -> "{marca}".'
+        #             )
+        #         elif marca_anterior and marca_anterior.lower() == marca.lower():
+        #             messages.success(
+        #                 request,
+        #                 f'La marca de "{producto.nombre_producto}" ya estaba en "{marca}".'
+        #             )
+        #         else:
+        #             messages.success(request, f'Marca "{marca}" agregada al producto "{producto.nombre_producto}".')
+        #     except Producto.DoesNotExist:
+        #         messages.error(request, 'Producto no encontrado.')
+        #     except Exception as e:
+        #         messages.error(request, f'Error al agregar la marca: {str(e)}')
+        # else:
+        #     messages.error(request, 'Debes seleccionar un producto y proporcionar una marca.')
         
         return redirect('agregar_marca')
     
     # Obtener todos los productos para permitir seleccionar cualquiera
-    productos = Producto.objects.all().order_by('nombre_producto')
+    # productos = Producto.objects.all().order_by('nombre_producto')
 
 
 
     return render(request, 'core/agregar_marca.html', {
-        'productos': productos,
+
 
         'cart_count': len(request.session.get('cart', [])),
         'user_groups': list(request.user.groups.values_list('name', flat=True))
