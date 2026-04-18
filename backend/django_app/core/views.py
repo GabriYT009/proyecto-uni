@@ -615,6 +615,7 @@ def crear_usuario(request):
 @admin_only
 
 def crear_Productoo(request):
+    marcas= Marca_producto.objects.all()
     try:
         if request.method == 'POST':
             post_data = request.POST.copy()
@@ -641,7 +642,7 @@ def crear_Productoo(request):
                 messages.error(request, 'Por favor corrige los errores en el formulario.')
         else:
             form = ProductForm()
-            marcas= Marca_producto.objects.all()
+            
     except Exception as e:
         import traceback
         print('Error en crear_Productoo:', e)
