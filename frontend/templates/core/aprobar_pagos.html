@@ -426,10 +426,10 @@
                             <div class="proof-box">
                                 <div class="section-label">Comprobante</div>
                                 {% if salida.comprobante_pago %}
-                                    <!-- <a href="{{ salida.comprobante_pago.url }}" target="_blank" rel="noopener">
-                                        
-                                    </a> -->
-                                    <img src="{{ salida.comprobante_pago.img_url }}" alt="Comprobante de pago de la orden {{ salida.pk }}" class="proof-preview">
+                                    <a href="{{ salida.comprobante_pago.url }}" target="_blank" rel="noopener">
+                                    <img src="{{ salida.comprobante_pago.img_url }}" alt="Comprobante de pago de la orden {{ salida.pk }}" class="proof-preview">            
+                                    </a> 
+                                    
                                 {% else %}
                                     <div class="proof-empty">
                                         No se cargó un comprobante para esta orden.
