@@ -1147,7 +1147,7 @@ def inventario(request):
     debug_media = request.GET.get('debug_media', '').strip().lower() in ('1', 'true', 'yes')
     productos = (
         Producto.objects
-        .select_related('categoria')
+        .select_related('categoria', 'marca_producto')
         .only(
             'id',
             'nombre_producto',
@@ -1157,6 +1157,8 @@ def inventario(request):
             'status_producto',
             'categoria_id',
             'categoria__nombre_categoria',
+            'marca_producto_id',
+            'marca_producto__nombre_marca',
             'imagen_producto',
         )
         .order_by('nombre_producto')
@@ -1198,6 +1200,7 @@ def inventario(request):
         'page_obj': page_obj,
         'paginator': paginator,
         'categories': _cached_categories(),
+        'brands': Marca_producto.objects.order_by('nombre_marca'),
         'cart_count': len(request.session.get('cart', [])),
         'user_groups': _user_groups(request.user),
         'debug_media': debug_media,
