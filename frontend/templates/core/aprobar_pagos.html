@@ -305,7 +305,11 @@
 
 <dl class="payment-info">
     <dt>Beneficiario</dt>
+    {% if salida.cliente %}
     <dd>{{ salida.cliente.nombre_cliente }} {{ salida.cliente.apellido_cliente }}</dd>
+    {% else %}
+    <dd>No disponible</dd>
+    {% endif %}
 
     <dt>Cédula / RIF</dt>
     <dd>{{ salida.cliente.documento }}</dd>
