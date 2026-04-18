@@ -186,8 +186,10 @@
             }
             #inventorySearch,
             #inventoryCategory,
+            #inventoryBrand,
             #inventoryStatus,
             #inventoryClear,
+
             .inventory-filters-inner .btn {
                 width: 100% !important;
                 max-width: 100% !important;
@@ -666,7 +668,8 @@
             box-shadow: none;
         }
         #inventorySearch::placeholder{ color: #bfa1d9; }
-        #inventoryCategory, #inventoryStatus{
+        #inventoryCategory, #inventoryStatus, #inventoryBrand{
+            padding:8px 1
             border:2px solid #9932CC;
             border-radius:10px;
             padding:6px 10px;
@@ -675,9 +678,10 @@
             color:#333;
         }
         #inventoryCategory{ max-width:220px; }
+        #inventoryBrand{ max-width:220px; }
         #inventoryStatus{ max-width:160px; }
         /* focus appearance */
-        #inventorySearch:focus, #inventoryCategory:focus, #inventoryStatus:focus{
+        #inventorySearch:focus, #inventoryCategory:focus,#inventoryBrand:focus , #inventoryBrand:focus, #inventoryStatus:focus{
             outline: none;
             box-shadow: 0 0 0 4px rgba(153,50,204,0.12);
             border-color: #7B1FA2;
@@ -813,6 +817,13 @@
                         <option value="otros">Otros</option>
                     </select>
 
+                    <select id="inventoryBrand" class="form-control" style="width:220px;">
+                        <option value="all">Todas las marcas</option>
+                        {% for marca in brands %}
+                        <option value="{{ marca.nombre_marca }}">{{ marca.nombre_marca }}</option>
+                        {% endfor %}
+                    </select>
+
                     <select id="inventoryStatus" class="form-control" style="width:160px;">
                         <option value="all">Todos</option>
                         <option value="activo">Activo</option>
@@ -838,7 +849,7 @@
                     </thead>
                     <tbody>
                         {% for producto in page_obj %}
-                        <tr data-category="{{ producto.categoria.nombre_categoria|default:'' }}" data-status="{% if producto.status_producto %}activo{% else %}inactivo{% endif %}">
+                        <tr data-category="{{ producto.categoria.nombre_categoria|default:'' }}" data-status="{% if producto.status_producto %}activo{% else %}inactivo{% endif %}" data-brand="{{ producto.marca_producto.nombre_marca|default:'' }}">
                             <td class="mdl-data-table__cell--non-numeric">
                                 <div class="product-cell">
                                     {% if producto.img_url %}
@@ -960,30 +971,36 @@
         (function(){
             const search = document.getElementById('inventorySearch');
             const catSel = document.getElementById('inventoryCategory');
+            const brandSel = document.getElementById('inventoryBrand');
             const statusSel = document.getElementById('inventoryStatus');
             function filterInventory(){
                 const q = search ? search.value.trim().toLowerCase() : '';
                 const cat = catSel ? catSel.value : 'all';
+                const brand = brandSel ? brandSel.value : 'all';
                 const stat = statusSel ? statusSel.value : 'all';
                 const rows = document.querySelectorAll('.mdl-data-table tbody tr');
                 rows.forEach(r => {
                     const name = (r.querySelector('.product-info strong') || {}).textContent || '';
                     const rowCat = (r.dataset && r.dataset.category) ? r.dataset.category : '';
+                    const rowBrand = (r.dataset && r.dataset.brand) ? r.dataset.brand : '';
                     const rowStat = (r.dataset && r.dataset.status) ? r.dataset.status : '';
                     const matchesSearch = !q || name.toLowerCase().includes(q);
                     const matchesCat = cat === 'all' || rowCat === cat;
+                    const matchesBrand = brand === 'all' || rowBrand === brand;
                     const matchesStat = stat === 'all' || rowStat === stat;
-                    r.style.display = (matchesSearch && matchesCat && matchesStat) ? '' : 'none';
+                    r.style.display = (matchesSearch && matchesCat && matchesBrand && matchesStat) ? '' : 'none';
                 });
             }
             if (search) search.addEventListener('input', filterInventory);
             if (catSel) catSel.addEventListener('change', filterInventory);
+            if (brandSel) brandSel.addEventListener('change', filterInventory);
             if (statusSel) statusSel.addEventListener('change', filterInventory);
             const clearBtn = document.getElementById('inventoryClear');
             if (clearBtn) {
                 clearBtn.addEventListener('click', function(){
                     if (search) search.value = '';
                     if (catSel) catSel.value = 'all';
+                    if (brandSel) brandSel.value = 'all';
                     if (statusSel) statusSel.value = 'all';
                     filterInventory();
                 });
