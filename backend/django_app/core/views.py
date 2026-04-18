@@ -1489,6 +1489,36 @@ def aprobar_pagos(request):
         paginator = Paginator(queryset, 5)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
+
+        # Precompute media URLs defensively to avoid template-time storage errors
+        # (e.g. stale cloud credentials, missing remote objects, invalid paths).
+        for salida in page_obj.object_list:
+            salida.comprobante_url = ''
+            try:
+                if salida.comprobante_pago:
+                    salida.comprobante_url = salida.comprobante_pago.url
+            except Exception:
+                logger.warning(
+                    'No se pudo resolver comprobante para nota %s',
+                    salida.pk,
+                    exc_info=True,
+                )
+
+            for detalle in salida.detalles.all():
+                subs = list(detalle.solicitudes_sublimacion.all())
+                for sub in subs:
+                    sub.imagen_url = ''
+                    try:
+                        if sub.imagen_sublimacion:
+                            sub.imagen_url = sub.imagen_sublimacion.url
+                    except Exception:
+                        logger.warning(
+                            'No se pudo resolver imagen de sublimacion %s para nota %s',
+                            getattr(sub, 'pk', None),
+                            salida.pk,
+                            exc_info=True,
+                        )
+                detalle.sublimaciones_pendientes = subs
     except Exception as e:
         logger.error(f'Error al cargar pagos pendientes: {e}', exc_info=True)
         page_obj = None
