@@ -6,26 +6,28 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Inventario</title>
 
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com" rel="preconnect">
     <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <!-- Vendor CSS Files -->
     <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
     <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
     <link href="{% static 'vendor/aos/aos.css' %}" rel="stylesheet">
     <link href="{% static 'vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
     <link href="{% static 'vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
 
+    <!-- Main CSS File -->
     <link href="{% static 'css/main.css' %}" rel="stylesheet">
-
-    <style>
+<style>
         body { 
             padding-top: 82px; 
             background: #ffffff;
             font-family: 'Montserrat', sans-serif;
         }
 
-        /* Topbar Style */
-        .top-bar {
+        /* top full-width bar - MANTENIENDO EL ESTILO ORIGINAL */
+    .top-bar {
             height: 82px !important;
             background: rgb(72 13 102) !important;
             border-bottom: 1px solid rgba(153, 50, 204, 0.12) !important;
@@ -33,12 +35,28 @@
             backdrop-filter: blur(18px) !important;
             -webkit-backdrop-filter: blur(18px) !important;
             position: fixed;
-            top: 0; left: 0; right: 0; z-index: 10000;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10000;
         }
         .top-bar .bar-inner{ max-width:1400px; margin:0 auto; height:82px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; position:relative; }
-        .bar-logo-link{ display:flex; align-items:center; font-size:24px; font-weight:700; color:#ffffff !important; text-decoration:none; }
+
+    .bar-logo-link{ display:flex; align-items:center; font-size:24px; font-weight:700; color:#ffffff !important; text-decoration:none; }
+    .bar-logo-text{ font-size:24px; font-weight:700; color:#ffffff !important; }
+
+        /* Search container */
+        .search-container{ display:flex; align-items:center; background:#f5f5f5; border-radius:25px; padding:5px; width:100%; }
+        .search-input{ flex:1; border:none; background:transparent; padding:8px 15px; font-size:16px; outline:none; }
+        .search-btn{ background:#fff; color:#9932CC; border:none; border-radius:20px; width:35px; height:35px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; margin-right:5px; }
         
-        /* Frame and Containers */
+        /* groups inside bar-inner */
+        .bar-inner .group{ display:flex; align-items:center; gap:15px; }
+        .bar-inner .bar-left{ flex:0 0 auto; }
+        .bar-inner .bar-center{ flex:1 1 auto; display:flex; justify-content:center; }
+        .bar-inner .bar-right{ flex:0 0 auto; }
+
+        /* SFI-V2-master TABLE STYLES - Solo para la tabla */
         .giant-frame {
             border-radius: 20px;
             margin: 24px auto;
@@ -48,9 +66,15 @@
             width: 98vw;
             max-width: 1700px;
         }
-        .wrap{ max-width:1800px; margin:0 auto; padding:0; width: 100%; }
 
-        /* Inventory Header */
+        .wrap{
+            max-width:1800px;
+            margin:0 auto;
+            padding:0;
+            width: 100%;
+        }
+
+        /* Header section for inventory */
         .inventory-header {
             background: linear-gradient(135deg, #61247f, #46125d);
             color: white;
@@ -62,25 +86,81 @@
             gap: 20px;
             box-shadow: 0 4px 15px rgba(153, 50, 204, 0.3);
         }
-        .inventory-header-icon { font-size: 48px; opacity: 0.9; }
 
-        /* FILTERS GRID - FIX: Horizontal layout */
+        .inventory-header-icon {
+            font-size: 48px;
+            opacity: 0.9;
+        }
+
+        .inventory-header-text p {
+            margin: 0;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        /* SFI Table Styles */
+        .table-responsive {
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: visible;
+            margin-top: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .mdl-data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .mdl-data-table th {
+            background: #692c87;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 500;
+            border: none;
+        }
+
+        .mdl-data-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            color: #333;
+        }
+
+        .mdl-data-table tbody tr:hover {
+            background: #E1BEE7;
+        }
+
+        /* Buttons */
+        .mdl-button {
+            background: #9932CC;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        /* MODIFICACIÓN AQUÍ: FILTROS EN LÍNEA */
         .inventory-filters-card {
             width: 100%;
             background: #ffffff;
             border-radius: 18px;
             box-shadow: 0 18px 40px rgba(0, 0, 0, 0.06);
-            padding: 24px;
+            padding: 18px;
             box-sizing: border-box;
             margin-bottom: 20px;
         }
 
         .filters-grid {
             display: grid;
-            /* 5 columnas de igual tamaño para desktop */
+            /* 5 columnas automáticas para escritorio */
             grid-template-columns: repeat(5, 1fr);
             gap: 16px;
-            align-items: flex-end; /* Alinea botón con la base de los inputs */
+            align-items: flex-end; /* Alinea los inputs y el botón por la base */
         }
 
         .filter-field {
@@ -93,163 +173,151 @@
             font-size: 13px;
             font-weight: 700;
             color: #4b2779;
+            margin-bottom: 0px;
         }
 
-        /* Inputs and Selects Fix */
-        #inventorySearch, #inventoryCategory, #inventoryBrand, #inventoryStatus, .search-container {
+        /* Ajustes de anchos para que no se corten */
+        #inventorySearch, #inventoryCategory, #inventoryBrand, #inventoryStatus, #inventoryClear {
             width: 100% !important;
             max-width: none !important;
-            margin: 0 !important;
-        }
-
-        .search-container {
-            display: flex;
-            align-items: center;
-            background: #f5f5f5;
-            border-radius: 25px;
-            padding: 2px 5px;
-            border: 2px solid #9932CC;
-        }
-
-        .search-input {
-            flex: 1;
-            border: none;
-            background: transparent;
-            padding: 8px 10px;
-            font-size: 14px;
-            outline: none;
-        }
-
-        .form-control {
-            border: 2px solid #9932CC;
-            border-radius: 10px;
-            padding: 10px;
-            font-size: 14px;
-            height: 45px;
         }
 
         #inventoryClear {
-            background: #9932CC;
-            color: #fff;
-            border: none;
-            height: 45px;
-            border-radius: 10px;
-            font-weight: 600;
-            width: 100%;
-            transition: background 0.3s;
+            background:#9932CC;
+            color:#fff;
+            border:none;
+            padding:10px 12px;
+            border-radius:10px;
+            cursor:pointer;
+            font-weight:600;
+            height: 45px; /* Altura consistente con los selectores */
         }
-        #inventoryClear:hover { background: #7B1FA2; }
 
-        /* Table Styles */
-        .table-responsive {
-            background: #ffffff;
-            border-radius: 10px;
-            overflow: visible;
-            margin-top: 20px;
-        }
-        .mdl-data-table { width: 100%; border-collapse: collapse; }
-        .mdl-data-table th { background: #692c87; color: white; padding: 15px; text-align: left; }
-        .mdl-data-table td { padding: 15px; border-bottom: 1px solid #eee; color: #333; }
-        .mdl-data-table tbody tr:hover { background: #E1BEE7; }
-
-        /* Status Colors */
-        .status-active { color: #28a745; font-weight: 600; }
-        .status-inactive { color: #dc3545; font-weight: 600; }
-        .quantity-low { color: #dc3545; font-weight: bold; }
-
-        /* Responsive */
-        @media (max-width: 1200px) {
-            .filters-grid { grid-template-columns: repeat(3, 1fr); }
+        /* RESPONSIVE: En pantallas pequeñas se apilan */
+        @media (max-width: 992px) {
+            .filters-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
         @media (max-width: 768px) {
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
             body { padding-top: 132px; }
             .top-bar { height: 124px !important; }
-            .filters-grid { grid-template-columns: 1fr; }
-            .giant-frame { padding: 15px; }
         }
 
-        /* Modal specific */
+        /* Modales (Originales) */
         .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); display: flex; justify-content: center;
-            align-items: center; z-index: 10005;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 10000;
         }
-        .modal-content { background: #fff; border-radius: 12px; width: 90%; max-width: 500px; overflow: hidden; }
-        .modal-header { background: #9932CC; color: #fff; padding: 20px; display: flex; justify-content: space-between; }
-        .modal-body { padding: 25px; }
-        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+        .modal-content {
+            background: white; border-radius: 12px;
+            max-width: 500px; width: 90%;
+        }
+
+        .modal-header {
+            padding: 20px 30px; border-bottom: 1px solid #e9ecef;
+            background: linear-gradient(135deg, #9932CC, #7B1FA2);
+            color: white; border-radius: 12px 12px 0 0;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .form-control {
+            width: 100%; padding: 12px 16px; border: 2px solid #e9ecef;
+            border-radius: 8px; box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
     {% csrf_token %}
+    
     {% include 'core/_messages.html' %}
     {% include 'core/_topbar.html' %}
 
+            <!-- Search & Filters (moved inside frame) -->
+
+    <!-- MAIN CONTENT - CON EL ESTILO ORIGINAL PERO TABLA SFI -->
     <div class="giant-frame">
         <div class="wrap">
+            <!-- Header Section -->
             <div class="inventory-header">
                 <div class="inventory-header-icon">
                     <i class="bi bi-box-seam-fill"></i>
                 </div>
                 <div class="inventory-header-text">
-                    <p>Gestiona y visualiza el inventario de productos. Aquí puedes ver todos los productos disponibles, sus cantidades en stock y estado actual.</p>
+                    <p>
+                        Gestiona y visualiza el inventario de productos. Aquí puedes ver todos los productos disponibles, sus cantidades en stock y estado actual.
+                    </p>
                 </div>
             </div>
 
-            <div class="inventory-filters-card">
-                <div class="filters-grid">
-                    <div class="filter-field">
-                        <label for="inventorySearch" class="filter-label">Buscar producto</label>
-                        <div class="search-container">
-                            <input id="inventorySearch" class="search-input" type="search" placeholder="Nombre..." />
-                            <i class="bi bi-search" style="margin-right: 10px; color: #9932CC;"></i>
+            <!-- SFI-V2-master Style Table -->
+            <!-- Search & Filters -->
+            <div class="inventory-filters">
+                <div class="inventory-filters-card">
+                    <div class="filters-grid">
+                        <div class="filter-field">
+                            <label for="inventorySearch" class="filter-label">Buscar producto</label>
+                            <div class="search-container">
+                                <button type="button" class="search-btn" aria-label="Buscar">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                                <input id="inventorySearch" class="search-input" type="search" placeholder="Buscar por nombre..." />
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="filter-field">
-                        <label for="inventoryCategory" class="filter-label">Categoría</label>
-                        <select id="inventoryCategory" class="form-control">
-                            <option value="all">Todas</option>
-                            {% for cat in categories %}
-                            <option value="{{ cat.nombre_categoria }}">{{ cat.nombre_categoria }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
+                        <div class="filter-field">
+                            <label for="inventoryCategory" class="filter-label">Categoría</label>
+                            <select id="inventoryCategory" class="form-control">
+                                <option value="all">Todas las categorías</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat.nombre_categoria }}">{{ cat.nombre_categoria }}</option>
+                                {% endfor %}
+                                <option value="otros">Otros</option>
+                            </select>
+                        </div>
 
-                    <div class="filter-field">
-                        <label for="inventoryBrand" class="filter-label">Marca</label>
-                        <select id="inventoryBrand" class="form-control">
-                            <option value="all">Todas</option>
-                            {% for marca in brands %}
-                            <option value="{{ marca.nombre_marca }}">{{ marca.nombre_marca }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
+                        <div class="filter-field">
+                            <label for="inventoryBrand" class="filter-label">Marca</label>
+                            <select id="inventoryBrand" class="form-control">
+                                <option value="all">Todas las marcas</option>
+                                {% for marca in brands %}
+                                <option value="{{ marca.nombre_marca }}">{{ marca.nombre_marca }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
 
-                    <div class="filter-field">
-                        <label for="inventoryStatus" class="filter-label">Estado</label>
-                        <select id="inventoryStatus" class="form-control">
-                            <option value="all">Todos</option>
-                            <option value="activo">Activo</option>
-                            <option value="inactivo">Inactivo</option>
-                        </select>
-                    </div>
+                        <div class="filter-field">
+                            <label for="inventoryStatus" class="filter-label">Estado</label>
+                            <select id="inventoryStatus" class="form-control">
+                                <option value="all">Todos</option>
+                                <option value="activo">Activo</option>
+                                <option value="inactivo">Inactivo</option>
+                            </select>
+                        </div>
 
-                    <div class="filter-field">
-                        <button id="inventoryClear" type="button" class="btn">Limpiar filtros</button>
+                        <div class="filter-actions">
+                            <button id="inventoryClear" type="button" class="btn filter-btn">Limpiar filtros</button>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="table-responsive">
-                <table class="mdl-data-table full-width">
+                <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp full-width">
                     <thead>
                         <tr>
-                            <th>Producto</th>
+                            <th class="mdl-data-table__cell--non-numeric">Producto</th>
                             <th>Marca</th>
-                            <th>Cantidad</th>
-                            <th>Precio</th>
+                            <th>Cantidad Disponible</th>
+                            <th>Precio Venta</th>
                             <th>Estado</th>
                             <th>Opciones</th>
                         </tr>
@@ -257,33 +325,60 @@
                     <tbody>
                         {% for producto in page_obj %}
                         <tr data-category="{{ producto.categoria.nombre_categoria|default:'' }}" data-status="{% if producto.status_producto %}activo{% else %}inactivo{% endif %}" data-brand="{{ producto.marca_producto.nombre_marca|default:''|lower }}">
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 10px;">
+                            <td class="mdl-data-table__cell--non-numeric">
+                                <div class="product-cell">
                                     {% if producto.img_url %}
-                                        <img src="{{ producto.img_url }}" class="product-image" style="width: 40px; height: 40px; border-radius: 5px; object-fit: contain;">
+                                        <img src="{{ producto.img_url }}" alt="{{ producto.nombre_producto }}" class="product-image" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='{% static 'assets/img/logo.png' %}';" />
+                                    {% else %}
+                                        <div style="width: 50px; height: 50px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #999; font-size: 10px;" class="product-image">Sin img</div>
                                     {% endif %}
-                                    <div>
-                                        <strong>{{ producto.nombre_producto }}</strong><br>
-                                        <small>{{ producto.descripcion|truncatechars:30 }}</small>
+                                    <div class="product-info">
+                                        <strong>{{ producto.nombre_producto }}</strong>
+                                        <small>{{ producto.descripcion|truncatechars:50 }}</small>
+                                        {% if debug_media %}
+                                            <small style="display:block;color:#7a2fd0;word-break:break-all;margin-top:4px;">
+                                                URL: {{ producto.img_url|default:'(vacía)' }}
+                                            </small>
+                                            <small style="display:block;color:#999;word-break:break-all;">
+                                                Archivo: {{ producto.imagen_producto.name|default:'(sin archivo)' }}
+                                            </small>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </td>
                             <td>{{ producto.marca_producto|default:"N/A" }}</td>
                             <td>
-                                <span class="{% if producto.cantidad_disponible < 10 %}quantity-low{% endif %}">
+                                <span class="{% if producto.cantidad_disponible < 10 %}quantity-low{% else %}quantity-normal{% endif %}">
                                     {{ producto.cantidad_disponible }}
                                 </span>
+                                
                             </td>
-                            <td>$ {{ producto.precio_venta|default:"0.00" }}</td>
+                            <td>$ {{ producto.precio_venta|default:"N/A" }}</td>
                             <td>
                                 <span class="{% if producto.status_producto %}status-active{% else %}status-inactive{% endif %}">
                                     {% if producto.status_producto %}Activo{% else %}Inactivo{% endif %}
                                 </span>
                             </td>
                             <td>
-                                <div style="display: flex; gap: 8px;">
-                                    <a href="{% url 'producto_detalle' producto.pk %}" class="btn" style="background:#9932CC; color:#fff; padding: 5px 10px; border-radius: 5px;"><i class="bi bi-eye"></i></a>
-                                    <button class="btn js-open-edit" data-product-id="{{ producto.pk }}" style="background:#61247f; color:#fff; padding: 5px 10px; border-radius: 5px;"><i class="bi bi-pencil"></i></button>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <a href="{% url 'producto_detalle' producto.pk %}" class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect" title="Ver detalles de compras" style="text-decoration: none; color: inherit;">
+                                        <i class="bi bi-eye-fill" style="color: white;"></i>
+                                    </a>
+                                    <div class="dropdown">
+                                        <button class="dropdown-toggle" title="Más opciones">
+                                            &#8942;
+                                        </button>
+                                        <div class="dropdown-menu">
+                                            <a href="#" class="dropdown-item js-confirm-delete" data-product-id="{{ producto.pk }}" data-product-name="{{ producto.nombre_producto|escapejs }}">
+                                                <i class="bi bi-trash3" style="font-size: 16px;"></i>
+                                                Eliminar
+                                            </a>
+                                            <a href="#" class="dropdown-item js-open-edit" data-product-id="{{ producto.pk }}" data-product-name="{{ producto.nombre_producto|escapejs }}" data-product-desc="{{ producto.descripcion|escapejs }}" data-product-price="{{ producto.precio_venta|default:0 }}" data-product-qty="{{ producto.cantidad_disponible|default:0 }}" data-product-status="{{ producto.status_producto|lower }}" data-product-category-id="{{ producto.categoria_id|default:'' }}" data-product-img="{{ producto.img_url|escapejs }}">
+                                                <i class="bi bi-pencil-square" style="font-size: 16px;"></i>
+                                                Editar
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
                             </td>
                         </tr>
@@ -291,42 +386,652 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Pagination -->
+            {% if paginator.num_pages > 1 %}
+            <div style="display:flex;justify-content:center;margin-top:18px;">
+                <nav aria-label="Inventario pagination">
+                    <ul style="list-style:none;display:flex;gap:8px;padding:0;margin:0;align-items:center;">
+                        {% if page_obj.has_previous %}
+                        <li><a href="?page={{ page_obj.previous_page_number }}" class="btn-pagination">« Anterior</a></li>
+                        {% endif %}
+
+                        {% for num in paginator.page_range %}
+                            {% if num == page_obj.number %}
+                                <li><span class="btn-pagination active">{{ num }}</span></li>
+                            {% else %}
+                                <li><a href="?page={{ num }}" class="btn-pagination">{{ num }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                        <li><a href="?page={{ page_obj.next_page_number }}" class="btn-pagination">Siguiente »</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function(){
+        // Dropdown toggles (inventario page) - attach when DOM ready
+        (function(){
+            function setupDropdowns(){
+                // Product dropdown
+                const pt = document.getElementById('productToggle');
+                const pd = document.getElementById('productDropdown');
+                if (pt && pd) {
+                    function closeP(){ pd.classList.remove('show'); pt.setAttribute('aria-expanded','false'); pd.setAttribute('aria-hidden','true'); }
+                    pt.addEventListener('click', function(e){ e.stopPropagation(); const opened = pd.classList.toggle('show'); pt.setAttribute('aria-expanded', opened ? 'true' : 'false'); pd.setAttribute('aria-hidden', opened ? 'false' : 'true'); });
+                    document.addEventListener('click', function(e){ if(!pt.contains(e.target) && !pd.contains(e.target)) closeP(); });
+                    document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeP(); });
+                }
+
+                // Clients dropdown
+                const ct = document.getElementById('clientsToggle');
+                const cd = document.getElementById('clientsDropdown');
+                if (ct && cd) {
+                    function closeC(){ cd.classList.remove('show'); ct.setAttribute('aria-expanded','false'); cd.setAttribute('aria-hidden','true'); }
+                    ct.addEventListener('click', function(e){ e.stopPropagation(); const opened = cd.classList.toggle('show'); ct.setAttribute('aria-expanded', opened ? 'true' : 'false'); cd.setAttribute('aria-hidden', opened ? 'false' : 'true'); });
+                    document.addEventListener('click', function(e){ if(!ct.contains(e.target) && !cd.contains(e.target)) closeC(); });
+                    document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeC(); });
+                }
+            }
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setupDropdowns); else setupDropdowns();
+        })();
+    </script>
+    <script>
+        // Inventory client-side filter
+        (function(){
+            const search = document.getElementById('inventorySearch');
+            const catSel = document.getElementById('inventoryCategory');
+            const brandSel = document.getElementById('inventoryBrand');
+            const statusSel = document.getElementById('inventoryStatus');
             function filterInventory(){
-                const q = $('#inventorySearch').val().toLowerCase();
-                const cat = $('#inventoryCategory').val();
-                const brand = $('#inventoryBrand').val().toLowerCase();
-                const stat = $('#inventoryStatus').val();
-
-                $('.mdl-data-table tbody tr').each(function(){
-                    const name = $(this).find('strong').text().toLowerCase();
-                    const rowCat = $(this).data('category');
-                    const rowBrand = $(this).data('brand');
-                    const rowStat = $(this).data('status');
-
-                    const matchesSearch = !q || name.includes(q);
+                const q = search ? search.value.trim().toLowerCase() : '';
+                const cat = catSel ? catSel.value : 'all';
+                const brand = brandSel ? brandSel.value : 'all';
+                const stat = statusSel ? statusSel.value : 'all';
+                const rows = document.querySelectorAll('.mdl-data-table tbody tr');
+                rows.forEach(r => {
+                    const name = (r.querySelector('.product-info strong') || {}).textContent || '';
+                    const rowCat = (r.dataset && r.dataset.category) ? r.dataset.category : '';
+                    const rowBrand = (r.dataset && r.dataset.brand) ? r.dataset.brand : '';
+                    const rowStat = (r.dataset && r.dataset.status) ? r.dataset.status : '';
+                    const matchesSearch = !q || name.toLowerCase().includes(q);
                     const matchesCat = cat === 'all' || rowCat === cat;
-                    const matchesBrand = brand === 'all' || rowBrand === brand;
+                    const matchesBrand = brand === 'all' || rowBrand === brand.toLowerCase();
                     const matchesStat = stat === 'all' || rowStat === stat;
+                    r.style.display = (matchesSearch && matchesCat && matchesBrand && matchesStat) ? '' : 'none';
+                });
+            }
+            if (search) search.addEventListener('input', filterInventory);
+            if (catSel) catSel.addEventListener('change', filterInventory);
+            if (brandSel) brandSel.addEventListener('change', filterInventory);
+            if (statusSel) statusSel.addEventListener('change', filterInventory);
+            const clearBtn = document.getElementById('inventoryClear');
+            if (clearBtn) {
+                clearBtn.addEventListener('click', function(){
+                    if (search) search.value = '';
+                    if (catSel) catSel.value = 'all';
+                    if (brandSel) brandSel.value = 'all';
+                    if (statusSel) statusSel.value = 'all';
+                    filterInventory();
+                });
+            }
+        })();
 
-                    $(this).toggle(matchesSearch && matchesCat && matchesBrand && matchesStat);
+        // inventario page: dropdown script removed
+        // Hamburger nav menu (inventario page)
+        (function(){
+            const navToggle = document.getElementById('barToggle');
+            const navMenu = document.getElementById('barNavMenu');
+            if(!navToggle || !navMenu) return;
+            const submenuToggles = navMenu.querySelectorAll('.nav-subtoggle');
+
+            function closeSubmenus(){
+                navMenu.querySelectorAll('.nav-submenu.show').forEach(function(sm){
+                    sm.classList.remove('show');
+                    sm.setAttribute('aria-hidden','true');
+                });
+                submenuToggles.forEach(function(btn){ btn.setAttribute('aria-expanded','false'); });
+            }
+
+            function closeNav(){
+                navMenu.classList.remove('show');
+                closeSubmenus();
+                navToggle.setAttribute('aria-expanded','false');
+                navMenu.setAttribute('aria-hidden','true');
+            }
+
+            navToggle.addEventListener('click', function(e){
+                e.stopPropagation();
+                const opened = navMenu.classList.toggle('show');
+                navToggle.setAttribute('aria-expanded', opened ? 'true' : 'false');
+                navMenu.setAttribute('aria-hidden', opened ? 'false' : 'true');
+                if(!opened) closeSubmenus();
+            });
+
+            submenuToggles.forEach(function(btn){
+                btn.addEventListener('click', function(e){
+                    e.stopPropagation();
+                    const targetId = btn.getAttribute('data-target');
+                    const submenu = targetId ? document.getElementById(targetId) : null;
+                    if(!submenu) return;
+                    const opening = !submenu.classList.contains('show');
+                    closeSubmenus();
+                    if(opening){
+                        submenu.classList.add('show');
+                        submenu.setAttribute('aria-hidden','false');
+                        btn.setAttribute('aria-expanded','true');
+                    }
+                });
+            });
+
+            navMenu.querySelectorAll('[data-close-submenu]').forEach(function(btn){
+                btn.addEventListener('click', function(e){
+                    e.stopPropagation();
+                    closeSubmenus();
+                });
+            });
+
+            document.addEventListener('click', function(e){
+                if(!navToggle.contains(e.target) && !navMenu.contains(e.target)) closeNav();
+            });
+            document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeNav(); });
+        })();
+
+        // Profile dropdown toggle + click-outside to close
+        (function(){
+            const toggle = document.getElementById('profileToggle');
+            const dropdown = document.getElementById('profileDropdown');
+            if(!toggle || !dropdown) return;
+
+            function closeMenu(){
+                dropdown.classList.remove('show');
+                toggle.setAttribute('aria-expanded','false');
+                dropdown.setAttribute('aria-hidden','true');
+            }
+
+            toggle.addEventListener('click', function(e){
+                e.stopPropagation();
+                const opened = dropdown.classList.toggle('show');
+                toggle.setAttribute('aria-expanded', opened ? 'true' : 'false');
+                dropdown.setAttribute('aria-hidden', opened ? 'false' : 'true');
+            });
+
+            document.addEventListener('click', function(e){
+                if(!toggle.contains(e.target) && !dropdown.contains(e.target)){
+                    closeMenu();
+                }
+            });
+
+            document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeMenu(); });
+        })();
+
+        // Dropdown menu functionality for action buttons
+        (function(){
+            const dropdowns = document.querySelectorAll('.dropdown');
+
+            function closeAllDropdowns(){
+                dropdowns.forEach(dropdown => {
+                    const menu = dropdown.querySelector('.dropdown-menu');
+                    if (menu) menu.classList.remove('show');
                 });
             }
 
-            $('#inventorySearch').on('input', filterInventory);
-            $('#inventoryCategory, #inventoryBrand, #inventoryStatus').on('change', filterInventory);
+            dropdowns.forEach(dropdown => {
+                const toggle = dropdown.querySelector('.dropdown-toggle');
+                const menu = dropdown.querySelector('.dropdown-menu');
+
+                if (!toggle) return;
+
+                toggle.addEventListener('click', function(e){
+                    e.stopPropagation();
+
+                    // Close other dropdowns
+                    closeAllDropdowns();
+
+                    // Toggle current dropdown
+                    if (menu) menu.classList.toggle('show');
+                });
+            });
+
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(e){
+                if(!e.target.closest('.dropdown')){
+                    closeAllDropdowns();
+                }
+            });
+
+            // Close dropdowns on Escape key
+            document.addEventListener('keydown', function(e){
+                if(e.key === 'Escape'){
+                    closeAllDropdowns();
+                }
+            });
+        })();
+
+        let pendingDeleteProductId = null;
+
+        function actualizarEstadoScrollBody() {
+            const modalEditar = document.getElementById('modalEditar');
+            const modalEliminar = document.getElementById('modalEliminarProducto');
+            const hayModalAbierto =
+                (modalEditar && modalEditar.style.display === 'flex') ||
+                (modalEliminar && modalEliminar.style.display === 'flex');
+
+            document.body.style.overflow = hayModalAbierto ? 'hidden' : 'auto';
+        }
+
+        function cerrarModalEliminar() {
+            const modalEliminar = document.getElementById('modalEliminarProducto');
+            const nombreProducto = document.getElementById('deleteProductName');
+            pendingDeleteProductId = null;
+
+            if (nombreProducto) {
+                nombreProducto.textContent = '';
+            }
+
+            if (modalEliminar) {
+                modalEliminar.style.display = 'none';
+            }
+
+            actualizarEstadoScrollBody();
+        }
+
+        function enviarEliminacionProducto() {
+            if (!pendingDeleteProductId) {
+                cerrarModalEliminar();
+                return;
+            }
+
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/producto/${pendingDeleteProductId}/eliminar/`;
+
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+            if (csrfToken) {
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = 'csrfmiddlewaretoken';
+                csrfInput.value = csrfToken.value;
+                form.appendChild(csrfInput);
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        // Función para confirmar eliminación de producto
+        function confirmarEliminar(productoId, nombreProducto) {
+            const modalEliminar = document.getElementById('modalEliminarProducto');
+            const nombreProductoEl = document.getElementById('deleteProductName');
+
+            pendingDeleteProductId = productoId;
+
+            if (nombreProductoEl) {
+                nombreProductoEl.textContent = nombreProducto || 'este producto';
+            }
+
+            if (modalEliminar) {
+                modalEliminar.style.display = 'flex';
+            }
+
+            actualizarEstadoScrollBody();
+        }
+
+        
+
+        // Funciones para el modal de editar producto
+        function abrirModalEditar(productoId, nombre, descripcion, precio, cantidad, status, categoriaId, imgUrl) {
+            document.getElementById('productoIdEditar').value = productoId;
+            document.getElementById('nombreProductoEditar').value = nombre;
+            document.getElementById('descripcionEditar').value = descripcion || '';
+            document.getElementById('precioEditar').value = precio;
+            document.getElementById('cantidadEditar').value = cantidad;
+            // store original quantity to validate motivo on submit
+            const cantidadEl = document.getElementById('cantidadEditar');
+            if (cantidadEl) cantidadEl.dataset.original = String(cantidad || 0);
+            // store originals for broader change detection
+            const nombreEl = document.getElementById('nombreProductoEditar');
+            if (nombreEl) nombreEl.dataset.original = String(nombre || '');
+            const descEl = document.getElementById('descripcionEditar');
+            if (descEl) descEl.dataset.original = String(descripcion || '');
+            const precioEl = document.getElementById('precioEditar');
+            if (precioEl) precioEl.dataset.original = String(precio || '0');
+            const statusEl = document.getElementById('statusEditar');
+            const statusValue = String(status || 'false').toLowerCase();
+            if (statusEl) {
+                statusEl.value = statusValue;
+                statusEl.dataset.original = statusValue;
+            }
+            const categoriaSelect = document.getElementById('categoriaEditar');
+            if (categoriaSelect) {
+                const categoriaValue = String(categoriaId || '');
+                categoriaSelect.value = categoriaValue;
+                categoriaSelect.dataset.original = categoriaValue;
+            }
             
-            $('#inventoryClear').click(function(){
-                $('#inventorySearch').val('');
-                $('#inventoryCategory, #inventoryBrand, #inventoryStatus').val('all');
-                filterInventory();
+            // Safely access modal-related elements
+            if (categoriaSelect && categoriaSelect.selectedIndex === -1) {
+                categoriaSelect.selectedIndex = 0;
+            }
+
+            const previewImg = document.getElementById('previewImg');
+            if (previewImg) {
+                if (imgUrl && imgUrl !== '') {
+                    previewImg.src = imgUrl;
+                    previewImg.style.display = 'block';
+                } else {
+                    previewImg.style.display = 'none';
+                }
+            }
+
+            const formEditar = document.getElementById('formEditar');
+            if (formEditar) {
+                formEditar.action = `/producto/${productoId}/editar/`;
+            }
+
+            // Inicializar motivo si existe el campo en el modal
+            const motivoField = document.getElementById('motivoAjuste');
+            if (motivoField) motivoField.value = '';
+
+            const modalEditar = document.getElementById('modalEditar');
+            if (modalEditar) {
+                modalEditar.style.display = 'flex';
+            }
+
+            actualizarEstadoScrollBody();
+        }
+
+        // Bind events for elements using data-attributes (safer than inline onclick)
+        (function(){
+            // Delete handlers
+            document.querySelectorAll('.js-confirm-delete').forEach(function(el){
+                el.addEventListener('click', function(e){
+                    e.preventDefault();
+                    confirmarEliminar(this.dataset.productId, this.dataset.productName);
+                });
+            });
+
+            // Edit handlers
+            document.querySelectorAll('.js-open-edit').forEach(function(el){
+                el.addEventListener('click', function(e){
+                    e.preventDefault();
+                    abrirModalEditar(
+                        this.dataset.productId,
+                        this.dataset.productName,
+                        this.dataset.productDesc,
+                        this.dataset.productPrice,
+                        this.dataset.productQty,
+                        this.dataset.productStatus,
+                        this.dataset.productCategoryId,
+                        this.dataset.productImg
+                    );
+                });
+            });
+        })();
+
+        function cerrarModalEditar() {
+            const modalEditar = document.getElementById('modalEditar');
+            if (modalEditar) {
+                modalEditar.style.display = 'none';
+            }
+
+            actualizarEstadoScrollBody();
+        }
+
+        // Vista previa de imagen (con guardas)
+        const imagenEditar = document.getElementById('imagenEditar');
+        if (imagenEditar) {
+            imagenEditar.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                const previewImg = document.getElementById('previewImg');
+
+                if (file && previewImg) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewImg.src = e.target.result;
+                        previewImg.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else if (previewImg) {
+                    previewImg.style.display = 'none';
+                }
+            });
+        }
+
+        // Cerrar modal al hacer clic fuera (si existe)
+        if (typeof document !== 'undefined') {
+            const modalEditarClick = document.getElementById('modalEditar');
+            if (modalEditarClick) {
+                modalEditarClick.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        cerrarModalEditar();
+                    }
+                });
+            }
+
+            const modalEliminarClick = document.getElementById('modalEliminarProducto');
+            if (modalEliminarClick) {
+                modalEliminarClick.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        cerrarModalEliminar();
+                    }
+                });
+            }
+
+            const confirmarEliminarBtn = document.getElementById('confirmDeleteButton');
+            if (confirmarEliminarBtn) {
+                confirmarEliminarBtn.addEventListener('click', function() {
+                    enviarEliminacionProducto();
+                });
+            }
+
+            // Cerrar modal con tecla Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const modalEditar = document.getElementById('modalEditar');
+                    const modalEliminar = document.getElementById('modalEliminarProducto');
+
+                    if (modalEliminar && modalEliminar.style.display === 'flex') {
+                        cerrarModalEliminar();
+                        return;
+                    }
+
+                    if (modalEditar && modalEditar.style.display === 'flex') {
+                        cerrarModalEditar();
+                    }
+                }
+            });
+        }
+    
+    </script>
+
+    <script>
+        // Client-side validation: require motivo when cantidad cambiado in edit modal
+        (function(){
+            const form = document.getElementById('formEditar');
+            if (!form) return;
+            form.addEventListener('submit', function(e){
+                try {
+                    const motivoEl = document.getElementById('motivoAjuste');
+                    // detect any change compared to stored originals
+                    const fields = [
+                        {el: document.getElementById('nombreProductoEditar')},
+                        {el: document.getElementById('descripcionEditar')},
+                        {el: document.getElementById('precioEditar')},
+                        {el: document.getElementById('cantidadEditar')},
+                        {el: document.getElementById('statusEditar')},
+                        {el: document.getElementById('categoriaEditar')}
+                    ];
+
+                    let anyChanged = false;
+                    fields.forEach(item => {
+                        const el = item.el;
+                        if (!el) return;
+                        const original = (el.dataset.original || '').toString().trim();
+                        const current = (el.value || '').toString().trim();
+                        if (original !== current) anyChanged = true;
+                    });
+
+                    // if any change and motivo empty -> block
+                    if (anyChanged) {
+                        if (!motivoEl || (motivoEl.value || '').trim() === '') {
+                            e.preventDefault();
+                            alert('Debes indicar un motivo cuando realizas cambios al producto.');
+                            return false;
+                        }
+                    }
+                } catch(err){ /* no bloquear si hay error */ }
+            });
+        })();
+    </script>
+
+    <!-- Vendor JS Files -->
+    <!-- jQuery (CDN) + fallback to admin copy -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script>window.jQuery || document.write('<script src="{% static "admin/js/vendor/jquery/jquery.min.js" %}"><\/script>')</script>
+    <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'vendor/php-email-form/validate.js' %}"></script>
+    <script src="{% static 'vendor/aos/aos.js' %}"></script>
+    <script src="{% static 'vendor/glightbox/js/glightbox.min.js' %}"></script>
+    <script src="{% static 'vendor/imagesloaded/imagesloaded.pkgd.min.js' %}"></script>
+    <script src="{% static 'vendor/isotope-layout/isotope.pkgd.min.js' %}"></script>
+    <script src="{% static 'vendor/swiper/swiper-bundle.min.js' %}"></script>
+
+    <!-- Main JS File -->
+    <script src="{% static 'js/jquery.mCustomScrollbar.concat.min.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+
+    <!-- Modal para ajustar inventario -->
+    <!-- Ajustes combinados en modal de edición; modal de ajuste eliminado -->
+
+    <div id="modalEliminarProducto" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirmar eliminación</h3>
+                <button class="modal-close" onclick="cerrarModalEliminar()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="delete-warning">Vas a eliminar este producto del inventario. Esta acción no se puede deshacer.</p>
+                <div id="deleteProductName" class="delete-product-name"></div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="cerrarModalEliminar()">Cancelar</button>
+                    <button type="button" id="confirmDeleteButton" class="btn-danger">Eliminar producto</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para editar producto -->
+    <div id="modalEditar" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Editar Producto</h3>
+                <button class="modal-close" onclick="cerrarModalEditar()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formEditar" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" id="productoIdEditar" name="producto_id">
+                    
+                    <div class="form-group">
+                        <label for="nombreProductoEditar">Nombre del Producto:</label>
+                        <input type="text" id="nombreProductoEditar" name="nombre_producto" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="descripcionEditar">Descripción:</label>
+                        <textarea id="descripcionEditar" name="descripcion" class="form-control" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="precioEditar">Precio de Venta:</label>
+                        <input type="number" id="precioEditar" name="precio_venta" class="form-control" step="0.01" min="0" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="cantidadEditar">Cantidad Disponible:</label>
+                        <input type="number" id="cantidadEditar" name="cantidad_disponible" class="form-control" min="0" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="categoriaEditar">Categoría:</label>
+                        <select id="categoriaEditar" name="categoria" class="form-control" required>
+                            {% for cat in categories %}
+                            <option value="{{ cat.pk }}">{{ cat.nombre_categoria }}</option>
+                            {% endfor %}
+                            <option value="otros">Otros</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="statusEditar">Estado:</label>
+                        <select id="statusEditar" name="status_producto" class="form-control">
+                            <option value="true">Activo</option>
+                            <option value="false">Inactivo</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="imagenEditar">Imagen del Producto:</label>
+                        <input type="file" id="imagenEditar" name="imagen_producto" class="form-control" accept="image/*">
+                        <small class="form-text text-muted">Deja vacío para mantener la imagen actual</small>
+                        <div id="imagenPreview" style="margin-top: 10px;">
+                            <img id="previewImg" src="" alt="Vista previa" style="max-width: 200px; max-height: 200px; display: none;">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="motivoAjuste">Motivo del Cambio:</label>
+                        <textarea id="motivoAjuste" name="motivoAjuste" class="form-control" placeholder="Ej: Venta directa, corrección, devolución..." rows="2"></textarea>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary" onclick="cerrarModalEditar()">Cancelar</button>
+                        <button type="submit" class="btn-primary">Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-hide messages after 2 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const messageDivs = document.querySelectorAll('[style*="position: fixed"] > div[style*="background"]');
+            messageDivs.forEach(function(div) {
+                setTimeout(function() {
+                    div.style.transition = 'opacity 0.5s ease';
+                    div.style.opacity = '0';
+                    setTimeout(function() {
+                        div.style.display = 'none';
+                    }, 500);
+                }, 2000);
             });
         });
+
+        // Clear search input when page loads (for navigation)
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.value = '';
+
+            // Handle Enter key to search
+            searchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    const query = e.target.value.trim();
+                    if (query) {
+                        window.location.href = `/catalogo/?search=${encodeURIComponent(query)}`;
+                    } else {
+                        window.location.href = '/catalogo/';
+                    }
+                }
+            });
+        }
     </script>
+
+    <script src="{% static 'core/page-loader.js' %}"></script>
 </body>
 </html>
