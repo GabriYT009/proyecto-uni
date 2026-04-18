@@ -362,66 +362,6 @@
 
         .field textarea { min-height: 120px; resize: vertical; }
 
-        .sublimation-preview {
-            border: 1px solid #dfd4e8;
-            border-radius: 16px;
-            background: #faf7ff;
-            padding: 12px;
-        }
-
-        .preview-title {
-            font-size: 0.86rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.07em;
-            color: #6f5a81;
-            margin-bottom: 10px;
-        }
-
-        .shirt-mockup {
-            position: relative;
-            border-radius: 14px;
-            border: 1px solid #e7dbf2;
-            background: #fff;
-            overflow: hidden;
-            aspect-ratio: 1 / 1;
-        }
-
-        .shirt-base {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            display: block;
-            padding: 10px;
-        }
-
-        .sublimation-overlay {
-            position: absolute;
-            top: 51%;
-            left: 50%;
-            width: 44%;
-            max-height: 46%;
-            transform: translate(-50%, -50%);
-            object-fit: contain;
-            border-radius: 10px;
-            border: 1px dashed rgba(143, 43, 210, 0.45);
-            background: rgba(255, 255, 255, 0.78);
-            box-shadow: 0 8px 20px rgba(66, 27, 93, 0.15);
-            padding: 4px;
-            display: none;
-        }
-
-        .sublimation-overlay.is-ready {
-            display: block;
-        }
-
-        .preview-help {
-            margin-top: 8px;
-            color: #6f5a81;
-            font-size: 0.86rem;
-            line-height: 1.4;
-        }
-
         .modal-actions {
             display: flex;
             justify-content: flex-end;
@@ -522,11 +462,6 @@
                                 Ya existe una solicitud pendiente para esta camisa.
                                 {% if solicitud.talla %}<br>Talla: {{ solicitud.talla }}{% endif %}
                                 {% if solicitud.comentario %}<br>Comentario: {{ solicitud.comentario }}{% endif %}
-                                {% if solicitud.imagen_sublimacion %}
-                                    <div style="margin-top:10px;">
-                                        <img src="{{ solicitud.imagen_sublimacion.url }}" alt="Diseno de sublimacion registrado" style="max-width:170px; max-height:170px; width:100%; object-fit:contain; border-radius:10px; border:1px solid #d9cae6; background:#fff; padding:6px;">
-                                    </div>
-                                {% endif %}
                             </div>
                         {% else %}
                             <div class="notice">
@@ -554,15 +489,6 @@
                     <label for="imagen_sublimacion">Imagen para sublimar</label>
                     <input type="file" name="imagen_sublimacion" id="imagen_sublimacion" accept="image/*" required>
                     <div class="small">Sube una imagen nítida en JPG, PNG o WEBP.</div>
-                </div>
-
-                <div class="sublimation-preview">
-                    <div class="preview-title">Vista previa aproximada</div>
-                    <div class="shirt-mockup">
-                        <img src="{{ producto.img_url }}" alt="Camisa base para previsualizacion" class="shirt-base">
-                        <img src="" alt="Previsualizacion de diseno" id="sublimationPreview" class="sublimation-overlay">
-                    </div>
-                    <div class="preview-help">Esta vista es referencial para ubicar el diseno sobre la camisa.</div>
                 </div>
 
                 <div class="field">
@@ -746,8 +672,6 @@
             const cancelModalBtn = document.getElementById('cancelModalBtn');
             const sheinForm = document.getElementById('sheinForm');
             const sublimationForm = document.getElementById('sublimationForm');
-            const sublimationImageInput = document.getElementById('imagen_sublimacion');
-            const sublimationPreview = document.getElementById('sublimationPreview');
 
             function setTalla(value) {
                 tallaInput.value = value;
@@ -775,31 +699,6 @@
                 modal.setAttribute('aria-hidden', 'true');
             }
 
-            function updateSublimationPreview(file) {
-                if (!file || !sublimationPreview) {
-                    if (sublimationPreview) {
-                        sublimationPreview.classList.remove('is-ready');
-                        sublimationPreview.removeAttribute('src');
-                    }
-                    return;
-                }
-
-                if (!file.type || !file.type.startsWith('image/')) {
-                    sublimationPreview.classList.remove('is-ready');
-                    sublimationPreview.removeAttribute('src');
-                    return;
-                }
-
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    sublimationPreview.src = event.target && event.target.result ? event.target.result : '';
-                    if (sublimationPreview.src) {
-                        sublimationPreview.classList.add('is-ready');
-                    }
-                };
-                reader.readAsDataURL(file);
-            }
-
             closeModalBtn.addEventListener('click', closeModal);
             cancelModalBtn.addEventListener('click', closeModal);
             modal.addEventListener('click', function(event){
@@ -816,13 +715,6 @@
             sublimationForm.addEventListener('submit', function(){
                 modalTallaInput.value = tallaInput.value || 'M';
             });
-
-            if (sublimationImageInput) {
-                sublimationImageInput.addEventListener('change', function(event){
-                    const file = event.target && event.target.files ? event.target.files[0] : null;
-                    updateSublimationPreview(file);
-                });
-            }
 
             setTalla('M');
         })();

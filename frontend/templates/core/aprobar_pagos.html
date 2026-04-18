@@ -169,40 +169,6 @@
             padding: 16px;
         }
 
-        .item-card {
-            border: 1px solid #f0e6f5;
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 10px;
-            background: #fffdff;
-        }
-
-        .item-card:last-child {
-            margin-bottom: 0;
-        }
-
-        .sub-box {
-            margin-top: 10px;
-            padding: 10px;
-            border-radius: 10px;
-            background: #f8f2ff;
-            border: 1px solid #e6d8f3;
-            color: #4f2d73;
-            font-size: 0.92rem;
-            line-height: 1.4;
-        }
-
-        .sub-image {
-            margin-top: 8px;
-            width: min(220px, 100%);
-            max-height: 220px;
-            object-fit: contain;
-            border-radius: 10px;
-            border: 1px solid #daccdf;
-            background: #fff;
-            padding: 6px;
-        }
-
         .section-label {
             font-size: 0.88rem;
             font-weight: 700;
@@ -455,39 +421,6 @@
     <dd>No disponible</dd>
     {% endif %}
 </dl>
-
-<div class="section-label" style="margin-top:14px;">Productos y Sublimación</div>
-{% for detalle in salida.detalles.all %}
-    <div class="item-card">
-        <div class="item-name">{{ detalle.Producto.nombre_producto }} x {{ detalle.Cantidad|default:detalle.cantidad|default:1 }}</div>
-        <div class="item-sub">Talla: {{ detalle.talla|default:'-' }}</div>
-
-        {% with subs=detalle.solicitudes_sublimacion.all %}
-            {% if subs %}
-                {% for sub in subs %}
-                    <div class="sub-box">
-                        <strong>Sublimación solicitada</strong>
-                        {% if sub.comentario %}<div style="margin-top:6px;">{{ sub.comentario }}</div>{% endif %}
-                        {% if sub.imagen_sublimacion %}
-                            <a href="{{ sub.imagen_sublimacion.url }}" target="_blank" rel="noopener">
-                                <img src="{{ sub.imagen_sublimacion.url }}" alt="Diseno de sublimacion de la orden {{ salida.pk }}" class="sub-image">
-                            </a>
-                        {% endif %}
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-    </div>
-{% empty %}
-    <div class="item-sub">No hay productos registrados en esta orden.</div>
-{% endfor %}
-
-<form method="post" class="actions">
-    {% csrf_token %}
-    <input type="hidden" name="salida_id" value="{{ salida.pk }}">
-    <button type="submit" name="accion" value="aprobar" class="btn-approve">Aprobar pago</button>
-    <button type="submit" name="accion" value="rechazar" class="btn-reject">Rechazar pago</button>
-</form>
 </div>
 
                             <div class="proof-box">
