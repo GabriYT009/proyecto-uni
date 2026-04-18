@@ -330,7 +330,12 @@
                                 <a href="{% url 'descargar_factura_ne' salida.pk %}"><h2 class="payment-title">Orden #{{ salida.pk }}</h2></a>
                                 
                             </div>
-                            <div class="status-pill {% if salida.estado_pago == 'APROBADO' %}status-approved{% elif salida.estado_pago == 'RECHAZADO' %}status-rejected{% else %}status-pending{% endif %}">{{ salida.get_estado_pago_display }}</div>
+                            <div class="status-pill "><select id="accion-{{ salida.pk }}" name="accion" class="status-select" required>
+                                        <option value="" disabled selected>Seleccionar acción</option>
+                                        <option value="aprobar">Aprobar pago</option>
+                                        <option value="rechazar">Rechazar pago</option>
+                                    </select>
+                                    <button type="submit" class="btn-submit">Guardar</button>{{ salida.get_estado_pago_display }}</div>
                         </div>
 
                         <div class="payment-body">
@@ -379,12 +384,7 @@
                                     {% csrf_token %}
                                     <input type="hidden" name="salida_id" value="{{ salida.pk }}">
                                     <label for="accion-{{ salida.pk }}" class="visually-hidden">Cambiar estado</label>
-                                    <select id="accion-{{ salida.pk }}" name="accion" class="status-select" required>
-                                        <option value="" disabled selected>Seleccionar acción</option>
-                                        <option value="aprobar">Aprobar pago</option>
-                                        <option value="rechazar">Rechazar pago</option>
-                                    </select>
-                                    <button type="submit" class="btn-submit">Guardar</button>
+                                    
                                 </form>
                             </div>
                         </div>
