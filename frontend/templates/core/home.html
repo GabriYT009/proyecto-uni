@@ -23,6 +23,12 @@
             const mPrice = document.getElementById('m-price');
             const card = button && button.closest ? button.closest('.card[data-id]') : null;
             const id = button && button.dataset && button.dataset.id ? Number(button.dataset.id) : (card && card.dataset && card.dataset.id ? Number(card.dataset.id) : null);
+            const product = (window.products || []).find(function(item){ return Number(item.id) === Number(id); });
+            const category = String((product && (product.category || product.Categoria)) || '').trim();
+            if (category === 'Camisas') {
+                window.location.href = '/producto/' + id + '/camisas/';
+                return;
+            }
             const title = (button && button.dataset && button.dataset.title) || (card && card.dataset && card.dataset.title) || '';
             const img = (button && button.dataset && button.dataset.img) || (card && card.dataset && card.dataset.img) || '';
             const desc = (button && button.dataset && button.dataset.desc) || (card && card.dataset && card.dataset.desc) || '';
@@ -515,7 +521,7 @@
                     {% else %}
                         <a href="{% url 'catalog' %}?Categoria={{ category.nombre_categoria }}" class="category-card">
                             <div class="category-icon">
-                                {% if category.nombre_categoria == 'Cajas' %}📦{% elif category.nombre_categoria == 'Toppers' %}🎂{% elif category.nombre_categoria == 'Sublimación' %}🖨️{% elif category.nombre_categoria == 'Impresión' %}📄{% elif category.nombre_categoria == 'Personalización' %}🎨{% elif category.nombre_categoria == 'Papelería' %}📝{% else %}🖥️{% endif %}
+                                {% if category.nombre_categoria == 'Cajas' %}📦{% elif category.nombre_categoria == 'Toppers' %}🎂{% elif category.nombre_categoria == 'Sublimación' %}🖨️{% elif category.nombre_categoria == 'Impresión' %}📄{% elif category.nombre_categoria == 'Personalización' %}🎨{% elif category.nombre_categoria == 'Papelería' %}📝{% elif category.nombre_categoria == 'Camisas' %}👕{% elif category.nombre_categoria == 'Tazas' %}☕{% elif category.nombre_categoria == 'Otros' %}🧩{% else %}🖥️{% endif %}
                             </div>
                             <span>{{ category.nombre_categoria }}</span>
                         </a>
@@ -1039,6 +1045,11 @@
                 const productId = resultItem.dataset.id;
                 const product = products.find(p => p.id == productId);
                 if (product) {
+                    const category = String(product.category || product.Categoria || '').trim();
+                    if (category === 'Camisas') {
+                        window.location.href = '/producto/' + productId + '/camisas/';
+                        return;
+                    }
                     // Open modal with product details
                     document.getElementById('m-title').textContent = product.title;
                     document.getElementById('m-img').src = product.img;

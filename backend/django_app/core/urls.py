@@ -26,6 +26,7 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('inventario/', views.inventario, name='inventario'),
     path('producto/<int:producto_id>/', views.producto_detalle, name='producto_detalle'),
+    path('producto/<int:producto_id>/camisas/', views.camisas_shein, name='camisas_shein'),
     path('producto/<int:producto_id>/comprar/', views.comprar_producto, name='comprar_producto'),
     path('producto/<int:producto_id>/comprar_ajax/', views.comprar_producto_ajax, name='comprar_producto_ajax'),
     path('producto/<int:producto_id>/detalles_compra/', views.detalles_compra_producto, name='detalles_compra_producto'),

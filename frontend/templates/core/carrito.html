@@ -438,6 +438,16 @@
                                     <div class="info">
                                         <strong>{{ p.nombre_producto }}</strong>
                                         <div class="desc">{{ p.descripcion }}</div>
+                                        {% if p.talla %}
+                                            <div style="margin-top:6px; color:#5b2b80; font-size:0.9rem;"><strong>Talla:</strong> {{ p.talla }}</div>
+                                        {% endif %}
+                                        {% if p.solicitud_sublimacion %}
+                                            <div style="margin-top:8px; padding:10px 12px; border-radius:10px; background:#f7f0ff; border:1px solid #e0c8f3; color:#5b2b80; font-size:0.9rem; line-height:1.45;">
+                                                <strong style="display:block; margin-bottom:4px;">Sublimación registrada</strong>
+                                                {% if p.solicitud_sublimacion.talla %}<div>Talla: {{ p.solicitud_sublimacion.talla }}</div>{% endif %}
+                                                {% if p.solicitud_sublimacion.comentario %}<div>{{ p.solicitud_sublimacion.comentario }}</div>{% endif %}
+                                            </div>
+                                        {% endif %}
                                     </div>
                                     <div class="actions">
                                         <div class="price price-usd">Precio: $ {{ p.precio_venta }}</div>

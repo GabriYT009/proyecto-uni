@@ -180,6 +180,7 @@ class CarritoDeCompras(models.Model):
     Nota_Entrega = models.ForeignKey('Nota_Entrega', related_name='detalles', on_delete=models.CASCADE)
     Producto = models.ForeignKey(Producto, on_delete=models.PROTECT)
     Cantidad=models.PositiveIntegerField(default=1)
+    talla = models.CharField(max_length=10, blank=True, null=True)
     status_carrito = models.BooleanField(default=False)
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
     def __str__(self):
@@ -244,6 +245,27 @@ class DetalleServicio(models.Model):
     carrito_de_compras = models.ForeignKey(CarritoDeCompras, on_delete=models.CASCADE, null=True, blank=True)
     
     sub_total_servicio = models.FloatField(blank=True, null=True)
+
+
+class SolicitudSublimacion(models.Model):
+    ESTADOS = [
+        ('PENDIENTE', 'Pendiente'),
+        ('VINCULADA', 'Vinculada'),
+        ('RECHAZADA', 'Rechazada'),
+    ]
+
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='solicitudes_sublimacion')
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='solicitudes_sublimacion')
+    carrito_de_compras = models.ForeignKey(CarritoDeCompras, on_delete=models.SET_NULL, null=True, blank=True, related_name='solicitudes_sublimacion')
+    nota_entrega = models.ForeignKey('Nota_Entrega', on_delete=models.SET_NULL, null=True, blank=True, related_name='solicitudes_sublimacion')
+    talla = models.CharField(max_length=10, blank=True, null=True)
+    comentario = models.TextField(blank=True, null=True)
+    imagen_sublimacion = models.ImageField(upload_to='sublimaciones/', blank=True, null=True)
+    estado = models.CharField(max_length=20, choices=ESTADOS, default='PENDIENTE')
+    creado_en = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'Sublimacion {self.producto_id} - {self.usuario_id}'
 
 
 # ==========================================

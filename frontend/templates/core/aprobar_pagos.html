@@ -322,6 +322,21 @@
                             {% endif %}
                         </div>
                         <div class="item-sub">Cantidad: {{ item.Cantidad }}</div>
+                        {% if item.talla %}
+                            <div class="item-sub">Talla: {{ item.talla }}</div>
+                        {% endif %}
+                        {% with sublimacion=item.solicitudes_sublimacion.all|first %}
+                            {% if sublimacion %}
+                                <div style="margin-top:8px; padding:10px 12px; border-radius:10px; background:#f7f0ff; border:1px solid #e0c8f3; color:#5b2b80; font-size:0.9rem; line-height:1.45; max-width:340px;">
+                                    <strong style="display:block; margin-bottom:4px;">Solicitud de sublimación</strong>
+                                    {% if sublimacion.talla %}<div>Talla: {{ sublimacion.talla }}</div>{% endif %}
+                                    {% if sublimacion.comentario %}<div>{{ sublimacion.comentario }}</div>{% endif %}
+                                    {% if sublimacion.imagen_sublimacion %}
+                                        <div style="margin-top:8px;"><a href="{{ sublimacion.imagen_sublimacion.url }}" target="_blank" rel="noopener">Ver imagen subida</a></div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% endwith %}
                     </div>
                     <div class="item-sub">$ {{ item.precio_unitario }}</div>
                 </li>

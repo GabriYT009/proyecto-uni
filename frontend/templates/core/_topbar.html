@@ -32,7 +32,8 @@
 	.top-bar .nav-link,
 	.top-bar .clients-toggle,
 	.top-bar .product-toggle,
-	.top-bar .inventario-toggle {
+	.top-bar .inventario-toggle,
+	.top-bar .pagos-toggle {
 		display: inline-flex;
 		align-items: center;
 		gap: 6px;
@@ -50,26 +51,100 @@
 		-webkit-appearance: none;
 	}
 
+	/* Keep all dropdown toggles with the same visual pattern. */
+	.top-bar .clients-toggle,
+	.top-bar .product-toggle,
+	.top-bar .inventario-toggle,
+	.top-bar .pagos-toggle {
+		position: relative;
+		font-size: 0;
+		line-height: 1;
+		color: transparent;
+	}
+
+	.top-bar .clients-toggle::before,
+	.top-bar .product-toggle::before,
+	.top-bar .inventario-toggle::before,
+	.top-bar .pagos-toggle::before {
+		font-size: 16px;
+		font-weight: 600;
+		line-height: 1;
+		color: #333;
+	}
+
+	.top-bar .clients-toggle::before { content: "Clientes"; }
+	.top-bar .product-toggle::before { content: "Producto"; }
+	.top-bar .inventario-toggle::before { content: "Inventario"; }
+	.top-bar .pagos-toggle::before { content: "Pagos"; }
+
+	.top-bar .clients-toggle::after,
+	.top-bar .product-toggle::after,
+	.top-bar .inventario-toggle::after,
+	.top-bar .pagos-toggle::after {
+		content: "";
+		width: 0;
+		height: 0;
+		border-left: 4px solid transparent;
+		border-right: 4px solid transparent;
+		border-top: 5px solid #333;
+		margin-left: 6px;
+		transform-origin: center;
+		transition: transform 0.2s ease, border-top-color 0.2s ease;
+	}
+
+	.top-bar .clients-toggle:hover::before,
+	.top-bar .product-toggle:hover::before,
+	.top-bar .inventario-toggle:hover::before,
+	.top-bar .pagos-toggle:hover::before,
+	.top-bar .clients-toggle[aria-expanded="true"]::before,
+	.top-bar .product-toggle[aria-expanded="true"]::before,
+	.top-bar .inventario-toggle[aria-expanded="true"]::before,
+	.top-bar .pagos-toggle[aria-expanded="true"]::before {
+		color: #9932CC;
+	}
+
+	.top-bar .clients-toggle:hover::after,
+	.top-bar .product-toggle:hover::after,
+	.top-bar .inventario-toggle:hover::after,
+	.top-bar .pagos-toggle:hover::after,
+	.top-bar .clients-toggle[aria-expanded="true"]::after,
+	.top-bar .product-toggle[aria-expanded="true"]::after,
+	.top-bar .inventario-toggle[aria-expanded="true"]::after,
+	.top-bar .pagos-toggle[aria-expanded="true"]::after {
+		border-top-color: #9932CC;
+	}
+
+	.top-bar .clients-toggle[aria-expanded="true"]::after,
+	.top-bar .product-toggle[aria-expanded="true"]::after,
+	.top-bar .inventario-toggle[aria-expanded="true"]::after,
+	.top-bar .pagos-toggle[aria-expanded="true"]::after {
+		transform: rotate(180deg);
+	}
+
 	.top-bar .nav-link:hover,
 	.top-bar .clients-toggle:hover,
 	.top-bar .product-toggle:hover,
 	.top-bar .inventario-toggle:hover,
+	.top-bar .pagos-toggle:hover,
 	.top-bar .clients-toggle[aria-expanded="true"],
 	.top-bar .product-toggle[aria-expanded="true"],
-	.top-bar .inventario-toggle[aria-expanded="true"] {
+	.top-bar .inventario-toggle[aria-expanded="true"],
+	.top-bar .pagos-toggle[aria-expanded="true"] {
 		background: #f0f0f0;
 		color: #9932CC;
 	}
 
 	.top-bar .clients-menu,
 	.top-bar .product-menu,
-	.top-bar .inventario-menu {
+	.top-bar .inventario-menu,
+	.top-bar .pagos-menu {
 		position: relative;
 	}
 
 	.top-bar .clients-menu > .profile-dropdown,
 	.top-bar .product-menu > .profile-dropdown,
-	.top-bar .inventario-menu > .profile-dropdown {
+	.top-bar .inventario-menu > .profile-dropdown,
+	.top-bar .pagos-menu > .profile-dropdown {
 		left: 0;
 		top: calc(100% + 8px);
 		min-width: 180px;
@@ -172,6 +247,7 @@
 					<div id="productDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
 						{% if 'admin' in user_groups %}
 							<a href="{% url 'registrar_producto' %}" class="dropdown-item">Crear producto</a>
+							<a href="{% url 'agregar_marca' %}" class="dropdown-item;">Agregar Marca</a>
 						{% endif %}
 					</div>
 				</div>
@@ -181,6 +257,11 @@
 						<div id="inventarioDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
 							<a href="{% url 'inventario' %}" class="dropdown-item">Ver inventario</a>
 							<a href="{% url 'ajustar_inventario_masivo' %}" class="dropdown-item">Ajustar inventario</a>
+						</div>
+					</div>
+					<div class="pagos-menu" style="position:relative;">
+						<button id="pagosToggle" class="nav-link pagos-toggle" aria-haspopup="true" aria-expanded="false">Pagos ▾</button>
+						<div id="pagosDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
 							<a href="{% url 'aprobar_pagos' %}" class="dropdown-item">Aprobar pagos</a>
 						</div>
 					</div>
@@ -246,8 +327,21 @@
 			</div>
 		</div>
 		{% if 'admin' in user_groups %}
-			<a class="nav-item" href="{% url 'inventario' %}">Inventario</a>
-			<a class="nav-item" href="{% url 'aprobar_pagos' %}">Aprobar pagos</a>
+			<div class="nav-item-group">
+				<button class="nav-item nav-subtoggle" type="button" data-target="topbarInventorySubMenu" aria-expanded="false">Inventario <span class="submenu-arrow">›</span></button>
+				<div id="topbarInventorySubMenu" class="nav-submenu" aria-hidden="true">
+					<button class="nav-item nav-back" type="button" data-close-submenu="topbarInventorySubMenu">← Menu</button>
+					<a class="nav-item" href="{% url 'inventario' %}">Ver inventario</a>
+					<a class="nav-item" href="{% url 'ajustar_inventario_masivo' %}">Ajustar inventario</a>
+				</div>
+			</div>
+			<div class="nav-item-group">
+				<button class="nav-item nav-subtoggle" type="button" data-target="topbarPagosSubMenu" aria-expanded="false">Pagos <span class="submenu-arrow">›</span></button>
+				<div id="topbarPagosSubMenu" class="nav-submenu" aria-hidden="true">
+					<button class="nav-item nav-back" type="button" data-close-submenu="topbarPagosSubMenu">← Menu</button>
+					<a class="nav-item" href="{% url 'aprobar_pagos' %}">Aprobar pagos</a>
+				</div>
+			</div>
 		{% endif %}
 		{% if 'admin' in user_groups or 'cajero' in user_groups %}
 			<a class="nav-item" href="{% url 'caja' %}">Caja</a>
@@ -257,25 +351,57 @@
 
 <script>
 	(function(){
-		const toggle = document.getElementById('inventarioToggle');
-		const dropdown = document.getElementById('inventarioDropdown');
-		if(!toggle || !dropdown) return;
-		function close(){
+		const menus = [
+			{ toggleId: 'inventarioToggle', dropdownId: 'inventarioDropdown' },
+			{ toggleId: 'pagosToggle', dropdownId: 'pagosDropdown' }
+		].map(({ toggleId, dropdownId }) => ({
+			toggle: document.getElementById(toggleId),
+			dropdown: document.getElementById(dropdownId)
+		})).filter(({ toggle, dropdown }) => toggle && dropdown);
+
+		if (!menus.length) return;
+
+		function closeMenu(toggle, dropdown) {
 			dropdown.classList.remove('show');
 			toggle.setAttribute('aria-expanded', 'false');
 			dropdown.setAttribute('aria-hidden', 'true');
 		}
-		toggle.addEventListener('click', function(e){
-			e.stopPropagation();
-			const opened = dropdown.classList.toggle('show');
-			toggle.setAttribute('aria-expanded', opened ? 'true' : 'false');
-			dropdown.setAttribute('aria-hidden', opened ? 'false' : 'true');
+
+		function closeAllExcept(activeToggle) {
+			menus.forEach(({ toggle, dropdown }) => {
+				if (toggle !== activeToggle) {
+					closeMenu(toggle, dropdown);
+				}
+			});
+		}
+
+		menus.forEach(({ toggle, dropdown }) => {
+			toggle.addEventListener('click', function(e){
+				e.stopPropagation();
+				const opened = !dropdown.classList.contains('show');
+				closeAllExcept(toggle);
+				if (opened) {
+					dropdown.classList.add('show');
+					toggle.setAttribute('aria-expanded', 'true');
+					dropdown.setAttribute('aria-hidden', 'false');
+				} else {
+					closeMenu(toggle, dropdown);
+				}
+			});
 		});
+
 		document.addEventListener('click', function(e){
-			if(!toggle.contains(e.target) && !dropdown.contains(e.target)) close();
+			menus.forEach(({ toggle, dropdown }) => {
+				if(!toggle.contains(e.target) && !dropdown.contains(e.target)) {
+					closeMenu(toggle, dropdown);
+				}
+			});
 		});
+
 		document.addEventListener('keydown', function(e){
-			if(e.key === 'Escape') close();
+			if(e.key === 'Escape') {
+				menus.forEach(({ toggle, dropdown }) => closeMenu(toggle, dropdown));
+			}
 		});
 	})();
 </script>

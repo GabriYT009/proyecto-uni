@@ -262,7 +262,7 @@
                 <div class="category-grid category-bar" role="navigation">
                     {% for categoria in categories %}
                     <a href="?Categoria={{ categoria.nombre_categoria|urlencode }}" class="category-card {% if selected_Categoria == categoria.nombre_categoria %}active{% endif %}">
-                        <div class="category-icon">{% cycle '📦' '🎂' '🖨️' '📄' '🎨' '📝' %}</div>
+                        <div class="category-icon">{% if categoria.nombre_categoria == 'Cajas' %}📦{% elif categoria.nombre_categoria == 'Toppers' %}🎂{% elif categoria.nombre_categoria == 'Sublimación' %}🖨️{% elif categoria.nombre_categoria == 'Impresión' %}📄{% elif categoria.nombre_categoria == 'Personalización' %}🎨{% elif categoria.nombre_categoria == 'Papelería' %}📝{% elif categoria.nombre_categoria == 'Camisas' %}👕{% elif categoria.nombre_categoria == 'Tazas' %}☕{% elif categoria.nombre_categoria == 'Otros' %}🧩{% else %}📁{% endif %}</div>
                         <span>{{ categoria.nombre_categoria }}</span>
                     </a>
                     {% endfor %}
@@ -398,7 +398,9 @@
 
             document.addEventListener('click', function(e){ if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) searchResults.classList.remove('show'); });
 
-            searchResults.addEventListener('click', function(e){ const item = e.target.closest('.search-result-item'); if (item && item.dataset.id) { const product = (products||[]).find(p=>p.id==item.dataset.id); if (product) {
+                    searchResults.addEventListener('click', function(e){ const item = e.target.closest('.search-result-item'); if (item && item.dataset.id) { const product = (products||[]).find(p=>p.id==item.dataset.id); if (product) {
+                        const category = String(product.category || product.Categoria || '').trim();
+                        if (category === 'Camisas') { window.location.href = '/producto/' + item.dataset.id + '/camisas/'; return; }
                         document.getElementById('m-title').textContent = product.title;
                         document.getElementById('m-img').src = product.img;
                         document.getElementById('m-desc').textContent = product.desc;

@@ -85,6 +85,29 @@ INSTALLED_APPS = [
     'django_app.core.apps.CoreConfig',
 ]
 
+USE_CLOUDINARY_MEDIA = bool(
+    os.environ.get("CLOUDINARY_URL")
+    or (
+        os.environ.get("CLOUDINARY_CLOUD_NAME")
+        and os.environ.get("CLOUDINARY_API_KEY")
+        and os.environ.get("CLOUDINARY_API_SECRET")
+    )
+)
+
+if USE_CLOUDINARY_MEDIA:
+    cloudinary_url = os.environ.get("CLOUDINARY_URL")
+    if not cloudinary_url and os.environ.get("CLOUDINARY_CLOUD_NAME") and os.environ.get("CLOUDINARY_API_KEY") and os.environ.get("CLOUDINARY_API_SECRET"):
+        cloudinary_url = (
+            f"cloudinary://{os.environ.get('CLOUDINARY_API_KEY')}:{os.environ.get('CLOUDINARY_API_SECRET')}"
+            f"@{os.environ.get('CLOUDINARY_CLOUD_NAME')}"
+        )
+        os.environ["CLOUDINARY_URL"] = cloudinary_url
+
+    INSTALLED_APPS += [
+        'cloudinary',
+        'cloudinary_storage',
+    ]
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.middleware.gzip.GZipMiddleware',
@@ -234,13 +257,30 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = os.environ.get("MEDIA_URL", '/media/')
 _media_root_env = os.environ.get("MEDIA_ROOT")
+_railway_volume_mount = os.environ.get("RAILWAY_VOLUME_MOUNT_PATH")
 if _media_root_env:
     MEDIA_ROOT = Path(_media_root_env)
+elif _railway_volume_mount:
+    MEDIA_ROOT = Path(_railway_volume_mount) / 'media'
 elif Path('/data').exists():
     # Railway volume path (when mounted) without requiring manual env setup.
     MEDIA_ROOT = Path('/data/media')
 else:
     MEDIA_ROOT = BASE_DIR / 'media'
+
+if USE_CLOUDINARY_MEDIA:
+    # Optional Cloudinary integration: when env vars are present, user-uploaded
+    # media is stored remotely instead of Railway ephemeral disk.
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+    # Support both CLOUDINARY_URL and explicit variables.
+    if os.environ.get("CLOUDINARY_CLOUD_NAME"):
+        CLOUDINARY_STORAGE = {
+            'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+            'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+            'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+            'SECURE': True,
+        }
 
 # In production, prefer a single canonical static tree to avoid duplicate paths
 # during collectstatic. Local development can opt into the legacy trees.
@@ -262,11 +302,24 @@ STATICFILES_DIRS = [d for d in _static_dirs if os.path.exists(d)]
 # Use WhiteNoise to serve static files in production (especially when running under Waitress).
 # See https://whitenoise.evans.io/en/stable/
 USE_MANIFEST_STATICFILES = os.environ.get("USE_MANIFEST_STATICFILES", "False").lower() in ("1", "true", "yes")
-STATICFILES_STORAGE = (
+_staticfiles_backend = (
     'whitenoise.storage.CompressedManifestStaticFilesStorage'
     if USE_MANIFEST_STATICFILES else
     'whitenoise.storage.CompressedStaticFilesStorage'
 )
+_default_storage_backend = (
+    'cloudinary_storage.storage.MediaCloudinaryStorage'
+    if USE_CLOUDINARY_MEDIA else
+    'django.core.files.storage.FileSystemStorage'
+)
+STORAGES = {
+    'default': {
+        'BACKEND': _default_storage_backend,
+    },
+    'staticfiles': {
+        'BACKEND': _staticfiles_backend,
+    },
+}
 WHITENOISE_MAX_AGE = 31536000 if not DEBUG else 0
 
 # Cookie-backed session/messages avoid hard dependency on DB during template rendering.

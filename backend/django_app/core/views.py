@@ -17,7 +17,7 @@ from django.conf import settings
 import re
 import os
 import json
-from .models import Producto, Cliente, Categoria, Historial_Inventario, MetodoPago, CarritoDeCompras, OrdenDeDespacho
+from .models import Producto, Cliente, Categoria, Historial_Inventario, MetodoPago, CarritoDeCompras, OrdenDeDespacho, SolicitudSublimacion
 from django.core.paginator import Paginator
 from .forms import ProductForm
 from django.utils import timezone
@@ -56,27 +56,90 @@ ALLOWED_CATEGORY_NAMES = [
     'Impresión',
     'Personalización',
     'Papelería',
+    'Camisas',
+    'Tazas',
 ]
 
 
 def _safe_img_url(producto):
     fallback = settings.STATIC_URL + 'assets/img/logo.png'
-    try:
-        if producto.imagen_producto and producto.imagen_producto.url:
-            image_name = producto.imagen_producto.name
-            try:
-                if producto.imagen_producto.storage.exists(image_name):
-                    return producto.imagen_producto.url
-            except Exception:
-                pass
+    image_field = getattr(producto, 'imagen_producto', None)
 
-            image_basename = os.path.basename(image_name)
-            static_fallback_path = os.path.join(settings.FRONTEND_DIR, 'static', 'product-images', image_basename)
-            if os.path.exists(static_fallback_path):
-                return settings.STATIC_URL + 'product-images/' + image_basename
+    def _normalize_media_url(raw_url):
+        if not raw_url:
+            return ''
+        if raw_url.startswith(('http://', 'https://', '/')):
+            return raw_url
+        media_base = settings.MEDIA_URL or '/media/'
+        if not media_base.endswith('/'):
+            media_base += '/'
+        return media_base + raw_url.lstrip('/')
+
+    if not image_field:
+        return fallback
+
+    image_name = (getattr(image_field, 'name', '') or '').strip()
+    if not image_name:
+        return fallback
+
+    try:
+        if image_field.storage.exists(image_name):
+            return _normalize_media_url(image_field.url)
+    except Exception:
+        # Some storage backends may not support exists(); keep URL as best effort.
+        try:
+            normalized = _normalize_media_url(image_field.url)
+            if normalized:
+                return normalized
+        except Exception:
+            pass
+
+    try:
+        image_basename = os.path.basename(image_name)
+        static_fallback_path = os.path.join(settings.FRONTEND_DIR, 'static', 'product-images', image_basename)
+        if os.path.exists(static_fallback_path):
+            return settings.STATIC_URL + 'product-images/' + image_basename
     except Exception:
         pass
     return fallback
+
+
+def _append_to_session_cart(request, product_id):
+    cart = request.session.get('cart', []) or []
+    cart.append(int(product_id))
+    request.session['cart'] = cart
+    request.session.modified = True
+    return len(cart)
+
+
+def _set_session_cart_talla(request, product_id, talla):
+    cart_options = request.session.get('cart_options', {}) or {}
+    product_key = str(int(product_id))
+    cart_options[product_key] = {'talla': (talla or '').strip()}
+    request.session['cart_options'] = cart_options
+    request.session.modified = True
+
+
+def _get_session_cart_talla(request, product_id):
+    cart_options = request.session.get('cart_options', {}) or {}
+    return (cart_options.get(str(int(product_id))) or {}).get('talla', '')
+
+
+def _latest_pending_sublimation(user, product_id):
+    if not user or not getattr(user, 'is_authenticated', False):
+        return None
+    return (
+        SolicitudSublimacion.objects
+        .filter(usuario=user, producto_id=product_id, carrito_de_compras__isnull=True, estado='PENDIENTE')
+        .order_by('-creado_en')
+        .first()
+    )
+
+
+def _attach_pending_sublimation(products, user):
+    for product in products:
+        product.solicitud_sublimacion = _latest_pending_sublimation(user, product.pk)
+    return products
 
 
 def _cached_categories(timeout=300):
@@ -758,8 +821,10 @@ def carrito(request):
 
     cantidades = Counter(carrito_validado)
     Productos = list(productos_map.values())
+    _attach_pending_sublimation(Productos, request.user)
     for p in Productos:
         p.cantidad_en_carrito = cantidades.get(p.pk, 0)
+        p.talla = _get_session_cart_talla(request, p.pk)
         p.img_url = _safe_img_url(p)
         if (p.cantidad_disponible or 0) <= 0:
             p.status_producto = False
@@ -815,11 +880,14 @@ def add_to_cart(request, product_id):
 @login_required
 def remove_from_cart(request, product_id):
     cart = request.session.get('cart', [])
+    cart_options = request.session.get('cart_options', {}) or {}
 
     # Remove the product entirely from session cart, even if it appears multiple times.
     pid = str(product_id)
     cart = [item for item in cart if str(item) != pid]
+    cart_options.pop(pid, None)
     request.session['cart'] = cart
+    request.session['cart_options'] = cart_options
     request.session.modified = True
     return redirect('carrito')
 
@@ -1078,6 +1146,73 @@ def producto_detalle(request, producto_id):
 
 
 @login_required
+def camisas_shein(request, producto_id):
+    producto = get_object_or_404(Producto.objects.select_related('categoria'), pk=producto_id, status_producto=True)
+    categoria_nombre = (producto.categoria.nombre_categoria if producto.categoria else '').strip()
+    if categoria_nombre != 'Camisas':
+        return redirect('comprar_producto', producto_id=producto.pk)
+
+    producto.img_url = _safe_img_url(producto)
+    tallas = ['S', 'M', 'L', 'XL', 'XXL']
+
+    if request.method == 'POST':
+        accion = (request.POST.get('accion') or '').strip().lower()
+        talla = (request.POST.get('talla') or '').strip()
+
+        if accion == 'agregar_carrito':
+            _set_session_cart_talla(request, producto.pk, talla)
+            _append_to_session_cart(request, producto.pk)
+            messages.success(request, 'Camisa agregada al carrito.')
+            return redirect('carrito')
+
+        if accion == 'guardar_sublimacion':
+            comentario = (request.POST.get('comentario') or '').strip()
+            imagen = request.FILES.get('imagen_sublimacion')
+
+            if talla and talla not in tallas:
+                messages.error(request, 'La talla seleccionada no es válida.')
+                return redirect('camisas_shein', producto_id=producto.pk)
+
+            if not imagen:
+                messages.error(request, 'Debes subir una imagen para la sublimación.')
+                return redirect('camisas_shein', producto_id=producto.pk)
+
+            SolicitudSublimacion.objects.create(
+                usuario=request.user,
+                producto=producto,
+                talla=talla,
+                comentario=comentario,
+                imagen_sublimacion=imagen,
+                estado='PENDIENTE',
+            )
+            _set_session_cart_talla(request, producto.pk, talla)
+            _append_to_session_cart(request, producto.pk)
+            messages.success(request, 'Sublimación guardada y producto agregado al carrito.')
+            return redirect('carrito')
+
+    related_solicitud = _latest_pending_sublimation(request.user, producto.pk)
+
+    try:
+        tasa = obtener_tasa_cambio()
+    except Exception:
+        tasa = 'N/A'
+    try:
+        precio_bs = round(float(producto.precio_venta or 0) * float(tasa), 2)
+    except Exception:
+        precio_bs = None
+
+    return render(request, 'core/camisas_shein.html', {
+        'producto': producto,
+        'tallas': tallas,
+        'solicitud': related_solicitud,
+        'cart_count': len(request.session.get('cart', [])),
+        'user_groups': _user_groups(request.user),
+        'valor_dolar': str(tasa),
+        'precio_bs': precio_bs,
+    })
+
+
+@login_required
 def detalles_compra_producto(request, producto_id):
     """Muestra las Notas de Entrega del usuario que incluyen un producto específico."""
     producto = get_object_or_404(Producto, pk=producto_id)
@@ -1166,6 +1301,13 @@ def comprar_producto(request, producto_id):
                 ) 
                 nota.carrito_de_compras = carrito_item
                 nota.save()
+
+                solicitud = _latest_pending_sublimation(request.user, producto.pk)
+                if solicitud:
+                    solicitud.carrito_de_compras = carrito_item
+                    solicitud.nota_entrega = nota
+                    solicitud.estado = 'VINCULADA'
+                    solicitud.save(update_fields=['carrito_de_compras', 'nota_entrega', 'estado'])
 
                 # Restar inventario
                 cantidad_anterior = producto.cantidad_disponible or 0
@@ -1261,7 +1403,7 @@ def aprobar_pagos(request):
             Nota_Entrega.objects
             .filter(comprobante_pago__isnull=False, estado_pago='PENDIENTE')
             .select_related('cliente', 'cliente__user', 'revisado_por')
-            .prefetch_related('detalles__Producto')
+            .prefetch_related('detalles__Producto', 'detalles__solicitudes_sublimacion')
             .order_by('-fecha', '-id')
         )
         total_pendientes = salidas.count()
@@ -1365,9 +1507,17 @@ def comprar_carrito(request):
                     Nota_Entrega=nota,
                     Producto=p,
                     Cantidad=cantidad,
+                    talla=_get_session_cart_talla(request, p.pk),
                     precio_unitario=p.precio_venta,
                     status_carrito=True
                 )
+
+                solicitud = _latest_pending_sublimation(request.user, p.pk)
+                if solicitud:
+                    solicitud.carrito_de_compras = CarritoDeCompras.objects.filter(Nota_Entrega=nota, Producto=p).order_by('-id').first()
+                    solicitud.nota_entrega = nota
+                    solicitud.estado = 'VINCULADA'
+                    solicitud.save(update_fields=['carrito_de_compras', 'nota_entrega', 'estado'])
 
                 # PASO 4: Actualizar inventario e historial
                 cant_anterior = p.cantidad_disponible or 0
@@ -1394,6 +1544,7 @@ def comprar_carrito(request):
             logger.info(f'Nota {nota.pk} guardada con total {total_acumulado}')
 
             request.session['cart'] = []
+            request.session['cart_options'] = {}
 
     except ValueError:
         return redirect('carrito')
@@ -1430,7 +1581,7 @@ def pago_movil(request):
         except Exception:
             cantidad = 1
         subtotal = float(p.precio_venta or 0) * cantidad
-        items.append({'producto': p, 'cantidad': cantidad, 'subtotal': subtotal})
+        items.append({'producto': p, 'cantidad': cantidad, 'subtotal': subtotal, 'talla': _get_session_cart_talla(request, p.pk), 'sublimacion': _latest_pending_sublimation(request.user, p.pk)})
         total += subtotal
 
     return render(request, 'core/pago_movil.html', {
@@ -1478,9 +1629,17 @@ def comprar_producto_ajax(request, producto_id):
                 Nota_Entrega=nota,
                 Producto=producto,
                 Cantidad=cantidad,
+                talla=request.POST.get('talla') or _get_session_cart_talla(request, producto.pk),
                 precio_unitario=producto.precio_venta,
                 status_carrito=True
             )
+
+            solicitud = _latest_pending_sublimation(request.user, producto.pk)
+            if solicitud:
+                solicitud.carrito_de_compras = item_carrito
+                solicitud.nota_entrega = nota
+                solicitud.estado = 'VINCULADA'
+                solicitud.save(update_fields=['carrito_de_compras', 'nota_entrega', 'estado'])
 
             # PASO 3: Actualizar inventario
             cantidad_anterior = producto.cantidad_disponible or 0
@@ -1503,6 +1662,9 @@ def comprar_producto_ajax(request, producto_id):
                 if producto.pk in cart:
                     cart.remove(producto.pk)
                     request.session['cart'] = cart
+                    cart_options = request.session.get('cart_options', {}) or {}
+                    cart_options.pop(str(producto.pk), None)
+                    request.session['cart_options'] = cart_options
                     request.session.modified = True
             except Exception:
                 pass
