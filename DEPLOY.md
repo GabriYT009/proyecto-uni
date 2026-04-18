@@ -96,12 +96,14 @@ Si Cloudinary no está disponible en tu país, puedes usar un bucket S3-compatib
   - `AWS_STORAGE_BUCKET_NAME=<tu_bucket>`
   - `AWS_ACCESS_KEY_ID=<tu_access_key>`
   - `AWS_SECRET_ACCESS_KEY=<tu_secret_key>`
-  - `AWS_S3_ENDPOINT_URL=<endpoint_s3>` (ej. `https://<accountid>.r2.cloudflarestorage.com`)
+  - `AWS_S3_ENDPOINT_URL=<endpoint_s3>` (usa el endpoint base, por ejemplo `https://<accountid>.r2.cloudflarestorage.com`)
   - `AWS_S3_REGION_NAME=<region>` (si aplica; para R2 puedes usar `auto`)
   - (Opcional) `AWS_MEDIA_LOCATION=media`
   - (Opcional) `AWS_S3_FILE_OVERWRITE=False`
   - Si el bucket es privado, usa `AWS_QUERYSTRING_AUTH=True`
   - Si el bucket es público, puedes usar `AWS_QUERYSTRING_AUTH=False`
+  - (Opcional) `AWS_S3_ADDRESSING_STYLE=path` para forzar URLs compatibles con R2
+  - (Opcional) `AWS_S3_SIGNATURE_VERSION=s3v4`
 4. Redeploy.
 
 Con esto, `ImageField` guardará archivos en el bucket remoto y no se perderán al redeploy.

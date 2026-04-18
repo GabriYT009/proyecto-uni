@@ -379,7 +379,9 @@ if USE_S3_MEDIA:
         'default_acl': None,
         'file_overwrite': _is_true(os.environ.get('AWS_S3_FILE_OVERWRITE', 'False')),
         'querystring_auth': _is_true(os.environ.get('AWS_QUERYSTRING_AUTH', 'True')),
-        'addressing_style': (os.environ.get('AWS_S3_ADDRESSING_STYLE') or 'auto'),
+        'addressing_style': (os.environ.get('AWS_S3_ADDRESSING_STYLE') or 'path'),
+        'signature_version': (os.environ.get('AWS_S3_SIGNATURE_VERSION') or 's3v4'),
+        'use_ssl': _is_true(os.environ.get('AWS_S3_USE_SSL', 'True')),
     }
 
     custom_domain = (os.environ.get('AWS_S3_CUSTOM_DOMAIN') or '').strip()
