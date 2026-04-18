@@ -58,6 +58,10 @@ class ProductForm(forms.ModelForm):
                 'placeholder': 'Nombre de producto', 
                 'class': 'form-control'
             }),
+            'marca_producto': forms.Select(attrs={
+                'placeholder': 'Marca', 
+                'class': 'form-control'
+            }),
 
             'precio_venta': forms.NumberInput(attrs={
                 'step': '0.01', 

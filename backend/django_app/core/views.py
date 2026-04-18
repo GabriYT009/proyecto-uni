@@ -621,6 +621,7 @@ def crear_Productoo(request):
             categoria_custom = post_data.get('categoria_custom')
             otra_categoria = post_data.get('otra_categoria')
             
+            
             # Si seleccionó 'otros', crear la categoría si no existe y usarla
             if categoria_custom == 'otros' and otra_categoria:
                 cat_obj, _ = Categoria.objects.get_or_create(
