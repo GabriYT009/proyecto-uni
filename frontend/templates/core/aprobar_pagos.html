@@ -386,7 +386,7 @@
                                 <div class="section-label">Comprobante</div>
                                 {% if salida.comprobante_pago %}
                                     <a href="{{ salida.comprobante_pago.url }}" target="_blank" rel="noopener">
-                                        <img src="{{ salida.comprobante_pago.url }}" alt="Comprobante de pago de la orden {{ salida.pk }}" class="proof-preview">
+                                        <img src="{{ salida.comprobante_pago }}" alt="Comprobante de pago de la orden {{ salida.pk }}" class="proof-preview">
                                     </a>
                                 {% else %}
                                     <div class="proof-empty">
