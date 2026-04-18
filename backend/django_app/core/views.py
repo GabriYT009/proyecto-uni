@@ -82,17 +82,25 @@ def _safe_img_url(producto):
     if not image_name:
         return fallback
 
+    # Keep a best-effort URL available even when the storage backend cannot
+    # reliably answer exists() for remote files.
+    raw_url = ''
+    try:
+        raw_url = image_field.url
+    except Exception:
+        raw_url = ''
+
     try:
         if image_field.storage.exists(image_name):
             return _normalize_media_url(image_field.url)
     except Exception:
         # Some storage backends may not support exists(); keep URL as best effort.
-        try:
-            normalized = _normalize_media_url(image_field.url)
-            if normalized:
-                return normalized
-        except Exception:
-            pass
+        pass
+
+    if raw_url:
+        normalized = _normalize_media_url(raw_url)
+        if normalized:
+            return normalized
 
     try:
         image_basename = os.path.basename(image_name)

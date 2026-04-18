@@ -881,7 +881,7 @@
                                                 <i class="bi bi-trash3" style="font-size: 16px;"></i>
                                                 Eliminar
                                             </a>
-                                            <a href="#" class="dropdown-item js-open-edit" data-product-id="{{ producto.pk }}" data-product-name="{{ producto.nombre_producto|escapejs }}" data-product-desc="{{ producto.descripcion|escapejs }}" data-product-price="{{ producto.precio_venta|default:0 }}" data-product-qty="{{ producto.cantidad_disponible|default:0 }}" data-product-status="{{ producto.status_producto|lower }}" data-product-category="{{ producto.categoria.nombre_categoria|default:""|escapejs }}" data-product-img="{{ producto.img_url|escapejs }}">
+                                            <a href="#" class="dropdown-item js-open-edit" data-product-id="{{ producto.pk }}" data-product-name="{{ producto.nombre_producto|escapejs }}" data-product-desc="{{ producto.descripcion|escapejs }}" data-product-price="{{ producto.precio_venta|default:0 }}" data-product-qty="{{ producto.cantidad_disponible|default:0 }}" data-product-status="{{ producto.status_producto|lower }}" data-product-category-id="{{ producto.categoria_id|default:'' }}" data-product-img="{{ producto.img_url|escapejs }}">
                                                 <i class="bi bi-pencil-square" style="font-size: 16px;"></i>
                                                 Editar
                                             </a>
@@ -1187,7 +1187,7 @@
         
 
         // Funciones para el modal de editar producto
-        function abrirModalEditar(productoId, nombre, descripcion, precio, cantidad, status, categoria, imgUrl) {
+        function abrirModalEditar(productoId, nombre, descripcion, precio, cantidad, status, categoriaId, imgUrl) {
             document.getElementById('productoIdEditar').value = productoId;
             document.getElementById('nombreProductoEditar').value = nombre;
             document.getElementById('descripcionEditar').value = descripcion || '';
@@ -1204,19 +1204,21 @@
             const precioEl = document.getElementById('precioEditar');
             if (precioEl) precioEl.dataset.original = String(precio || '0');
             const statusEl = document.getElementById('statusEditar');
-            if (statusEl) statusEl.dataset.original = String(status || 'false');
+            const statusValue = String(status || 'false').toLowerCase();
+            if (statusEl) {
+                statusEl.value = statusValue;
+                statusEl.dataset.original = statusValue;
+            }
             const categoriaSelect = document.getElementById('categoriaEditar');
-            if (categoriaSelect) categoriaSelect.dataset.original = String(categoria || '');
-            document.getElementById('statusEditar').value = status;
+            if (categoriaSelect) {
+                const categoriaValue = String(categoriaId || '');
+                categoriaSelect.value = categoriaValue;
+                categoriaSelect.dataset.original = categoriaValue;
+            }
             
             // Safely access modal-related elements
-            if (categoriaSelect) {
-                for (let i = 0; i < categoriaSelect.options.length; i++) {
-                    if (categoriaSelect.options[i].text === categoria) {
-                        categoriaSelect.selectedIndex = i;
-                        break;
-                    }
-                }
+            if (categoriaSelect && categoriaSelect.selectedIndex === -1) {
+                categoriaSelect.selectedIndex = 0;
             }
 
             const previewImg = document.getElementById('previewImg');
@@ -1267,7 +1269,7 @@
                         this.dataset.productPrice,
                         this.dataset.productQty,
                         this.dataset.productStatus,
-                        this.dataset.productCategory,
+                        this.dataset.productCategoryId,
                         this.dataset.productImg
                     );
                 });
