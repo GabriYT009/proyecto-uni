@@ -1504,6 +1504,73 @@ def aprobar_pagos(request):
     })
 
 
+@admin_only
+def ordenes_sublimacion(request):
+    if request.method == 'POST':
+        solicitud_id = request.POST.get('solicitud_id')
+        accion = (request.POST.get('accion') or '').strip().lower()
+        solicitud = get_object_or_404(SolicitudSublimacion, pk=solicitud_id, nota_entrega__isnull=False)
+
+        if accion == 'aprobar':
+            solicitud.estado = 'VINCULADA'
+            messages.success(request, f'Orden de sublimacion #{solicitud.pk} aprobada correctamente.')
+        elif accion == 'rechazar':
+            solicitud.estado = 'RECHAZADA'
+            messages.warning(request, f'Orden de sublimacion #{solicitud.pk} marcada como rechazada.')
+        elif accion == 'pendiente':
+            solicitud.estado = 'PENDIENTE'
+            messages.info(request, f'Orden de sublimacion #{solicitud.pk} movida a pendiente.')
+        else:
+            messages.error(request, 'Accion no valida.')
+            return redirect('ordenes_sublimacion')
+
+        solicitud.save(update_fields=['estado'])
+        return redirect('ordenes_sublimacion')
+
+    try:
+        queryset = (
+            SolicitudSublimacion.objects
+            .filter(nota_entrega__isnull=False)
+            .select_related('usuario', 'producto', 'nota_entrega', 'nota_entrega__cliente')
+            .order_by('-creado_en', '-id')
+        )
+
+        total_ordenes = queryset.count()
+        pendientes_revision = queryset.filter(estado='VINCULADA').count()
+        paginator = Paginator(queryset, 6)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
+        # Resolver URLs de imagen de forma segura para evitar errores de storage en template.
+        for solicitud in page_obj.object_list:
+            solicitud.producto_img_url = _safe_img_url(solicitud.producto)
+            solicitud.diseno_url = ''
+            try:
+                if solicitud.imagen_sublimacion:
+                    solicitud.diseno_url = solicitud.imagen_sublimacion.url
+            except Exception:
+                logger.warning(
+                    'No se pudo resolver imagen de sublimacion para solicitud %s',
+                    solicitud.pk,
+                    exc_info=True,
+                )
+    except Exception as e:
+        logger.error(f'Error al cargar ordenes de sublimacion: {e}', exc_info=True)
+        page_obj = None
+        total_ordenes = 0
+        pendientes_revision = 0
+        paginator = None
+
+    return render(request, 'core/ordenes_sublimacion.html', {
+        'page_obj': page_obj,
+        'paginator': paginator,
+        'total_ordenes': total_ordenes,
+        'pendientes_revision': pendientes_revision,
+        'cart_count': len(request.session.get('cart', [])),
+        'user_groups': _user_groups(request.user),
+    })
+
+
 @login_required
 def detalles_salida(request, salida_id):
     """Mostrar todos los productos incluidos en una Nota de Entrega (antes Salida) específica."""

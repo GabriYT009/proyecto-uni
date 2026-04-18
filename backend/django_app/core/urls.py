@@ -37,6 +37,7 @@ urlpatterns = [
     path('pedido/exitoso/<int:salida_id>/', views.pago_exitoso, name='pago_exitoso'),
     path('pedido/<int:salida_id>/detalles/', views.detalles_salida, name='detalles_salida'),
     path('pagos/aprobar/', views.aprobar_pagos, name='aprobar_pagos'),
+    path('pagos/sublimacion/', views.ordenes_sublimacion, name='ordenes_sublimacion'),
     # legacy/static file requests that some templates/scripts still use
     path('home.html', RedirectView.as_view(pattern_name='home', permanent=False)),
     path('index.html', RedirectView.as_view(pattern_name='login', permanent=False)),

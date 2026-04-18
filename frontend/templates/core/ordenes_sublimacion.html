@@ -1,0 +1,483 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Ordenes de sublimacion</title>
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f6f3ef;
+            --panel: #ffffff;
+            --ink: #1f2430;
+            --muted: #667085;
+            --brand: #8b2dcf;
+            --brand-2: #f0e4ff;
+            --line: #e8dee6;
+            --good: #1f9d62;
+            --warn: #c27a00;
+            --bad: #b42318;
+            --shadow: 0 18px 40px rgba(58, 23, 91, 0.10);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Poppins", "Segoe UI", sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(800px 300px at 95% -5%, rgba(139, 45, 207, 0.14) 0%, rgba(139, 45, 207, 0) 60%),
+                radial-gradient(700px 260px at -10% 10%, rgba(42, 149, 255, 0.14) 0%, rgba(42, 149, 255, 0) 55%),
+                var(--bg);
+            min-height: 100vh;
+            padding: 28px 16px 36px;
+        }
+
+        .shell {
+            max-width: 1180px;
+            margin: 0 auto;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #ffffff 0%, #fffaf3 100%);
+            border: 1px solid #efe4d8;
+            border-radius: 22px;
+            box-shadow: var(--shadow);
+            padding: 26px;
+            margin-bottom: 18px;
+        }
+
+        .hero-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(1.7rem, 3vw, 2.5rem);
+            color: var(--brand);
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            margin: 8px 0 0;
+            color: var(--muted);
+            max-width: 760px;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .badge-count {
+            border-radius: 999px;
+            padding: 10px 14px;
+            background: var(--brand-2);
+            color: var(--brand);
+            font-weight: 700;
+            border: 1px solid #dfc6f0;
+            white-space: nowrap;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 10px 14px;
+            border: 1px solid #d9c7ea;
+            color: #5f2f87;
+            text-decoration: none;
+            font-weight: 700;
+            background: #fff;
+        }
+
+        .btn-back:hover {
+            color: #4b216e;
+            border-color: #c9afe0;
+            background: #faf5ff;
+        }
+
+        .stack {
+            display: grid;
+            gap: 14px;
+        }
+
+        .order-card {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(40, 18, 63, 0.06);
+            overflow: hidden;
+        }
+
+        .order-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+            padding: 18px 20px 14px;
+            border-bottom: 1px solid var(--line);
+            background: linear-gradient(180deg, #ffffff 0%, #fcf9ff 100%);
+        }
+
+        .order-title {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .order-sub {
+            color: var(--muted);
+            font-size: 0.9rem;
+            margin-top: 6px;
+        }
+
+        .status-pill {
+            border-radius: 999px;
+            padding: 7px 12px;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .status-pending { background: #fff4db; color: var(--warn); }
+        .status-approved { background: #def7e9; color: var(--good); }
+        .status-rejected { background: #fde8e7; color: var(--bad); }
+
+        .order-body {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(240px, 360px);
+            gap: 18px;
+            padding: 18px 20px 20px;
+        }
+
+        .info-box, .images-box {
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: #fff;
+            padding: 16px;
+        }
+
+        .section-label {
+            font-size: 0.88rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            margin-bottom: 12px;
+        }
+
+        .kv {
+            display: grid;
+            grid-template-columns: 170px minmax(0, 1fr);
+            gap: 8px 10px;
+            margin: 0;
+        }
+
+        .kv dt {
+            color: var(--muted);
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .kv dd {
+            margin: 0;
+            font-size: 0.95rem;
+            word-break: break-word;
+        }
+
+        .comment {
+            margin-top: 10px;
+            border: 1px solid #ebe2f2;
+            background: #fbf8ff;
+            border-radius: 12px;
+            padding: 10px 12px;
+            line-height: 1.45;
+        }
+
+        .preview {
+            width: 100%;
+            border-radius: 14px;
+            border: 1px solid var(--line);
+            background: #faf9fb;
+            object-fit: contain;
+            display: block;
+        }
+
+        .product-preview {
+            max-height: 180px;
+            margin-bottom: 12px;
+        }
+
+        .design-preview {
+            max-height: 260px;
+        }
+
+        .img-empty {
+            min-height: 110px;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            color: var(--muted);
+            border: 1px dashed #d8cbdc;
+            border-radius: 12px;
+            padding: 10px;
+            background: #fcfafc;
+        }
+
+        .status-action {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 14px;
+        }
+
+        .status-select {
+            min-width: 190px;
+            border: 1px solid #d9c7ea;
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 0.95rem;
+            color: var(--ink);
+            background: #fff;
+            appearance: none;
+        }
+
+        .btn-submit {
+            border: none;
+            border-radius: 12px;
+            padding: 10px 16px;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(135deg, #5b3dc4, #8f58dc);
+            cursor: pointer;
+        }
+
+        .btn-submit:hover {
+            opacity: 0.95;
+        }
+
+        .pagination {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 18px;
+            padding: 14px 0;
+            border-top: 1px solid #e8dee6;
+        }
+
+        .page-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+            padding: 8px 12px;
+            border-radius: 12px;
+            border: 1px solid #d9c7ea;
+            background: #fff;
+            color: var(--ink);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .page-link:hover,
+        .page-link:focus {
+            background: #f7f0ff;
+            border-color: #c9afe0;
+        }
+
+        .page-link.active {
+            background: var(--brand);
+            color: #fff;
+            border-color: var(--brand);
+        }
+
+        .page-link.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .empty-state {
+            background: rgba(255,255,255,0.8);
+            border: 1px dashed #dbcadf;
+            border-radius: 18px;
+            padding: 34px 22px;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .empty-state h2 {
+            margin: 0 0 8px;
+            color: var(--brand);
+            font-size: 1.25rem;
+        }
+
+        @media (max-width: 900px) {
+            .order-body {
+                grid-template-columns: 1fr;
+            }
+
+            .kv {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            body { padding: 14px 10px 24px; }
+            .hero, .order-head, .order-body { padding-left: 16px; padding-right: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <section class="hero">
+            <div class="hero-top">
+                <div>
+                    <h1>Ordenes de sublimacion</h1>
+                    <p class="subtitle">Revisa las solicitudes de sublimacion vinculadas a pedidos, incluyendo talla, comentario e imagen de diseno.</p>
+                </div>
+                <div class="hero-actions">
+                    <a href="{% url 'home' %}" class="btn-back">Volver</a>
+                    <div class="badge-count">{{ pendientes_revision }} pendientes</div>
+                    <div class="badge-count">{{ total_ordenes }} ordenes</div>
+                </div>
+            </div>
+        </section>
+
+        {% if messages %}
+            <div style="margin-bottom:16px; display:grid; gap:10px;">
+                {% for message in messages %}
+                    <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'warning' %}alert-warning{% else %}alert-info{% endif %} mb-0" role="alert">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if page_obj and page_obj.object_list %}
+            <div class="stack">
+                {% for solicitud in page_obj.object_list %}
+                    <article class="order-card">
+                        <div class="order-head">
+                            <div>
+                                <h2 class="order-title">Solicitud #{{ solicitud.pk }} · Orden #{{ solicitud.nota_entrega.pk }}</h2>
+                                <div class="order-sub">{{ solicitud.creado_en|date:"d/m/Y H:i" }} · Usuario: {{ solicitud.usuario.username }}</div>
+                            </div>
+                            <div class="status-pill {% if solicitud.estado == 'RECHAZADA' %}status-rejected{% elif solicitud.estado == 'VINCULADA' %}status-approved{% else %}status-pending{% endif %}">{{ solicitud.get_estado_display }}</div>
+                        </div>
+
+                        <div class="order-body">
+                            <div class="info-box">
+                                <div class="section-label">Detalles de sublimacion</div>
+                                <dl class="kv">
+                                    <dt>Producto</dt>
+                                    <dd>{{ solicitud.producto.nombre_producto }}</dd>
+
+                                    <dt>Talla</dt>
+                                    <dd>{{ solicitud.talla|default:'No especificada' }}</dd>
+
+                                    <dt>Cliente</dt>
+                                    <dd>
+                                        {% if solicitud.nota_entrega.cliente %}
+                                            {{ solicitud.nota_entrega.cliente.nombre_cliente }} {{ solicitud.nota_entrega.cliente.apellido_cliente }}
+                                        {% else %}
+                                            No disponible
+                                        {% endif %}
+                                    </dd>
+
+                                    <dt>Estado de pago</dt>
+                                    <dd>{{ solicitud.nota_entrega.get_estado_pago_display }}</dd>
+
+                                    <dt>Total de la orden</dt>
+                                    <dd>$ {{ solicitud.nota_entrega.total|default:0 }}</dd>
+                                </dl>
+
+                                <div class="section-label" style="margin-top:14px;">Comentario</div>
+                                <div class="comment">{{ solicitud.comentario|default:'Sin comentario del cliente.' }}</div>
+
+                                <form method="post" class="status-action" novalidate>
+                                    {% csrf_token %}
+                                    <input type="hidden" name="solicitud_id" value="{{ solicitud.pk }}">
+                                    <label for="accion-{{ solicitud.pk }}">Estado</label>
+                                    <select id="accion-{{ solicitud.pk }}" name="accion" class="status-select" required>
+                                        <option value="" disabled selected>Seleccionar acción</option>
+                                        <option value="aprobar">Aprobar</option>
+                                        <option value="pendiente">Pendiente</option>
+                                        <option value="rechazar">Rechazar</option>
+                                    </select>
+                                    <button type="submit" class="btn-submit">Guardar</button>
+                                </form>
+                            </div>
+
+                            <div class="images-box">
+                                <div class="section-label">Vista de imagenes</div>
+
+                                {% if solicitud.producto_img_url %}
+                                    <img src="{{ solicitud.producto_img_url }}" alt="Producto base {{ solicitud.producto.nombre_producto }}" class="preview product-preview">
+                                {% else %}
+                                    <div class="img-empty">No hay imagen del producto.</div>
+                                {% endif %}
+
+                                {% if solicitud.diseno_url %}
+                                    <a href="{{ solicitud.diseno_url }}" target="_blank" rel="noopener">
+                                        <img src="{{ solicitud.diseno_url }}" alt="Diseno de sublimacion de solicitud {{ solicitud.pk }}" class="preview design-preview">
+                                    </a>
+                                {% else %}
+                                    <div class="img-empty">No hay imagen de diseno cargada.</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+
+            {% if page_obj and page_obj.has_other_pages %}
+                <div class="pagination" aria-label="Paginacion de ordenes de sublimacion">
+                    {% if page_obj.has_previous %}
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">← Anterior</a>
+                    {% else %}
+                        <span class="page-link disabled">← Anterior</span>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if num == page_obj.number %}
+                            <span class="page-link active">{{ num }}</span>
+                        {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        {% elif num == 1 %}
+                            <a class="page-link" href="?page=1">1</a>
+                            {% if page_obj.number > 3 %}
+                                <span class="page-link disabled">…</span>
+                            {% endif %}
+                        {% elif num == page_obj.paginator.num_pages %}
+                            {% if page_obj.number < page_obj.paginator.num_pages|add:'-2' %}
+                                <span class="page-link disabled">…</span>
+                            {% endif %}
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente →</a>
+                    {% else %}
+                        <span class="page-link disabled">Siguiente →</span>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="empty-state">
+                <h2>No hay ordenes de sublimacion</h2>
+                <p>Las solicitudes con diseno apareceran aqui cuando se vinculen a un pedido.</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
