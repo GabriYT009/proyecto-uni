@@ -1327,7 +1327,7 @@ def comprar_producto(request, producto_id):
 
 
             # Quitar el producto comprado del carrito en la sesión
-            # Limpieza de sesión
+            # Limpieza de sesión asd
             cart = request.session.get('cart', [])
             if producto.pk in cart:
                 cart.remove(producto.pk)
