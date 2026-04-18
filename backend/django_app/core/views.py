@@ -112,6 +112,13 @@ def _safe_img_url(producto):
             return settings.STATIC_URL + 'product-images/' + image_basename
     except Exception:
         pass
+
+    logger.warning(
+        "Image URL fallback to logo | producto_id=%s image_name=%s storage=%s",
+        getattr(producto, 'pk', None),
+        image_name,
+        getattr(getattr(image_field, 'storage', None), '__class__', type(None)).__name__,
+    )
     return fallback
 
 
@@ -1881,6 +1888,19 @@ def editar_producto(request, producto_id):
 
                 # GUARDAMOS EL PRODUCTO PRIMERO
                 producto.save()
+
+                # Diagnóstico para verificar ruta y URL final de imagen en producción.
+                if producto.imagen_producto and producto.imagen_producto.name:
+                    try:
+                        resolved_url = _safe_img_url(producto)
+                    except Exception:
+                        resolved_url = 'ERROR_RESOLVING_URL'
+                    logger.info(
+                        'Producto imagen actualizada | producto_id=%s image_name=%s resolved_url=%s',
+                        producto.pk,
+                        producto.imagen_producto.name,
+                        resolved_url,
+                    )
 
                 # 2. Lógica del historial
                 if nueva_cantidad > cantidad_anterior:
