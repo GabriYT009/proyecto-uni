@@ -227,12 +227,19 @@
             align-items: center;
         }
 
+        .header-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
         .status-action {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
             align-items: center;
-            margin-top: 18px;
+            margin-top: 8px;
         }
 
         .status-select {
@@ -328,14 +335,21 @@
                         <div class="payment-head">
                             <div>
                                 <a href="{% url 'descargar_factura_ne' salida.pk %}"><h2 class="payment-title">Orden #{{ salida.pk }}</h2></a>
-                                
                             </div>
-                            <div class="status-pill "><select id="accion-{{ salida.pk }}" name="accion" class="status-select" required>
+                            <div class="header-actions">
+                                <div class="status-pill {% if salida.estado_pago == 'APROBADO' %}status-approved{% elif salida.estado_pago == 'RECHAZADO' %}status-rejected{% else %}status-pending{% endif %}">{{ salida.get_estado_pago_display }}</div>
+                                <form method="post" class="status-action" novalidate>
+                                    {% csrf_token %}
+                                    <input type="hidden" name="salida_id" value="{{ salida.pk }}">
+                                    <label for="accion-{{ salida.pk }}">Estado</label>
+                                    <select id="accion-{{ salida.pk }}" name="accion" class="status-select" required>
                                         <option value="" disabled selected>Seleccionar acción</option>
                                         <option value="aprobar">Aprobar pago</option>
                                         <option value="rechazar">Rechazar pago</option>
                                     </select>
-                                    <button type="submit" class="btn-submit">Guardar</button>{{ salida.get_estado_pago_display }}</div>
+                                    <button type="submit" class="btn-submit">Guardar</button>
+                                </form>
+                            </div>
                         </div>
 
                         <div class="payment-body">
@@ -379,13 +393,6 @@
                                         No se cargó un comprobante para esta orden.
                                     </div>
                                 {% endif %}
-
-                                <form method="post" class="status-action" novalidate>
-                                    {% csrf_token %}
-                                    <input type="hidden" name="salida_id" value="{{ salida.pk }}">
-                                    <label for="accion-{{ salida.pk }}" class="visually-hidden">Cambiar estado</label>
-                                    
-                                </form>
                             </div>
                         </div>
                     </article>
