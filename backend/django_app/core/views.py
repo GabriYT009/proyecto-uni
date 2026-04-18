@@ -1,5 +1,7 @@
 import logging
 from collections import Counter
+import importlib
+from urllib.parse import urlparse
 from django.views import View
 from django.template.loader import render_to_string
 
@@ -65,6 +67,47 @@ def _safe_img_url(producto):
     fallback = settings.STATIC_URL + 'assets/img/logo.png'
     image_field = getattr(producto, 'imagen_producto', None)
 
+    def _build_presigned_url(image_name):
+        if not getattr(settings, 'USE_S3_MEDIA', False):
+            return ''
+
+        boto3 = None
+        try:
+            boto3 = importlib.import_module('boto3')
+        except Exception:
+            return ''
+
+        storage_options = (settings.STORAGES.get('default', {}) or {}).get('OPTIONS', {}) or {}
+        access_key = storage_options.get('access_key')
+        secret_key = storage_options.get('secret_key')
+        endpoint_url = storage_options.get('endpoint_url')
+        region_name = storage_options.get('region_name') or 'auto'
+        bucket_name = storage_options.get('bucket_name')
+        location = (storage_options.get('location') or '').strip('/')
+        if not (access_key and secret_key and endpoint_url and bucket_name):
+            return ''
+
+        key_name = image_name.lstrip('/')
+        if location and not key_name.startswith(location + '/'):
+            key_name = f"{location}/{key_name}"
+
+        try:
+            client = boto3.client(
+                's3',
+                endpoint_url=endpoint_url,
+                region_name=region_name,
+                aws_access_key_id=access_key,
+                aws_secret_access_key=secret_key,
+                config=None,
+            )
+            return client.generate_presigned_url(
+                'get_object',
+                Params={'Bucket': bucket_name, 'Key': key_name},
+                ExpiresIn=3600,
+            )
+        except Exception:
+            return ''
+
     def _normalize_media_url(raw_url):
         if not raw_url:
             return ''
@@ -87,6 +130,11 @@ def _safe_img_url(producto):
         raw_url = image_field.url
         normalized = _normalize_media_url(raw_url)
         if normalized:
+            parsed_url = urlparse(normalized)
+            if getattr(settings, 'USE_S3_MEDIA', False) and not parsed_url.query:
+                presigned = _build_presigned_url(image_name)
+                if presigned:
+                    return presigned
             return normalized
     except Exception:
         pass
@@ -104,6 +152,11 @@ def _safe_img_url(producto):
                     return normalized
             except Exception:
                 pass
+
+    if getattr(settings, 'USE_S3_MEDIA', False):
+        presigned = _build_presigned_url(image_name)
+        if presigned:
+            return presigned
 
     try:
         image_basename = os.path.basename(image_name)
