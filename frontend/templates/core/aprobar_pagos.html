@@ -294,12 +294,7 @@
                         <div class="payment-head">
                             <div>
                                 <a href="{% url 'descargar_factura_ne' salida.pk %}"><h2 class="payment-title">Orden #{{ salida.pk }}</h2></a>
-                                <div class="payment-meta">
-                                    <span>Cliente: {{ salida.cliente.nombre_cliente }} {{ salida.cliente.apellido_cliente }} </span>
-                                    <span>Cédula  {{ salida.cliente.documento }}</span>
-                                    <span>Fecha: {{ salida.fecha|default:salida.fecha_revision }}</span>
-                                    <span>Total: $ {{ salida.total }}</span>
-                                </div>
+                                
                             </div>
                             <div class="status-pill status-pending">{{ salida.get_estado_pago_display }}</div>
                         </div>
@@ -308,46 +303,22 @@
                             <div class="items-box">
     <div class="section-label">Productos</div>
     
-    {% if salida.detalles.exists %}
+    
         <ul class="items-list">
             
-            {% for item in salida.detalles.all %}
+            
                 <li>
-                    <div>
-                        <div class="item-name">
-                            {% if item.Producto %}
-                                {{ item.Producto.nombre_producto }}
-                            {% else %}
-                                Producto no disponible
-                            {% endif %}
-                        </div>
-                        <div class="item-sub">Cantidad: {{ item.Cantidad }}</div>
-                        {% if item.talla %}
-                            <div class="item-sub">Talla: {{ item.talla }}</div>
-                        {% endif %}
-                        {% with sublimacion=item.solicitudes_sublimacion.all|first %}
-                            {% if sublimacion %}
-                                <div style="margin-top:8px; padding:10px 12px; border-radius:10px; background:#f7f0ff; border:1px solid #e0c8f3; color:#5b2b80; font-size:0.9rem; line-height:1.45; max-width:340px;">
-                                    <strong style="display:block; margin-bottom:4px;">Solicitud de sublimación</strong>
-                                    {% if sublimacion.talla %}<div>Talla: {{ sublimacion.talla }}</div>{% endif %}
-                                    {% if sublimacion.comentario %}<div>{{ sublimacion.comentario }}</div>{% endif %}
-                                    {% if sublimacion.imagen_sublimacion %}
-                                        <div style="margin-top:8px;"><a href="{{ sublimacion.imagen_sublimacion.url }}" target="_blank" rel="noopener">Ver imagen subida</a></div>
-                                    {% endif %}
+                    <div class="payment-meta">
+                                    <span>Cliente: {{ salida.cliente.nombre_cliente }} {{ salida.cliente.apellido_cliente }} </span>
+                                    <span>Cédula  {{ salida.cliente.documento }}</span>
+                                    <span>Fecha: {{ salida.fecha|default:salida.fecha_revision }}</span>
+                                    <span>Total: $ {{ salida.total }}</span>
                                 </div>
-                            {% endif %}
-                        {% endwith %}
-                    </div>
-                    <div class="item-sub">$ {{ item.precio_unitario }}</div>
                 </li>
-            {% endfor %}
+
             
         </ul>
-    {% else %}
-        <div class="empty-state" style="padding:24px; min-height: auto;">
-            No hay productos cargados para esta orden.
-        </div>
-    {% endif %}
+
 
     <div class="actions">
         ... 
