@@ -41,11 +41,14 @@ class ProductForm(forms.ModelForm):
             (cat.pk, cat.nombre_categoria) for cat in categorias
         ] + [('otros', 'Otros')]
 
-        marca_producto = forms.ModelChoiceField(
-        queryset=Marca_producto.objects.all(),
-        empty_label="Selecciona una marca",
-        widget=forms.Select(attrs={'class': 'form-control'}) # Opcional: para clases CSS
-    )
+        self.fields['marca_producto'] = forms.ModelChoiceField(
+            queryset=Marca_producto.objects.all(),
+            empty_label="Selecciona una marca",
+            required=False, # Ponlo en True si es obligatorio
+            widget=forms.Select(attrs={'class': 'form-control'})
+        )
+
+    
         
     
     class Meta:

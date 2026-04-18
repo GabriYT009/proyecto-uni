@@ -615,8 +615,9 @@ def crear_usuario(request):
 @admin_only
 
 def crear_Productoo(request):
-    marcas= Marca_producto.objects.all()
+    marcas = []
     try:
+        marcas= Marca_producto.objects.all()
         if request.method == 'POST':
             post_data = request.POST.copy()
             categoria_custom = post_data.get('categoria_custom')
