@@ -764,6 +764,59 @@
                 max-width: 100% !important;
                 box-sizing: border-box;
             }
+            .inventory-filters-card {
+                width: 100%;
+                background: #ffffff;
+                border-radius: 18px;
+                box-shadow: 0 18px 40px rgba(0, 0, 0, 0.06);
+                padding: 18px;
+                box-sizing: border-box;
+            }
+            .filters-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                gap: 16px;
+                align-items: end;
+            }
+            .filter-field {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+            .filter-label {
+                font-size: 13px;
+                font-weight: 700;
+                color: #4b2779;
+                margin-bottom: 6px;
+            }
+            .filter-actions {
+                display: flex;
+                align-items: flex-end;
+                justify-content: flex-start;
+            }
+            .filter-actions .filter-btn {
+                width: 100%;
+                max-width: 220px;
+            }
+            @media (max-width: 992px) {
+                .filters-grid {
+                    grid-template-columns: repeat(2, minmax(200px, 1fr));
+                }
+                .filter-actions .filter-btn {
+                    max-width: none;
+                }
+            }
+            @media (max-width: 768px) {
+                .filters-grid {
+                    grid-template-columns: 1fr;
+                }
+                .filter-actions {
+                    justify-content: stretch;
+                }
+                .filter-actions .filter-btn {
+                    width: 100%;
+                }
+            }
             .table-responsive {
                 max-width: 100%;
                 overflow-x: auto !important;
