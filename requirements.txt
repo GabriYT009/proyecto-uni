@@ -20,5 +20,7 @@ dj-database-url==2.3.0
 python-dotenv==1.0.1
 cloudinary==1.41.0
 django-cloudinary-storage==0.3.0
+django-storages==1.14.4
+boto3==1.34.162
 
 datetime==6.0.0

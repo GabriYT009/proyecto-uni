@@ -80,3 +80,27 @@ Si tu plan/proyecto no muestra la pestaña `Volumes`, puedes guardar las imágen
 3. Redeploy del servicio.
 
 Con estas variables, Django activará `django-cloudinary-storage` para `ImageField` y las subidas ya no dependerán del disco local de Railway.
+
+### Alternativa sin Cloudinary: S3 compatible (R2, B2, Spaces, S3)
+
+Si Cloudinary no está disponible en tu país, puedes usar un bucket S3-compatible.
+
+1. Crea una cuenta en el proveedor que prefieras:
+  - Cloudflare R2
+  - Backblaze B2 (S3 API)
+  - DigitalOcean Spaces
+  - AWS S3
+2. Crea un bucket para media.
+3. En Railway agrega estas variables en el servicio backend:
+  - `ENABLE_S3_MEDIA=1`
+  - `AWS_STORAGE_BUCKET_NAME=<tu_bucket>`
+  - `AWS_ACCESS_KEY_ID=<tu_access_key>`
+  - `AWS_SECRET_ACCESS_KEY=<tu_secret_key>`
+  - `AWS_S3_ENDPOINT_URL=<endpoint_s3>` (ej. `https://<accountid>.r2.cloudflarestorage.com`)
+  - `AWS_S3_REGION_NAME=<region>` (si aplica; para R2 puedes usar `auto`)
+  - (Opcional) `AWS_MEDIA_LOCATION=media`
+  - (Opcional) `AWS_S3_FILE_OVERWRITE=False`
+  - (Opcional) `AWS_QUERYSTRING_AUTH=False`
+4. Redeploy.
+
+Con esto, `ImageField` guardará archivos en el bucket remoto y no se perderán al redeploy.

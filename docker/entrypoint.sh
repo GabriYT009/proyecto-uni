@@ -29,6 +29,20 @@ echo "[entrypoint] PORT=${PORT} APP_ROOT=${APP_ROOT} MEDIA_ROOT=${MEDIA_ROOT}"
 
 cd "$APP_ROOT"
 
+# Print active Django media/storage config in logs (useful when shell access is unavailable).
+python - <<'PY' 2>/dev/null || true
+import os
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_app.settings')
+try:
+    from django.conf import settings
+    backend = settings.STORAGES.get('default', {}).get('BACKEND')
+    print(f"[entrypoint] DJANGO_STORAGE_BACKEND={backend}")
+    print(f"[entrypoint] DJANGO_USE_CLOUDINARY_MEDIA={getattr(settings, 'USE_CLOUDINARY_MEDIA', False)}")
+    print(f"[entrypoint] DJANGO_MEDIA_ROOT={getattr(settings, 'MEDIA_ROOT', '')}")
+except Exception as exc:
+    print(f"[entrypoint] Could not inspect Django storage settings: {exc}")
+PY
+
 # Ensure media directory exists (important when MEDIA_ROOT points to a Railway volume).
 mkdir -p "$MEDIA_ROOT"
 

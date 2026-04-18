@@ -6,7 +6,6 @@ Estructura: backend/ (este proyecto) y frontend/ (templates y estáticos) en la 
 
 from pathlib import Path
 import os
-import logging
 import dj_database_url
 
 # Cargar variables de entorno desde .env en la raíz del repo (opcional)
@@ -25,7 +24,6 @@ BASE_DIR = Path(__file__).resolve().parent
 # Raíz del repo (donde están backend/ y frontend/)
 REPO_ROOT = BASE_DIR.parent.parent
 FRONTEND_DIR = REPO_ROOT / "frontend"
-logger = logging.getLogger(__name__)
 
 # Quick-start development settings - unsuitable for production
 SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-@%i@jah3u_9f!b*vpzdx(15!xw9c@9187mt%n&4o994j!to=!s")
@@ -87,9 +85,29 @@ INSTALLED_APPS = [
     'django_app.core.apps.CoreConfig',
 ]
 
-ENABLE_CLOUDINARY_MEDIA = os.environ.get("ENABLE_CLOUDINARY_MEDIA", "False").lower() in ("1", "true", "yes")
 
-USE_CLOUDINARY_MEDIA = ENABLE_CLOUDINARY_MEDIA and bool(
+def _is_true(value):
+    return str(value or "").strip().lower() in ("1", "true", "yes")
+
+
+ENABLE_S3_MEDIA = _is_true(os.environ.get("ENABLE_S3_MEDIA", "False"))
+_aws_bucket = (os.environ.get("AWS_STORAGE_BUCKET_NAME") or "").strip()
+_aws_access_key = (os.environ.get("AWS_ACCESS_KEY_ID") or "").strip()
+_aws_secret_key = (os.environ.get("AWS_SECRET_ACCESS_KEY") or "").strip()
+_aws_region = (os.environ.get("AWS_S3_REGION_NAME") or "").strip()
+_aws_endpoint = (os.environ.get("AWS_S3_ENDPOINT_URL") or "").strip()
+
+# S3-compatible media backend (AWS S3, Cloudflare R2, Backblaze B2, Spaces, etc.).
+USE_S3_MEDIA = ENABLE_S3_MEDIA and bool(
+    _aws_bucket and _aws_access_key and _aws_secret_key and (_aws_region or _aws_endpoint)
+)
+
+if USE_S3_MEDIA:
+    INSTALLED_APPS += ['storages']
+
+ENABLE_CLOUDINARY_MEDIA = _is_true(os.environ.get("ENABLE_CLOUDINARY_MEDIA", "False"))
+
+USE_CLOUDINARY_MEDIA = (not USE_S3_MEDIA) and ENABLE_CLOUDINARY_MEDIA and bool(
     os.environ.get("CLOUDINARY_URL")
     or (
         os.environ.get("CLOUDINARY_CLOUD_NAME")
@@ -294,38 +312,19 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = os.environ.get("MEDIA_URL", '/media/')
 _media_root_env = os.environ.get("MEDIA_ROOT")
 _railway_volume_mount = os.environ.get("RAILWAY_VOLUME_MOUNT_PATH")
-_running_on_railway = bool(
-    os.environ.get("RAILWAY_ENVIRONMENT")
-    or os.environ.get("RAILWAY_PROJECT_ID")
-    or os.environ.get("RAILWAY_SERVICE_ID")
-)
 if _media_root_env:
     MEDIA_ROOT = Path(_media_root_env)
 elif _railway_volume_mount:
     MEDIA_ROOT = Path(_railway_volume_mount) / 'media'
-elif _running_on_railway:
-    # Railway persistent volume default mount path.
-    MEDIA_ROOT = Path('/data/media')
 elif Path('/data').exists():
     # Railway volume path (when mounted) without requiring manual env setup.
     MEDIA_ROOT = Path('/data/media')
 else:
     MEDIA_ROOT = BASE_DIR / 'media'
 
-if not USE_CLOUDINARY_MEDIA and not DEBUG:
-    media_root_str = str(MEDIA_ROOT)
-    if media_root_str.startswith(str(BASE_DIR)):
-        logger.warning(
-            "MEDIA_ROOT apunta a disco local efimero (%s). "
-            "En redeploy se perderan imagenes. Configura un Volume (ej. /data/media) o Cloudinary.",
-            MEDIA_ROOT,
-        )
-
 if USE_CLOUDINARY_MEDIA:
     # Optional Cloudinary integration: when env vars are present, user-uploaded
     # media is stored remotely instead of Railway ephemeral disk.
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-
     # Support both CLOUDINARY_URL and explicit variables.
     if os.environ.get("CLOUDINARY_CLOUD_NAME"):
         CLOUDINARY_STORAGE = {
@@ -361,10 +360,38 @@ _staticfiles_backend = (
     'whitenoise.storage.CompressedStaticFilesStorage'
 )
 _default_storage_backend = (
+    'storages.backends.s3.S3Storage'
+    if USE_S3_MEDIA else
     'cloudinary_storage.storage.MediaCloudinaryStorage'
     if USE_CLOUDINARY_MEDIA else
     'django.core.files.storage.FileSystemStorage'
 )
+_default_storage_options = {}
+
+if USE_S3_MEDIA:
+    _default_storage_options = {
+        'access_key': _aws_access_key,
+        'secret_key': _aws_secret_key,
+        'bucket_name': _aws_bucket,
+        'region_name': _aws_region or None,
+        'endpoint_url': _aws_endpoint or None,
+        'location': (os.environ.get('AWS_MEDIA_LOCATION') or 'media').strip('/'),
+        'default_acl': None,
+        'file_overwrite': _is_true(os.environ.get('AWS_S3_FILE_OVERWRITE', 'False')),
+        'querystring_auth': _is_true(os.environ.get('AWS_QUERYSTRING_AUTH', 'False')),
+        'addressing_style': (os.environ.get('AWS_S3_ADDRESSING_STYLE') or 'auto'),
+    }
+
+    custom_domain = (os.environ.get('AWS_S3_CUSTOM_DOMAIN') or '').strip()
+    if custom_domain:
+        _default_storage_options['custom_domain'] = custom_domain
+
+    object_params_cache = (os.environ.get('AWS_S3_CACHE_CONTROL') or '').strip()
+    if object_params_cache:
+        _default_storage_options['object_parameters'] = {
+            'CacheControl': object_params_cache,
+        }
+
 STORAGES = {
     'default': {
         'BACKEND': _default_storage_backend,
@@ -373,6 +400,8 @@ STORAGES = {
         'BACKEND': _staticfiles_backend,
     },
 }
+if _default_storage_options:
+    STORAGES['default']['OPTIONS'] = _default_storage_options
 WHITENOISE_MAX_AGE = 31536000 if not DEBUG else 0
 
 # Cookie-backed session/messages avoid hard dependency on DB during template rendering.
