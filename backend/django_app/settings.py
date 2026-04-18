@@ -6,6 +6,7 @@ Estructura: backend/ (este proyecto) y frontend/ (templates y estáticos) en la 
 
 from pathlib import Path
 import os
+import logging
 import dj_database_url
 
 # Cargar variables de entorno desde .env en la raíz del repo (opcional)
@@ -24,6 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent
 # Raíz del repo (donde están backend/ y frontend/)
 REPO_ROOT = BASE_DIR.parent.parent
 FRONTEND_DIR = REPO_ROOT / "frontend"
+logger = logging.getLogger(__name__)
 
 # Quick-start development settings - unsuitable for production
 SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-@%i@jah3u_9f!b*vpzdx(15!xw9c@9187mt%n&4o994j!to=!s")
@@ -292,15 +294,32 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = os.environ.get("MEDIA_URL", '/media/')
 _media_root_env = os.environ.get("MEDIA_ROOT")
 _railway_volume_mount = os.environ.get("RAILWAY_VOLUME_MOUNT_PATH")
+_running_on_railway = bool(
+    os.environ.get("RAILWAY_ENVIRONMENT")
+    or os.environ.get("RAILWAY_PROJECT_ID")
+    or os.environ.get("RAILWAY_SERVICE_ID")
+)
 if _media_root_env:
     MEDIA_ROOT = Path(_media_root_env)
 elif _railway_volume_mount:
     MEDIA_ROOT = Path(_railway_volume_mount) / 'media'
+elif _running_on_railway:
+    # Railway persistent volume default mount path.
+    MEDIA_ROOT = Path('/data/media')
 elif Path('/data').exists():
     # Railway volume path (when mounted) without requiring manual env setup.
     MEDIA_ROOT = Path('/data/media')
 else:
     MEDIA_ROOT = BASE_DIR / 'media'
+
+if not USE_CLOUDINARY_MEDIA and not DEBUG:
+    media_root_str = str(MEDIA_ROOT)
+    if media_root_str.startswith(str(BASE_DIR)):
+        logger.warning(
+            "MEDIA_ROOT apunta a disco local efimero (%s). "
+            "En redeploy se perderan imagenes. Configura un Volume (ej. /data/media) o Cloudinary.",
+            MEDIA_ROOT,
+        )
 
 if USE_CLOUDINARY_MEDIA:
     # Optional Cloudinary integration: when env vars are present, user-uploaded

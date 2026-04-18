@@ -72,10 +72,11 @@ Si tu plan/proyecto no muestra la pestaña `Volumes`, puedes guardar las imágen
 
 1. Crea una cuenta en Cloudinary y copia tus credenciales.
 2. En Railway, en el servicio backend, agrega variables:
+  - `ENABLE_CLOUDINARY_MEDIA=1`
   - `CLOUDINARY_CLOUD_NAME`
   - `CLOUDINARY_API_KEY`
   - `CLOUDINARY_API_SECRET`
   - (Opcional) `CLOUDINARY_URL` en formato `cloudinary://<api_key>:<api_secret>@<cloud_name>`
 3. Redeploy del servicio.
 
-Con estas variables, Django activará automáticamente `django-cloudinary-storage` para `ImageField` y las subidas ya no dependerán del disco local de Railway.
+Con estas variables, Django activará `django-cloudinary-storage` para `ImageField` y las subidas ya no dependerán del disco local de Railway.
