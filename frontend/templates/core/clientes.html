@@ -44,6 +44,8 @@
             .mdl-data-table { min-width: 720px; }
             .mdl-data-table th, .mdl-data-table td { padding: 12px 10px; font-size: 0.92rem; white-space: nowrap; }
             .pagination.custom-pagination { flex-wrap: wrap; justify-content: center; }
+            .filters-form { grid-template-columns: 1fr; gap: 12px; }
+            .filter-actions { justify-content: center; }
         }
     </style>
 </head>
@@ -113,6 +115,41 @@
                 </div>
             </div>
 
+            <!-- Formulario de filtros -->
+            <div class="filters-container" style="background: #ffffff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 20px; margin-bottom: 20px;">
+                <h4 style="margin: 0 0 15px 0; color: #333;">Filtros de búsqueda</h4>
+                <form method="GET" class="filters-form" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end;">
+                    <div class="filter-group">
+                        <label for="nombre" style="display: block; margin-bottom: 5px; font-weight: 500; color: #555;">Nombre</label>
+                        <input type="text" id="nombre" name="nombre" value="{{ filtros.nombre }}" placeholder="Buscar por nombre..." style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+                    </div>
+                    <div class="filter-group">
+                        <label for="apellido" style="display: block; margin-bottom: 5px; font-weight: 500; color: #555;">Apellido</label>
+                        <input type="text" id="apellido" name="apellido" value="{{ filtros.apellido }}" placeholder="Buscar por apellido..." style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+                    </div>
+                    <div class="filter-group">
+                        <label for="documento" style="display: block; margin-bottom: 5px; font-weight: 500; color: #555;">Documento / RIF</label>
+                        <input type="text" id="documento" name="documento" value="{{ filtros.documento }}" placeholder="Buscar por documento..." style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+                    </div>
+                    <div class="filter-group">
+                        <label for="telefono" style="display: block; margin-bottom: 5px; font-weight: 500; color: #555;">Teléfono</label>
+                        <input type="text" id="telefono" name="telefono" value="{{ filtros.telefono }}" placeholder="Buscar por teléfono..." style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+                    </div>
+                    <div class="filter-group">
+                        <label for="email" style="display: block; margin-bottom: 5px; font-weight: 500; color: #555;">Email</label>
+                        <input type="text" id="email" name="email" value="{{ filtros.email }}" placeholder="Buscar por email..." style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+                    </div>
+                    <div class="filter-actions" style="display: flex; gap: 10px; align-items: end;">
+                        <button type="submit" class="btn" style="background: #28a745; padding: 8px 16px; border-radius: 6px; border: none; color: white; cursor: pointer;">
+                            <i class="bi bi-search"></i> Filtrar
+                        </button>
+                        <a href="{% url 'todos_clientes' %}" class="btn" style="background: #6c757d; padding: 8px 16px; border-radius: 6px; text-decoration: none; color: white;">
+                            <i class="bi bi-x-circle"></i> Limpiar
+                        </a>
+                    </div>
+                </form>
+            </div>
+
             <div class="table-responsive">
                 <table class="mdl-data-table">
                     <thead>
@@ -146,7 +183,7 @@
             <nav aria-label="Paginación clientes" style="margin-top:16px; text-align:center;">
                 <ul class="pagination custom-pagination">
                     {% if page_obj.has_previous %}
-                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if filtros.nombre %}&nombre={{ filtros.nombre }}{% endif %}{% if filtros.apellido %}&apellido={{ filtros.apellido }}{% endif %}{% if filtros.documento %}&documento={{ filtros.documento }}{% endif %}{% if filtros.telefono %}&telefono={{ filtros.telefono }}{% endif %}{% if filtros.email %}&email={{ filtros.email }}{% endif %}">Anterior</a></li>
                     {% else %}
                     <li class="page-item disabled"><span class="page-link">Anterior</span></li>
                     {% endif %}
@@ -155,12 +192,12 @@
                         {% if page_obj.number == num %}
                             <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
                         {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                            <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}{% if filtros.nombre %}&nombre={{ filtros.nombre }}{% endif %}{% if filtros.apellido %}&apellido={{ filtros.apellido }}{% endif %}{% if filtros.documento %}&documento={{ filtros.documento }}{% endif %}{% if filtros.telefono %}&telefono={{ filtros.telefono }}{% endif %}{% if filtros.email %}&email={{ filtros.email }}{% endif %}">{{ num }}</a></li>
                         {% endif %}
                     {% endfor %}
 
                     {% if page_obj.has_next %}
-                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if filtros.nombre %}&nombre={{ filtros.nombre }}{% endif %}{% if filtros.apellido %}&apellido={{ filtros.apellido }}{% endif %}{% if filtros.documento %}&documento={{ filtros.documento }}{% endif %}{% if filtros.telefono %}&telefono={{ filtros.telefono }}{% endif %}{% if filtros.email %}&email={{ filtros.email }}{% endif %}">Siguiente</a></li>
                     {% else %}
                     <li class="page-item disabled"><span class="page-link">Siguiente</span></li>
                     {% endif %}

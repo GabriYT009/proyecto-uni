@@ -2001,14 +2001,37 @@ def editar_producto(request, producto_id):
 @login_required
 @admin_only
 def todos_clientes(request):
-    clientes_qs = (
-        Cliente.objects
-        .only('id', 'nombre_cliente', 'apellido_cliente', 'documento', 'rif_empresarial', 'telefono_cliente', 'email')
-        .order_by('nombre_cliente')
+    # Filtros
+    nombre = request.GET.get('nombre', '').strip()
+    apellido = request.GET.get('apellido', '').strip()
+    documento = request.GET.get('documento', '').strip()
+    telefono = request.GET.get('telefono', '').strip()
+    email = request.GET.get('email', '').strip()
+
+    clientes_qs = Cliente.objects.only(
+        'id', 'nombre_cliente', 'apellido_cliente', 'documento', 'rif_empresarial', 'telefono_cliente', 'email'
     )
-    paginator = Paginator(clientes_qs, 25)
+
+    # Aplicar filtros
+    if nombre:
+        clientes_qs = clientes_qs.filter(nombre_cliente__icontains=nombre)
+    if apellido:
+        clientes_qs = clientes_qs.filter(apellido_cliente__icontains=apellido)
+    if documento:
+        clientes_qs = clientes_qs.filter(
+            Q(documento__icontains=documento) | Q(rif_empresarial__icontains=documento)
+        )
+    if telefono:
+        clientes_qs = clientes_qs.filter(telefono_cliente__icontains=telefono)
+    if email:
+        clientes_qs = clientes_qs.filter(email__icontains=email)
+
+    clientes_qs = clientes_qs.order_by('nombre_cliente')
+
+    paginator = Paginator(clientes_qs, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+
     cart_session = request.session.get('cart', {})
     if isinstance(cart_session, dict):
         cart_count = sum((item or {}).get('cantidad', 0) for item in cart_session.values())
@@ -2020,7 +2043,15 @@ def todos_clientes(request):
         'page_obj': page_obj,
         'is_paginated': page_obj.has_other_pages(),
         'cart_count': cart_count,
-        'user_groups': _user_groups(request.user)
+        'user_groups': _user_groups(request.user),
+        # Pasar filtros para mantenerlos en el formulario
+        'filtros': {
+            'nombre': nombre,
+            'apellido': apellido,
+            'documento': documento,
+            'telefono': telefono,
+            'email': email,
+        }
     })
 
 @login_required
