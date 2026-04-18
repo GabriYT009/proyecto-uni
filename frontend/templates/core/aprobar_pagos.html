@@ -309,10 +309,10 @@
             
                 <li>
                     <div class="payment-meta">
-                                    <div><span>Cliente: {{ salida.cliente.nombre_cliente }} {{ salida.cliente.apellido_cliente }} </span></div>
-                                    </div><span>Cédula  {{ salida.cliente.documento }}</span></div>
-                                    </div><span>Fecha: {{ salida.fecha|default:salida.fecha_revision }}</span></div>
-                                    </div><span>Total: $ {{ salida.total }}</span></div>
+                                    <span>Cliente: {{ salida.cliente.nombre_cliente }} {{ salida.cliente.apellido_cliente }} </span>
+                                    <span>Cédula  {{ salida.cliente.documento }}</span>
+                                    <span>Fecha: {{ salida.fecha|default:salida.fecha_revision }}</span>
+                                    <span>Total: $ {{ salida.total }}</span>
                                 </div>
                 </li>
 
