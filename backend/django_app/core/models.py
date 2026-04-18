@@ -216,6 +216,7 @@ class Nota_Entrega(models.Model):
         blank=True,
         related_name='Nota_Entrega_revisadas',
     )
+    
     fecha_revision = models.DateTimeField(blank=True, null=True)
     tipo_pago = models.CharField(max_length=20, choices=Tipo_pago, blank=True, null=True)
     referencia_pago = models.CharField(max_length=100, blank=True, null=True)
