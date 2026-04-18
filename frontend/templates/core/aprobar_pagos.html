@@ -319,8 +319,9 @@
 
     <dt class="total-label">Monto Total</dt>
     <dd class="total-amount">$ {{ salida.total }}</dd>
-    {% if salida.referencia_pago %}
     <dt>Número de referencia</dt>
+    {% if salida.referencia_pago %}
+    
     <dd>{{ salida.referencia_pago }}</dd>
     {% else %}
     <dd>No disponible</dd>
