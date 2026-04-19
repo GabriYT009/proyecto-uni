@@ -219,6 +219,19 @@
             background: #fcfafc;
         }
 
+        .proof-fallback {
+            display: none;
+            margin-top: 10px;
+            font-size: 0.92rem;
+            color: var(--muted);
+        }
+
+        .proof-fallback a {
+            font-weight: 700;
+            color: #5b3dc4;
+            text-decoration: underline;
+        }
+
         .pagination {
             display: flex;
             gap: 8px;
@@ -425,11 +438,13 @@
 
                             <div class="proof-box">
                                 <div class="section-label">Comprobante</div>
-                                {% if salida.comprobante_pago %}
-                                    <a href="{{ salida.comprobante_pago.url }}" target="_blank" rel="noopener">
-                                    <img src="{{ salida.comprobante_pago.url }}" alt="Comprobante de pago de la orden {{ salida.pk }}" class="proof-preview">            
-                                    </a> 
-                                    
+                                {% if salida.comprobante_url %}
+                                    <a href="{{ salida.comprobante_url }}" target="_blank" rel="noopener">
+                                    <img src="{{ salida.comprobante_url }}" alt="Comprobante de pago de la orden {{ salida.pk }}" class="proof-preview" onerror="this.style.display='none'; this.parentElement.nextElementSibling.style.display='block';">
+                                    </a>
+                                    <div class="proof-fallback">
+                                        No se pudo mostrar la previsualizacion. <a href="{{ salida.comprobante_url }}" target="_blank" rel="noopener">Abrir comprobante</a>
+                                    </div>
                                 {% else %}
                                     <div class="proof-empty">
                                         No se cargó un comprobante para esta orden.

@@ -175,6 +175,53 @@ def _safe_img_url(producto):
     return fallback
 
 
+def _safe_file_url(file_field):
+    if not file_field:
+        return ''
+
+    file_name = (getattr(file_field, 'name', '') or '').strip()
+    if not file_name:
+        return ''
+
+    def _normalize_media_url(raw_url):
+        if not raw_url:
+            return ''
+        if raw_url.startswith(('http://', 'https://', '/')):
+            return raw_url
+        media_base = settings.MEDIA_URL or '/media/'
+        if not media_base.endswith('/'):
+            media_base += '/'
+        return media_base + raw_url.lstrip('/')
+
+    try:
+        normalized = _normalize_media_url(file_field.url)
+        if normalized:
+            return normalized
+    except Exception:
+        pass
+
+    # Fix legacy names that include media location to avoid /media/media/... URLs.
+    media_location = (os.environ.get('AWS_MEDIA_LOCATION') or 'media').strip('/')
+    if media_location and file_name.startswith(media_location + '/'):
+        trimmed_name = file_name[len(media_location) + 1:]
+        if trimmed_name:
+            try:
+                normalized = _normalize_media_url(file_field.storage.url(trimmed_name))
+                if normalized:
+                    return normalized
+            except Exception:
+                pass
+
+    try:
+        normalized = _normalize_media_url(file_field.storage.url(file_name))
+        if normalized:
+            return normalized
+    except Exception:
+        pass
+
+    return ''
+
+
 def _append_to_session_cart(request, product_id):
     cart = request.session.get('cart', []) or []
     cart.append(int(product_id))
@@ -1492,6 +1539,9 @@ def aprobar_pagos(request):
         paginator = Paginator(queryset, 5)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
+        if page_obj and page_obj.object_list:
+            for salida in page_obj.object_list:
+                salida.comprobante_url = _safe_file_url(getattr(salida, 'comprobante_pago', None))
     except Exception as e:
         logger.error(f'Error al cargar pagos pendientes: {e}', exc_info=True)
         page_obj = None
