@@ -7,6 +7,22 @@
 		justify-content: space-between;
 	}
 
+	.top-bar .bar-logo-link {
+		display: inline-flex;
+		align-items: center;
+		gap: 10px;
+	}
+
+	.top-bar .bar-logo {
+		width: 34px;
+		height: 34px;
+		border-radius: 8px;
+		object-fit: cover;
+		background: #fff;
+		padding: 2px;
+		box-shadow: 0 1px 6px rgba(0, 0, 0, 0.16);
+	}
+
 	.top-bar .bar-center {
 		flex: 1 1 auto;
 		min-width: 0;
@@ -225,26 +241,68 @@
 	}
 
 	@media (max-width: 900px) {
-		.top-bar .bar-inner {
-			padding: 0 12px;
+		body {
+			padding-top: 126px !important;
 		}
 
-		.top-bar .bar-center {
-			display: none;
+		.top-bar {
+			height: 118px;
+		}
+
+		.top-bar .bar-inner {
+			height: 118px;
+			padding: 8px 12px 10px;
+			align-items: flex-start;
+			flex-wrap: wrap;
+			gap: 8px;
+		}
+
+		.top-bar .bar-left {
+			order: 1;
+			flex: 1 1 auto;
+			min-width: 0;
 		}
 
 		.top-bar .bar-right {
+			order: 2;
 			margin-left: auto;
-			padding-right: 52px;
+			padding-right: 50px;
+		}
+
+		.top-bar .bar-center {
+			order: 3;
+			display: flex;
+			width: 100%;
+			justify-content: stretch;
+			gap: 0;
+		}
+
+		.top-bar .main-nav {
+			display: none;
+		}
+
+		.top-bar .search-container {
+			width: 100% !important;
+			max-width: none;
+			margin: 0;
+			padding: 4px 6px;
+		}
+
+		.top-bar .search-input {
+			font-size: 14px;
 		}
 
 		.top-bar .bar-logo-text {
-			font-size: 20px;
+			font-size: 22px;
 		}
 
 		.top-bar .profile-btn {
 			padding: 6px 10px;
-			font-size: 13px;
+			font-size: 12px;
+			max-width: 108px;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
 		}
 
 		.top-bar .avatar {
@@ -257,15 +315,15 @@
 			display: inline-flex;
 			position: absolute;
 			right: 12px;
-			top: 50%;
-			transform: translateY(-50%);
+			top: 16px;
+			transform: none;
 			z-index: 10008;
 		}
 
 		.top-bar .nav-menu {
 			left: 12px;
 			right: 12px;
-			top: calc(100% + 8px);
+			top: calc(100% + 10px);
 			min-width: 0;
 			max-height: 72vh;
 			overflow-y: auto;
@@ -280,8 +338,25 @@
 	}
 
 	@media (max-width: 480px) {
+		body {
+			padding-top: 122px !important;
+		}
+
+		.top-bar {
+			height: 114px;
+		}
+
+		.top-bar .bar-inner {
+			height: 114px;
+		}
+
 		.top-bar .bar-logo-text {
-			font-size: 18px;
+			font-size: 20px;
+		}
+
+		.top-bar .bar-logo {
+			width: 30px;
+			height: 30px;
 		}
 
 		.top-bar .profile-btn {
@@ -293,6 +368,10 @@
 		.top-bar .avatar {
 			margin-right: 0;
 		}
+
+		.top-bar .bar-right {
+			padding-right: 44px;
+		}
 	}
 </style>
 
@@ -300,6 +379,7 @@
 	<div class="bar-inner">
 		<div class="group bar-left">
 			<a href="{% url 'home' %}" class="bar-logo-link" aria-label="Inicio">
+				<img src="{% static 'assets/img/logo.png' %}" alt="Logo Solucionarte" class="bar-logo" onerror="this.style.display='none';">
 				<span class="bar-logo-text">Solucionarte</span>
 			</a>
 		</div>
