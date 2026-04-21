@@ -88,9 +88,11 @@
             padding-top:80px; /* leave space for top bar */
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
         }
         html {
             background: #fff !important;
+            overflow-x: hidden;
         }
         #__next, #root, .main-bg, .main-background, .giant-frame, .wrap, .categories, .category-section {
             background: #fff !important;
@@ -479,11 +481,11 @@
             .hero-btn { padding: 12px 22px; font-size: 16px; }
             .categories h2,
             .category-section h2 { font-size: 32px; margin-bottom: 18px; }
-            .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 10px 0; }
-            .card { padding: 10px; min-height: 260px; margin-bottom: 0; }
-            .card img { height: 120px; }
-            .card h4 { font-size: 16px; }
-            .card p { font-size: 13px; }
+            .grid { grid-template-columns: 1fr; gap: 14px; padding: 10px 0; }
+            .card { padding: 14px; min-height: 290px; margin-bottom: 0; }
+            .card img { height: 180px; }
+            .card h4 { font-size: 18px; }
+            .card p { font-size: 14px; }
             .category-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
             .footer-content { grid-template-columns: 1fr; text-align: center; }
             .cat-scroll-btn { width: 38px; height: 38px; padding: 0; font-size: 22px; }
@@ -513,9 +515,11 @@
 
         @media (max-width: 420px) {
             .hero-content h1 { font-size: 28px; }
-            .grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-            .card h4 { font-size: 14px; }
-            .card p { font-size: 12px; }
+            .grid { grid-template-columns: 1fr; gap: 12px; }
+            .card { padding: 12px; }
+            .card img { height: 160px; }
+            .card h4 { font-size: 16px; }
+            .card p { font-size: 13px; }
         }
     </style>
 </head>
