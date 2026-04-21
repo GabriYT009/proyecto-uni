@@ -307,8 +307,10 @@
 		.top-bar .bar-toggle,
 		.top-bar.collapsed .bar-toggle {
 			display: flex;
-			position: static;
-			margin-left: 8px;
+			position: absolute;
+			right: 10px;
+			top: 10px;
+			margin-left: 0;
 			z-index: 10001;
 			width: 42px;
 			height: 42px;
@@ -317,7 +319,7 @@
 			background: rgba(255,255,255,0.12);
 		}
 		.top-bar .bar-toggle .hamburger span { background: #fff; }
-		.top-bar .bar-inner .bar-right { display: flex; margin-left: auto; gap: 8px; }
+		.top-bar .bar-inner .bar-right { display: flex; margin-left: auto; gap: 8px; padding-right: 52px; }
 		.top-bar .bar-inner .bar-center {
 			display: flex;
 			width: 100%;
