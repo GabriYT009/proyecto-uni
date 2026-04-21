@@ -13,16 +13,6 @@
 		gap: 10px;
 	}
 
-	.top-bar .bar-logo {
-		width: 34px;
-		height: 34px;
-		border-radius: 8px;
-		object-fit: cover;
-		background: #fff;
-		padding: 2px;
-		box-shadow: 0 1px 6px rgba(0, 0, 0, 0.16);
-	}
-
 	.top-bar .bar-center {
 		flex: 1 1 auto;
 		min-width: 0;
@@ -241,94 +231,68 @@
 	}
 
 	@media (max-width: 900px) {
-		body {
-			padding-top: 126px !important;
+		body { padding-top: 132px !important; }
+		.top-bar,
+		.top-bar.collapsed {
+			left: 0;
+			right: 0;
+			width: 100%;
+			height: 124px;
+			border-radius: 0;
+			padding: 0;
+			border-bottom: 1px solid rgba(153,50,204,0.12);
+			box-shadow: 0 10px 24px rgba(0,0,0,0.12);
 		}
-
-		.top-bar {
-			height: 118px;
-		}
-
-		.top-bar .bar-inner {
-			height: 118px;
-			padding: 8px 12px 10px;
+		.top-bar .bar-inner,
+		.top-bar.collapsed .bar-inner {
+			height: 124px;
+			padding: 8px 10px;
 			align-items: flex-start;
 			flex-wrap: wrap;
 			gap: 8px;
+			display: flex;
 		}
-
-		.top-bar .bar-left {
-			order: 1;
-			flex: 1 1 auto;
-			min-width: 0;
+		.top-bar .bar-logo-link { position: static; transform: none; }
+		.top-bar .bar-logo-text { font-size: 22px; }
+		.top-bar .bar-toggle,
+		.top-bar.collapsed .bar-toggle {
+			display: flex;
+			position: static;
+			margin-left: 8px;
+			z-index: 10001;
+			width: 42px;
+			height: 42px;
+			border-radius: 12px;
+			border: 1px solid rgba(255,255,255,0.25);
+			background: rgba(255,255,255,0.12);
 		}
-
-		.top-bar .bar-right {
-			order: 2;
-			margin-left: auto;
-			padding-right: 50px;
-		}
-
-		.top-bar .bar-center {
-			order: 3;
+		.top-bar .bar-toggle .hamburger span { background: #fff; }
+		.top-bar .bar-inner .bar-right { display: flex; margin-left: auto; gap: 8px; }
+		.top-bar .bar-inner .bar-center {
 			display: flex;
 			width: 100%;
-			justify-content: stretch;
-			gap: 0;
+			order: 3;
+			justify-content: center;
 		}
-
-		.top-bar .main-nav {
-			display: none;
-		}
-
-		.top-bar .search-container {
-			width: 100% !important;
-			max-width: none;
-			margin: 0;
-			padding: 4px 6px;
-		}
-
-		.top-bar .search-input {
-			font-size: 14px;
-		}
-
-		.top-bar .bar-logo-text {
-			font-size: 22px;
-		}
-
+		.top-bar .main-nav { display: none; }
+		.top-bar .search-container { width: 100%; max-width: 100%; }
 		.top-bar .profile-btn {
-			padding: 6px 10px;
-			font-size: 12px;
-			max-width: 108px;
+			padding: 7px 10px;
+			font-size: 13px;
+			max-width: 124px;
 			overflow: hidden;
 			text-overflow: ellipsis;
 			white-space: nowrap;
 		}
-
-		.top-bar .avatar {
-			width: 20px;
-			height: 20px;
-			margin-right: 4px;
-		}
-
-		.top-bar .bar-toggle {
-			display: inline-flex;
-			position: absolute;
-			right: 12px;
-			top: 16px;
-			transform: none;
-			z-index: 10008;
-		}
-
+		.top-bar .avatar { width: 20px; height: 20px; margin-right: 4px; }
 		.top-bar .nav-menu {
-			left: 12px;
-			right: 12px;
-			top: calc(100% + 10px);
+			top: 116px;
+			left: 10px;
+			right: 10px;
 			min-width: 0;
 			max-height: 72vh;
 			overflow-y: auto;
 		}
-
 		.top-bar .nav-submenu {
 			left: 8px;
 			right: 8px;
@@ -338,26 +302,7 @@
 	}
 
 	@media (max-width: 480px) {
-		body {
-			padding-top: 122px !important;
-		}
-
-		.top-bar {
-			height: 114px;
-		}
-
-		.top-bar .bar-inner {
-			height: 114px;
-		}
-
-		.top-bar .bar-logo-text {
-			font-size: 20px;
-		}
-
-		.top-bar .bar-logo {
-			width: 30px;
-			height: 30px;
-		}
+		.top-bar .bar-logo-text { font-size: 20px; }
 
 		.top-bar .profile-btn {
 			padding: 6px;
@@ -368,10 +313,6 @@
 		.top-bar .avatar {
 			margin-right: 0;
 		}
-
-		.top-bar .bar-right {
-			padding-right: 44px;
-		}
 	}
 </style>
 
@@ -379,7 +320,6 @@
 	<div class="bar-inner">
 		<div class="group bar-left">
 			<a href="{% url 'home' %}" class="bar-logo-link" aria-label="Inicio">
-				<img src="{% static 'assets/img/logo.png' %}" alt="Logo Solucionarte" class="bar-logo" onerror="this.style.display='none';">
 				<span class="bar-logo-text">Solucionarte</span>
 			</a>
 		</div>
