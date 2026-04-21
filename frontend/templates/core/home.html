@@ -494,30 +494,32 @@
             .hero-btn { padding: 12px 22px; font-size: 16px; }
             .categories h2,
             .category-section h2 { font-size: 32px; margin-bottom: 18px; }
-            .grid { grid-template-columns: 1fr; gap: 14px; padding: 10px 0; }
-            .card { padding: 14px; min-height: 290px; margin-bottom: 0; }
-            .card img { height: 180px; }
-            .card h4 { font-size: 18px; }
-            .card p { font-size: 14px; }
+            .grid { grid-template-columns: 1fr; gap: 12px; padding: 10px 0; }
+            .grid > .card { width: 100%; max-width: 100%; }
+            .card { padding: 12px; min-height: 220px; margin-bottom: 0; }
+            .card img { height: 120px; }
+            .card h4 { font-size: 16px; }
+            .card p { font-size: 12px; }
             .category-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
             .footer-content { grid-template-columns: 1fr; text-align: center; }
             .category-bar-wrap {
                 width: 100%;
                 justify-content: space-between;
-                gap: 6px;
-                padding: 0 4px;
+                gap: 4px;
+                padding: 0 2px;
                 box-sizing: border-box;
             }
             .category-bar {
                 flex: 1 1 auto;
                 min-width: 0;
                 width: auto;
-                padding: 12px 4px;
+                padding: 10px 0;
+                gap: 6px;
             }
-            .cat-scroll-btn { width: 38px; height: 38px; padding: 0; font-size: 22px; }
-            .category-card { width: 150px; padding: 14px 8px; }
-            .category-card .category-icon { font-size: 32px; margin-bottom: 6px; }
-            .category-card span { font-size: 14px; }
+            .cat-scroll-btn { width: 34px; height: 34px; padding: 0; font-size: 18px; flex: 0 0 auto; }
+            .category-card { width: 118px; padding: 12px 8px; }
+            .category-card .category-icon { font-size: 26px; margin-bottom: 4px; }
+            .category-card span { font-size: 12px; }
 
             .footer .footer-content {
                 grid-template-columns: 1fr;
@@ -542,8 +544,8 @@
         @media (max-width: 420px) {
             .hero-content h1 { font-size: 28px; }
             .grid { grid-template-columns: 1fr; gap: 12px; }
-            .card { padding: 12px; }
-            .card img { height: 160px; }
+            .card { padding: 10px; }
+            .card img { height: 110px; }
             .card h4 { font-size: 16px; }
             .card p { font-size: 13px; }
             .hero {
@@ -552,7 +554,8 @@
                 margin: 10px 8px 22px 8px !important;
                 padding: 30px 14px;
             }
-            .category-card { width: 132px; }
+            .category-card { width: 108px; }
+            .cat-scroll-btn { width: 30px; height: 30px; font-size: 16px; }
         }
     </style>
 </head>
