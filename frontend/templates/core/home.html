@@ -603,6 +603,84 @@
         .category-card{ flex:0 0 auto; white-space:nowrap; width:200px; padding:18px 14px; display:flex; flex-direction:column; align-items:center; justify-content:center; }
         .category-card .category-icon{ font-size:40px; margin-bottom:10px; }
         .category-card.auto-active{ transform: translateY(-6px); background: rgba(153,50,204,0.06); border-radius:8px; transition: transform 260ms ease, background 260ms ease; }
+
+        @media (max-width: 768px) {
+            .categories { margin: 24px 0 12px; }
+            .category-section { margin: 22px 0 0; }
+
+            .category-bar-wrap {
+                display: grid;
+                grid-template-columns: 34px minmax(0, 1fr) 34px;
+                align-items: center;
+                gap: 4px;
+                width: 100%;
+                padding: 0;
+            }
+
+            .cat-scroll-btn {
+                width: 32px;
+                height: 32px;
+                padding: 0;
+                border-radius: 50%;
+                font-size: 16px;
+                line-height: 1;
+            }
+
+            .category-bar {
+                width: 100%;
+                min-width: 0;
+                gap: 6px;
+                padding: 8px 0;
+            }
+
+            .category-card {
+                width: 104px;
+                padding: 10px 6px;
+                border-radius: 12px;
+            }
+
+            .category-card .category-icon {
+                font-size: 24px;
+                margin-bottom: 4px;
+            }
+
+            .category-card span {
+                font-size: 11px;
+                line-height: 1.2;
+            }
+
+            #grid.grid {
+                grid-template-columns: 1fr !important;
+                gap: 10px !important;
+                padding: 8px 0 !important;
+            }
+
+            #grid .card {
+                width: 100% !important;
+                max-width: 100% !important;
+                min-height: 190px !important;
+                padding: 10px !important;
+            }
+
+            #grid .card img {
+                height: 102px !important;
+            }
+
+            #grid .card h4 {
+                font-size: 14px !important;
+            }
+
+            #grid .card p {
+                font-size: 11px !important;
+                margin-bottom: 8px !important;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .category-card { width: 96px; }
+            .cat-scroll-btn { width: 28px; height: 28px; font-size: 14px; }
+            #grid .card img { height: 94px !important; }
+        }
         </style>
         <section class="categories">
             <h2>Categorías</h2>
