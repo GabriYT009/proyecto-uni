@@ -223,6 +223,77 @@
 			width: 280px;
 		}
 	}
+
+	@media (max-width: 900px) {
+		.top-bar .bar-inner {
+			padding: 0 12px;
+		}
+
+		.top-bar .bar-center {
+			display: none;
+		}
+
+		.top-bar .bar-right {
+			margin-left: auto;
+			padding-right: 52px;
+		}
+
+		.top-bar .bar-logo-text {
+			font-size: 20px;
+		}
+
+		.top-bar .profile-btn {
+			padding: 6px 10px;
+			font-size: 13px;
+		}
+
+		.top-bar .avatar {
+			width: 20px;
+			height: 20px;
+			margin-right: 4px;
+		}
+
+		.top-bar .bar-toggle {
+			display: inline-flex;
+			position: absolute;
+			right: 12px;
+			top: 50%;
+			transform: translateY(-50%);
+			z-index: 10008;
+		}
+
+		.top-bar .nav-menu {
+			left: 12px;
+			right: 12px;
+			top: calc(100% + 8px);
+			min-width: 0;
+			max-height: 72vh;
+			overflow-y: auto;
+		}
+
+		.top-bar .nav-submenu {
+			left: 8px;
+			right: 8px;
+			width: auto;
+			top: 8px;
+		}
+	}
+
+	@media (max-width: 480px) {
+		.top-bar .bar-logo-text {
+			font-size: 18px;
+		}
+
+		.top-bar .profile-btn {
+			padding: 6px;
+			font-size: 0;
+			line-height: 0;
+		}
+
+		.top-bar .avatar {
+			margin-right: 0;
+		}
+	}
 </style>
 
 <div class="top-bar" id="topBar">
@@ -309,6 +380,7 @@
 
 	<div id="barNavMenu" class="nav-menu" role="menu" aria-hidden="true">
 		<a class="nav-item" href="{% url 'catalog' %}">Ver catalogo</a>
+		<a class="nav-item" href="{% url 'carrito' %}">Carrito</a>
 		<div class="nav-item-group">
 			<button class="nav-item nav-subtoggle" type="button" data-target="topbarClientsSubMenu" aria-expanded="false">Clientes <span class="submenu-arrow">›</span></button>
 			<div id="topbarClientsSubMenu" class="nav-submenu" aria-hidden="true">
