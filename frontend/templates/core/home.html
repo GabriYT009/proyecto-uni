@@ -464,7 +464,6 @@
 
         /* Mobile responsive styles (minimal for PC focus) */
         @media (max-width: 768px) {
-            body { padding-top: 70px; }
             .wrap { margin: 16px auto; padding: 0 10px; }
             .hero {
                 width: 100%;
@@ -487,13 +486,6 @@
             .card p { font-size: 13px; }
             .category-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
             .footer-content { grid-template-columns: 1fr; text-align: center; }
-            .top-bar .bar-inner { padding: 0 10px; }
-            .search-container { width: 250px; }
-            .bar-toggle { display: flex; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); z-index: 10001; }
-            .bar-logo-link { position: absolute; left: 50px; top: 50%; transform: translateY(-50%); }
-            .bar-inner .bar-center { display: none; } /* hide search and nav on mobile */
-            .cart-link { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); }
-            .bar-inner .bar-right { display: none; } /* hide profile on mobile, show cart */
             .cat-scroll-btn { width: 38px; height: 38px; padding: 0; font-size: 22px; }
             .category-card { width: 150px; padding: 14px 8px; }
             .category-card .category-icon { font-size: 32px; margin-bottom: 6px; }
@@ -933,9 +925,19 @@
             const navToggle = document.getElementById('barToggle');
             const navMenu = document.getElementById('barNavMenu');
             if(!navToggle || !navMenu) return;
+            const submenuToggles = navMenu.querySelectorAll('.nav-subtoggle');
+
+            function closeSubmenus(){
+                navMenu.querySelectorAll('.nav-submenu.show').forEach(function(sm){
+                    sm.classList.remove('show');
+                    sm.setAttribute('aria-hidden','true');
+                });
+                submenuToggles.forEach(function(btn){ btn.setAttribute('aria-expanded','false'); });
+            }
 
             function closeNav(){
                 navMenu.classList.remove('show');
+                closeSubmenus();
                 navMenu.setAttribute('aria-hidden','true');
             }
 
@@ -943,6 +945,30 @@
                 e.stopPropagation();
                 const opened = navMenu.classList.toggle('show');
                 navMenu.setAttribute('aria-hidden', opened ? 'false' : 'true');
+                if(!opened) closeSubmenus();
+            });
+
+            submenuToggles.forEach(function(btn){
+                btn.addEventListener('click', function(e){
+                    e.stopPropagation();
+                    const targetId = btn.getAttribute('data-target');
+                    const submenu = targetId ? document.getElementById(targetId) : null;
+                    if(!submenu) return;
+                    const opening = !submenu.classList.contains('show');
+                    closeSubmenus();
+                    if(opening){
+                        submenu.classList.add('show');
+                        submenu.setAttribute('aria-hidden','false');
+                        btn.setAttribute('aria-expanded','true');
+                    }
+                });
+            });
+
+            navMenu.querySelectorAll('[data-close-submenu]').forEach(function(btn){
+                btn.addEventListener('click', function(e){
+                    e.stopPropagation();
+                    closeSubmenus();
+                });
             });
 
             document.addEventListener('click', function(e){
@@ -992,49 +1018,6 @@
                 document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeCat(); });
             })();
         </script>
-    <script>
-        // Toggle top-bar
-        (function(){
-            try{ /* leave stored state for users */ }catch(e){}
-            const topBar = document.getElementById('topBar');
-            const toggle = document.getElementById('barToggle');
-
-            function setCollapsed(collapsed){
-                if(!topBar || !toggle) return;
-                if(collapsed){
-                    topBar.classList.add('collapsed');
-                    toggle.setAttribute('aria-expanded','false');
-                } else {
-                    topBar.classList.remove('collapsed');
-                    toggle.setAttribute('aria-expanded','true');
-                }
-                try{ localStorage.setItem('topBarCollapsed', collapsed ? '1' : '0'); }catch(e){}
-            }
-
-            if (!toggle || !topBar) return;
-
-            toggle.addEventListener('click', function(e){
-                e.stopPropagation();
-                const collapsed = !topBar.classList.contains('collapsed');
-                setCollapsed(collapsed);
-            });
-
-            document.addEventListener('click', function(e){
-                if(!toggle.contains(e.target) && !topBar.contains(e.target)) {
-                    // optional: close collapsed menu when clicking outside
-                    if (topBar.classList.contains('collapsed')) setCollapsed(false);
-                }
-            });
-
-            document.addEventListener('keydown', function(e){ if(e.key === 'Escape') setCollapsed(false); });
-
-            // Initialize from storage
-            try{
-                const v = localStorage.getItem('topBarCollapsed');
-                setCollapsed(v === '1');
-            }catch(e){}
-        })();
-    </script>
     <script>
         // Carrito functionality
         function updateCartCount(count) {
