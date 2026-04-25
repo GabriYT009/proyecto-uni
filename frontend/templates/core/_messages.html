@@ -1,11 +1,49 @@
-{# Fragmento para mostrar mensajes de Django con Bootstrap #}
+{# Mensajes flotantes en la parte superior #}
 {% if messages %}
-  <div class="alert-container" style="position: fixed; top: 80px; right: 20px; z-index: 1050; min-width: 300px;">
+  <div class="alert-container" data-message-container>
     {% for message in messages %}
-      <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow" role="alert" style="margin-bottom: 12px;">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow message-toast" role="alert" data-message-toast>
+        <span class="message-text">{{ message }}</span>
+        <button type="button" class="btn-close" aria-label="Cerrar" data-message-close>&times;</button>
       </div>
     {% endfor %}
   </div>
+  <script>
+    (function () {
+      function dismissToast(toast) {
+        if (!toast || toast.dataset.dismissing === '1') return;
+        toast.dataset.dismissing = '1';
+        toast.classList.add('is-hiding');
+        window.setTimeout(function () {
+          if (toast && toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+          }
+        }, 260);
+      }
+
+      function bindToasts() {
+        document.querySelectorAll('[data-message-toast]').forEach(function (toast) {
+          if (toast.dataset.bound === '1') return;
+          toast.dataset.bound = '1';
+
+          var closeButton = toast.querySelector('[data-message-close]');
+          if (closeButton) {
+            closeButton.addEventListener('click', function () {
+              dismissToast(toast);
+            });
+          }
+
+          window.setTimeout(function () {
+            dismissToast(toast);
+          }, 3000);
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bindToasts);
+      } else {
+        bindToasts();
+      }
+    })();
+  </script>
 {% endif %}

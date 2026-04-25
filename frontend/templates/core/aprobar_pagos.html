@@ -374,13 +374,7 @@
             </div>
         </section>
 
-        {% if messages %}
-            <div style="margin-bottom:16px; display:grid; gap:10px;">
-                {% for message in messages %}
-                    <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'warning' %}alert-warning{% else %}alert-info{% endif %} mb-0" role="alert">{{ message }}</div>
-                {% endfor %}
-            </div>
-        {% endif %}
+        {% include 'core/_messages.html' %}
 
         {% if page_obj and page_obj.object_list %}
             <div class="stack">

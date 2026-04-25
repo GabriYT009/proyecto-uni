@@ -405,13 +405,7 @@
     {% include 'core/_topbar.html' %}
 
     <main class="page">
-        {% if messages %}
-            <ul class="messages">
-                {% for message in messages %}
-                    <li>{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
+        {% include 'core/_messages.html' %}
 
         <section class="hero">
             <div class="hero-grid">

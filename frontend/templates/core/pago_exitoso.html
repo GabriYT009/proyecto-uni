@@ -14,13 +14,9 @@
     </style>
 </head>
 <body>
+    {% include 'core/_messages.html' %}
     <div class="container">
         <div class="card">
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %}" role="alert">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
             <h2 style="color:#28a745">Pago procesado correctamente ✅</h2>
             <p>Orden ID: <strong>#{{ salida.pk }}</strong></p>
             <p>Total: <strong>$ {{ salida.total }}</strong></p>
