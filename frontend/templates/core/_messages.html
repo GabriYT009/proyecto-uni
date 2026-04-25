@@ -2,7 +2,7 @@
 <style>
   .alert-container {
     position: fixed !important;
-    top: 18px;
+    top: 96px;
     left: 50%;
     transform: translateX(-50%);
     width: auto;
@@ -15,6 +15,10 @@
     gap: 8px;
     align-items: stretch;
     pointer-events: none;
+  }
+
+  body.login-page .alert-container {
+    top: 18px;
   }
 
   .alert-container .alert {
@@ -95,8 +99,12 @@
 
   @media (max-width: 480px) {
     .alert-container {
-      top: 12px;
+      top: 132px;
       max-width: calc(100vw - 16px);
+    }
+
+    body.login-page .alert-container {
+      top: 12px;
     }
 
     .alert-container .message-toast {
