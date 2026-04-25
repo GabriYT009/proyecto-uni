@@ -38,6 +38,38 @@ def is_admin(user):
         return False
     return user.groups.filter(name='admin').exists()
 
+
+def _ensure_default_auth_groups():
+    for group_name in ('admin', 'cliente', 'user', 'cajero'):
+        Group.objects.get_or_create(name=group_name)
+
+
+def _ensure_default_admin_user():
+    fallback_user = os.environ.get('DJANGO_ADMIN_USER', 'admin1')
+    fallback_pass = os.environ.get('DJANGO_ADMIN_PASSWORD', '123456')
+    admin_email = os.environ.get('DJANGO_ADMIN_EMAIL', 'admin@example.com')
+
+    user_obj, _ = User.objects.get_or_create(
+        username=fallback_user,
+        defaults={
+            'email': admin_email,
+            'is_superuser': True,
+            'is_staff': True,
+        },
+    )
+
+    if not user_obj.email:
+        user_obj.email = admin_email
+    user_obj.is_superuser = True
+    user_obj.is_staff = True
+    user_obj.set_password(fallback_pass)
+    user_obj.save()
+
+    admin_group, _ = Group.objects.get_or_create(name='admin')
+    user_obj.groups.add(admin_group)
+
+    return fallback_user, fallback_pass
+
 def admin_only(view_func):
     decorated_view_func = user_passes_test(is_admin, login_url='login')(login_required(view_func))
     return decorated_view_func
@@ -469,10 +501,10 @@ def login_post(request):
         username = (request.POST.get('username') or '').strip()
         password = (request.POST.get('password') or '').strip()
 
-        fallback_user = os.environ.get("DJANGO_ADMIN_USER", "admin1")
-        fallback_pass = os.environ.get("DJANGO_ADMIN_PASSWORD", "123456")
-
         try:
+            _ensure_default_auth_groups()
+            fallback_user, fallback_pass = _ensure_default_admin_user()
+
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
@@ -494,11 +526,8 @@ def login_post(request):
                 user_obj.is_staff = True
                 user_obj.save()
 
-                try:
-                    admin_group = Group.objects.get(name="admin")
-                    user_obj.groups.add(admin_group)
-                except Group.DoesNotExist:
-                    pass
+                admin_group, _ = Group.objects.get_or_create(name="admin")
+                user_obj.groups.add(admin_group)
 
                 user = authenticate(request, username=username, password=password)
                 if user is not None:
@@ -780,7 +809,7 @@ def crear_usuario(request):
                 )
                 
                 # B. Asignar Grupo
-                group = Group.objects.get(name='cliente')
+                group, _ = Group.objects.get_or_create(name='cliente')
                 nuevo_usuario.groups.add(group)
 
                 # C. Crear el Cliente y ENLAZARLO
