@@ -92,6 +92,14 @@
     flex: 1 1 auto;
   }
 
+  .alert-container .toast-icon {
+    flex: 0 0 auto;
+    width: 22px;
+    height: 22px;
+    margin-top: 1px;
+    opacity: 0.95;
+  }
+
   @keyframes toastDropIn {
     from { opacity: 0; transform: translateY(-10px) scale(0.97); }
     to { opacity: 1; transform: translateY(0) scale(1); }
@@ -121,42 +129,86 @@
       </div>
     {% endfor %}
   </div>
-  <script>
-    (function () {
-      function dismissToast(toast) {
-        if (!toast || toast.dataset.dismissing === '1') return;
-        toast.dataset.dismissing = '1';
-        toast.classList.add('is-hiding');
-        window.setTimeout(function () {
-          if (toast && toast.parentNode) {
-            toast.parentNode.removeChild(toast);
-          }
-        }, 260);
-      }
+{% endif %}
+<script>
+  (function () {
+    function ensureToastContainer() {
+      var container = document.querySelector('[data-message-container]');
+      if (container) return container;
 
-      function bindToasts() {
-        document.querySelectorAll('[data-message-toast]').forEach(function (toast) {
-          if (toast.dataset.bound === '1') return;
-          toast.dataset.bound = '1';
+      container = document.createElement('div');
+      container.className = 'alert-container';
+      container.setAttribute('data-message-container', '');
+      document.body.appendChild(container);
+      return container;
+    }
 
-          var closeButton = toast.querySelector('[data-message-close]');
-          if (closeButton) {
-            closeButton.addEventListener('click', function () {
-              dismissToast(toast);
-            });
-          }
+    function dismissToast(toast) {
+      if (!toast || toast.dataset.dismissing === '1') return;
+      toast.dataset.dismissing = '1';
+      toast.classList.add('is-hiding');
+      window.setTimeout(function () {
+        if (toast && toast.parentNode) {
+          toast.parentNode.removeChild(toast);
+        }
+      }, 260);
+    }
 
-          window.setTimeout(function () {
+    function bindToasts() {
+      document.querySelectorAll('[data-message-toast]').forEach(function (toast) {
+        if (toast.dataset.bound === '1') return;
+        toast.dataset.bound = '1';
+
+        var closeButton = toast.querySelector('[data-message-close]');
+        if (closeButton) {
+          closeButton.addEventListener('click', function () {
             dismissToast(toast);
-          }, 3000);
+          });
+        }
+
+        window.setTimeout(function () {
+          dismissToast(toast);
+        }, 3000);
+      });
+    }
+
+    window.showGlobalToast = function (message, type, timeout) {
+      var container = ensureToastContainer();
+      var toast = document.createElement('div');
+      var toastType = type || 'info';
+      var duration = typeof timeout === 'number' ? timeout : 3000;
+      var icons = {
+        success: '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10.5" fill="rgba(255,255,255,0.18)" stroke="rgba(255,255,255,0.75)"/><path d="M7 12.5l3 3 7-7" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        error: '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10.5" fill="rgba(255,255,255,0.18)" stroke="rgba(255,255,255,0.75)"/><path d="M8 8l8 8M16 8l-8 8" stroke="white" stroke-width="2.2" stroke-linecap="round"/></svg>',
+        danger: '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10.5" fill="rgba(255,255,255,0.18)" stroke="rgba(255,255,255,0.75)"/><path d="M8 8l8 8M16 8l-8 8" stroke="white" stroke-width="2.2" stroke-linecap="round"/></svg>',
+        warning: '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10.5" fill="rgba(255,255,255,0.18)" stroke="rgba(255,255,255,0.75)"/><path d="M12 8v5.2" stroke="white" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="16.5" r="1.1" fill="white"/></svg>',
+        info: '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10.5" fill="rgba(255,255,255,0.18)" stroke="rgba(255,255,255,0.75)"/><path d="M12 10.2v6" stroke="white" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="7.6" r="1.1" fill="white"/></svg>'
+      };
+
+      toast.className = 'alert alert-' + toastType + ' alert-dismissible fade show shadow message-toast';
+      toast.setAttribute('role', 'alert');
+      toast.dataset.messageToast = '1';
+      toast.innerHTML = (icons[toastType] || icons.info) + '<span class="message-text">' + String(message || '') + '</span>' +
+        '<button type="button" class="btn-close" aria-label="Cerrar" data-message-close>&times;</button>';
+
+      var closeButton = toast.querySelector('[data-message-close]');
+      if (closeButton) {
+        closeButton.addEventListener('click', function () {
+          dismissToast(toast);
         });
       }
 
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', bindToasts);
-      } else {
-        bindToasts();
-      }
-    })();
-  </script>
-{% endif %}
+      container.appendChild(toast);
+      window.setTimeout(function () {
+        dismissToast(toast);
+      }, duration);
+      return toast;
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bindToasts);
+    } else {
+      bindToasts();
+    }
+  })();
+</script>

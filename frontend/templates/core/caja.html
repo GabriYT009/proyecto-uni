@@ -123,7 +123,6 @@
     <div style="max-width:1200px; margin:12px auto;">
         <h2 style="color:#9932CC; margin-top:100px;">Caja</h2>
         {% include 'core/_messages.html' %}
-        <div id="js-alert-container" style="position:fixed; top:100px; right:20px; z-index:2000; min-width:320px; pointer-events:none;"></div>
         <div class="wrap">
             <div class="left" style="flex:1">
                 <div class="invoice">
@@ -325,22 +324,6 @@
             document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeProfile(); });
         })();
 
-                    // Limpieza extra de residuos de texto en el contenedor de la alerta
-                    function cleanAlertContainer() {
-                        var container = document.getElementById('js-alert-container');
-                        if (!container) return;
-                        container.innerHTML = '';
-                        container.textContent = '';
-                        // Eliminar nodos de texto residuales
-                        Array.from(container.childNodes).forEach(function(nodo){ if(nodo.nodeType===3) container.removeChild(nodo); });
-                        container.style.display = 'none';
-                        // Forzar ocultar cualquier texto flotante
-                        setTimeout(function(){
-                            container.innerHTML = '';
-                            container.textContent = '';
-                            container.style.display = 'none';
-                        }, 10);
-                    }
 // Quick POS behavior: click inventory item to add to invoice
         (function(){
             // 1. Traemos la tasa del backend
@@ -431,80 +414,11 @@
                 });
             }
 
-            // Notificación Bootstrap bonita, solo cuando corresponde
+            // Notificación unificada con el toast compartido
             function showJsAlert(message, type = 'danger', timeout = 3000) {
-                var container = document.getElementById('js-alert-container');
-                if (!container) return;
-                // Elimina cualquier alerta previa antes de mostrar una nueva
-                container.innerHTML = '';
-                // Iconos SVG estilo Amazon
-                var icons = {
-                    success: '<svg style="width:24px;height:24px;vertical-align:middle;margin-right:10px;" fill="none" stroke="#1f9d57" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" stroke="#1f9d57" stroke-width="2" fill="#e6f9ed"/><path d="M7 13l3 3 6-6" stroke="#1f9d57" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-                    danger: '<svg style="width:24px;height:24px;vertical-align:middle;margin-right:10px;" fill="none" stroke="#d9534f" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" stroke="#d9534f" stroke-width="2" fill="#fbeaea"/><path d="M8 8l8 8M16 8l-8 8" stroke="#d9534f" stroke-width="2" stroke-linecap="round"/></svg>',
-                    warning: '<svg style="width:24px;height:24px;vertical-align:middle;margin-right:10px;" fill="none" stroke="#b89c1d" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" stroke="#b89c1d" stroke-width="2" fill="#fffbe6"/><path d="M12 8v4M12 16h.01" stroke="#b89c1d" stroke-width="2" stroke-linecap="round"/></svg>'
-                };
-                var bg = type === 'success' ? '#e6f9ed' : (type === 'warning' ? '#fffbe6' : '#fbeaea');
-                var color = type === 'success' ? '#1f9d57' : (type === 'warning' ? '#b89c1d' : '#d9534f');
-                var border = '2px solid ' + color;
-                var alertDiv = document.createElement('div');
-                alertDiv.className = 'custom-amazon-alert';
-                alertDiv.setAttribute('role', 'alert');
-                alertDiv.style.display = 'flex';
-                alertDiv.style.alignItems = 'center';
-                alertDiv.style.gap = '10px';
-                alertDiv.style.background = bg;
-                alertDiv.style.color = color;
-                alertDiv.style.border = border;
-                alertDiv.style.borderRadius = '12px';
-                alertDiv.style.boxShadow = '0 4px 24px rgba(0,0,0,0.10)';
-                alertDiv.style.fontWeight = '600';
-                alertDiv.style.fontSize = '1.1rem';
-                alertDiv.style.padding = '16px 24px 16px 16px';
-                alertDiv.style.marginBottom = '12px';
-                alertDiv.style.position = 'relative';
-                alertDiv.style.animation = 'amazonAlertIn 0.3s cubic-bezier(.4,1.3,.6,1)';
-                alertDiv.innerHTML = icons[type] + '<span style="flex:1;">' + message + '</span>' +
-                    '<button type="button" class="btn-close" style="position:absolute;top:12px;right:12px;opacity:0.7;" aria-label="Cerrar"></button>';
-                // Animación de salida y cierre automático
-                var closeBtn = alertDiv.querySelector('.btn-close');
-                closeBtn.onclick = function() {
-                    alertDiv.style.animation = 'amazonAlertOut 0.25s cubic-bezier(.4,1.3,.6,1)';
-                    setTimeout(function(){ 
-                        if(alertDiv.parentNode) alertDiv.parentNode.removeChild(alertDiv);
-                        cleanAlertContainer();
-                    }, 250);
-                };
-                container.style.display = 'none'; // Ocultar antes de mostrar
-                setTimeout(function(){
-                    container.style.display = 'block';
-                    container.appendChild(alertDiv);
-                }, 10);
-                setTimeout(function(){
-                    alertDiv.style.animation = 'amazonAlertOut 0.25s cubic-bezier(.4,1.3,.6,1)';
-                    setTimeout(function(){ 
-                        if(alertDiv.parentNode) alertDiv.parentNode.removeChild(alertDiv);
-                        cleanAlertContainer();
-                    }, 250);
-                }, timeout);
-            }
-            // Animaciones CSS para la alerta Amazon
-            var styleAmazonAlert = document.getElementById('amazon-alert-anim');
-            if (!styleAmazonAlert) {
-                var style = document.createElement('style');
-                style.id = 'amazon-alert-anim';
-                style.innerHTML = `
-                @keyframes amazonAlertIn {
-                    from { opacity:0; transform:translateY(-30px) scale(0.95); }
-                    to { opacity:1; transform:translateY(0) scale(1); }
+                if (typeof window.showGlobalToast === 'function') {
+                    window.showGlobalToast(message, type, timeout);
                 }
-                @keyframes amazonAlertOut {
-                    from { opacity:1; transform:translateY(0) scale(1); }
-                    to { opacity:0; transform:translateY(-30px) scale(0.95); }
-                }
-                .custom-amazon-alert { transition: box-shadow 0.2s; }
-                .custom-amazon-alert:active { box-shadow:0 2px 8px rgba(0,0,0,0.08); }
-                `;
-                document.head.appendChild(style);
             }
 
             function addCardToInvoice(card){
