@@ -397,7 +397,7 @@
                 </div>
 
                 <div class="info">
-                    <div class="crumb">Camisas / Sublimación</div>
+                    <div class="crumb">{{ categoria_nombre }} / Sublimación</div>
                     <h1>{{ producto.nombre_producto }}</h1>
                     <p class="subtitle">{{ producto.descripcion }}</p>
 
@@ -411,11 +411,11 @@
                         <form method="post" id="sheinForm" enctype="multipart/form-data">
                             {% csrf_token %}
                             <input type="hidden" name="accion" id="accionForm" value="agregar_carrito">
-                            <input type="hidden" name="talla" id="tallaInput" value="M">
+                            <input type="hidden" name="talla" id="tallaInput" value="{{ default_talla }}">
 
                             <div class="sizes" id="sizesGroup">
                                 {% for talla in tallas %}
-                                    <button type="button" class="size-pill{% if talla == 'M' %} active{% endif %}" data-size="{{ talla }}">{{ talla }}</button>
+                                    <button type="button" class="size-pill{% if talla == default_talla %} active{% endif %}" data-size="{{ talla }}">{{ talla }}</button>
                                 {% endfor %}
                             </div>
 
@@ -454,7 +454,7 @@
             <form class="modal-body" method="post" enctype="multipart/form-data" id="sublimationForm">
                 {% csrf_token %}
                 <input type="hidden" name="accion" value="guardar_sublimacion">
-                <input type="hidden" name="talla" id="modalTallaInput" value="M">
+                <input type="hidden" name="talla" id="modalTallaInput" value="{{ default_talla }}">
 
                 <div class="field">
                     <label for="imagen_sublimacion">Imagen para sublimar</label>
@@ -469,7 +469,7 @@
 
                 <div class="field">
                     <label>Talla seleccionada</label>
-                    <input type="text" id="modalTallaLabel" value="M" readonly>
+                    <input type="text" id="modalTallaLabel" value="{{ default_talla }}" readonly>
                 </div>
 
                 <div class="modal-actions">
@@ -632,6 +632,7 @@
 
     <script>
         (function(){
+            const defaultTalla = '{{ default_talla|escapejs }}';
             const sizeButtons = document.querySelectorAll('.size-pill');
             const tallaInput = document.getElementById('tallaInput');
             const modalTallaInput = document.getElementById('modalTallaInput');
@@ -660,7 +661,7 @@
             });
 
             openModalBtn.addEventListener('click', function(){
-                setTalla(tallaInput.value || 'M');
+                setTalla(tallaInput.value || defaultTalla);
                 modal.classList.add('is-open');
                 modal.setAttribute('aria-hidden', 'false');
             });
@@ -684,10 +685,10 @@
             });
 
             sublimationForm.addEventListener('submit', function(){
-                modalTallaInput.value = tallaInput.value || 'M';
+                modalTallaInput.value = tallaInput.value || defaultTalla;
             });
 
-            setTalla('M');
+            setTalla(defaultTalla);
         })();
     </script>
 </body>

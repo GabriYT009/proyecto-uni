@@ -1389,15 +1389,16 @@ def producto_detalle(request, producto_id):
 def camisas_shein(request, producto_id):
     producto = get_object_or_404(Producto.objects.select_related('categoria'), pk=producto_id, status_producto=True)
     categoria_nombre = (producto.categoria.nombre_categoria if producto.categoria else '').strip()
-    if categoria_nombre != 'Camisas':
+    if categoria_nombre not in ('Camisas', 'Tazas'):
         return redirect('comprar_producto', producto_id=producto.pk)
 
     producto.img_url = _safe_img_url(producto)
-    tallas = ['S', 'M', 'L', 'XL', 'XXL']
+    tallas = ['S', 'M', 'L', 'XL', 'XXL'] if categoria_nombre == 'Camisas' else ['Unica']
+    default_talla = 'M' if categoria_nombre == 'Camisas' else tallas[0]
 
     if request.method == 'POST':
         accion = (request.POST.get('accion') or '').strip().lower()
-        talla = (request.POST.get('talla') or '').strip()
+        talla = (request.POST.get('talla') or default_talla).strip()
 
         if accion == 'agregar_carrito':
             _set_session_cart_talla(request, producto.pk, talla)
@@ -1444,6 +1445,8 @@ def camisas_shein(request, producto_id):
     return render(request, 'core/camisas_shein.html', {
         'producto': producto,
         'tallas': tallas,
+        'default_talla': default_talla,
+        'categoria_nombre': categoria_nombre,
         'solicitud': related_solicitud,
         'cart_count': len(request.session.get('cart', [])),
         'user_groups': _user_groups(request.user),

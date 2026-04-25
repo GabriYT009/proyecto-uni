@@ -25,7 +25,8 @@
             const id = button && button.dataset && button.dataset.id ? Number(button.dataset.id) : (card && card.dataset && card.dataset.id ? Number(card.dataset.id) : null);
             const product = (window.products || []).find(function(item){ return Number(item.id) === Number(id); });
             const category = String((product && (product.category || product.Categoria)) || '').trim();
-            if (category === 'Camisas') {
+            const normalizedCategory = category.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+            if (normalizedCategory === 'camisas' || normalizedCategory === 'tazas') {
                 window.location.href = '/producto/' + id + '/camisas/';
                 return;
             }
@@ -921,6 +922,13 @@
                 const card = trigger && trigger.closest ? trigger.closest('.card[data-id]') : null;
                 const product = findProduct(id);
 
+                const category = String((product && (product.category || product.Categoria)) || '').trim();
+                const normalizedCategory = category.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+                if (normalizedCategory === 'camisas' || normalizedCategory === 'tazas') {
+                    window.location.href = '/producto/' + id + '/camisas/';
+                    return;
+                }
+
                 const title = (product && product.title) || (trigger && trigger.dataset && trigger.dataset.title) || (card && card.dataset && card.dataset.title) || '';
                 const img = (product && product.img) || (trigger && trigger.dataset && trigger.dataset.img) || (card && card.dataset && card.dataset.img) || '';
                 const desc = (product && product.desc) || (trigger && trigger.dataset && trigger.dataset.desc) || (card && card.dataset && card.dataset.desc) || '';
@@ -1212,7 +1220,8 @@
                 const product = products.find(p => p.id == productId);
                 if (product) {
                     const category = String(product.category || product.Categoria || '').trim();
-                    if (category === 'Camisas') {
+                    const normalizedCategory = category.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+                    if (normalizedCategory === 'camisas' || normalizedCategory === 'tazas') {
                         window.location.href = '/producto/' + productId + '/camisas/';
                         return;
                     }
