@@ -122,7 +122,18 @@
         <form method="POST" action="" class="register-form">
 
             {% csrf_token %}
-            
+            <div class="privacidad-tooltip-container">
+                <span class="privacidad-icono">¿Por qué necesitamos esta información?</span>
+                <div class="privacidad-mensaje">
+                    <p>Recopilamos esta información para:</p>
+                    <ul>
+                        <li><strong>Verificar tu identidad:</strong> Aseguramos que eres tú quien está creando la cuenta.</li>
+                        <li><strong>Personalizar tu experiencia:</strong> Adaptamos nuestros servicios a tus necesidades.</li>
+                        <li><strong>Mejorar la seguridad:</strong> Protegemos tu cuenta contra accesos no autorizados.</li>
+                    </ul>
+                    <p>Tu privacidad es importante para nosotros. No compartiremos tu información con terceros sin tu consentimiento.</p>
+
+            </div>
             <!-- El email no se muestra en esta pantalla; se toma de la sesión y se envía oculto -->
             <input type="hidden" name="email" value="{{ email }}">
 
@@ -198,17 +209,7 @@
                 </div>
             </div>
             <button type="submit">Confirmar</button>
-            <div class="privacidad-tooltip-container">
-                <span class="privacidad-icono">¿Por qué necesitamos esta información?</span>
-                <div class="privacidad-mensaje">
-                    <p>Recopilamos esta información para:</p>
-                    <ul>
-                        <li><strong>Verificar tu identidad:</strong> Aseguramos que eres tú quien está creando la cuenta.</li>
-                        <li><strong>Personalizar tu experiencia:</strong> Adaptamos nuestros servicios a tus necesidades.</li>
-                        <li><strong>Mejorar la seguridad:</strong> Protegemos tu cuenta contra accesos no autorizados.</li>
-                    </ul>
-                    <p>Tu privacidad es importante para nosotros. No compartiremos tu información con terceros sin tu consentimiento.</p>
-</div>
+            
         </form>
     </div>
     <script>
