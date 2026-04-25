@@ -14,6 +14,7 @@ from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django.contrib import messages
 from django.db.models import Q, F, Case, When, IntegerField
+from django.db.models.deletion import ProtectedError
 from django.core.cache import cache
 from django.conf import settings
 import re
@@ -1978,6 +1979,16 @@ def eliminar_producto(request, producto_id):
         try:
             producto = get_object_or_404(Producto, pk=producto_id)
             nombre_producto = producto.nombre_producto
+
+            # Producto.PROTECT via CarritoDeCompras: si todavía hay referencias,
+            # no intentamos borrar para evitar un error de base de datos.
+            if CarritoDeCompras.objects.filter(Producto_id=producto_id).exists():
+                messages.error(
+                    request,
+                    f'No se puede eliminar "{nombre_producto}" porque todavía tiene registros asociados en el carrito o pedidos.',
+                )
+                return redirect('inventario')
+
             producto.delete()
             # Ensure current session cart is cleaned (remove any occurrence of this product id)
             try:
@@ -1988,6 +1999,11 @@ def eliminar_producto(request, producto_id):
             except Exception:
                 pass
             messages.success(request, f'El producto "{nombre_producto}" ha sido eliminado exitosamente.')
+        except ProtectedError:
+            messages.error(
+                request,
+                'No se puede eliminar este producto porque todavía tiene registros asociados.',
+            )
         except Exception as e:
             messages.error(request, f'Error al eliminar el producto: {str(e)}')
     
