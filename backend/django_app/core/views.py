@@ -941,16 +941,26 @@ def catalog(request):
     )
 
     if categoria_param:
-        try:
-            # Usamos __iexact para que 'ropa' encuentre 'Ropa' (insensible a mayúsculas).
-            categoria_obj = Categoria.objects.get(nombre_categoria__iexact=categoria_param)
-            
-            # Filtramos productos por categoría
-            Productos = Productos.filter(categoria=categoria_obj)
-            
-        except Categoria.DoesNotExist:
-            # Si escriben una categoría que no existe, mostramos todos los productos activos
-            pass
+        categoria_normalizada = (categoria_param or '').strip().lower()
+
+        # Al entrar a la categoría "Sublimación" mostramos también
+        # categorías sublimables como Camisas y Tazas.
+        if categoria_normalizada in ('sublimacion', 'sublimación'):
+            Productos = Productos.filter(
+                categoria__nombre_categoria__in=['Sublimación', 'Camisas', 'Tazas']
+            )
+            categoria_obj = Categoria.objects.filter(nombre_categoria__iexact='Sublimación').first()
+        else:
+            try:
+                # Usamos __iexact para que 'ropa' encuentre 'Ropa' (insensible a mayúsculas).
+                categoria_obj = Categoria.objects.get(nombre_categoria__iexact=categoria_param)
+
+                # Filtramos productos por categoría
+                Productos = Productos.filter(categoria=categoria_obj)
+
+            except Categoria.DoesNotExist:
+                # Si escriben una categoría que no existe, mostramos todos los productos activos
+                pass
     
     if search_param:
         # Filtramos por nombre del producto o descripción (insensible a mayúsculas)
