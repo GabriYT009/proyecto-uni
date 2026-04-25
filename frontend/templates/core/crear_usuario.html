@@ -45,6 +45,7 @@
     </style>
 </head>
 <body class="login-page">
+    <div class="passwordValidationRequirements__description">Password validation requirements</div>
     {% if user.is_authenticated %}
         <a href="{% url 'home' %}" class="bar-logo-link" aria-label="Inicio">
             <img id="logo" src="{% static 'core/logo nuevo.png' %}" alt="Solucionarte">
