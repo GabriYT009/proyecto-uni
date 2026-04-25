@@ -6,6 +6,43 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Crear Usuario</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        .register-form .password-field {
+            position: relative !important;
+            width: 100%;
+        }
+
+        .register-form .password-field input {
+            width: 100%;
+            padding-right: 46px !important;
+        }
+
+        .register-form .password-field .password-toggle {
+            position: absolute !important;
+            right: 10px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            width: 28px !important;
+            height: 28px !important;
+            border-radius: 999px !important;
+            border: 0 !important;
+            background: rgba(255,255,255,0.92) !important;
+            color: #7d0d88 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 0 !important;
+            cursor: pointer !important;
+            z-index: 2;
+            box-shadow: 0 2px 8px rgba(125, 13, 136, 0.12);
+        }
+
+        .register-form .password-field .password-toggle svg {
+            width: 16px;
+            height: 16px;
+            display: block;
+        }
+    </style>
 </head>
 <body class="login-page">
     {% if user.is_authenticated %}
