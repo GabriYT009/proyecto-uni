@@ -126,22 +126,6 @@
             padding: 18px;
         }
 
-        .thumbs {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 10px;
-            margin-top: 14px;
-        }
-
-        .thumb {
-            border: 1px solid rgba(143, 43, 210, 0.12);
-            background: #fff;
-            border-radius: 16px;
-            aspect-ratio: 1 / 1;
-            padding: 8px;
-            object-fit: contain;
-        }
-
         .info {
             padding: 30px;
             background: #ffffff;
@@ -384,7 +368,6 @@
             .page { padding: 12px; }
             .gallery, .info { padding: 18px; }
             .btn-primary-strong, .btn-secondary-ghost { width: 100%; min-width: 0; }
-            .thumbs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
 
         @media (max-width: 768px) {
@@ -411,12 +394,6 @@
             <div class="hero-grid">
                 <div class="gallery">
                     <img src="{{ producto.img_url }}" alt="{{ producto.nombre_producto }}" class="main-image">
-                    <div class="thumbs">
-                        <img src="{{ producto.img_url }}" alt="Vista 1" class="thumb">
-                        <img src="{{ producto.img_url }}" alt="Vista 2" class="thumb">
-                        <img src="{{ producto.img_url }}" alt="Vista 3" class="thumb">
-                        <img src="{{ producto.img_url }}" alt="Vista 4" class="thumb">
-                    </div>
                 </div>
 
                 <div class="info">
