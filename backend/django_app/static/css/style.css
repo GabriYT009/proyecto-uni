@@ -113,28 +113,40 @@ input:focus { outline:none; border-color: rgba(155,39,176,0.6); }
 }
 
 .password-field input {
-    padding-right: 84px !important;
+    padding-right: 46px !important;
 }
 
 .password-toggle {
     position: absolute;
-    right: 12px;
+    right: 10px;
     top: 50%;
     transform: translateY(-50%);
     border: none;
-    background: transparent;
+    background: rgba(255,255,255,0.9);
     color: #7d0d88;
-    font-size: 0.82rem;
-    font-weight: 700;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
     cursor: pointer;
     padding: 0;
     line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(125, 13, 136, 0.12);
 }
 
 .password-toggle:hover,
 .password-toggle:focus {
     color: #a013ab;
     outline: none;
+    background: rgba(255,255,255,1);
+}
+
+.password-toggle svg {
+    width: 16px;
+    height: 16px;
+    display: block;
 }
 
 .btn { padding:10px 14px; border-radius:8px; cursor:pointer; }
