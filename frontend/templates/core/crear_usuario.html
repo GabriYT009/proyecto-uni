@@ -119,10 +119,7 @@
         {% if error %}
             <div class="auth-error">{{ error }}</div>
         {% endif %}
-        <form method="POST" action="" class="register-form">
-
-            {% csrf_token %}
-            <div class="privacidad-tooltip-container">
+        <div class="privacidad-tooltip-container">
                 <span class="privacidad-icono">¿Por qué necesitamos esta información?</span>
                 <div class="privacidad-mensaje">
                     <p>Recopilamos esta información para:</p>
@@ -134,6 +131,10 @@
                     <p>Tu privacidad es importante para nosotros. No compartiremos tu información con terceros sin tu consentimiento.</p>
 
             </div>
+        <form method="POST" action="" class="register-form">
+
+            {% csrf_token %}
+            
             <!-- El email no se muestra en esta pantalla; se toma de la sesión y se envía oculto -->
             <input type="hidden" name="email" value="{{ email }}">
 
