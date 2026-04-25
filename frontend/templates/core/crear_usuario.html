@@ -42,69 +42,9 @@
             height: 16px;
             display: block;
         }
-        /* Contenedor principal relativo para posicionar el mensaje */
-        .privacidad-tooltip-container {
-        position: relative;
-        display: inline-block;
-        cursor: help; /* Cambia el cursor para indicar que hay ayuda disponible */
-        font-family: Arial, sans-serif;
-        margin: 15px 0;
-        }
-
-        /* El texto o icono visible */
-        .privacidad-icono {
-        color: #4A5568;
-        font-size: 14px;
-        text-decoration: underline dotted #A0AEC0; /* Subrayado punteado sutil */
-        transition: color 0.2s;
-        }
-
-        .privacidad-tooltip-container:hover .privacidad-icono {
-        color: #2B6CB0; /* Cambia de color al pasar el ratón */
-        }
-
-        /* El mensaje oculto (Tooltip) */
-        .privacidad-mensaje {
-        visibility: hidden;
-        width: 280px;
-        background-color: #2D3748; /* Fondo oscuro */
-        color: #F7FAFC; /* Texto claro */
-        text-align: left;
-        border-radius: 8px;
-        padding: 15px;
-        position: absolute;
-        z-index: 10;
-        bottom: 130%; /* Aparece justo por encima del texto */
-        left: 50%;
-        transform: translateX(-50%); /* Lo centra perfectamente */
-        opacity: 0;
-        transition: opacity 0.3s ease, visibility 0.3s ease;
-        font-size: 13px;
-        line-height: 1.5;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        /* La flechita pequeña apuntando hacia abajo */
-        .privacidad-mensaje::after {
-        content: "";
-        position: absolute;
-        top: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        border-width: 6px;
-        border-style: solid;
-        border-color: #2D3748 transparent transparent transparent;
-        }
-
-        /* La magia: mostrar el mensaje al hacer hover */
-        .privacidad-tooltip-container:hover .privacidad-mensaje {
-        visibility: visible;
-        opacity: 1;
-}
     </style>
 </head>
 <body class="login-page">
-    
     {% if user.is_authenticated %}
         <a href="{% url 'home' %}" class="bar-logo-link" aria-label="Inicio">
             <img id="logo" src="{% static 'core/logo nuevo.png' %}" alt="Solucionarte">
@@ -115,10 +55,6 @@
         </a>
     {% endif %}
     <div class="container auth-card register-card">
-
-        
-
-        </div>
         <h2>Crear credenciales</h2>
         {% if error %}
             <div class="auth-error">{{ error }}</div>
@@ -200,14 +136,6 @@
                 </div>
             </div>
             <button type="submit">Confirmar</button>
-            <div class="privacidad-tooltip-container">
-  <span class="privacidad-icono">🔒 ¿Por qué pedimos estos datos?</span>
-  
-  <div class="privacidad-mensaje">
-    <strong>Tus datos están seguros</strong><br><br>
-    Utilizamos esta información exclusivamente para gestionar tu cuenta y brindarte el servicio. Garantizamos la protección de tu información mediante estrictas medidas de seguridad y <strong>nunca será compartida ni vendida a terceros.</strong>
-  </div>
-</div>
         </form>
     </div>
     <script>
