@@ -1153,10 +1153,20 @@
         function cerrarModalEliminar() {
             const modalEliminar = document.getElementById('modalEliminarProducto');
             const nombreProducto = document.getElementById('deleteProductName');
+            const formEliminar = document.getElementById('formEliminarProducto');
+            const deleteProductId = document.getElementById('deleteProductId');
             pendingDeleteProductId = null;
 
             if (nombreProducto) {
                 nombreProducto.textContent = '';
+            }
+
+            if (deleteProductId) {
+                deleteProductId.value = '';
+            }
+
+            if (formEliminar) {
+                formEliminar.action = '';
             }
 
             if (modalEliminar) {
@@ -1166,38 +1176,25 @@
             actualizarEstadoScrollBody();
         }
 
-        function enviarEliminacionProducto() {
-            if (!pendingDeleteProductId) {
-                cerrarModalEliminar();
-                return;
-            }
-
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = `/producto/${pendingDeleteProductId}/eliminar/`;
-
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
-            if (csrfToken) {
-                const csrfInput = document.createElement('input');
-                csrfInput.type = 'hidden';
-                csrfInput.name = 'csrfmiddlewaretoken';
-                csrfInput.value = csrfToken.value;
-                form.appendChild(csrfInput);
-            }
-
-            document.body.appendChild(form);
-            form.submit();
-        }
-
         // Función para confirmar eliminación de producto
         function confirmarEliminar(productoId, nombreProducto) {
             const modalEliminar = document.getElementById('modalEliminarProducto');
             const nombreProductoEl = document.getElementById('deleteProductName');
+            const formEliminar = document.getElementById('formEliminarProducto');
+            const deleteProductId = document.getElementById('deleteProductId');
 
             pendingDeleteProductId = productoId;
 
             if (nombreProductoEl) {
                 nombreProductoEl.textContent = nombreProducto || 'este producto';
+            }
+
+            if (deleteProductId) {
+                deleteProductId.value = productoId || '';
+            }
+
+            if (formEliminar && productoId) {
+                formEliminar.action = `/producto/${productoId}/eliminar/`;
             }
 
             if (modalEliminar) {
@@ -1348,13 +1345,6 @@
                 });
             }
 
-            const confirmarEliminarBtn = document.getElementById('confirmDeleteButton');
-            if (confirmarEliminarBtn) {
-                confirmarEliminarBtn.addEventListener('click', function() {
-                    enviarEliminacionProducto();
-                });
-            }
-
             // Cerrar modal con tecla Escape
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
@@ -1441,12 +1431,16 @@
                 <button class="modal-close" onclick="cerrarModalEliminar()">&times;</button>
             </div>
             <div class="modal-body">
-                <p class="delete-warning">Vas a eliminar este producto del inventario. Esta acción no se puede deshacer.</p>
-                <div id="deleteProductName" class="delete-product-name"></div>
-                <div class="modal-actions">
-                    <button type="button" class="btn-secondary" onclick="cerrarModalEliminar()">Cancelar</button>
-                    <button type="button" id="confirmDeleteButton" class="btn-danger">Eliminar producto</button>
-                </div>
+                <form id="formEliminarProducto" method="post" action="">
+                    {% csrf_token %}
+                    <input type="hidden" id="deleteProductId" name="producto_id" value="">
+                    <p class="delete-warning">Vas a eliminar este producto del inventario. Esta acción no se puede deshacer.</p>
+                    <div id="deleteProductName" class="delete-product-name"></div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary" onclick="cerrarModalEliminar()">Cancelar</button>
+                        <button type="submit" id="confirmDeleteButton" class="btn-danger">Eliminar producto</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
