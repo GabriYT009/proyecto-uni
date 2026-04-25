@@ -122,7 +122,13 @@
             {% csrf_token %}
             <!-- El email no se muestra en esta pantalla; se toma de la sesión y se envía oculto -->
             <input type="hidden" name="email" value="{{ email }}">
-
+            <div class="privacidad-tooltip-container align-right">
+            <span class="privacidad-icono">🔒 ¿Por qué pedimos estos datos?</span>
+            
+            <div class="privacidad-mensaje">
+                <strong>Tus datos están seguros</strong><br><br>
+                Utilizamos esta información exclusivamente para gestionar tu cuenta y brindarte el servicio. Garantizamos la protección de tu información mediante estrictas medidas de seguridad y <strong>nunca será compartida ni vendida a terceros.</strong>
+            </div>
             <div class="full">
                 <label for="nombre_cliente">Nombre:</label>
                 <input id="nombre_cliente" name="nombre_cliente" type="text" maxlength="45" placeholder="Nombre de usuario" required pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+">
@@ -195,13 +201,7 @@
                 </div>
             </div>
             <button type="submit">Confirmar</button>
-            <div class="privacidad-tooltip-container">
-  <span class="privacidad-icono">🔒 ¿Por qué pedimos estos datos?</span>
-  
-  <div class="privacidad-mensaje">
-    <strong>Tus datos están seguros</strong><br><br>
-    Utilizamos esta información exclusivamente para gestionar tu cuenta y brindarte el servicio. Garantizamos la protección de tu información mediante estrictas medidas de seguridad y <strong>nunca será compartida ni vendida a terceros.</strong>
-  </div>
+
 </div>
         </form>
     </div>
