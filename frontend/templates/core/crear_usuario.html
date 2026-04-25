@@ -76,11 +76,17 @@
             </div>
             <div class="full">
                 <label for="password">Crear contraseña</label>
-                <input id="password" name="password" type="password" placeholder="Crear contraseña" required>
+                <div class="password-field">
+                    <input id="password" name="password" type="password" placeholder="Crear contraseña" required>
+                    <button type="button" class="password-toggle" data-target="password" aria-label="Mostrar contraseña">Mostrar</button>
+                </div>
             </div>
             <div class="full">
                 <label for="password2">Confirmar contraseña</label>
-                <input id="password2" name="password2" type="password" placeholder="Confirmar contraseña" required>
+                <div class="password-field">
+                    <input id="password2" name="password2" type="password" placeholder="Confirmar contraseña" required>
+                    <button type="button" class="password-toggle" data-target="password2" aria-label="Mostrar confirmación de contraseña">Mostrar</button>
+                </div>
             </div>
             <button type="submit">Confirmar</button>
         </form>
@@ -99,6 +105,26 @@
             }
             window.addEventListener('DOMContentLoaded', clearFormFields);
             window.addEventListener('pageshow', function(e){ if (e.persisted) clearFormFields(); });
+        })();
+    </script>
+    <script>
+        (function () {
+            function togglePassword(button) {
+                var targetId = button.getAttribute('data-target');
+                var input = document.getElementById(targetId);
+                if (!input) return;
+
+                var isHidden = input.type === 'password';
+                input.type = isHidden ? 'text' : 'password';
+                button.textContent = isHidden ? 'Ocultar' : 'Mostrar';
+                button.setAttribute('aria-label', isHidden ? 'Ocultar contraseña' : 'Mostrar contraseña');
+            }
+
+            document.querySelectorAll('.password-toggle').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    togglePassword(button);
+                });
+            });
         })();
     </script>
     <script src="{% static 'core/page-loader.js' %}"></script>

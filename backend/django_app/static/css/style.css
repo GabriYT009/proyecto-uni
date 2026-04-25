@@ -108,6 +108,35 @@ input[type="text"], input[type="password"], input[type="email"] {
 }
 input:focus { outline:none; border-color: rgba(155,39,176,0.6); }
 
+.password-field {
+    position: relative;
+}
+
+.password-field input {
+    padding-right: 84px !important;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    color: #7d0d88;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+.password-toggle:hover,
+.password-toggle:focus {
+    color: #a013ab;
+    outline: none;
+}
+
 .btn { padding:10px 14px; border-radius:8px; cursor:pointer; }
 button[type="submit"], .btn.primary { background: rgba(155, 39, 176, 0.739); color: #000; border: 1px solid rgba(255,255,255,0.18); }
 .btn.secondary { background:#eef2ff; color:var(--secondary-color); border:1px solid #c7d2fe }
