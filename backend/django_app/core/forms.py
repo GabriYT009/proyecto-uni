@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from django.db.models import Case, When, IntegerField
 from .models import Producto, Categoria,Marca_producto
 
@@ -114,3 +115,47 @@ class ProductForm(forms.ModelForm):
     def save(self, commit=True):
         # Respetar la categoria seleccionada en el formulario.
         return super().save(commit=commit)
+
+
+class PasswordRecoveryForm(forms.Form):
+    username = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Nombre de usuario',
+            'autocomplete': 'username',
+        }),
+    )
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Correo electrónico registrado',
+            'autocomplete': 'email',
+        }),
+    )
+    new_password = forms.CharField(
+        min_length=8,
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Nueva contraseña',
+            'autocomplete': 'new-password',
+        }),
+    )
+    new_password_confirm = forms.CharField(
+        min_length=8,
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Confirmar nueva contraseña',
+            'autocomplete': 'new-password',
+        }),
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get('new_password')
+        password_confirm = cleaned_data.get('new_password_confirm')
+
+        if password and password_confirm and password != password_confirm:
+            raise ValidationError('Las contraseñas no coinciden.')
+
+        return cleaned_data

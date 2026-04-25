@@ -301,6 +301,51 @@ body.login-page .login-card .auth-error {
     color: #8e1234;
 }
 
+body.login-page .field-error {
+    margin-top: 6px;
+    font-size: 0.88rem;
+    color: #ffb6c8;
+}
+
+body.login-page .alert-container {
+    position: static !important;
+    min-width: 0 !important;
+    margin: 0 0 14px 0;
+}
+
+body.login-page .alert {
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+    line-height: 1.35;
+}
+
+body.login-page .alert-success {
+    background: rgba(207, 255, 219, 0.95);
+    color: #14532d;
+}
+
+body.login-page .alert-error {
+    background: rgba(255, 225, 230, 0.95);
+    color: #7f1d1d;
+}
+
+body.login-page .alert-info {
+    background: rgba(228, 236, 255, 0.95);
+    color: #1e3a8a;
+}
+
+body.login-page .btn-close {
+    float: right;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
 body.login-page .register-card {
     width: min(980px, calc(100vw - 44px));
 }

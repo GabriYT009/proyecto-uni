@@ -6,7 +6,7 @@ from django.views import View
 from django.template.loader import render_to_string
 
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.contrib.auth.models import User, Group
 from django.core.validators import validate_email
@@ -21,7 +21,7 @@ import os
 import json
 from .models import Producto, Cliente, Categoria, Historial_Inventario, MetodoPago, CarritoDeCompras, OrdenDeDespacho, SolicitudSublimacion
 from django.core.paginator import Paginator
-from .forms import ProductForm
+from .forms import ProductForm, PasswordRecoveryForm
 from django.utils import timezone
 from django.db import transaction
 from django.urls import reverse
@@ -537,6 +537,32 @@ def login_post(request):
                 'error': 'No se pudo iniciar sesion temporalmente. Intenta de nuevo en unos segundos.'
             })
     return redirect('login')
+
+
+def recuperar_contrasena(request):
+    if request.method == 'POST':
+        form = PasswordRecoveryForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username'].strip()
+            email = form.cleaned_data['email'].strip().lower()
+            new_password = form.cleaned_data['new_password']
+
+            user = User.objects.filter(username__iexact=username, email__iexact=email).first()
+            if user is None:
+                form.add_error(None, 'No encontramos un usuario con esos datos.')
+            else:
+                user.set_password(new_password)
+                user.save(update_fields=['password'])
+
+                if request.user.is_authenticated and request.user.pk == user.pk:
+                    update_session_auth_hash(request, user)
+
+                messages.success(request, 'Tu contraseña fue actualizada. Ahora puedes iniciar sesión.')
+                return redirect('login')
+    else:
+        form = PasswordRecoveryForm()
+
+    return render(request, 'core/recuperar_contrasena.html', {'form': form})
 
 
 
