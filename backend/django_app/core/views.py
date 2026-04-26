@@ -4,7 +4,6 @@ import importlib
 from urllib.parse import urlparse
 from django.views import View
 from django.template.loader import render_to_string
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import user_passes_test, login_required
@@ -24,7 +23,7 @@ from .models import Producto, Cliente, Categoria, Historial_Inventario, MetodoPa
 from django.core.paginator import Paginator
 from .forms import ProductForm, PasswordRecoveryForm
 from django.utils import timezone
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.urls import reverse
 from django.core.files.storage import default_storage
 
@@ -2334,11 +2333,14 @@ def agregar_marca(request):
     page_obj = paginator.get_page(page_number)
 
     if request.method == 'POST':
-        nueva_marca = request.POST.get('marca_producto', '').strip()
+        nueva_marca = request.POST.get('marca_producto', '').strip().upper()
         if nueva_marca:
             try:
                 Marca_producto.objects.create(nombre_marca=nueva_marca)
                 messages.success(request, f'Marca "{nueva_marca}" agregada correctamente.')
+            except IntegrityError:
+                messages.error(request, f'La marca "{nueva_marca}" ya existe.')
+        
             except Exception as e:
                 messages.error(request, f'Error al agregar la marca: {str(e)}')
         else:
