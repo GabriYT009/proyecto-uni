@@ -428,7 +428,7 @@ def home(request):
         categories = _cached_categories()
         productos_qs = (
             Producto.objects
-            .filter(status_producto=True)
+            .filter(status_producto=True, cantidad_disponible__gt=0)
             .select_related('categoria')
             .only(
                 'id',
@@ -925,10 +925,10 @@ def catalog(request):
     # Variable para guardar el objeto categoría encontrado (si existe)
     categoria_obj = None
 
-    # Base queryset: solo productos activos
+    # Base queryset: solo productos activos y con stock disponible
     Productos = (
         Producto.objects
-        .filter(status_producto=True)
+        .filter(status_producto=True, cantidad_disponible__gt=0)
         .select_related('categoria')
         .only(
             'id',
@@ -1398,7 +1398,12 @@ def producto_detalle(request, producto_id):
 
 @login_required
 def camisas_shein(request, producto_id):
-    producto = get_object_or_404(Producto.objects.select_related('categoria'), pk=producto_id, status_producto=True)
+    producto = get_object_or_404(
+        Producto.objects.select_related('categoria'),
+        pk=producto_id,
+        status_producto=True,
+        cantidad_disponible__gt=0,
+    )
     categoria_nombre = (producto.categoria.nombre_categoria if producto.categoria else '').strip()
     if categoria_nombre not in ('Camisas', 'Tazas'):
         return redirect('comprar_producto', producto_id=producto.pk)
@@ -1527,7 +1532,7 @@ def historial_compras(request):
 @login_required
 
 def comprar_producto(request, producto_id):
-    producto = get_object_or_404(Producto, pk=producto_id)
+    producto = get_object_or_404(Producto, pk=producto_id, status_producto=True, cantidad_disponible__gt=0)
     producto.img_url = _safe_img_url(producto)
 
     if request.method == 'POST':
@@ -1957,7 +1962,7 @@ def comprar_producto_ajax(request, producto_id):
     if request.method != 'POST':
         return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
 
-    producto = get_object_or_404(Producto, pk=producto_id)
+    producto = get_object_or_404(Producto, pk=producto_id, status_producto=True, cantidad_disponible__gt=0)
     try:
         cantidad = int(request.POST.get('cantidad', '1') or 1)
     except Exception:
