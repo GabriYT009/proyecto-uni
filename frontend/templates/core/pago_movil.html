@@ -69,11 +69,11 @@
             {% csrf_token %}
             <div class="field">
                 <label for="documento">Cédula / Documento</label>
-                <input type="text" id="documento" name="documento" required />{ {user.documento }}
+                <input type="text" id="documento" name="documento" required />{{ cedula }}
             </div>
             <div class="field">
                 <label for="mobile_phone">Teléfono</label>
-                <input type="tel" id="mobile_phone" name="mobile_phone" placeholder="Ej. 0999123456" required />
+                <input type="tel" id="mobile_phone" name="mobile_phone" placeholder="Ej. 0999123456" required />{{ telefono }}
             </div>
             <div class="field">
                 <label for="payment_proof">Comprobante (imagen opcional)</label>

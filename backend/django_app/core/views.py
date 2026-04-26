@@ -19,6 +19,8 @@ from django.conf import settings
 import re
 import os
 import json
+
+from requests import request
 from .models import Producto, Cliente, Categoria, Historial_Inventario, MetodoPago, CarritoDeCompras, OrdenDeDespacho, SolicitudSublimacion
 from django.core.paginator import Paginator
 from .forms import ProductForm, PasswordRecoveryForm
@@ -1024,7 +1026,7 @@ def perfil(request):
             cliente = Cliente.objects.filter(email__iexact=user.email).first()
             if cliente:
                 # soportar diferentes nombres de campo según la versión del modelo
-                cedula = getattr(cliente, 'cedula_dni', None) or getattr(cliente, 'documento', '') or ''
+                cedula = getattr(cliente, 'documento', '') or ''
                 telefono = getattr(cliente, 'telefono_cliente', None) or getattr(cliente, 'telefono', '') or ''
     except Exception:
         cliente = None
@@ -1901,6 +1903,19 @@ def pago_movil(request):
     El formulario resultante enviará los datos a `comprar_carrito` para finalizar la compra incluyendo los campos
     `documento` y `mobile_phone` y `mobile_paid`.
     """
+    user = request.user if request.user.is_authenticated else None
+    cliente = None
+    cedula = ''
+    telefono = ''
+    try:
+        if user and user.email:
+            cliente = Cliente.objects.filter(email__iexact=user.email).first()
+            if cliente:
+                # soportar diferentes nombres de campo según la versión del modelo
+                cedula = getattr(cliente, 'cedula_dni', None) or getattr(cliente, 'documento', '') or ''
+                telefono = getattr(cliente, 'telefono_cliente', None) or getattr(cliente, 'telefono', '') or ''
+    except Exception:
+        cliente = None
     if request.method != 'POST':
         return redirect('carrito')
 
@@ -1928,7 +1943,9 @@ def pago_movil(request):
         'total': total,
         'post': request.POST,
         'cart_count': len(request.session.get('cart', [])),
-        'user_groups': list(request.user.groups.values_list('name', flat=True))
+        'user_groups': list(request.user.groups.values_list('name', flat=True)),
+        'cedula': cedula,
+        'telefono': telefono,
     })
 
 
