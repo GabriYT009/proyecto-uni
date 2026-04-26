@@ -487,7 +487,7 @@
                     {% for marca in marcas_page.object_list %}
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             {{ marca.nombre_marca|default:'(sin nombre)' }}
-                            <span class="badge bg-secondary rounded-pill">ID {{ marca.pk }}</span>
+                            
                         </li>
                     {% endfor %}
                 </ul>
