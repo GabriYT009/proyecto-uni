@@ -17,6 +17,7 @@ RUN_COLLECTSTATIC="${RUN_COLLECTSTATIC:-0}"
 export PORT
 
 HAS_DATABASE_CONFIG="0"
+DB_READY="1"
 for _db_var in MYSQL_PRIVATE_URL DATABASE_PRIVATE_URL DATABASE_URL MYSQL_URL MYSQL_PUBLIC_URL MYSQL_NAME MYSQL_USER; do
     if [ -n "${!_db_var:-}" ]; then
         HAS_DATABASE_CONFIG="1"
@@ -140,13 +141,21 @@ except Exception as e:
 }
 if [ "$HAS_DATABASE_CONFIG" = "1" ]; then
     echo "[entrypoint] Esperando conexión a MySQL..."
-    run_with_retries "mysql-wait" wait_for_mysql
-    echo "[entrypoint] MySQL disponible"
+    if run_with_retries "mysql-wait" wait_for_mysql; then
+        echo "[entrypoint] MySQL disponible"
+    else
+        DB_READY="0"
+        if [ "${DB_STRICT_STARTUP:-0}" = "1" ] || [ "${DB_STRICT_STARTUP:-0}" = "true" ] || [ "${DB_STRICT_STARTUP:-0}" = "yes" ]; then
+            echo "[entrypoint] MySQL no disponible y DB_STRICT_STARTUP=1; abortando arranque"
+            exit 1
+        fi
+        echo "[entrypoint] MySQL no disponible; continuando arranque sin tareas de BD"
+    fi
 else
     echo "[entrypoint] No database env vars found; skipping MySQL wait so the app can boot"
 fi
 
-if [ "$HAS_DATABASE_CONFIG" = "1" ] && { [ "$RUN_MIGRATIONS" = "1" ] || [ "$RUN_MIGRATIONS" = "true" ] || [ "$RUN_MIGRATIONS" = "yes" ]; }; then
+if [ "$HAS_DATABASE_CONFIG" = "1" ] && [ "$DB_READY" = "1" ] && { [ "$RUN_MIGRATIONS" = "1" ] || [ "$RUN_MIGRATIONS" = "true" ] || [ "$RUN_MIGRATIONS" = "yes" ]; }; then
     echo "[entrypoint] Running migrations"
     run_with_retries "migrations" python manage.py migrate --noinput
 else
@@ -160,7 +169,7 @@ else
     echo "[entrypoint] Skipping collectstatic (set RUN_COLLECTSTATIC=1 to enable)"
 fi
 
-if [ "$HAS_DATABASE_CONFIG" = "1" ] && { [ "$RUN_BOOTSTRAP_AUTH" = "1" ] || [ "$RUN_BOOTSTRAP_AUTH" = "true" ] || [ "$RUN_BOOTSTRAP_AUTH" = "yes" ]; }; then
+if [ "$HAS_DATABASE_CONFIG" = "1" ] && [ "$DB_READY" = "1" ] && { [ "$RUN_BOOTSTRAP_AUTH" = "1" ] || [ "$RUN_BOOTSTRAP_AUTH" = "true" ] || [ "$RUN_BOOTSTRAP_AUTH" = "yes" ]; }; then
 echo "[entrypoint] Ensuring auth groups"
 run_with_retries "auth group setup" python -c "
 import os, django

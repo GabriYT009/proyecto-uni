@@ -30,6 +30,7 @@ El proyecto está preparado para desplegar **backend y frontend en la misma inst
     - `RUN_MIGRATIONS`: `1` si quieres ejecutar `migrate` en cada arranque. Por defecto está desactivado para evitar que Railway quede sin puerto si la base tarda en responder.
     - `RUN_BOOTSTRAP_AUTH`: `1` si quieres crear grupos y admin por defecto en cada arranque. Por defecto está desactivado.
     - `RUN_COLLECTSTATIC`: `1` si quieres ejecutar `collectstatic` al arrancar. Por defecto está desactivado porque la imagen ya lo ejecuta en build.
+    - `DB_STRICT_STARTUP`: `1` para abortar el arranque si MySQL no responde. Por defecto está desactivado para que Gunicorn levante igualmente y Railway no deje el servicio caído por un timeout temporal de la BD.
     - `ENABLE_LEGACY_STATIC_DIRS`: `1` solo si realmente necesitas incluir `backend/django_app/static` o los temas legacy en `collectstatic`.
 
 5. **Puerto**: Railway asigna `PORT` automáticamente; el entrypoint hace que Gunicorn escuche directamente en ese puerto.
