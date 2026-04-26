@@ -2,6 +2,7 @@ from fpdf import FPDF
 from datetime import datetime
 from .models import CarritoDeCompras, OrdenDeDespacho, Cliente
 from django.shortcuts import render, HttpResponse, get_object_or_404
+from django.utils import timezone
 
 class Generar_NE(FPDF):
     def __init__(self, nota_obj, *args, **kwargs):
@@ -28,7 +29,8 @@ class Generar_NE(FPDF):
         self.cell(0, 8, f'Estado del Pedido: {self.salida.estado_pago}', 0, 1, 'L')
         # Validación de fecha (tu campo se llama 'fecha')
         if self.salida.fecha:
-            self.cell(0, 8, f'Fecha: {self.salida.fecha.strftime("%d/%m/%Y %H:%M")}', 0, 1, 'L')
+            fecha_local = timezone.localtime(self.salida.fecha)
+            self.cell(0, 8, f'Fecha: {fecha_local.strftime("%d/%m/%Y %H:%M:%S")}', 0, 1, 'L')
 
         
 
