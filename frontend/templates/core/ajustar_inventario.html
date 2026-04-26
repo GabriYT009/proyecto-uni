@@ -96,7 +96,7 @@
         });
     });
 
-    // BotÃ³n global para aplicar el ajuste al producto seleccionado
+    // Botón global para aplicar el ajuste al producto seleccionado
     const btnAgregarGlobal = document.getElementById('agregar-ajuste-global');
     btnAgregarGlobal.addEventListener('click', function() {
         if (!seleccionado) {
@@ -118,7 +118,7 @@
         .then(response => response.json())
         .then(data => {
             if(data.success) {
-                alert('Â¡Se agregÃ³ el stock al inventario! Nuevo stock de ' + seleccionado.dataset.nombre + ': ' + data.nuevo_stock);
+                alert('¡Se agregó el stock al inventario! Nuevo stock de ' + seleccionado.dataset.nombre + ': ' + data.nuevo_stock);
                 window.location.href = '{% url 'inventario' %}';
             } else {
                 alert('Error: ' + (data.error || 'No se pudo actualizar el stock.'));

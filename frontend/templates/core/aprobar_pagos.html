@@ -392,7 +392,7 @@
                                     <input type="hidden" name="salida_id" value="{{ salida.pk }}">
                                     <label for="accion-{{ salida.pk }}">Estado</label>
                                     <select id="accion-{{ salida.pk }}" name="accion" class="status-select" required>
-                                        <option value="" disabled selected>Seleccionar acciÃ³n</option>
+                                        <option value="" disabled selected>Seleccionar acción</option>
                                         <option value="aprobar">Aprobar pago</option>
                                         <option value="rechazar">Rechazar pago</option>
                                     </select>
@@ -413,15 +413,15 @@
     <dd>No disponible</dd>
     {% endif %}
 
-    <dt>CÃ©dula / RIF</dt>
+    <dt>Cédula / RIF</dt>
     <dd>{{ salida.cliente.documento }}</dd>
 
-    <dt>Fecha de EmisiÃ³n</dt>
+    <dt>Fecha de Emisión</dt>
     <dd>{{ salida.fecha|default:salida.fecha_revision }}</dd>
 
     <dt class="total-label">Monto Total</dt>
     <dd class="total-amount">$ {{ salida.total }}</dd>
-    <dt>NÃºmero de referencia</dt>
+    <dt>Número de referencia</dt>
     {% if salida.referencia_pago %}
 
     <dd>{{ salida.referencia_pago }}</dd>
@@ -442,7 +442,7 @@
                                     </div>
                                 {% else %}
                                     <div class="proof-empty">
-                                        No se cargÃ³ un comprobante para esta orden.
+                                        No se cargó un comprobante para esta orden.
                                     </div>
                                 {% endif %}
                             </div>
@@ -451,11 +451,11 @@
                 {% endfor %}
             </div>
             {% if page_obj and page_obj.has_other_pages %}
-                <div class="pagination" aria-label="PaginaciÃ³n de pagos pendientes">
+                <div class="pagination" aria-label="Paginación de pagos pendientes">
                     {% if page_obj.has_previous %}
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">â† Anterior</a>
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">← Anterior</a>
                     {% else %}
-                        <span class="page-link disabled">â† Anterior</span>
+                        <span class="page-link disabled">← Anterior</span>
                     {% endif %}
 
                     {% for num in page_obj.paginator.page_range %}
@@ -466,27 +466,27 @@
                         {% elif num == 1 %}
                             <a class="page-link" href="?page=1">1</a>
                             {% if page_obj.number > 3 %}
-                                <span class="page-link disabled">â€¦</span>
+                                <span class="page-link disabled">…</span>
                             {% endif %}
                         {% elif num == page_obj.paginator.num_pages %}
                             {% if page_obj.number < page_obj.paginator.num_pages|add:'-2' %}
-                                <span class="page-link disabled">â€¦</span>
+                                <span class="page-link disabled">…</span>
                             {% endif %}
                             <a class="page-link" href="?page={{ num }}">{{ num }}</a>
                         {% endif %}
                     {% endfor %}
 
                     {% if page_obj.has_next %}
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente â†’</a>
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente →</a>
                     {% else %}
-                        <span class="page-link disabled">Siguiente â†’</span>
+                        <span class="page-link disabled">Siguiente →</span>
                     {% endif %}
                 </div>
             {% endif %}
         {% else %}
             <div class="empty-state">
                 <h2>No hay pagos pendientes</h2>
-                <p>Cuando los clientes suban un comprobante de pago, aparecerÃ¡ aquÃ­ para su revisiÃ³n.</p>
+                <p>Cuando los clientes suban un comprobante de pago, aparecerá aquí para su revisión.</p>
             </div>
         {% endif %}
     </div>

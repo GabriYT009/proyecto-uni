@@ -130,7 +130,7 @@
                     <div class="invoice-header" style="display:flex; justify-content:space-between; align-items:flex-start;">
                         <form action="">
                         <div class="customer-info" style="font-size:14px; line-height:1.4;">
-                            <div>Documento: <input name="client-doc" type="text"  id="client-doc" list="clients-list" placeholder="CÃ©dula" style="width:120px;padding:2px;" /></div>
+                            <div>Documento: <input name="client-doc" type="text"  id="client-doc" list="clients-list" placeholder="Cédula" style="width:120px;padding:2px;" /></div>
                             <datalist id="clients-list">
                                 {% for c in clientes %}
                                     <option value="{{ c.documento }}">{{ c.nombre_cliente }} {{ c.apellido_cliente }}</option>
@@ -138,8 +138,8 @@
                             </datalist>
                             <div>Cliente: <strong id="client-name">Consumidor Final</strong></div>
                             <div >R.I.F: <span id="client-rif" >-</span></div>
-                            <div>DirecciÃ³n: <span id="client-dir">-</span></div>
-                            <div>TelÃ©fono: <span id="client-phone">-</span></div>
+                            <div>Dirección: <span id="client-dir">-</span></div>
+                            <div>Teléfono: <span id="client-phone">-</span></div>
                         </div>
                         {{ clientes|json_script:"clientes-data" }}
                         <div class="factura-info" style="text-align:right; font-size:14px;">
@@ -152,7 +152,7 @@
                     <table id="invoice-table" style="width:100%; border-collapse:collapse; margin-top:12px; min-width:520px;">
                         <thead>
                             <tr style="background:#f0f0f0;">
-                                <th style="padding:6px; border:1px solid #ddd;">CÃ³digo</th>
+                                <th style="padding:6px; border:1px solid #ddd;">Código</th>
                                 <th style="padding:6px; border:1px solid #ddd;">Nombre</th>
                                 <th style="padding:6px; border:1px solid #ddd; width:60px;">Cant.</th>
                                 <th style="padding:6px; border:1px solid #ddd; width:80px; text-align:right;">Precio $</th>
@@ -348,7 +348,7 @@
                 return cookieValue;
             }
 
-            // 2. FunciÃ³n para calcular los Bs en las tarjetas del inventario (derecha)
+            // 2. Función para calcular los Bs en las tarjetas del inventario (derecha)
             function calcularPreciosInventario() {
                 var cards = document.querySelectorAll('#quick-products .card');
                 cards.forEach(function(card) {
@@ -386,7 +386,7 @@
                 Object.keys(items).forEach(function(k){
                     var it = items[k];
                     
-                    // CÃ¡lculos
+                    // Cálculos
                     var precioBs = it.price * tasaBackend;
                     var totalUsd = it.price * it.qty;
                     var totalBs = totalUsd * tasaBackend;
@@ -415,7 +415,7 @@
                 });
             }
 
-            // NotificaciÃ³n unificada con el toast compartido
+            // Notificación unificada con el toast compartido
             function showJsAlert(message, type = 'danger', timeout = 3000) {
                 if (typeof window.showGlobalToast === 'function') {
                     window.showGlobalToast(message, type, timeout);
@@ -497,7 +497,7 @@ document.getElementById('checkout').addEventListener('click', async function(){
                     return;
                 }
 
-                // 1. CAPTURAR LA CÃ‰DULA DEL INPUT
+                // 1. CAPTURAR LA CÉDULA DEL INPUT
                 var clienteDoc = document.getElementById('client-doc').value.trim();
 
                 try {
@@ -510,28 +510,28 @@ document.getElementById('checkout').addEventListener('click', async function(){
                         credentials: 'include',
                         body: JSON.stringify({ 
                             items: payloadItems,
-                            cliente_doc: clienteDoc // 2. ENVIAR LA CÃ‰DULA A DJANGO
+                            cliente_doc: clienteDoc // 2. ENVIAR LA CÉDULA A DJANGO
                         })
                     });
                     
                     const data = await res.json();
                     
-                    // ... (el resto del cÃ³digo sigue igual, con el window.open)
+                    // ... (el resto del código sigue igual, con el window.open)
                     if (!res.ok || !data.success) {
                         showJsAlert(data.error || 'No se pudo procesar el pago.', 'danger');
                         return;
                     
                     }
 
-                    // Procesar el Ã©xito: descargar el PDF y recargar la pÃ¡gina
+                    // Procesar el éxito: descargar el PDF y recargar la página
                     if (data.success) {
-                        // 1. Construimos la URL usando el ID que nos mandÃ³ Django (ej: /factura/descargar/45/)
+                        // 1. Construimos la URL usando el ID que nos mandó Django (ej: /factura/descargar/45/)
                         const urlDescarga = `/factura/descargar/${data.nota_id}/`;
 
-                        // 2. Abrimos el PDF en una pestaÃ±a nueva para que no se corte la descarga
+                        // 2. Abrimos el PDF en una pestaña nueva para que no se corte la descarga
                         window.open(urlDescarga, '_blank');
 
-                        // 3. Mostrar mensaje de Ã©xito y recargar la pÃ¡gina para limpiar la caja
+                        // 3. Mostrar mensaje de éxito y recargar la página para limpiar la caja
                         showJsAlert("Venta procesada y factura generada.", 'success', 3500);
                         setTimeout(function(){
                             window.location.reload();
@@ -549,7 +549,7 @@ document.getElementById('checkout').addEventListener('click', async function(){
 
                         (function(){
                             // 1. Capturamos el valor del backend. 
-                            // Usamos el filtro |default:0 para evitar errores si la variable llega vacÃ­a
+                            // Usamos el filtro |default:0 para evitar errores si la variable llega vacía
                             var tasaBackend = parseFloat("{{ valor_dolar|default:0 }}") || 0;
 
                             function recalcularTotal() {
@@ -612,7 +612,7 @@ document.getElementById('checkout').addEventListener('click', async function(){
                                         if (action === 'inc' && (max === 0 || v < max)) inp.value = v + 1;
                                         if (action === 'dec' && v > 1) inp.value = v - 1;
                                         
-                                        // Recalcular inmediatamente despuÃ©s del clic
+                                        // Recalcular inmediatamente después del clic
                                         recalcularTotal();
                                     });
                                 });

@@ -34,12 +34,12 @@
                             </div>
                         </div>
                         {% else %}
-                        <div class="muted">No hay informaciÃ³n de salida asociada para esta compra.</div>
+                        <div class="muted">No hay información de salida asociada para esta compra.</div>
                         {% endif %}
 
                         <ul style="margin-top:8px;">
                             {% for it in c.items %}
-                                <li>{{ it.producto.nombre_producto }} â€” Cantidad: {{ it.cantidad_item }} â€” Subtotal: $ {{ it.sub_total_item }}</li>
+                                <li>{{ it.producto.nombre_producto }} — Cantidad: {{ it.cantidad_item }} — Subtotal: $ {{ it.sub_total_item }}</li>
                             {% endfor %}
                         </ul>
                     </div>

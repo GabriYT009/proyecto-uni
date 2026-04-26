@@ -229,25 +229,25 @@
             {% if cliente %}
                 <p><strong>Nombre:</strong> {{ cliente.nombre_cliente }}</p>
                 <p><strong>Apellido:</strong>{{ cliente.apellido_cliente }}</p>
-                <p><strong>DirecciÃ³n:</strong> {{ cliente.direccion }}</p>
+                <p><strong>Dirección:</strong> {{ cliente.direccion }}</p>
             {% endif %}
             {% if user %}
 
                 <p><strong>Usuario:</strong> {{ user.username }}</p>
                 <p><strong>Email:</strong> {{ user.email }}</p>
                 {% if cedula %}
-                    <p><strong>CÃ©dula:</strong> {{ cedula }}</p>
+                    <p><strong>Cédula:</strong> {{ cedula }}</p>
                 {% endif %}
                 {% if telefono %}
-                    <p><strong>TelÃ©fono:</strong> {{ telefono }}</p>
+                    <p><strong>Teléfono:</strong> {{ telefono }}</p>
                 {% endif %}
 
 
 
                 
             {% else %}
-                <p>No has iniciado sesiÃ³n.</p>
-                <p><a href="{% url 'login_post' %}">Iniciar sesiÃ³n</a></p>
+                <p>No has iniciado sesión.</p>
+                <p><a href="{% url 'login_post' %}">Iniciar sesión</a></p>
             {% endif %}
         </div>
     </div>

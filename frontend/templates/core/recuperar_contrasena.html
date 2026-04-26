@@ -5,16 +5,16 @@
     <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}?v=2">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Recuperar contraseÃ±a</title>
+    <title>Recuperar contraseña</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body class="login-page">
-    <a href="{% url 'login' %}" class="bar-logo-link" aria-label="Volver al inicio de sesiÃ³n">
+    <a href="{% url 'login' %}" class="bar-logo-link" aria-label="Volver al inicio de sesión">
         <img id="logo" src="{% static 'core/logo nuevo.png' %}" alt="Solucionarte">
     </a>
 
     <div class="container auth-card login-card">
-        <h2>Recuperar contraseÃ±a</h2>
+        <h2>Recuperar contraseña</h2>
         {% include 'core/_messages.html' %}
 
         {% if form.non_field_errors %}
@@ -37,7 +37,7 @@
             </div>
 
             <div class="full">
-                <label for="id_email">Correo electrÃ³nico</label>
+                <label for="id_email">Correo electrónico</label>
                 {{ form.email }}
                 {% for error in form.email.errors %}
                     <div class="field-error">{{ error }}</div>
@@ -45,7 +45,7 @@
             </div>
 
             <div class="full">
-                <label for="id_new_password">Nueva contraseÃ±a</label>
+                <label for="id_new_password">Nueva contraseña</label>
                 {{ form.new_password }}
                 {% for error in form.new_password.errors %}
                     <div class="field-error">{{ error }}</div>
@@ -53,17 +53,17 @@
             </div>
 
             <div class="full">
-                <label for="id_new_password_confirm">Confirmar nueva contraseÃ±a</label>
+                <label for="id_new_password_confirm">Confirmar nueva contraseña</label>
                 {{ form.new_password_confirm }}
                 {% for error in form.new_password_confirm.errors %}
                     <div class="field-error">{{ error }}</div>
                 {% endfor %}
             </div>
 
-            <button type="submit">Actualizar contraseÃ±a</button>
+            <button type="submit">Actualizar contraseña</button>
 
             <div class="registrarse">
-                <a href="{% url 'login' %}">Volver al inicio de sesiÃ³n</a>
+                <a href="{% url 'login' %}">Volver al inicio de sesión</a>
             </div>
         </form>
     </div>

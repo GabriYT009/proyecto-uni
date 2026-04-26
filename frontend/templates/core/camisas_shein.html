@@ -398,7 +398,7 @@
                 </div>
 
                 <div class="info">
-                    <div class="crumb">{{ categoria_nombre }} / SublimaciÃ³n</div>
+                    <div class="crumb">{{ categoria_nombre }} / Sublimación</div>
                     <h1>{{ producto.nombre_producto }}</h1>
                     <p class="subtitle">{{ producto.descripcion }}</p>
 
@@ -422,13 +422,13 @@
 
                             <div class="actions">
                                 <button type="submit" class="btn-primary-strong" id="addCartBtn">Agregar al carrito</button>
-                                <button type="button" class="btn-secondary-ghost" id="openModalBtn">Agregar sublimaciÃ³n</button>
+                                <button type="button" class="btn-secondary-ghost" id="openModalBtn">Agregar sublimación</button>
                             </div>
                         </form>
                     </div>
 
                     <div class="section">
-                        <div class="section-title">Estado de sublimaciÃ³n</div>
+                        <div class="section-title">Estado de sublimación</div>
                         {% if solicitud %}
                             <div class="notice">
                                 Ya existe una solicitud pendiente para esta camisa.
@@ -449,7 +449,7 @@
     <div class="sublimation-backdrop" id="sublimationModal" aria-hidden="true">
         <div class="sublimation-card" role="dialog" aria-modal="true" aria-labelledby="sublimationTitle">
             <div class="modal-head">
-                <h2 id="sublimationTitle">Agregar sublimaciÃ³n</h2>
+                <h2 id="sublimationTitle">Agregar sublimación</h2>
                 <button type="button" class="modal-close" id="closeModalBtn" aria-label="Cerrar">&times;</button>
             </div>
             <form class="modal-body" method="post" enctype="multipart/form-data" id="sublimationForm">
@@ -460,12 +460,12 @@
                 <div class="field">
                     <label for="imagen_sublimacion">Imagen para sublimar</label>
                     <input type="file" name="imagen_sublimacion" id="imagen_sublimacion" accept="image/*" required>
-                    <div class="small">Sube una imagen nÃ­tida en JPG, PNG o WEBP.</div>
+                    <div class="small">Sube una imagen nítida en JPG, PNG o WEBP.</div>
                 </div>
 
                 <div class="field">
                     <label for="comentario">Comentario para el administrador</label>
-                    <textarea name="comentario" id="comentario" placeholder="Describe cÃ³mo quieres la sublimaciÃ³n, colores, ubicaciÃ³n o detalles especiales." required></textarea>
+                    <textarea name="comentario" id="comentario" placeholder="Describe cómo quieres la sublimación, colores, ubicación o detalles especiales." required></textarea>
                 </div>
 
                 <div class="field">

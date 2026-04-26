@@ -5,7 +5,7 @@
     <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}?v=2">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>CatÃ¡logo</title>
+    <title>Catálogo</title>
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com" rel="preconnect">
@@ -257,18 +257,18 @@
         <div class="wrap">
         <!-- Categories Section -->
         <section class="categories">
-            <h2>CategorÃ­as</h2>
-            <div class="category-bar-wrap" aria-label="Barra de categorÃ­as">
-                <button type="button" class="cat-scroll-btn cat-scroll-left" aria-label="Anterior">â—€</button>
+            <h2>Categorías</h2>
+            <div class="category-bar-wrap" aria-label="Barra de categorías">
+                <button type="button" class="cat-scroll-btn cat-scroll-left" aria-label="Anterior">◀</button>
                 <div class="category-grid category-bar" role="navigation">
                     {% for categoria in categories %}
                     <a href="?Categoria={{ categoria.nombre_categoria|urlencode }}" class="category-card {% if selected_Categoria == categoria.nombre_categoria %}active{% endif %}">
-                        <div class="category-icon">{% if categoria.nombre_categoria == 'Cajas' %}ðŸ“¦{% elif categoria.nombre_categoria == 'Toppers' %}ðŸŽ‚{% elif categoria.nombre_categoria == 'SublimaciÃ³n' %}ðŸ–¨ï¸{% elif categoria.nombre_categoria == 'ImpresiÃ³n' %}ðŸ“„{% elif categoria.nombre_categoria == 'PersonalizaciÃ³n' %}ðŸŽ¨{% elif categoria.nombre_categoria == 'PapelerÃ­a' %}ðŸ“{% elif categoria.nombre_categoria == 'Camisas' %}ðŸ‘•{% elif categoria.nombre_categoria == 'Tazas' %}â˜•{% elif categoria.nombre_categoria == 'Otros' %}ðŸ§©{% else %}ðŸ“{% endif %}</div>
+                        <div class="category-icon">{% if categoria.nombre_categoria == 'Cajas' %}📦{% elif categoria.nombre_categoria == 'Toppers' %}🎂{% elif categoria.nombre_categoria == 'Sublimación' %}🖨️{% elif categoria.nombre_categoria == 'Impresión' %}📄{% elif categoria.nombre_categoria == 'Personalización' %}🎨{% elif categoria.nombre_categoria == 'Papelería' %}📝{% elif categoria.nombre_categoria == 'Camisas' %}👕{% elif categoria.nombre_categoria == 'Tazas' %}☕{% elif categoria.nombre_categoria == 'Otros' %}🧩{% else %}📁{% endif %}</div>
                         <span>{{ categoria.nombre_categoria }}</span>
                     </a>
                     {% endfor %}
                 </div>
-                <button type="button" class="cat-scroll-btn cat-scroll-right" aria-label="Siguiente">â–¶</button>
+                <button type="button" class="cat-scroll-btn cat-scroll-right" aria-label="Siguiente">▶</button>
             </div>
         </section>
         
@@ -298,10 +298,10 @@
 
         <!-- Pagination controls -->
         {% if page_obj and page_obj.has_other_pages %}
-        <nav aria-label="PaginaciÃ³n" style="text-align:center; margin:30px 0;">
+        <nav aria-label="Paginación" style="text-align:center; margin:30px 0;">
             <ul style="display:inline-flex; list-style:none; gap:8px; padding:0;">
                 {% if page_obj.has_previous %}
-                <li><a href="?page={{ page_obj.previous_page_number }}{% if selected_Categoria %}&Categoria={{ selected_Categoria }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="btn-pagination">Â« Anterior</a></li>
+                <li><a href="?page={{ page_obj.previous_page_number }}{% if selected_Categoria %}&Categoria={{ selected_Categoria }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="btn-pagination">« Anterior</a></li>
                 {% endif %}
 
                 {% for num in paginator.page_range %}
@@ -313,7 +313,7 @@
                 {% endfor %}
 
                 {% if page_obj.has_next %}
-                <li><a href="?page={{ page_obj.next_page_number }}{% if selected_Categoria %}&Categoria={{ selected_Categoria }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="btn-pagination">Siguiente Â»</a></li>
+                <li><a href="?page={{ page_obj.next_page_number }}{% if selected_Categoria %}&Categoria={{ selected_Categoria }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="btn-pagination">Siguiente »</a></li>
                 {% endif %}
             </ul>
         </nav>
@@ -323,7 +323,7 @@
         <div id="detailModal" role="dialog" aria-hidden="true" style="display:none;">
             <div class="detail-modal" style="max-width:520px;margin:40px auto;padding:16px;background:#fff;border-radius:8px;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <strong id="m-title">TÃ­tulo</strong>
+                    <strong id="m-title">Título</strong>
                 </div>
                 <hr/>
                 <img id="m-img" src="" alt="" style="width:100%; height:200px; object-fit:cover; border-radius:6px; margin-bottom:8px;">
@@ -331,7 +331,7 @@
                 <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
                     <strong id="m-price"></strong>
                     <div style="display:flex; gap:10px;">
-                        <button class="btn" id="m-add-cart">AÃ±adir al carrito</button>
+                        <button class="btn" id="m-add-cart">Añadir al carrito</button>
                         
                     </div>
                 </div>
@@ -471,7 +471,7 @@
     </script>
     
     <script>
-        // Ensure modal "AÃ±adir al carrito" button posts directly to add_to_cart
+        // Ensure modal "Añadir al carrito" button posts directly to add_to_cart
         (function(){
             const btn = document.getElementById('m-add-cart');
             function getCsrf(){ const m = document.querySelector('meta[name="csrf-token"]'); return m?m.content:null; }
@@ -814,7 +814,7 @@
     
             <script>
                 (function(){
-                    // 1. Capturamos la tasa que envÃ­a Django
+                    // 1. Capturamos la tasa que envía Django
                     var tasaBackend = parseFloat("{{ valor_dolar|default:0 }}") || 0;
 
                     function calcularPreciosCatalogo() {
@@ -822,7 +822,7 @@
                         var cards = document.querySelectorAll('.grid .card');
 
                         cards.forEach(function(card) {
-                            // 3. Buscamos el elemento del precio en dÃ³lares
+                            // 3. Buscamos el elemento del precio en dólares
                             var usdElement = card.querySelector('.price-usd');
                             var bsElement = card.querySelector('.price-bs-value');
 
@@ -830,7 +830,7 @@
                                 // 4. Tomamos el precio limpio gracias al atributo data-price
                                 var precioUsd = parseFloat(usdElement.getAttribute('data-price')) || 0;
                                 
-                                // 5. Calculamos en BolÃ­vares
+                                // 5. Calculamos en Bolívares
                                 var precioBs = precioUsd * tasaBackend;
 
                                 // 6. Inyectamos el valor con formato
@@ -839,7 +839,7 @@
                         });
                     }
 
-                    // Ejecutamos la funciÃ³n apenas cargue el script
+                    // Ejecutamos la función apenas cargue el script
                     calcularPreciosCatalogo();
                 })();
             </script>
