@@ -20,7 +20,7 @@ class Generar_NE(FPDF):
             except Exception:
                 pass
 
-        company_phone = os.environ.get('COMPANY_PHONE', 'No disponible')
+        company_phone = (os.environ.get('COMPANY_PHONE') or '04245684179').strip()
 
         # Logo or company info
         self.set_font('Arial', 'B', 16)
@@ -31,7 +31,8 @@ class Generar_NE(FPDF):
         self.set_font('Arial', '', 12)
         self.cell(0, 8, 'SolucionArte - Tienda de Productos Personalizados', 0, 1, 'C')
         self.cell(0, 8, 'Dirección: Guanare-Portuguesa', 0, 1, 'C')
-        self.cell(0, 8, f'Teléfono: {company_phone}', 0, 1, 'C')
+        if company_phone:
+            self.cell(0, 8, f'Teléfono: {company_phone}', 0, 1, 'C')
         self.ln(10)
 
         # Invoice details
