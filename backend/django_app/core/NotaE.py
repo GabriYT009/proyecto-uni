@@ -47,8 +47,12 @@ class Generar_NE(FPDF):
             if documento:
                 self.cell(0, 8, f'Cédula/RIF: {documento}', 0, 1, 'L')
         else:
-            # Si no hay cliente asociado (ej. venta rápida), ponemos Consumidor Final
-            self.cell(0, 8, 'Cliente: Consumidor Final', 0, 1, 'L')
+            # Si no hay cliente asociado, usamos snapshot capturado en Caja (si existe).
+            nombre_ocasional = (getattr(self.salida, 'cliente_nombre', '') or '').strip() or 'Consumidor Final'
+            documento_ocasional = (getattr(self.salida, 'cliente_documento', '') or '').strip()
+            self.cell(0, 8, f'Cliente: {nombre_ocasional}', 0, 1, 'L')
+            if documento_ocasional:
+                self.cell(0, 8, f'Cédula/RIF: {documento_ocasional}', 0, 1, 'L')
 
         self.ln(10)
 

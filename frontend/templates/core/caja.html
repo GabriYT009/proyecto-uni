@@ -140,6 +140,9 @@
                             <div >R.I.F: <span id="client-rif" >-</span></div>
                             <div>Dirección: <span id="client-dir">-</span></div>
                             <div>Teléfono: <span id="client-phone">-</span></div>
+                            <div style="margin-top:6px;">Nombre (no registrado): <input type="text" id="client-name-input" placeholder="Nombre cliente" style="width:210px;padding:2px;"></div>
+                            <div style="margin-top:4px;">Dirección (no registrado): <input type="text" id="client-dir-input" placeholder="Direccion cliente" style="width:240px;padding:2px;"></div>
+                            <div style="margin-top:4px;">Teléfono (no registrado): <input type="text" id="client-phone-input" placeholder="Telefono cliente" style="width:160px;padding:2px;"></div>
                         </div>
                         {{ clientes|json_script:"clientes-data" }}
                         <div class="factura-info" style="text-align:right; font-size:14px;">
@@ -465,28 +468,59 @@
 
             // client autocomplete when typing document number
             var clientes = JSON.parse(document.getElementById('clientes-data').textContent || '[]');
-            document.getElementById('client-doc').addEventListener('input', function(){
-                var doc = this.value.trim();
-                var match = clientes.find(function(c){ return c.documento === doc; });
+            var clientDocInput = document.getElementById('client-doc');
+            var clientNameInput = document.getElementById('client-name-input');
+            var clientDirInput = document.getElementById('client-dir-input');
+            var clientPhoneInput = document.getElementById('client-phone-input');
+
+            function refreshClientPreview(){
+                var doc = clientDocInput.value.trim();
+                var match = clientes.find(function(c){ return (c.documento || '').trim() === doc; });
+
                 if(match){
-                    document.getElementById('client-name').textContent = ((match.nombre_cliente||'') + ' ' + (match.apellido_cliente||'')).trim() || 'Consumidor Final';
+                    var nombreMatch = ((match.nombre_cliente || '') + ' ' + (match.apellido_cliente || '')).trim() || 'Consumidor Final';
+                    document.getElementById('client-name').textContent = nombreMatch;
                     document.getElementById('client-rif').textContent = match.documento || '-';
                     document.getElementById('client-dir').textContent = match.direccion || '-';
                     document.getElementById('client-phone').textContent = match.telefono_cliente || '-';
-                } else {
-                    document.getElementById('client-name').textContent = 'Consumidor Final';
-                    document.getElementById('client-rif').textContent = '-';
-                    document.getElementById('client-dir').textContent = '-';
-                    document.getElementById('client-phone').textContent = '-';
+
+                    clientNameInput.value = nombreMatch;
+                    clientDirInput.value = match.direccion || '';
+                    clientPhoneInput.value = match.telefono_cliente || '';
+                    return;
                 }
-            });
+
+                var nombreLibre = clientNameInput.value.trim() || 'Consumidor Final';
+                var dirLibre = clientDirInput.value.trim() || '-';
+                var telLibre = clientPhoneInput.value.trim() || '-';
+                document.getElementById('client-name').textContent = nombreLibre;
+                document.getElementById('client-rif').textContent = doc || '-';
+                document.getElementById('client-dir').textContent = dirLibre;
+                document.getElementById('client-phone').textContent = telLibre;
+            }
+
+            clientDocInput.addEventListener('input', refreshClientPreview);
+            clientNameInput.addEventListener('input', refreshClientPreview);
+            clientDirInput.addEventListener('input', refreshClientPreview);
+            clientPhoneInput.addEventListener('input', refreshClientPreview);
+            refreshClientPreview();
 
             document.querySelectorAll('#quick-products .card').forEach(function(card){
                 card.addEventListener('click', function(){ addCardToInvoice(card); });
             });
 
 
-            document.getElementById('clear-invoice').addEventListener('click', function(){ items = {}; renderInvoice(); recalc(); });
+            document.getElementById('clear-invoice').addEventListener('click', function(){
+                items = {};
+                renderInvoice();
+                recalc();
+
+                clientDocInput.value = '';
+                clientNameInput.value = '';
+                clientDirInput.value = '';
+                clientPhoneInput.value = '';
+                refreshClientPreview();
+            });
 document.getElementById('checkout').addEventListener('click', async function(){
                 var payloadItems = Object.keys(items).map(function(k){
                     return { id: Number(items[k].id), qty: Number(items[k].qty || 1) };
@@ -499,6 +533,9 @@ document.getElementById('checkout').addEventListener('click', async function(){
 
                 // 1. CAPTURAR LA CÉDULA DEL INPUT
                 var clienteDoc = document.getElementById('client-doc').value.trim();
+                var clienteNombre = document.getElementById('client-name-input').value.trim();
+                var clienteDireccion = document.getElementById('client-dir-input').value.trim();
+                var clienteTelefono = document.getElementById('client-phone-input').value.trim();
 
                 try {
                     const res = await fetch('/caja/cobrar/', {
@@ -510,7 +547,10 @@ document.getElementById('checkout').addEventListener('click', async function(){
                         credentials: 'include',
                         body: JSON.stringify({ 
                             items: payloadItems,
-                            cliente_doc: clienteDoc // 2. ENVIAR LA CÉDULA A DJANGO
+                            cliente_doc: clienteDoc,
+                            cliente_nombre: clienteNombre,
+                            cliente_direccion: clienteDireccion,
+                            cliente_telefono: clienteTelefono
                         })
                     });
                     

@@ -1202,6 +1202,9 @@ def cobrar_caja(request):
 
     # 2. AHORA SÍ sacamos la cédula y los items del payload decodificado
     cliente_doc = payload.get('cliente_doc', '').strip()
+    cliente_nombre = payload.get('cliente_nombre', '').strip()
+    cliente_direccion = payload.get('cliente_direccion', '').strip()
+    cliente_telefono = payload.get('cliente_telefono', '').strip()
     raw_items = payload.get('items') or []
     
     if not isinstance(raw_items, list) or not raw_items:
@@ -1240,14 +1243,25 @@ def cobrar_caja(request):
                 cliente_datos = Cliente.objects.filter(documento=cliente_doc).first() 
 
             # Crear la Nota de Entrega
+            nota_kwargs = {
+                'cliente': cliente_datos,
+                'estado_pago': 'APROBADO',
+                'fecha': timezone.now(),
+                'total': 0.0,
+                'bcv': valor_bcv,
+                'fecha_revision': timezone.now(),
+                'revisado_por_id': request.user.pk,
+            }
+
+            # Para clientes no registrados, guardamos un snapshot de datos digitados en Caja.
+            if not cliente_datos:
+                nota_kwargs['cliente_documento'] = cliente_doc[:45] if cliente_doc else ''
+                nota_kwargs['cliente_nombre'] = cliente_nombre[:90] if cliente_nombre else 'Consumidor Final'
+                nota_kwargs['cliente_direccion'] = cliente_direccion[:100] if cliente_direccion else ''
+                nota_kwargs['cliente_telefono'] = cliente_telefono[:15] if cliente_telefono else ''
+
             nota = Nota_Entrega.objects.create(
-                cliente=cliente_datos,
-                estado_pago='APROBADO',
-                fecha=timezone.now(),
-                total=0.0,
-                bcv=valor_bcv,
-                fecha_revision=timezone.now(),
-                revisado_por_id=request.user.pk,
+                **nota_kwargs,
             )
 
             total_acumulado = 0.0
