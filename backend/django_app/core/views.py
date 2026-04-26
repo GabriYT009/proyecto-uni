@@ -1614,7 +1614,15 @@ def comprar_producto(request, producto_id):
 def pago_exitoso(request, salida_id):
     nota = get_object_or_404(Nota_Entrega, pk=salida_id)
     # Intentar recuperar items del carrito si existen
-    items = nota.detalles.all().select_related('Producto')
+    items = [
+        {
+            'producto': detalle.Producto,
+            'cantidad_item': detalle.Cantidad,
+            'sub_total_item': float(detalle.precio_unitario or 0) * float(detalle.Cantidad or 0),
+            'precio_unitario': detalle.precio_unitario,
+        }
+        for detalle in nota.detalles.all().select_related('Producto')
+    ]
 
     return render(request, 'core/pago_exitoso.html', {
         'salida': nota,  
@@ -1754,11 +1762,15 @@ def detalles_salida(request, salida_id):
     nota = get_object_or_404(Nota_Entrega, pk=salida_id)
     
 
-    items = (
-        nota.detalles  # Esto accede a todos los CarritoDeCompras asociados a esta Nota
-        .all()
-        .select_related('Producto')  # Optimización de base de datos
-    )
+    items = [
+        {
+            'producto': detalle.Producto,
+            'cantidad_item': detalle.Cantidad,
+            'sub_total_item': float(detalle.precio_unitario or 0) * float(detalle.Cantidad or 0),
+            'precio_unitario': detalle.precio_unitario,
+        }
+        for detalle in nota.detalles.all().select_related('Producto')
+    ]
     
     # Retornamos al template
     return render(request, 'core/detalles_salida.html', {
