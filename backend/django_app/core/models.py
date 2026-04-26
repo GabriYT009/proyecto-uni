@@ -123,8 +123,8 @@ class Cliente(models.Model):
         return f"{self.nombre_cliente} {self.apellido_cliente}"
     
 class Marca_producto(models.Model):
-    nombre_marca = models.CharField(max_length=45, blank=True, null=True)
-
+    nombre_marca = models.CharField(max_length=45, blank=True, null=True, unique=True)
+ 
     class Meta:
         verbose_name = 'Marca de Producto'
         verbose_name_plural = 'Marcas de Productos'

@@ -25,7 +25,7 @@ def _persist_rate(rate):
 def obtener_tasa_cambio():
     URL_OFICIAL = "https://www.bcv.org.ve/"
     URL_API = "https://api.dolarvzla.com/public/bcv/exchange-rate"
-    MI_API_KEY = "e844224cbd000e3c6f4f3d89f0d9e67e0389984d88d765fbbb25ef1b3910fbd0"
+    MI_API_KEY = "3f1265ab0b8a7da7f5110133ec87424c12f0d153bdd5bc352665077785d600a9"
     HEADERS = {"x-dolarvzla-key": MI_API_KEY}
 
     try:

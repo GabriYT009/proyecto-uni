@@ -4,7 +4,6 @@ import importlib
 from urllib.parse import urlparse
 from django.views import View
 from django.template.loader import render_to_string
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import user_passes_test, login_required
@@ -20,11 +19,13 @@ from django.conf import settings
 import re
 import os
 import json
+
+from requests import request
 from .models import Producto, Cliente, Categoria, Historial_Inventario, MetodoPago, CarritoDeCompras, OrdenDeDespacho, SolicitudSublimacion
 from django.core.paginator import Paginator
 from .forms import ProductForm, PasswordRecoveryForm
 from django.utils import timezone
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.urls import reverse
 from django.core.files.storage import default_storage
 
@@ -1025,7 +1026,7 @@ def perfil(request):
             cliente = Cliente.objects.filter(email__iexact=user.email).first()
             if cliente:
                 # soportar diferentes nombres de campo según la versión del modelo
-                cedula = getattr(cliente, 'cedula_dni', None) or getattr(cliente, 'documento', '') or ''
+                cedula = getattr(cliente, 'documento', '') or ''
                 telefono = getattr(cliente, 'telefono_cliente', None) or getattr(cliente, 'telefono', '') or ''
     except Exception:
         cliente = None
@@ -1902,6 +1903,19 @@ def pago_movil(request):
     El formulario resultante enviará los datos a `comprar_carrito` para finalizar la compra incluyendo los campos
     `documento` y `mobile_phone` y `mobile_paid`.
     """
+    user = request.user if request.user.is_authenticated else None
+    cliente = None
+    cedula = ''
+    telefono = ''
+    try:
+        if user and user.email:
+            cliente = Cliente.objects.filter(email__iexact=user.email).first()
+            if cliente:
+                # soportar diferentes nombres de campo según la versión del modelo
+                cedula = getattr(cliente, 'cedula_dni', None) or getattr(cliente, 'documento', '') or ''
+                telefono = getattr(cliente, 'telefono_cliente', None) or getattr(cliente, 'telefono', '') or ''
+    except Exception:
+        cliente = None
     if request.method != 'POST':
         return redirect('carrito')
 
@@ -1929,7 +1943,9 @@ def pago_movil(request):
         'total': total,
         'post': request.POST,
         'cart_count': len(request.session.get('cart', [])),
-        'user_groups': list(request.user.groups.values_list('name', flat=True))
+        'user_groups': list(request.user.groups.values_list('name', flat=True)),
+        'cedula': cedula,
+        'telefono': telefono,
     })
 
 
@@ -2328,51 +2344,29 @@ def todos_clientes(request):
 @login_required
 @admin_only
 def agregar_marca(request):
-    marcas=Marca_producto.objects.all().order_by('nombre_marca')
+    marcas_qs = Marca_producto.objects.all().order_by('nombre_marca')
+    paginator = Paginator(marcas_qs, 15)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     if request.method == 'POST':
-        # producto_id = request.POST.get('producto_id')
-        nueva_marca = request.POST.get('marca_producto', '').strip()
-        try:
-            Marca_producto.objects.create(nombre_marca=nueva_marca)
-        except Exception as e:
-            messages.error(request, f'Error al agregar la marca: {str(e)}')
-        # if producto_id and marca:
-        #     try:
-        #         producto = Producto.objects.get(pk=producto_id)
-        #         marca_anterior = (producto.marca_producto or '').strip()
-        #         producto.marca_producto = marca
-        #         producto.save()
-        #         if marca_anterior and marca_anterior.lower() != marca.lower():
-        #             messages.success(
-        #                 request,
-        #                 f'Marca actualizada en "{producto.nombre_producto}": "{marca_anterior}" -> "{marca}".'
-        #             )
-        #         elif marca_anterior and marca_anterior.lower() == marca.lower():
-        #             messages.success(
-        #                 request,
-        #                 f'La marca de "{producto.nombre_producto}" ya estaba en "{marca}".'
-        #             )
-        #         else:
-        #             messages.success(request, f'Marca "{marca}" agregada al producto "{producto.nombre_producto}".')
-        #     except Producto.DoesNotExist:
-        #         messages.error(request, 'Producto no encontrado.')
-        #     except Exception as e:
-        #         messages.error(request, f'Error al agregar la marca: {str(e)}')
-        # else:
-        #     messages.error(request, 'Debes seleccionar un producto y proporcionar una marca.')
+        nueva_marca = request.POST.get('marca_producto', '').strip().upper()
+        if nueva_marca:
+            try:
+                Marca_producto.objects.create(nombre_marca=nueva_marca)
+                messages.success(request, f'Marca "{nueva_marca}" agregada correctamente.')
+            except IntegrityError:
+                messages.error(request, f'La marca "{nueva_marca}" ya existe.')
         
+            except Exception as e:
+                messages.error(request, f'Error al agregar la marca: {str(e)}')
+        else:
+            messages.error(request, 'Debes ingresar el nombre de la marca.')
         return redirect('agregar_marca')
     
-    # Obtener todos los productos para permitir seleccionar cualquiera
-    # productos = Producto.objects.all().order_by('nombre_producto')
-
-
-
     return render(request, 'core/agregar_marca.html', {
-
-
         'cart_count': len(request.session.get('cart', [])),
         'user_groups': list(request.user.groups.values_list('name', flat=True)),
-        'marcas':marcas
-        
+        'marcas_page': page_obj,
+        'is_paginated': page_obj.has_other_pages(),
     })
