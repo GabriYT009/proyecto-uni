@@ -19,7 +19,7 @@ from django.conf import settings
 import re
 import os
 import json
-
+from django.core.exceptions import ObjectDoesNotExist
 from requests import request
 from .models import Producto, Cliente, Categoria, Historial_Inventario, MetodoPago, CarritoDeCompras, OrdenDeDespacho, SolicitudSublimacion
 from django.core.paginator import Paginator
@@ -1901,26 +1901,12 @@ def comprar_carrito(request):
 
     return redirect('pago_exitoso', salida_id=nota.pk)
 
-
 @login_required
 def pago_movil(request):
     """Mostrar la pantalla de pago móvil (recibe cantidades desde el formulario del carrito y no finaliza la compra).
     El formulario resultante enviará los datos a `comprar_carrito` para finalizar la compra incluyendo los campos
     `documento` y `mobile_phone` y `mobile_paid`.
     """
-    user = request.user if request.user.is_authenticated else None
-    cliente = None
-    cedula = ''
-    telefono = ''
-    try:
-        if user and user.email:
-            cliente = Cliente.objects.filter(email__iexact=user.email).first()
-            if cliente:
-                # soportar diferentes nombres de campo según la versión del modelo
-                cedula = getattr(cliente, 'cedula_dni', None) or getattr(cliente, 'documento', '') or ''
-                telefono = getattr(cliente, 'telefono_cliente', None) or getattr(cliente, 'telefono', '') or ''
-    except Exception:
-        cliente = None
     if request.method != 'POST':
         return redirect('carrito')
 
@@ -1929,30 +1915,53 @@ def pago_movil(request):
         messages.error(request, 'No hay productos en el carrito.')
         return redirect('carrito')
 
+    #  variables por defecto
+    cedula = ''
+    telefono = ''
+
+
+    try:
+        # Intentamos acceder al perfil de cliente directamente conectado a este usuario
+        cliente = request.user.cliente 
+        cedula = getattr(cliente, 'documento', '') or ''
+        telefono = getattr(cliente, 'telefono_cliente', None) or getattr(cliente, 'telefono', '') or ''
+    except ObjectDoesNotExist:
+        # Si el usuario no tiene perfil de cliente, se queda con los valores vacíos
+        pass 
+
     productos = Producto.objects.filter(pk__in=cart)
     items = []
     total = 0.0
+
     # recoger cantidades desde request.POST
     for p in productos:
         qty = request.POST.get(f'cantidad_{p.pk}') or request.POST.get(f'qty_{p.pk}') or request.POST.get(str(p.pk)) or 1
+        
         try:
             cantidad = int(qty)
-        except Exception:
+        except (ValueError, TypeError): # Capturamos solo los errores de conversión
             cantidad = 1
+            
         subtotal = float(p.precio_venta or 0) * cantidad
-        items.append({'producto': p, 'cantidad': cantidad, 'subtotal': subtotal, 'talla': _get_session_cart_talla(request, p.pk), 'sublimacion': _latest_pending_sublimation(request.user, p.pk)})
+        
+        items.append({
+            'producto': p, 
+            'cantidad': cantidad, 
+            'subtotal': subtotal, 
+            'talla': _get_session_cart_talla(request, p.pk), 
+            'sublimacion': _latest_pending_sublimation(request.user, p.pk)
+        })
         total += subtotal
 
     return render(request, 'core/pago_movil.html', {
         'items': items,
         'total': total,
-        'post': request.POST,
-        'cart_count': len(request.session.get('cart', [])),
+        'post': request.POST, # Se envía para re-renderizar inputs ocultos si es necesario
+        'cart_count': len(cart),
         'user_groups': list(request.user.groups.values_list('name', flat=True)),
         'cedula': cedula,
         'telefono': telefono,
     })
-
 
 
 
