@@ -408,13 +408,54 @@
 <dl class="payment-info">
     <dt>Beneficiario</dt>
     {% if salida.cliente %}
-    <dd>{{ salida.cliente.nombre_cliente }} {{ salida.cliente.apellido_cliente }}</dd>
+    <dd>
+        {% if salida.cliente.nombre_cliente or salida.cliente.apellido_cliente %}
+            {{ salida.cliente.nombre_cliente }} {{ salida.cliente.apellido_cliente }}
+        {% elif salida.cliente.user %}
+            {% firstof salida.cliente.user.get_full_name salida.cliente.user.username salida.cliente.user.email "No disponible" %}
+        {% else %}
+            No disponible
+        {% endif %}
+    </dd>
     {% else %}
     <dd>No disponible</dd>
     {% endif %}
 
     <dt>Cédula / RIF</dt>
-    <dd>{{ salida.cliente.documento }}</dd>
+    <dd>
+        {% if salida.cliente %}
+            {% firstof salida.cliente.documento salida.cliente.rif_empresarial "No disponible" %}
+        {% else %}
+            No disponible
+        {% endif %}
+    </dd>
+
+    <dt>Usuario</dt>
+    <dd>
+        {% if salida.cliente and salida.cliente.user %}
+            {% firstof salida.cliente.user.username salida.cliente.user.email "No disponible" %}
+        {% else %}
+            No disponible
+        {% endif %}
+    </dd>
+
+    <dt>Teléfono</dt>
+    <dd>
+        {% if salida.cliente %}
+            {% firstof salida.cliente.telefono_cliente "No disponible" %}
+        {% else %}
+            No disponible
+        {% endif %}
+    </dd>
+
+    <dt>Correo</dt>
+    <dd>
+        {% if salida.cliente %}
+            {% firstof salida.cliente.email salida.cliente.user.email "No disponible" %}
+        {% else %}
+            No disponible
+        {% endif %}
+    </dd>
 
     <dt>Fecha de Emisión</dt>
     <dd>{{ salida.fecha|default:salida.fecha_revision }}</dd>
