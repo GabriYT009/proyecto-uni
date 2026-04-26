@@ -2328,6 +2328,7 @@ def todos_clientes(request):
 @login_required
 @admin_only
 def agregar_marca(request):
+    marcas=Marca_producto.objects.all().order_by('nombre_marca')
     if request.method == 'POST':
         # producto_id = request.POST.get('producto_id')
         nueva_marca = request.POST.get('marca_producto', '').strip()
@@ -2371,5 +2372,7 @@ def agregar_marca(request):
 
 
         'cart_count': len(request.session.get('cart', [])),
-        'user_groups': list(request.user.groups.values_list('name', flat=True))
+        'user_groups': list(request.user.groups.values_list('name', flat=True)),
+        'marcas':marcas
+        
     })
