@@ -1907,25 +1907,9 @@ def pago_movil(request):
     cliente = None
     cedula = ''
     telefono = ''
-    try:
-        if user and user.email:
-            cliente = Cliente.objects.filter(email__iexact=user.email).first()
-            if cliente:
-                # soportar diferentes nombres de campo según la versión del modelo
-                cedula = getattr(cliente, 'documento', '') or ''
-                telefono = getattr(cliente, 'telefono_cliente', None) or getattr(cliente, 'telefono', '') or ''
-                return render(request, 'core/pago_movil.html', {
-                    'items': items,
-                    'total': total,
-                    'post': request.POST,
-                    'cart_count': len(request.session.get('cart', [])),
-                    'user_groups': list(request.user.groups.values_list('name', flat=True)),
-                    'cedula': cedula,
-                    'telefono': telefono,
-                })
 
-    except Exception:
-        cliente = None
+
+    
     if request.method != 'POST':
         return redirect('carrito')
 
@@ -1937,6 +1921,18 @@ def pago_movil(request):
     productos = Producto.objects.filter(pk__in=cart)
     items = []
     total = 0.0
+    try:
+        if user and user.email:
+            cliente = Cliente.objects.filter(email__iexact=user.email).first()
+            if cliente:
+                # soportar diferentes nombres de campo según la versión del modelo
+                cedula = getattr(cliente, 'documento', '') or ''
+                telefono = getattr(cliente, 'telefono_cliente', None) or getattr(cliente, 'telefono', '') or ''
+    except Exception:
+        cliente = None
+        cedula = ''
+        telefono = ''
+
     # recoger cantidades desde request.POST
     for p in productos:
         qty = request.POST.get(f'cantidad_{p.pk}') or request.POST.get(f'qty_{p.pk}') or request.POST.get(str(p.pk)) or 1
