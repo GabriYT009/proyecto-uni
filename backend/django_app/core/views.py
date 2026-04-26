@@ -2328,51 +2328,26 @@ def todos_clientes(request):
 @login_required
 @admin_only
 def agregar_marca(request):
-    marcas=Marca_producto.objects.all().order_by('nombre_marca')
+    marcas_qs = Marca_producto.objects.all().order_by('nombre_marca')
+    paginator = Paginator(marcas_qs, 15)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     if request.method == 'POST':
-        # producto_id = request.POST.get('producto_id')
         nueva_marca = request.POST.get('marca_producto', '').strip()
-        try:
-            Marca_producto.objects.create(nombre_marca=nueva_marca)
-        except Exception as e:
-            messages.error(request, f'Error al agregar la marca: {str(e)}')
-        # if producto_id and marca:
-        #     try:
-        #         producto = Producto.objects.get(pk=producto_id)
-        #         marca_anterior = (producto.marca_producto or '').strip()
-        #         producto.marca_producto = marca
-        #         producto.save()
-        #         if marca_anterior and marca_anterior.lower() != marca.lower():
-        #             messages.success(
-        #                 request,
-        #                 f'Marca actualizada en "{producto.nombre_producto}": "{marca_anterior}" -> "{marca}".'
-        #             )
-        #         elif marca_anterior and marca_anterior.lower() == marca.lower():
-        #             messages.success(
-        #                 request,
-        #                 f'La marca de "{producto.nombre_producto}" ya estaba en "{marca}".'
-        #             )
-        #         else:
-        #             messages.success(request, f'Marca "{marca}" agregada al producto "{producto.nombre_producto}".')
-        #     except Producto.DoesNotExist:
-        #         messages.error(request, 'Producto no encontrado.')
-        #     except Exception as e:
-        #         messages.error(request, f'Error al agregar la marca: {str(e)}')
-        # else:
-        #     messages.error(request, 'Debes seleccionar un producto y proporcionar una marca.')
-        
+        if nueva_marca:
+            try:
+                Marca_producto.objects.create(nombre_marca=nueva_marca)
+                messages.success(request, f'Marca "{nueva_marca}" agregada correctamente.')
+            except Exception as e:
+                messages.error(request, f'Error al agregar la marca: {str(e)}')
+        else:
+            messages.error(request, 'Debes ingresar el nombre de la marca.')
         return redirect('agregar_marca')
     
-    # Obtener todos los productos para permitir seleccionar cualquiera
-    # productos = Producto.objects.all().order_by('nombre_producto')
-
-
-
     return render(request, 'core/agregar_marca.html', {
-
-
         'cart_count': len(request.session.get('cart', [])),
         'user_groups': list(request.user.groups.values_list('name', flat=True)),
-        'marcas':marcas
-        
+        'marcas_page': page_obj,
+        'is_paginated': page_obj.has_other_pages(),
     })
