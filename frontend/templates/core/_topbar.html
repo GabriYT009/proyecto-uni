@@ -443,7 +443,7 @@
 						<button id="pagosToggle" class="nav-link pagos-toggle" aria-haspopup="true" aria-expanded="false">Pagos ▾</button>
 						<div id="pagosDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
 							<a href="{% url 'aprobar_pagos' %}" class="dropdown-item">Aprobar pagos</a>
-							<a href="{% url 'ordenes_sublimacion' %}" class="dropdown-item">Ordenes de sublimacion</a>
+							<a href="{% url 'ordenes_sublimacion' %}" class="dropdown-item">Órdenes de sublimación</a>
 						</div>
 					</div>
 				{% endif %}
@@ -531,7 +531,7 @@
 				<div id="topbarPagosSubMenu" class="nav-submenu" aria-hidden="true">
 					<button class="nav-item nav-back" type="button" data-close-submenu="topbarPagosSubMenu">← Menu</button>
 					<a class="nav-item" href="{% url 'aprobar_pagos' %}">Aprobar pagos</a>
-					<a class="nav-item" href="{% url 'ordenes_sublimacion' %}">Ordenes de sublimacion</a>
+					<a class="nav-item" href="{% url 'ordenes_sublimacion' %}">Órdenes de sublimación</a>
 				</div>
 			</div>
 		{% endif %}

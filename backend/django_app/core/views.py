@@ -1706,8 +1706,10 @@ def ordenes_sublimacion(request):
             solicitud.estado = 'VINCULADA'
             messages.success(request, f'Orden de sublimacion #{solicitud.pk} aprobada correctamente.')
         elif accion == 'rechazar':
-            solicitud.estado = 'RECHAZADA'
-            messages.warning(request, f'Orden de sublimacion #{solicitud.pk} marcada como rechazada.')
+            solicitud_pk = solicitud.pk
+            solicitud.delete()
+            messages.warning(request, f'Orden de sublimacion #{solicitud_pk} rechazada y eliminada.')
+            return redirect('ordenes_sublimacion')
         elif accion == 'pendiente':
             solicitud.estado = 'PENDIENTE'
             messages.info(request, f'Orden de sublimacion #{solicitud.pk} movida a pendiente.')
@@ -1727,7 +1729,7 @@ def ordenes_sublimacion(request):
         )
 
         total_ordenes = queryset.count()
-        pendientes_revision = queryset.filter(estado='VINCULADA').count()
+        pendientes_revision = queryset.filter(estado='PENDIENTE').count()
         paginator = Paginator(queryset, 6)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
@@ -1735,16 +1737,7 @@ def ordenes_sublimacion(request):
         # Resolver URLs de imagen de forma segura para evitar errores de storage en template.
         for solicitud in page_obj.object_list:
             solicitud.producto_img_url = _safe_img_url(solicitud.producto)
-            solicitud.diseno_url = ''
-            try:
-                if solicitud.imagen_sublimacion:
-                    solicitud.diseno_url = solicitud.imagen_sublimacion.url
-            except Exception:
-                logger.warning(
-                    'No se pudo resolver imagen de sublimacion para solicitud %s',
-                    solicitud.pk,
-                    exc_info=True,
-                )
+            solicitud.diseno_url = _safe_file_url(getattr(solicitud, 'imagen_sublimacion', None))
     except Exception as e:
         logger.error(f'Error al cargar ordenes de sublimacion: {e}', exc_info=True)
         page_obj = None

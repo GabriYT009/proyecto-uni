@@ -5,7 +5,7 @@
     <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}?v=2">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Ordenes de sublimacion</title>
+    <title>Órdenes de sublimación</title>
     <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
     <style>
         :root {
@@ -234,12 +234,53 @@
             background: #fcfafc;
         }
 
+        .mockup-preview {
+            position: relative;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            overflow: hidden;
+            background: #f8f6fb;
+            margin-bottom: 12px;
+        }
+
+        .mockup-base {
+            width: 100%;
+            max-height: 280px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .mockup-design {
+            position: absolute;
+            left: 50%;
+            top: 54%;
+            transform: translate(-50%, -50%);
+            width: min(58%, 220px);
+            max-height: 60%;
+            object-fit: contain;
+            border: 1px solid rgba(31, 36, 48, 0.12);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.84);
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+        }
+
+        .hint {
+            margin: 0 0 12px;
+            color: var(--muted);
+            font-size: 0.88rem;
+        }
+
         .status-action {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
             align-items: center;
             margin-top: 14px;
+        }
+
+        .status-action label {
+            margin: 0;
+            font-weight: 700;
         }
 
         .status-select {
@@ -261,6 +302,13 @@
             color: #fff;
             background: linear-gradient(135deg, #5b3dc4, #8f58dc);
             cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            min-width: 110px;
+            white-space: nowrap;
+            line-height: 1.1;
         }
 
         .btn-submit:hover {
@@ -336,6 +384,16 @@
         @media (max-width: 640px) {
             body { padding: 14px 10px 24px; }
             .hero, .order-head, .order-body { padding-left: 16px; padding-right: 16px; }
+
+            .status-action {
+                display: grid;
+                grid-template-columns: 1fr;
+            }
+
+            .status-select,
+            .btn-submit {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -344,8 +402,8 @@
         <section class="hero">
             <div class="hero-top">
                 <div>
-                    <h1>Ordenes de sublimacion</h1>
-                    <p class="subtitle">Revisa las solicitudes de sublimacion vinculadas a pedidos, incluyendo talla, comentario e imagen de diseno.</p>
+                    <h1>Órdenes de sublimación</h1>
+                    <p class="subtitle">Revisa las solicitudes de sublimación vinculadas a pedidos, incluyendo talla, comentario e imagen de diseño.</p>
                 </div>
                 <div class="hero-actions">
                     <a href="{% url 'home' %}" class="btn-back">Volver</a>
@@ -366,12 +424,20 @@
                                 <h2 class="order-title">Solicitud #{{ solicitud.pk }} · Orden #{{ solicitud.nota_entrega.pk }}</h2>
                                 <div class="order-sub">{{ solicitud.creado_en|date:"d/m/Y H:i" }} · Usuario: {{ solicitud.usuario.username }}</div>
                             </div>
-                            <div class="status-pill {% if solicitud.estado == 'RECHAZADA' %}status-rejected{% elif solicitud.estado == 'VINCULADA' %}status-approved{% else %}status-pending{% endif %}">{{ solicitud.get_estado_display }}</div>
+                            <div class="status-pill {% if solicitud.estado == 'RECHAZADA' %}status-rejected{% elif solicitud.estado == 'VINCULADA' %}status-approved{% else %}status-pending{% endif %}">
+                                {% if solicitud.estado == 'VINCULADA' %}
+                                    Aprobada
+                                {% elif solicitud.estado == 'RECHAZADA' %}
+                                    Rechazada
+                                {% else %}
+                                    Pendiente
+                                {% endif %}
+                            </div>
                         </div>
 
                         <div class="order-body">
                             <div class="info-box">
-                                <div class="section-label">Detalles de sublimacion</div>
+                                <div class="section-label">Detalles de sublimación</div>
                                 <dl class="kv">
                                     <dt>Producto</dt>
                                     <dd>{{ solicitud.producto.nombre_producto }}</dd>
@@ -414,6 +480,14 @@
 
                             <div class="images-box">
                                 <div class="section-label">Vista de imagenes</div>
+                                <p class="hint">Referencia del producto y diseno solicitado para sublimar en la franela.</p>
+
+                                {% if solicitud.producto_img_url and solicitud.diseno_url %}
+                                    <div class="mockup-preview">
+                                        <img src="{{ solicitud.producto_img_url }}" alt="Producto base {{ solicitud.producto.nombre_producto }}" class="mockup-base">
+                                        <img src="{{ solicitud.diseno_url }}" alt="Diseno elegido para la franela en solicitud {{ solicitud.pk }}" class="mockup-design">
+                                    </div>
+                                {% endif %}
 
                                 {% if solicitud.producto_img_url %}
                                     <img src="{{ solicitud.producto_img_url }}" alt="Producto base {{ solicitud.producto.nombre_producto }}" class="preview product-preview">
@@ -423,7 +497,7 @@
 
                                 {% if solicitud.diseno_url %}
                                     <a href="{{ solicitud.diseno_url }}" target="_blank" rel="noopener">
-                                        <img src="{{ solicitud.diseno_url }}" alt="Diseno de sublimacion de solicitud {{ solicitud.pk }}" class="preview design-preview">
+                                        <img src="{{ solicitud.diseno_url }}" alt="Diseño de sublimación de solicitud {{ solicitud.pk }}" class="preview design-preview">
                                     </a>
                                 {% else %}
                                     <div class="img-empty">No hay imagen de diseno cargada.</div>
