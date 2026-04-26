@@ -206,6 +206,11 @@
 		min-width: 180px;
 	}
 
+	/* Keep long labels (e.g. "Órdenes de sublimación") inside the dropdown. */
+	.top-bar .pagos-menu > .profile-dropdown {
+		min-width: 230px;
+	}
+
 	.profile-menu{ position:relative; display:inline-block; }
 	.profile-btn{ background:#ffffff; color:#9932CC; padding:8px 12px; border-radius:20px; border:none; font-weight:600; display:flex; align-items:center; gap:8px; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.12); }
 	.profile-btn:focus{ outline:2px solid rgba(153,50,204,0.12); }
@@ -221,6 +226,9 @@
 		font-size: 16px;
 		border-radius: 6px;
 		transition: background 0.3s ease, color 0.3s ease;
+		white-space: normal;
+		overflow-wrap: anywhere;
+		line-height: 1.35;
 	}
 
 	.top-bar .profile-dropdown .dropdown-item:hover {
@@ -230,7 +238,7 @@
 
 	.nav-menu{ position:absolute; left:12px; top:64px; background:#fff; border:1px solid rgba(0,0,0,0.06); border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.08); display:none; z-index:10006; min-width:180px; overflow:visible; }
 	.nav-menu.show{ display:block; }
-	.nav-menu .nav-item{ display:block; padding:10px 12px; color:#333; text-decoration:none; font-weight:700; border:none; background:transparent; width:100%; text-align:left; }
+	.nav-menu .nav-item{ display:block; padding:10px 12px; color:#333; text-decoration:none; font-weight:700; border:none; background:transparent; width:100%; text-align:left; white-space:normal; overflow-wrap:anywhere; }
 	.nav-menu .nav-item:hover{ background:#f7f7f7; }
 	.nav-item-group{ position:relative; }
 	.nav-subtoggle{ width:100%; border:none; background:#fff; text-align:left; cursor:pointer; display:flex; align-items:center; justify-content:space-between; }
