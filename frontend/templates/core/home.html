@@ -941,8 +941,8 @@
                 }
 
                 titleEl.textContent = title;
-                imgEl.src = img || '{% static 'assets/img/logo.png' %}';
-                imgEl.onerror = function(){ this.onerror = null; this.src = '{% static 'assets/img/logo.png' %}'; };
+                imgEl.src = img || '{% static 'assets/img/no-image-placeholder.svg' %}';
+                imgEl.onerror = function(){ this.onerror = null; this.src = '{% static 'assets/img/no-image-placeholder.svg' %}'; };
                 descEl.textContent = desc;
                 priceEl.textContent = String(price).indexOf('$') === 0 ? String(price) : ('$ ' + price);
 

@@ -98,7 +98,7 @@ ALLOWED_CATEGORY_NAMES = [
 
 
 def _safe_img_url(producto):
-    fallback = settings.STATIC_URL + 'assets/img/logo.png'
+    fallback = settings.STATIC_URL + 'assets/img/no-image-placeholder.svg'
     image_field = getattr(producto, 'imagen_producto', None)
 
     def _build_presigned_url(image_name):

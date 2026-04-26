@@ -278,7 +278,7 @@
             <div id="grid" class="grid">
                 {% for product in Productos %}
                 <div class="card" data-id="{{ product.id }}" data-title="{{ product.nombre_producto }}" data-img="{{ product.img_url }}" data-desc="{{ product.descripcion }}" data-price="{{ product.precio_venta }}" role="button" tabindex="0" style="cursor:pointer;">
-                    <img src="{{ product.img_url }}" alt="{{ product.nombre_producto }}" class="view" loading="lazy" decoding="async" data-id="{{ product.id }}" data-title="{{ product.nombre_producto }}" data-img="{{ product.img_url }}" data-desc="{{ product.descripcion }}" data-price="$ {{ product.precio_venta }}" role="button" tabindex="0" style="cursor:pointer;" onerror="this.onerror=null;this.src='{% static 'assets/img/logo.png' %}';">
+                    <img src="{{ product.img_url }}" alt="{{ product.nombre_producto }}" class="view" loading="lazy" decoding="async" data-id="{{ product.id }}" data-title="{{ product.nombre_producto }}" data-img="{{ product.img_url }}" data-desc="{{ product.descripcion }}" data-price="$ {{ product.precio_venta }}" role="button" tabindex="0" style="cursor:pointer;" onerror="this.onerror=null;this.src='{% static 'assets/img/no-image-placeholder.svg' %}';">
                     
                     <h4 class="view" data-id="{{ product.id }}" role="button" tabindex="0" style="cursor:pointer;">{{ product.nombre_producto }}</h4>
                     <p>{{ product.descripcion }}</p>

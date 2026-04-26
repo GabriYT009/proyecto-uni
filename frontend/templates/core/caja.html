@@ -246,7 +246,7 @@
                     <div class="inventory" id="quick-products">
                         {% for p in productos %}
                         <div class="card" data-id="{{ p.pk }}" data-code="{{ p.pk }}" data-name="{{ p.nombre_producto }}" data-price="{{ p.precio_venta }}" data-stock="{{ p.cantidad_disponible }}">
-                            {% if p.img_url %}<img src="{{ p.img_url }}" class="card-img" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='{% static 'assets/img/logo.png' %}';" />{% else %}<img src="{% static 'assets/img/logo.png' %}" class="card-img" loading="lazy" decoding="async" />{% endif %}
+                            {% if p.img_url %}<img src="{{ p.img_url }}" class="card-img" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='{% static 'assets/img/no-image-placeholder.svg' %}';" />{% else %}<img src="{% static 'assets/img/no-image-placeholder.svg' %}" class="card-img" loading="lazy" decoding="async" />{% endif %}
                             <div class="title">{{ p.nombre_producto }}</div>
                             <div class="price price-usd">Precio: $ {{ p.precio_venta }}</div>
 
