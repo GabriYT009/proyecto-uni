@@ -1912,8 +1912,18 @@ def pago_movil(request):
             cliente = Cliente.objects.filter(email__iexact=user.email).first()
             if cliente:
                 # soportar diferentes nombres de campo según la versión del modelo
-                cedula = getattr(cliente, 'cedula_dni', None) or getattr(cliente, 'documento', '') or ''
+                cedula = getattr(cliente, 'documento', '') or ''
                 telefono = getattr(cliente, 'telefono_cliente', None) or getattr(cliente, 'telefono', '') or ''
+                return render(request, 'core/pago_movil.html', {
+                    'items': items,
+                    'total': total,
+                    'post': request.POST,
+                    'cart_count': len(request.session.get('cart', [])),
+                    'user_groups': list(request.user.groups.values_list('name', flat=True)),
+                    'cedula': cedula,
+                    'telefono': telefono,
+                })
+
     except Exception:
         cliente = None
     if request.method != 'POST':
