@@ -60,7 +60,62 @@
         .wrap{ max-width:1400px; margin:0 auto; display:flex; gap:20px; }
         .left{ flex:0 0 520px; background:#fff; padding:18px; border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,0.06); }
         .right{ flex:1; background:#fff; padding:18px; border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,0.06); }
-        .invoice{ border:1px dashed #eee; padding:12px; border-radius:8px; background:linear-gradient(180deg,#fff,#fcfcff); }
+        .invoice{
+            border:1px solid rgba(131, 52, 173, 0.28);
+            padding:12px;
+            border-radius:12px;
+            position:relative;
+            overflow:hidden;
+            background:
+                radial-gradient(520px 220px at 8% 5%, rgba(145, 52, 199, 0.18) 0%, rgba(145, 52, 199, 0) 62%),
+                linear-gradient(180deg,#fff,#fcfcff);
+            box-shadow: 0 10px 24px rgba(116, 31, 170, 0.12);
+        }
+
+        .invoice::before{
+            content:'';
+            position:absolute;
+            left:-80px;
+            top:-80px;
+            width:260px;
+            height:260px;
+            border-radius:50%;
+            background: radial-gradient(circle, rgba(166, 84, 214, 0.28) 0%, rgba(166, 84, 214, 0) 68%);
+            pointer-events:none;
+        }
+
+        .customer-info {
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(135, 58, 189, 0.24);
+            background: rgba(255, 255, 255, 0.84);
+            backdrop-filter: blur(2px);
+            max-width: 560px;
+        }
+
+        .guest-field {
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .guest-field input {
+            width: 240px;
+            max-width: 100%;
+            padding: 2px 6px;
+            border: 1px solid #d6c8e8;
+            border-radius: 6px;
+            background: #fff;
+        }
+
+        .guest-field input:disabled {
+            background: #f3eef9;
+            color: #7b6d8e;
+            border-color: #e6dbf2;
+            cursor: not-allowed;
+        }
         .invoice h3{ margin:6px 0 12px; color:#9932CC }
         .customer-row{ display:flex; gap:8px; align-items:center; }
         .customer-row .meta{ font-size:14px; color:#444 }
@@ -140,9 +195,9 @@
                             <div >R.I.F: <span id="client-rif" >-</span></div>
                             <div>Dirección: <span id="client-dir">-</span></div>
                             <div>Teléfono: <span id="client-phone">-</span></div>
-                            <div style="margin-top:6px;">Nombre (no registrado): <input type="text" id="client-name-input" placeholder="Nombre cliente" style="width:210px;padding:2px;"></div>
-                            <div style="margin-top:4px;">Dirección (no registrado): <input type="text" id="client-dir-input" placeholder="Direccion cliente" style="width:240px;padding:2px;"></div>
-                            <div style="margin-top:4px;">Teléfono (no registrado): <input type="text" id="client-phone-input" placeholder="Telefono cliente" style="width:160px;padding:2px;"></div>
+                            <div class="guest-field">Nombre (no registrado): <input type="text" id="client-name-input" placeholder="Nombre cliente"></div>
+                            <div class="guest-field">Dirección (no registrado): <input type="text" id="client-dir-input" placeholder="Direccion cliente"></div>
+                            <div class="guest-field">Teléfono (no registrado): <input type="text" id="client-phone-input" placeholder="Telefono cliente"></div>
                         </div>
                         {{ clientes|json_script:"clientes-data" }}
                         <div class="factura-info" style="text-align:right; font-size:14px;">
@@ -484,11 +539,19 @@
                     document.getElementById('client-dir').textContent = match.direccion || '-';
                     document.getElementById('client-phone').textContent = match.telefono_cliente || '-';
 
-                    clientNameInput.value = nombreMatch;
-                    clientDirInput.value = match.direccion || '';
-                    clientPhoneInput.value = match.telefono_cliente || '';
+                    // Si el cliente existe, los campos de no registrado quedan vacios y bloqueados.
+                    clientNameInput.value = '';
+                    clientDirInput.value = '';
+                    clientPhoneInput.value = '';
+                    clientNameInput.disabled = true;
+                    clientDirInput.disabled = true;
+                    clientPhoneInput.disabled = true;
                     return;
                 }
+
+                clientNameInput.disabled = false;
+                clientDirInput.disabled = false;
+                clientPhoneInput.disabled = false;
 
                 var nombreLibre = clientNameInput.value.trim() || 'Consumidor Final';
                 var dirLibre = clientDirInput.value.trim() || '-';

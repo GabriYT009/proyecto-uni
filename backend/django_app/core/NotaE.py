@@ -3,6 +3,8 @@ from datetime import datetime
 from .models import CarritoDeCompras, OrdenDeDespacho, Cliente
 from django.shortcuts import render, HttpResponse, get_object_or_404
 from django.utils import timezone
+from django.conf import settings
+import os
 
 class Generar_NE(FPDF):
     def __init__(self, nota_obj, *args, **kwargs):
@@ -11,6 +13,15 @@ class Generar_NE(FPDF):
         self.items = CarritoDeCompras.objects.filter(Nota_Entrega=nota_obj).select_related('Producto')
 
     def header(self):
+        logo_path = os.path.join(settings.FRONTEND_DIR, 'static', 'core', 'logo nuevo.png')
+        if os.path.exists(logo_path):
+            try:
+                self.image(logo_path, x=10, y=8, w=34)
+            except Exception:
+                pass
+
+        company_phone = os.environ.get('COMPANY_PHONE', 'No disponible')
+
         # Logo or company info
         self.set_font('Arial', 'B', 16)
         self.cell(0, 10, 'Nota de Entrega', 0, 1, 'C')
@@ -20,7 +31,7 @@ class Generar_NE(FPDF):
         self.set_font('Arial', '', 12)
         self.cell(0, 8, 'SolucionArte - Tienda de Productos Personalizados', 0, 1, 'C')
         self.cell(0, 8, 'Dirección: Guanare-Portuguesa', 0, 1, 'C')
-        self.cell(0, 8, 'Teléfono: +58 XXX XXX XXXX', 0, 1, 'C')
+        self.cell(0, 8, f'Teléfono: {company_phone}', 0, 1, 'C')
         self.ln(10)
 
         # Invoice details
@@ -41,18 +52,24 @@ class Generar_NE(FPDF):
             nombre = cliente.nombre_cliente 
             apellido = cliente.apellido_cliente
             documento = cliente.documento
+            telefono = (cliente.telefono_cliente or '').strip()
             
             self.cell(0, 8, f'Cliente: {nombre} {apellido}'.strip(), 0, 1, 'L')
             
             if documento:
                 self.cell(0, 8, f'Cédula/RIF: {documento}', 0, 1, 'L')
+            if telefono:
+                self.cell(0, 8, f'Teléfono cliente: {telefono}', 0, 1, 'L')
         else:
             # Si no hay cliente asociado, usamos snapshot capturado en Caja (si existe).
             nombre_ocasional = (getattr(self.salida, 'cliente_nombre', '') or '').strip() or 'Consumidor Final'
             documento_ocasional = (getattr(self.salida, 'cliente_documento', '') or '').strip()
+            telefono_ocasional = (getattr(self.salida, 'cliente_telefono', '') or '').strip()
             self.cell(0, 8, f'Cliente: {nombre_ocasional}', 0, 1, 'L')
             if documento_ocasional:
                 self.cell(0, 8, f'Cédula/RIF: {documento_ocasional}', 0, 1, 'L')
+            if telefono_ocasional:
+                self.cell(0, 8, f'Teléfono cliente: {telefono_ocasional}', 0, 1, 'L')
 
         self.ln(10)
 
