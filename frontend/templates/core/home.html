@@ -1,6 +1,6 @@
-{% load static %}
+﻿{% load static %}
 <head>
-    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+    <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}?v=2">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Inicio</title>
@@ -10,7 +10,7 @@
     <link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
     <meta name="csrf-token" content="{{ csrf_token }}">
     <script>
-        // Evitar diálogos alert bloqueantes heredados de JS antiguo
+        // Evitar diÃ¡logos alert bloqueantes heredados de JS antiguo
         window.alert = function(msg){ try{ console.log('alert suppressed:', msg); }catch(e){} };
     </script>
     <script>
@@ -212,7 +212,7 @@
         .nav-link:hover{ background:#f0f0f0; color:#9932CC; }
 
         .bar-toggle{ display:none; /* hide on desktop */ }
-        /* cuando la barra está colapsada mostrar logo dentro del contenedor pequeño */
+        /* cuando la barra estÃ¡ colapsada mostrar logo dentro del contenedor pequeÃ±o */
         .top-bar.collapsed .bar-logo-link{ left:8px; top:8px; z-index:10003; }
         .top-bar.collapsed .bar-logo-link img.bar-logo{ width:28px; height:28px; border-radius:6px; }
         /* colocar el toggle a la derecha dentro del contenedor colapsado para poder expandir de nuevo */
@@ -260,7 +260,7 @@
         .avatar{ width:24px; height:24px; border-radius:50%; object-fit:cover; vertical-align:middle; margin-right:8px; }
         a.logout-button:hover{ box-shadow: 0 4px 10px rgba(0,0,0,0.16); }
 
-        /* catálogo: estilos básicos */
+        /* catÃ¡logo: estilos bÃ¡sicos */
         header.catalog-header{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin:18px 0; }
         .search-wrap{ display:flex; gap:8px; align-items:center; }
         .search{ padding:8px 12px; border-radius:8px; border: 1px solid #ccc; width:260px; background:#fff; color:#111; }
@@ -562,7 +562,7 @@
     </style>
 </head>
 <body>
-    <div id="welcomeAlert" role="status" aria-live="polite" style="display:none">Bienvenido — Has iniciado sesión correctamente.</div>
+    <div id="welcomeAlert" role="status" aria-live="polite" style="display:none">Bienvenido â€” Has iniciado sesiÃ³n correctamente.</div>
 
     {% include 'core/_topbar.html' %}
 
@@ -685,20 +685,20 @@
         }
         </style>
         <section class="categories">
-            <h2>Categorías</h2>
-            <div class="category-bar-wrap" aria-label="Barra de categorías">
+            <h2>CategorÃ­as</h2>
+            <div class="category-bar-wrap" aria-label="Barra de categorÃ­as">
                 <button class="cat-scroll-btn cat-scroll-left" aria-label="Izquierda">&#8592;</button>
                 <div class="category-grid category-bar" role="navigation">
                 {% for category in categories %}
                     {% if 'electr' in category.nombre_categoria|lower %}
                         <a href="{% url 'catalog' %}?Categoria={{ category.nombre_categoria }}" class="category-card">
-                            <div class="category-icon">📝</div>
-                            <span>Papelería</span>
+                            <div class="category-icon">ðŸ“</div>
+                            <span>PapelerÃ­a</span>
                         </a>
                     {% else %}
                         <a href="{% url 'catalog' %}?Categoria={{ category.nombre_categoria }}" class="category-card">
                             <div class="category-icon">
-                                {% if category.nombre_categoria == 'Cajas' %}📦{% elif category.nombre_categoria == 'Toppers' %}🎂{% elif category.nombre_categoria == 'Sublimación' %}🖨️{% elif category.nombre_categoria == 'Impresión' %}📄{% elif category.nombre_categoria == 'Personalización' %}🎨{% elif category.nombre_categoria == 'Papelería' %}📝{% elif category.nombre_categoria == 'Camisas' %}👕{% elif category.nombre_categoria == 'Tazas' %}☕{% elif category.nombre_categoria == 'Otros' %}🧩{% else %}🖥️{% endif %}
+                                {% if category.nombre_categoria == 'Cajas' %}ðŸ“¦{% elif category.nombre_categoria == 'Toppers' %}ðŸŽ‚{% elif category.nombre_categoria == 'SublimaciÃ³n' %}ðŸ–¨ï¸{% elif category.nombre_categoria == 'ImpresiÃ³n' %}ðŸ“„{% elif category.nombre_categoria == 'PersonalizaciÃ³n' %}ðŸŽ¨{% elif category.nombre_categoria == 'PapelerÃ­a' %}ðŸ“{% elif category.nombre_categoria == 'Camisas' %}ðŸ‘•{% elif category.nombre_categoria == 'Tazas' %}â˜•{% elif category.nombre_categoria == 'Otros' %}ðŸ§©{% else %}ðŸ–¥ï¸{% endif %}
                             </div>
                             <span>{{ category.nombre_categoria }}</span>
                         </a>
@@ -863,7 +863,7 @@
                 <div class="footer-section" style="min-width: 180px;">
                     <h3 style="color: #fff; font-size: 1.2rem; font-weight: 600; margin-bottom: 10px; letter-spacing: 0.5px;">Enlaces</h3>
                     <ul style="list-style: none; padding: 0; margin: 0;">
-                        <li style="margin-bottom: 10px;"><a href="{% url 'catalog' %}" style="color: #bdc3c7; text-decoration: none; font-size: 1rem; transition: color 0.3s;">Catálogo</a></li>
+                        <li style="margin-bottom: 10px;"><a href="{% url 'catalog' %}" style="color: #bdc3c7; text-decoration: none; font-size: 1rem; transition: color 0.3s;">CatÃ¡logo</a></li>
                         <li style="margin-bottom: 10px;"><a href="{% url 'home' %}" style="color: #bdc3c7; text-decoration: none; font-size: 1rem; transition: color 0.3s;">Inicio</a></li>
                         <li><a href="{% url 'perfil' %}" style="color: #bdc3c7; text-decoration: none; font-size: 1rem; transition: color 0.3s;">Perfil</a></li>
                     </ul>
@@ -885,7 +885,7 @@
     <div id="detailModal" role="dialog" aria-hidden="true" style="display:none;">
         <div class="detail-modal" style="max-width:520px;margin:40px auto;padding:16px;background:#fff;border-radius:8px;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <strong id="m-title">Título</strong>
+                <strong id="m-title">TÃ­tulo</strong>
             </div>
             <hr/>
             <img id="m-img" src="" alt="" style="width:100%; height:auto; object-fit:contain; border-radius:6px; margin-bottom:8px; max-height:70vh;">
@@ -893,7 +893,7 @@
             <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
                 <strong id="m-price"></strong>
                 <div style="display:flex; gap:10px;">
-                    <button class="btn" id="m-add-cart">Añadir al carrito</button>
+                    <button class="btn" id="m-add-cart">AÃ±adir al carrito</button>
                 
                 </div>
             </div>
@@ -1331,7 +1331,7 @@
         })();
     </script>
     <script>
-        // Ensure modal "Añadir al carrito" button posts directly to add_to_cart (home page)
+        // Ensure modal "AÃ±adir al carrito" button posts directly to add_to_cart (home page)
         (function(){
             const btn = document.getElementById('m-add-cart');
             function getCsrf(){ const m = document.querySelector('meta[name="csrf-token"]'); return m?m.content:null; }
@@ -1416,7 +1416,7 @@
     
             <script>
                 (function(){
-                    // 1. Capturamos la tasa que envía Django
+                    // 1. Capturamos la tasa que envÃ­a Django
                     var tasaBackend = parseFloat("{{ valor_dolar|default:0 }}") || 0;
 
                     function calcularPreciosCatalogo() {
@@ -1424,7 +1424,7 @@
                         var cards = document.querySelectorAll('.grid .card');
 
                         cards.forEach(function(card) {
-                            // 3. Buscamos el elemento del precio en dólares
+                            // 3. Buscamos el elemento del precio en dÃ³lares
                             var usdElement = card.querySelector('.price-usd');
                             var bsElement = card.querySelector('.price-bs-value');
 
@@ -1432,7 +1432,7 @@
                                 // 4. Tomamos el precio limpio gracias al atributo data-price
                                 var precioUsd = parseFloat(usdElement.getAttribute('data-price')) || 0;
                                 
-                                // 5. Calculamos en Bolívares
+                                // 5. Calculamos en BolÃ­vares
                                 var precioBs = precioUsd * tasaBackend;
 
                                 // 6. Inyectamos el valor con formato
@@ -1441,7 +1441,7 @@
                         });
                     }
 
-                    // Ejecutamos la función apenas cargue el script
+                    // Ejecutamos la funciÃ³n apenas cargue el script
                     calcularPreciosCatalogo();
                 })();
             </script>

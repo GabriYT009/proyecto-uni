@@ -1,12 +1,12 @@
-{% load static %}
+﻿{% load static %}
 <!DOCTYPE html>
 <html lang="es" style="background:#ffffff;">
 <head>
-    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+    <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}?v=2">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <script>
-        // Evitar diálogos alert bloqueantes heredados de JS antiguo
+        // Evitar diÃ¡logos alert bloqueantes heredados de JS antiguo
         window.alert = function(msg){ try{ console.log('alert suppressed:', msg); }catch(e){} };
     </script>
     <title>Carrito</title>
@@ -60,7 +60,7 @@
         .nav-link:hover{ background:#f0f0f0; color:#9932CC; }
 
         .bar-toggle{ display:none; align-items:center; justify-content:center; width:40px; height:40px; border-radius:10px; border:1px solid rgba(255,255,255,0.35); background:rgba(255,255,255,0.12); cursor:pointer; }
-        /* cuando la barra está colapsada mostrar logo dentro del contenedor pequeño */
+        /* cuando la barra estÃ¡ colapsada mostrar logo dentro del contenedor pequeÃ±o */
         .top-bar.collapsed .bar-logo-link{ left:8px; top:8px; z-index:10003; }
         .top-bar.collapsed .bar-logo-link img.bar-logo{ width:28px; height:28px; border-radius:6px; }
         /* colocar el toggle a la derecha dentro del contenedor colapsado para poder expandir de nuevo */
@@ -243,7 +243,7 @@
     </style>
 </head>
 <body style="background:#ffffff !important; background-image:none !important;">
-    <div id="welcomeAlert" role="status" aria-live="polite" style="display:none">Bienvenido — Has iniciado sesión correctamente.</div>
+    <div id="welcomeAlert" role="status" aria-live="polite" style="display:none">Bienvenido â€” Has iniciado sesiÃ³n correctamente.</div>
     {% include 'core/_topbar.html' %}
                     <script>
         // mostrar alerta si venimos del login
@@ -441,7 +441,7 @@
                                         <div class="desc">{{ p.descripcion }}</div>
                                         {% if p.solicitud_sublimacion %}
                                             <div style="margin-top:8px; padding:10px 12px; border-radius:10px; background:#f7f0ff; border:1px solid #e0c8f3; color:#5b2b80; font-size:0.9rem; line-height:1.45;">
-                                                <strong style="display:block; margin-bottom:4px;">Sublimación registrada</strong>
+                                                <strong style="display:block; margin-bottom:4px;">SublimaciÃ³n registrada</strong>
                                                 {% if p.solicitud_sublimacion.comentario %}<div>{{ p.solicitud_sublimacion.comentario }}</div>{% endif %}
                                             </div>
                                         {% endif %}
@@ -450,7 +450,7 @@
                                         <div class="price price-usd">Precio: $ {{ p.precio_venta }}</div>
                                         <div class="price price-bs">Precio en Bs: <span class="price-bs-value">0</span></div>
                                         <div style="display:flex; gap:6px; justify-content:flex-end; align-items:center;">
-                                            <button type="button" class="btn btn-qty" data-id="{{ p.pk }}" data-action="dec" aria-label="Disminuir cantidad">−</button>
+                                            <button type="button" class="btn btn-qty" data-id="{{ p.pk }}" data-action="dec" aria-label="Disminuir cantidad">âˆ’</button>
                                             <input type="number" 
                                                 id="cantidad_{{ p.pk }}" 
                                                 name="cantidad_{{ p.pk }}" 
@@ -465,7 +465,7 @@
 
                                             <a href="{% url 'remove_from_cart' p.id %}" class="btn">Eliminar</a>
                                         </div>
-                                        <!--quité max="{{ p.cantidad_disponible|default:'0' }}" va en el espacio luego del input, esto para que no muestre la cantidad que hay en el stock-->
+                                        <!--quitÃ© max="{{ p.cantidad_disponible|default:'0' }}" va en el espacio luego del input, esto para que no muestre la cantidad que hay en el stock-->
                                     </div>
                                 </div>
                                 
@@ -481,7 +481,7 @@
                             </div>
                         </form>
                     {% else %}
-                        <div class="empty" style="margin-top:12px;"><p>Tu carrito está vacío.</p></div>
+                        <div class="empty" style="margin-top:12px;"><p>Tu carrito estÃ¡ vacÃ­o.</p></div>
                     {% endif %}
                 </div>
                 
@@ -506,7 +506,7 @@
 
                         (function(){
                             // 1. Capturamos el valor del backend. 
-                            // Usamos el filtro |default:0 para evitar errores si la variable llega vacía
+                            // Usamos el filtro |default:0 para evitar errores si la variable llega vacÃ­a
                             var tasaBackend = parseFloat("{{ valor_dolar|default:0 }}") || 0;
 
                             function recalcularTotal() {
@@ -525,7 +525,7 @@
                                     if(row) {
                                         var priceText = '0';
                                         try {
-                                            // Nota: Asegúrate que la clase sea .price-usd o .price según tu HTML
+                                            // Nota: AsegÃºrate que la clase sea .price-usd o .price segÃºn tu HTML
                                             priceText = row.querySelector('.price-usd').textContent.replace('Precio:','').replace('$','').trim();
                                         } catch(err) {
                                             try { priceText = row.querySelector('.price').textContent.replace('Precio:','').replace('$','').trim(); } catch(e){}
@@ -569,7 +569,7 @@
                                         if (action === 'inc' && (max === 0 || v < max)) inp.value = v + 1;
                                         if (action === 'dec' && v > 1) inp.value = v - 1;
                                         
-                                        // Recalcular inmediatamente después del clic
+                                        // Recalcular inmediatamente despuÃ©s del clic
                                         recalcularTotal();
                                     });
                                 });
@@ -602,7 +602,7 @@
                                     var priceText = '0';
                                     try{ priceText = row.querySelector('.price').textContent.replace('Precio:','').replace('$','').trim(); }catch(err){}
                                     var price = parseFloat(priceText) || 0;
-                                    if (v < 1) { invalid = true; msgs.push('Cantidad mínima para ' + name + ' es 1.'); }
+                                    if (v < 1) { invalid = true; msgs.push('Cantidad mÃ­nima para ' + name + ' es 1.'); }
                                     if (max > 0 && v > max) { invalid = true; msgs.push('Cantidad solicitada para ' + name + ' supera el stock (' + max + ').'); }
                                     items.push({id: pid, name: name, qty: v, price: price});
                                 });
@@ -624,12 +624,12 @@
                                     var line = document.createElement('div');
                                     line.className = 'item';
                                     
-                                    // Cálculos por producto
+                                    // CÃ¡lculos por producto
                                     var subtotalUsd = it.price * it.qty;
                                     var subtotalBs = subtotalUsd * tasaBackend; 
                                     
-                                    // HTML de la línea (incluye $ y Bs)
-                                    line.innerHTML = '<div>' + it.name + ' × ' + it.qty + '</div>' + 
+                                    // HTML de la lÃ­nea (incluye $ y Bs)
+                                    line.innerHTML = '<div>' + it.name + ' Ã— ' + it.qty + '</div>' + 
                                                     '<div style="text-align:right;">$ ' + subtotalUsd.toFixed(2) + 
                                                     '<br><small style="color:#666; font-weight:normal;">Bs ' + subtotalBs.toLocaleString('es-VE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '</small></div>';
                                     
@@ -672,3 +672,4 @@
     <script src="{% static 'core/page-loader.js' %}"></script>
 </body>
 </html>
+

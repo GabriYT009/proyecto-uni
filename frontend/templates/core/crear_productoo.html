@@ -1,8 +1,8 @@
-{% load static %}
+﻿{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+    <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}?v=2">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Registrar Producto</title>
@@ -51,7 +51,7 @@
         .nav-link:hover{ background:#f0f0f0; color:#9932CC; }
 
         .bar-toggle{ display:none; /* hide on desktop */ }
-        /* cuando la barra está colapsada mostrar logo dentro del contenedor pequeño */
+        /* cuando la barra estÃ¡ colapsada mostrar logo dentro del contenedor pequeÃ±o */
         .top-bar.collapsed .bar-logo-link{ left:8px; top:8px; z-index:10003; }
         .top-bar.collapsed .bar-logo-link img.bar-logo{ width:28px; height:28px; border-radius:6px; }
         /* colocar el toggle a la derecha dentro del contenedor colapsado para poder expandir de nuevo */
@@ -265,7 +265,7 @@
     
     {% include 'core/_messages.html' %}
     
-    <div id="welcomeAlert" role="status" aria-live="polite" style="display:none">Bienvenido — Has iniciado sesión correctamente.</div>
+    <div id="welcomeAlert" role="status" aria-live="polite" style="display:none">Bienvenido â€” Has iniciado sesiÃ³n correctamente.</div>
 
     {% include 'core/_topbar.html' %}
 
@@ -438,11 +438,11 @@
                             <div id="imgHint" style="font-size:12px; color:#888; margin-top:8px;">Selecciona una imagen arriba</div>
                         </div>
 
-                        <label for="id_descripcion" style="margin-top:10px;">Descripción</label>
+                        <label for="id_descripcion" style="margin-top:10px;">DescripciÃ³n</label>
                         {{ form.descripcion }}
                         <div class="field-error">{{ form.descripcion.errors }}</div>
 
-                         <label for="id_categoria" style="margin-top:10px;">Categoría</label>
+                         <label for="id_categoria" style="margin-top:10px;">CategorÃ­a</label>
                          {{ form.categoria }}
                          <div class="field-error">{{ form.categoria.errors }}</div>
 
@@ -452,7 +452,7 @@
 
                          <div style="margin-top:10px;">
                             {{ form.status_producto }}
-                            <label for="id_status_producto" style="margin-left:8px; font-weight:500;">Producto activo (visible en catálogo)</label>
+                            <label for="id_status_producto" style="margin-left:8px; font-weight:500;">Producto activo (visible en catÃ¡logo)</label>
                          </div>
                          <div class="field-error">{{ form.status_producto.errors }}</div>
 
@@ -488,7 +488,7 @@
                     } else {
                         preview.src = '';
                         preview.style.display = 'none';
-                        hint.textContent = 'Seleccione un archivo de imagen válido';
+                        hint.textContent = 'Seleccione un archivo de imagen vÃ¡lido';
                         return;
                     }
                 }

@@ -1,8 +1,8 @@
-{% load static %}
+﻿{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+    <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}?v=2">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Mi perfil</title>
@@ -229,25 +229,25 @@
             {% if cliente %}
                 <p><strong>Nombre:</strong> {{ cliente.nombre_cliente }}</p>
                 <p><strong>Apellido:</strong>{{ cliente.apellido_cliente }}</p>
-                <p><strong>Dirección:</strong> {{ cliente.direccion }}</p>
+                <p><strong>DirecciÃ³n:</strong> {{ cliente.direccion }}</p>
             {% endif %}
             {% if user %}
 
                 <p><strong>Usuario:</strong> {{ user.username }}</p>
                 <p><strong>Email:</strong> {{ user.email }}</p>
                 {% if cedula %}
-                    <p><strong>Cédula:</strong> {{ cedula }}</p>
+                    <p><strong>CÃ©dula:</strong> {{ cedula }}</p>
                 {% endif %}
                 {% if telefono %}
-                    <p><strong>Teléfono:</strong> {{ telefono }}</p>
+                    <p><strong>TelÃ©fono:</strong> {{ telefono }}</p>
                 {% endif %}
 
 
 
                 
             {% else %}
-                <p>No has iniciado sesión.</p>
-                <p><a href="{% url 'login_post' %}">Iniciar sesión</a></p>
+                <p>No has iniciado sesiÃ³n.</p>
+                <p><a href="{% url 'login_post' %}">Iniciar sesiÃ³n</a></p>
             {% endif %}
         </div>
     </div>
@@ -283,3 +283,4 @@
     <script src="{% static 'core/page-loader.js' %}"></script>
 </body>
 </html>
+

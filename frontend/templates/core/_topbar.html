@@ -1,4 +1,4 @@
-{% load static %}
+﻿{% load static %}
 
 <style>
 	/* Shared topbar baseline (same visual language as crear_producto) */
@@ -406,15 +406,15 @@
 
 		<div class="group bar-center">
 			<nav class="main-nav">
-				<a href="{% url 'catalog' %}" class="nav-link">Catálogo</a>
+				<a href="{% url 'catalog' %}" class="nav-link">CatÃ¡logo</a>
 				{% if 'cliente' in user_groups %}
-					<a href="{% url 'catalog' %}?Categoria=Sublimación" class="nav-link">Sublimación</a>
-					<a href="{% url 'catalog' %}?Categoria=Papelería" class="nav-link">Papelería</a>
+					<a href="{% url 'catalog' %}?Categoria=SublimaciÃ³n" class="nav-link">SublimaciÃ³n</a>
+					<a href="{% url 'catalog' %}?Categoria=PapelerÃ­a" class="nav-link">PapelerÃ­a</a>
 					<a href="{% url 'catalog' %}?Categoria=Otros" class="nav-link">Otros</a>
 				{% endif %}
 				{% if 'cliente' not in user_groups %}
 					<div class="clients-menu" style="position:relative;">
-						<button id="clientsToggle" class="nav-link clients-toggle" aria-haspopup="true" aria-expanded="false">Clientes ▾</button>
+						<button id="clientsToggle" class="nav-link clients-toggle" aria-haspopup="true" aria-expanded="false">Clientes â–¾</button>
 						<div id="clientsDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
 							<a href="{% url 'todos_clientes' %}" class="dropdown-item">Ver clientes</a>
 						</div>
@@ -422,7 +422,7 @@
 				{% endif %}
 				{% if 'cliente' not in user_groups %}
 					<div class="product-menu" style="position:relative;">
-						<button id="productToggle" class="nav-link product-toggle" aria-haspopup="true" aria-expanded="false">Producto ▾</button>
+						<button id="productToggle" class="nav-link product-toggle" aria-haspopup="true" aria-expanded="false">Producto â–¾</button>
 						<div id="productDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
 							{% if 'admin' in user_groups %}
 								<a href="{% url 'registrar_producto' %}" class="dropdown-item">Crear producto</a>
@@ -433,14 +433,14 @@
 				{% endif %}
 				{% if 'admin' in user_groups %}
 					<div class="inventario-menu" style="position:relative;">
-						<button id="inventarioToggle" class="nav-link inventario-toggle" aria-haspopup="true" aria-expanded="false">Inventario ▾</button>
+						<button id="inventarioToggle" class="nav-link inventario-toggle" aria-haspopup="true" aria-expanded="false">Inventario â–¾</button>
 						<div id="inventarioDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
 							<a href="{% url 'inventario' %}" class="dropdown-item">Ver inventario</a>
 							<a href="{% url 'ajustar_inventario_masivo' %}" class="dropdown-item">Ajustar inventario</a>
 						</div>
 					</div>
 					<div class="pagos-menu" style="position:relative;">
-						<button id="pagosToggle" class="nav-link pagos-toggle" aria-haspopup="true" aria-expanded="false">Pagos ▾</button>
+						<button id="pagosToggle" class="nav-link pagos-toggle" aria-haspopup="true" aria-expanded="false">Pagos â–¾</button>
 						<div id="pagosDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
 							<a href="{% url 'aprobar_pagos' %}" class="dropdown-item">Aprobar pagos</a>
 							<a href="{% url 'ordenes_sublimacion' %}" class="dropdown-item">Ordenes de sublimacion</a>
@@ -454,7 +454,7 @@
 
 			<div class="search-container">
 				<input type="text" class="search-input" placeholder="Buscar productos..." id="searchInput" value="{{ search_query|default:'' }}">
-				<button class="search-btn">🔍</button>
+				<button class="search-btn">ðŸ”</button>
 				<div class="search-results" id="searchResults"></div>
 				<a href="{% url 'carrito' %}" class="cart-link-inline" aria-label="Carrito">
 					<img src="{% static 'core/carrito.png' %}" alt="Carrito" class="cart-icon">
@@ -488,27 +488,27 @@
 	</button>
 
 	<div id="barNavMenu" class="nav-menu" role="menu" aria-hidden="true">
-		<a class="nav-item" href="{% url 'catalog' %}">Ver catálogo</a>
+		<a class="nav-item" href="{% url 'catalog' %}">Ver catÃ¡logo</a>
 		{% if 'cliente' in user_groups %}
-			<a class="nav-item" href="{% url 'catalog' %}?Categoria=Sublimación">Sublimación</a>
-			<a class="nav-item" href="{% url 'catalog' %}?Categoria=Papelería">Papelería</a>
+			<a class="nav-item" href="{% url 'catalog' %}?Categoria=SublimaciÃ³n">SublimaciÃ³n</a>
+			<a class="nav-item" href="{% url 'catalog' %}?Categoria=PapelerÃ­a">PapelerÃ­a</a>
 			<a class="nav-item" href="{% url 'catalog' %}?Categoria=Otros">Otros</a>
 		{% endif %}
 		<a class="nav-item" href="{% url 'carrito' %}">Carrito</a>
 		{% if 'cliente' not in user_groups %}
 			<div class="nav-item-group">
-				<button class="nav-item nav-subtoggle" type="button" data-target="topbarClientsSubMenu" aria-expanded="false">Clientes <span class="submenu-arrow">›</span></button>
+				<button class="nav-item nav-subtoggle" type="button" data-target="topbarClientsSubMenu" aria-expanded="false">Clientes <span class="submenu-arrow">â€º</span></button>
 				<div id="topbarClientsSubMenu" class="nav-submenu" aria-hidden="true">
-					<button class="nav-item nav-back" type="button" data-close-submenu="topbarClientsSubMenu">← Menu</button>
+					<button class="nav-item nav-back" type="button" data-close-submenu="topbarClientsSubMenu">â† Menu</button>
 					<a class="nav-item" href="{% url 'todos_clientes' %}">Ver clientes</a>
 					</div>
 				</div>
 		{% endif %}
 		{% if 'cliente' not in user_groups %}
 			<div class="nav-item-group">
-				<button class="nav-item nav-subtoggle" type="button" data-target="topbarProductsSubMenu" aria-expanded="false">Productos <span class="submenu-arrow">›</span></button>
+				<button class="nav-item nav-subtoggle" type="button" data-target="topbarProductsSubMenu" aria-expanded="false">Productos <span class="submenu-arrow">â€º</span></button>
 				<div id="topbarProductsSubMenu" class="nav-submenu" aria-hidden="true">
-					<button class="nav-item nav-back" type="button" data-close-submenu="topbarProductsSubMenu">← Menu</button>
+					<button class="nav-item nav-back" type="button" data-close-submenu="topbarProductsSubMenu">â† Menu</button>
 					{% if 'admin' in user_groups %}
 						<a class="nav-item" href="{% url 'registrar_producto' %}">Crear producto</a>
 					{% else %}
@@ -519,17 +519,17 @@
 		{% endif %}
 		{% if 'admin' in user_groups %}
 			<div class="nav-item-group">
-				<button class="nav-item nav-subtoggle" type="button" data-target="topbarInventorySubMenu" aria-expanded="false">Inventario <span class="submenu-arrow">›</span></button>
+				<button class="nav-item nav-subtoggle" type="button" data-target="topbarInventorySubMenu" aria-expanded="false">Inventario <span class="submenu-arrow">â€º</span></button>
 				<div id="topbarInventorySubMenu" class="nav-submenu" aria-hidden="true">
-					<button class="nav-item nav-back" type="button" data-close-submenu="topbarInventorySubMenu">← Menu</button>
+					<button class="nav-item nav-back" type="button" data-close-submenu="topbarInventorySubMenu">â† Menu</button>
 					<a class="nav-item" href="{% url 'inventario' %}">Ver inventario</a>
 					<a class="nav-item" href="{% url 'ajustar_inventario_masivo' %}">Ajustar inventario</a>
 				</div>
 			</div>
 			<div class="nav-item-group">
-				<button class="nav-item nav-subtoggle" type="button" data-target="topbarPagosSubMenu" aria-expanded="false">Pagos <span class="submenu-arrow">›</span></button>
+				<button class="nav-item nav-subtoggle" type="button" data-target="topbarPagosSubMenu" aria-expanded="false">Pagos <span class="submenu-arrow">â€º</span></button>
 				<div id="topbarPagosSubMenu" class="nav-submenu" aria-hidden="true">
-					<button class="nav-item nav-back" type="button" data-close-submenu="topbarPagosSubMenu">← Menu</button>
+					<button class="nav-item nav-back" type="button" data-close-submenu="topbarPagosSubMenu">â† Menu</button>
 					<a class="nav-item" href="{% url 'aprobar_pagos' %}">Aprobar pagos</a>
 					<a class="nav-item" href="{% url 'ordenes_sublimacion' %}">Ordenes de sublimacion</a>
 				</div>
@@ -597,3 +597,4 @@
 		});
 	})();
 </script>
+

@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 {% load static %}
 <html lang="es">
 <head>
-    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+    <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}?v=2">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Inventario</title>
@@ -292,7 +292,7 @@
             background: #ffffff;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            /* permitir que los menús desplegables sobresalgan sin ser recortados */
+            /* permitir que los menÃºs desplegables sobresalgan sin ser recortados */
             overflow: visible;
             margin-top: 20px;
             position: relative;
@@ -421,7 +421,7 @@
             margin-top: 4px;
         }
 
-        /* Evitar que el contenido del menú se desborde y asegurar legibilidad */
+        /* Evitar que el contenido del menÃº se desborde y asegurar legibilidad */
         .dropdown-menu {
             white-space: nowrap;
             max-height: 320px;
@@ -799,7 +799,7 @@
                 </div>
                 <div class="inventory-header-text">
                     <p>
-                        Gestiona y visualiza el inventario de productos. Aquí puedes ver todos los productos disponibles, sus cantidades en stock y estado actual.
+                        Gestiona y visualiza el inventario de productos. AquÃ­ puedes ver todos los productos disponibles, sus cantidades en stock y estado actual.
                     </p>
                 </div>
             </div>
@@ -811,7 +811,7 @@
                     <input id="inventorySearch" class="search-input" type="search" placeholder="Buscar por nombre..." style="flex:1;" />
 
                     <select id="inventoryCategory" class="form-control" style="width:220px;">
-                        <option value="all">Todas las categorías</option>
+                        <option value="all">Todas las categorÃ­as</option>
                         {% for cat in categories %}
                         <option value="{{ cat.nombre_categoria }}">{{ cat.nombre_categoria }}</option>
                         {% endfor %}
@@ -863,7 +863,7 @@
                                         <small>{{ producto.descripcion|truncatechars:50 }}</small>
                                         {% if debug_media %}
                                             <small style="display:block;color:#7a2fd0;word-break:break-all;margin-top:4px;">
-                                                URL: {{ producto.img_url|default:'(vacía)' }}
+                                                URL: {{ producto.img_url|default:'(vacÃ­a)' }}
                                             </small>
                                             <small style="display:block;color:#999;word-break:break-all;">
                                                 Archivo: {{ producto.imagen_producto.name|default:'(sin archivo)' }}
@@ -891,7 +891,7 @@
                                         <i class="bi bi-eye-fill" style="color: white;"></i>
                                     </a>
                                     <div class="dropdown">
-                                        <button class="dropdown-toggle" title="Más opciones">
+                                        <button class="dropdown-toggle" title="MÃ¡s opciones">
                                             &#8942;
                                         </button>
                                         <div class="dropdown-menu">
@@ -919,7 +919,7 @@
                 <nav aria-label="Inventario pagination">
                     <ul style="list-style:none;display:flex;gap:8px;padding:0;margin:0;align-items:center;">
                         {% if page_obj.has_previous %}
-                        <li><a href="?page={{ page_obj.previous_page_number }}" class="btn-pagination">« Anterior</a></li>
+                        <li><a href="?page={{ page_obj.previous_page_number }}" class="btn-pagination">Â« Anterior</a></li>
                         {% endif %}
 
                         {% for num in paginator.page_range %}
@@ -931,7 +931,7 @@
                         {% endfor %}
 
                         {% if page_obj.has_next %}
-                        <li><a href="?page={{ page_obj.next_page_number }}" class="btn-pagination">Siguiente »</a></li>
+                        <li><a href="?page={{ page_obj.next_page_number }}" class="btn-pagination">Siguiente Â»</a></li>
                         {% endif %}
                     </ul>
                 </nav>
@@ -1177,7 +1177,7 @@
             actualizarEstadoScrollBody();
         }
 
-        // Función para confirmar eliminación de producto
+        // FunciÃ³n para confirmar eliminaciÃ³n de producto
         function confirmarEliminar(productoId, nombreProducto) {
             const modalEliminar = document.getElementById('modalEliminarProducto');
             const nombreProductoEl = document.getElementById('deleteProductName');
@@ -1423,19 +1423,19 @@
     <script src="{% static 'js/main.js' %}"></script>
 
     <!-- Modal para ajustar inventario -->
-    <!-- Ajustes combinados en modal de edición; modal de ajuste eliminado -->
+    <!-- Ajustes combinados en modal de ediciÃ³n; modal de ajuste eliminado -->
 
     <div id="modalEliminarProducto" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Confirmar eliminación</h3>
+                <h3>Confirmar eliminaciÃ³n</h3>
                 <button class="modal-close" onclick="cerrarModalEliminar()">&times;</button>
             </div>
             <div class="modal-body">
                 <form id="formEliminarProducto" method="post" action="">
                     {% csrf_token %}
                     <input type="hidden" id="deleteProductId" name="producto_id" value="">
-                    <p class="delete-warning">Vas a eliminar este producto del inventario. Esta acción no se puede deshacer.</p>
+                    <p class="delete-warning">Vas a eliminar este producto del inventario. Esta acciÃ³n no se puede deshacer.</p>
                     <div id="deleteProductName" class="delete-product-name"></div>
                     <div class="modal-actions">
                         <button type="button" class="btn-secondary" onclick="cerrarModalEliminar()">Cancelar</button>
@@ -1464,7 +1464,7 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="descripcionEditar">Descripción:</label>
+                        <label for="descripcionEditar">DescripciÃ³n:</label>
                         <textarea id="descripcionEditar" name="descripcion" class="form-control" rows="3"></textarea>
                     </div>
                     
@@ -1479,7 +1479,7 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="categoriaEditar">Categoría:</label>
+                        <label for="categoriaEditar">CategorÃ­a:</label>
                         <select id="categoriaEditar" name="categoria" class="form-control" required>
                             {% for cat in categories %}
                             <option value="{{ cat.pk }}">{{ cat.nombre_categoria }}</option>
@@ -1499,14 +1499,14 @@
                     <div class="form-group">
                         <label for="imagenEditar">Imagen del Producto:</label>
                         <input type="file" id="imagenEditar" name="imagen_producto" class="form-control" accept="image/*">
-                        <small class="form-text text-muted">Deja vacío para mantener la imagen actual</small>
+                        <small class="form-text text-muted">Deja vacÃ­o para mantener la imagen actual</small>
                         <div id="imagenPreview" style="margin-top: 10px;">
                             <img id="previewImg" src="" alt="Vista previa" style="max-width: 200px; max-height: 200px; display: none;">
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="motivoAjuste">Motivo del Cambio:</label>
-                        <textarea id="motivoAjuste" name="motivoAjuste" class="form-control" placeholder="Ej: Venta directa, corrección, devolución..." rows="2"></textarea>
+                        <textarea id="motivoAjuste" name="motivoAjuste" class="form-control" placeholder="Ej: Venta directa, correcciÃ³n, devoluciÃ³n..." rows="2"></textarea>
                     </div>
                     
                     <div class="modal-actions">

@@ -1,8 +1,8 @@
-{% load static %}
+﻿{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+    <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}?v=2">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Registro de Cliente</title>
@@ -55,7 +55,7 @@
         .nav-link:hover{ background:#f0f0f0; color:#9932CC; }
 
         .bar-toggle{ display:none; /* hide on desktop */ }
-        /* cuando la barra está colapsada mostrar logo dentro del contenedor pequeño */
+        /* cuando la barra estÃ¡ colapsada mostrar logo dentro del contenedor pequeÃ±o */
         .top-bar.collapsed .bar-logo-link{ left:8px; top:8px; z-index:10003; }
         .top-bar.collapsed .bar-logo-link img.bar-logo{ width:28px; height:28px; border-radius:6px; }
         /* colocar el toggle a la derecha dentro del contenedor colapsado para poder expandir de nuevo */
@@ -217,7 +217,7 @@
     </style>
 </head>
 <body>
-    <div id="welcomeAlert" role="status" aria-live="polite" style="display:none">Bienvenido — Has iniciado sesión correctamente.</div>
+    <div id="welcomeAlert" role="status" aria-live="polite" style="display:none">Bienvenido â€” Has iniciado sesiÃ³n correctamente.</div>
 
     {% include 'core/_topbar.html' %}
 
@@ -263,50 +263,50 @@
 
             var nombre = (findField('nombre_cliente') && findField('nombre_cliente').value || '').trim();
             if (!nombre) errors.nombre_cliente = 'El nombre es obligatorio.';
-            else if (nombre.length > 45) errors.nombre_cliente = 'El nombre no puede tener más de 45 caracteres.';
-            else if (/\d/.test(nombre)) errors.nombre_cliente = 'El nombre no puede contener números.';
-            else if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(nombre)) errors.nombre_cliente = 'El nombre contiene caracteres inválidos.';
+            else if (nombre.length > 45) errors.nombre_cliente = 'El nombre no puede tener mÃ¡s de 45 caracteres.';
+            else if (/\d/.test(nombre)) errors.nombre_cliente = 'El nombre no puede contener nÃºmeros.';
+            else if (!/^[A-Za-zÃÃ‰ÃÃ“ÃšÃ¡Ã©Ã­Ã³ÃºÃ‘Ã±\s]+$/.test(nombre)) errors.nombre_cliente = 'El nombre contiene caracteres invÃ¡lidos.';
 
             var apellido = (findField('apellido_cliente') && findField('apellido_cliente').value || '').trim();
             if (apellido){
-                if (apellido.length > 45) errors.apellido_cliente = 'El apellido no puede tener más de 45 caracteres.';
-                else if (/\d/.test(apellido)) errors.apellido_cliente = 'El apellido no puede contener números.';
-                else if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(apellido)) errors.apellido_cliente = 'El apellido contiene caracteres inválidos.';
+                if (apellido.length > 45) errors.apellido_cliente = 'El apellido no puede tener mÃ¡s de 45 caracteres.';
+                else if (/\d/.test(apellido)) errors.apellido_cliente = 'El apellido no puede contener nÃºmeros.';
+                else if (!/^[A-Za-zÃÃ‰ÃÃ“ÃšÃ¡Ã©Ã­Ã³ÃºÃ‘Ã±\s]+$/.test(apellido)) errors.apellido_cliente = 'El apellido contiene caracteres invÃ¡lidos.';
             }
 
             var telefono = (findField('telefono_cliente') && findField('telefono_cliente').value || '').trim();
             if (telefono){
-                if (!/^\d+$/.test(telefono)) errors.telefono_cliente = 'El teléfono debe contener solo números.';
-                else if (telefono.length > 11) errors.telefono_cliente = 'El teléfono no puede tener más de 11 dígitos.';
+                if (!/^\d+$/.test(telefono)) errors.telefono_cliente = 'El telÃ©fono debe contener solo nÃºmeros.';
+                else if (telefono.length > 11) errors.telefono_cliente = 'El telÃ©fono no puede tener mÃ¡s de 11 dÃ­gitos.';
             }
 
             var email = (findField('email') && findField('email').value || '').trim();
-            if (!email) errors.email = 'El correo electrónico es obligatorio.';
+            if (!email) errors.email = 'El correo electrÃ³nico es obligatorio.';
             else {
                 var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!re.test(email)) errors.email = 'El correo electrónico no tiene un formato válido.';
+                if (!re.test(email)) errors.email = 'El correo electrÃ³nico no tiene un formato vÃ¡lido.';
             }
 
             if (tipo === '1'){
                 var ced = (findField('cedula_dni') && findField('cedula_dni').value || '').trim();
-                if (!ced) errors.cedula_dni = 'La cédula es obligatoria para persona natural.';
-                else if (!/^\d+$/.test(ced)) errors.cedula_dni = 'La cédula debe contener solo números.';
-                else if (ced.length > 11) errors.cedula_dni = 'La cédula no puede tener más de 11 dígitos.';
+                if (!ced) errors.cedula_dni = 'La cÃ©dula es obligatoria para persona natural.';
+                else if (!/^\d+$/.test(ced)) errors.cedula_dni = 'La cÃ©dula debe contener solo nÃºmeros.';
+                else if (ced.length > 11) errors.cedula_dni = 'La cÃ©dula no puede tener mÃ¡s de 11 dÃ­gitos.';
             }
 
             if (tipo === '2'){
                 var rif = (findField('rif_empresa') && findField('rif_empresa').value || '').trim();
                 var nombre_empresa = (findField('nombre_empresa') && findField('nombre_empresa').value || '').trim();
                 var cedrep = (findField('cedula_dni_representante') && findField('cedula_dni_representante').value || '').trim();
-                if (!rif) errors.rif_empresa = 'El RIF es obligatorio para persona jurídica.';
+                if (!rif) errors.rif_empresa = 'El RIF es obligatorio para persona jurÃ­dica.';
                 else {
                     var m = rif.toUpperCase().match(/^([VEJG])[-]?(\d{6,20})$/i);
-                    if (!m) errors.rif_empresa = 'Formato de RIF inválido. Ej: J-3819192831';
+                    if (!m) errors.rif_empresa = 'Formato de RIF invÃ¡lido. Ej: J-3819192831';
                 }
                 if (!nombre_empresa) errors.nombre_empresa = 'El nombre de la empresa es obligatorio.';
-                if (!cedrep) errors.cedula_dni_representante = 'La cédula del representante es obligatoria.';
-                else if (!/^\d+$/.test(cedrep)) errors.cedula_dni_representante = 'La cédula del representante debe ser numérica.';
-                else if (cedrep.length > 11) errors.cedula_dni_representante = 'La cédula del representante no puede tener más de 11 dígitos.';
+                if (!cedrep) errors.cedula_dni_representante = 'La cÃ©dula del representante es obligatoria.';
+                else if (!/^\d+$/.test(cedrep)) errors.cedula_dni_representante = 'La cÃ©dula del representante debe ser numÃ©rica.';
+                else if (cedrep.length > 11) errors.cedula_dni_representante = 'La cÃ©dula del representante no puede tener mÃ¡s de 11 dÃ­gitos.';
             }
 
             // display errors if any
@@ -461,14 +461,14 @@
                 <select name="id_tipo_cliente" id="tipo" required>
                     <option value="">-- Seleccione el tipo --</option>
                     <option value="1" {% if form.id_tipo_cliente == '1' %}selected{% endif %}>Persona Natural</option>
-                    <option value="2" {% if form.id_tipo_cliente == '2' %}selected{% endif %}>Persona Jurídica (Empresa)</option>
+                    <option value="2" {% if form.id_tipo_cliente == '2' %}selected{% endif %}>Persona JurÃ­dica (Empresa)</option>
                 </select>
                 {% if errors and errors.id_tipo_cliente %}<div class="field-error">{{ errors.id_tipo_cliente }}</div>{% endif %}
 
                 <hr>
                 <h3>Datos Generales</h3>
 
-                <!-- Cédula para persona natural (se mostrará arriba del nombre cuando se seleccione tipo=1) -->
+                <!-- CÃ©dula para persona natural (se mostrarÃ¡ arriba del nombre cuando se seleccione tipo=1) -->
                 
                 <div id="cedula_above" style="display:none;">
                 </label for="cedula_tipo">Tipo de documento</label>
@@ -476,35 +476,35 @@
                         <option value="V">Venezolano</option>
                         <option value="E">Extranjero</option>
                     </select>
-                    <label for="cedula_dni">Cédula</label>
-                    <input type="tel" name="cedula_dni" maxlength="11" pattern="[0-9]+" inputmode="numeric" placeholder="Cédula" value="{{ form.cedula_dni|default:'' }}" oninput="this.value = this.value.replace(/\D/g,'').slice(0,11);">
+                    <label for="cedula_dni">CÃ©dula</label>
+                    <input type="tel" name="cedula_dni" maxlength="11" pattern="[0-9]+" inputmode="numeric" placeholder="CÃ©dula" value="{{ form.cedula_dni|default:'' }}" oninput="this.value = this.value.replace(/\D/g,'').slice(0,11);">
                     {% if errors and errors.cedula_dni %}<div class="field-error">{{ errors.cedula_dni }}</div>{% endif %}
                     <div id="cedula_error_client" class="field-error" style="display:none"></div>
                 </div>
 
-                <!-- Cédula para persona jurídica (se mostrará arriba del nombre cuando se seleccione tipo=2) -->
+                <!-- CÃ©dula para persona jurÃ­dica (se mostrarÃ¡ arriba del nombre cuando se seleccione tipo=2) -->
                 <div id="cedula_juridica" style="display:none;">
-                    <label for="cedula_dni_representante">Cédula del Representante</label>
-                    <input type="tel" name="cedula_dni_representante" maxlength="11" pattern="[0-9]+" inputmode="numeric" placeholder="Cédula del Representante" value="{{ form.cedula_dni_representante|default:'' }}" oninput="this.value = this.value.replace(/\D/g,'').slice(0,11);">
+                    <label for="cedula_dni_representante">CÃ©dula del Representante</label>
+                    <input type="tel" name="cedula_dni_representante" maxlength="11" pattern="[0-9]+" inputmode="numeric" placeholder="CÃ©dula del Representante" value="{{ form.cedula_dni_representante|default:'' }}" oninput="this.value = this.value.replace(/\D/g,'').slice(0,11);">
                     {% if errors and errors.cedula_dni_representante %}<div class="field-error">{{ errors.cedula_dni_representante }}</div>{% endif %}
                     <div id="cedula_rep_error_client" class="field-error" style="display:none"></div>
                 </div>
 
                 <label for="nombre_cliente">Nombre de Contacto</label>
-                <input type="text" name="nombre_cliente" maxlength="45" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+" placeholder="Nombre de Contacto" required value="{{ form.nombre_cliente|default:'' }}">
+                <input type="text" name="nombre_cliente" maxlength="45" pattern="[A-Za-zÃÃ‰ÃÃ“ÃšÃ¡Ã©Ã­Ã³ÃºÃ‘Ã±\s]+" placeholder="Nombre de Contacto" required value="{{ form.nombre_cliente|default:'' }}">
                 {% if errors and errors.nombre_cliente %}<div class="field-error">{{ errors.nombre_cliente }}</div>{% endif %}
                 <div id="nombre_error_client" class="field-error" style="display:none"></div>
 
                 <label for="apellido_cliente">Apellido</label>
-                <input type="text" name="apellido_cliente" maxlength="45" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+" placeholder="Apellido (o C.A.)" value="{{ form.apellido_cliente|default:'' }}">
+                <input type="text" name="apellido_cliente" maxlength="45" pattern="[A-Za-zÃÃ‰ÃÃ“ÃšÃ¡Ã©Ã­Ã³ÃºÃ‘Ã±\s]+" placeholder="Apellido (o C.A.)" value="{{ form.apellido_cliente|default:'' }}">
                 {% if errors and errors.apellido_cliente %}<div class="field-error">{{ errors.apellido_cliente }}</div>{% endif %}
                 <div id="apellido_error_client" class="field-error" style="display:none"></div>
 
-                <label for="direccion">Dirección</label>
-                <input type="text" name="direccion" placeholder="Dirección" value="{{ form.direccion|default:'' }}">
+                <label for="direccion">DirecciÃ³n</label>
+                <input type="text" name="direccion" placeholder="DirecciÃ³n" value="{{ form.direccion|default:'' }}">
 
-                <label for="telefono_cliente">Teléfono</label>
-                <input type="text" name="telefono_cliente" maxlength="11" pattern="[0-9]+" inputmode="numeric" placeholder="Teléfono" value="{{ form.telefono_cliente|default:'' }}">
+                <label for="telefono_cliente">TelÃ©fono</label>
+                <input type="text" name="telefono_cliente" maxlength="11" pattern="[0-9]+" inputmode="numeric" placeholder="TelÃ©fono" value="{{ form.telefono_cliente|default:'' }}">
                 {% if errors and errors.telefono_cliente %}<div class="field-error">{{ errors.telefono_cliente }}</div>{% endif %}
                 <div id="telefono_error_client" class="field-error" style="display:none"></div>
 
@@ -514,10 +514,10 @@
 
                 <hr>
 
-                <!-- Identificación natural movida arriba del nombre. -->
+                <!-- IdentificaciÃ³n natural movida arriba del nombre. -->
 
                 <div id="identificacion_juridica" class="fieldset" style="display:none;">
-                    <h4>Identificación (Jurídica)</h4>
+                    <h4>IdentificaciÃ³n (JurÃ­dica)</h4>
                     <label for="rif_empresa">RIF de la Empresa</label>
                     <div style="display:flex; gap:8px; align-items:center;">
                         <select id="rif_prefix" name="rif_prefix" style="width:84px; padding:10px; border:1px solid #ddd; border-radius:8px; background:#fff;">
@@ -562,16 +562,16 @@
         }
     });
 
-    // Asegurar que el bloque correcto se muestre al cargar la página (por ejemplo tras validación con errores)
+    // Asegurar que el bloque correcto se muestre al cargar la pÃ¡gina (por ejemplo tras validaciÃ³n con errores)
     document.addEventListener('DOMContentLoaded', function(){
         try{ document.getElementById('tipo').dispatchEvent(new Event('change')); }catch(e){}
     });
     </script>
     <script>
-    // Evitar que se tecleen o peguen números en nombre y apellido
+    // Evitar que se tecleen o peguen nÃºmeros en nombre y apellido
     (function(){
         function sanitizeName(value){
-            // eliminar dígitos y limitar a 45 caracteres
+            // eliminar dÃ­gitos y limitar a 45 caracteres
             return value.replace(/\d+/g, '').slice(0,45);
         }
 
@@ -580,15 +580,15 @@
             var err = document.getElementById(errorId);
             if (!el) return;
 
-            // evitar teclas de dígitos
+            // evitar teclas de dÃ­gitos
             el.addEventListener('keydown', function(e){
                 // permitir control/meta, flechas, borrar, tab
                 var allowed = ['Backspace','Delete','ArrowLeft','ArrowRight','Tab','Home','End'];
                 if (allowed.indexOf(e.key) !== -1) return;
-                // si es número bloqueamos
+                // si es nÃºmero bloqueamos
                 if (/^[0-9]$/.test(e.key)){
                     e.preventDefault();
-                    if (err){ err.style.display = 'block'; err.textContent = 'No se permiten números.'; }
+                    if (err){ err.style.display = 'block'; err.textContent = 'No se permiten nÃºmeros.'; }
                 }
             });
 
@@ -597,7 +597,7 @@
                 var clean = sanitizeName(el.value);
                 if (el.value !== clean){
                     el.value = clean;
-                    if (err){ err.style.display = 'block'; err.textContent = 'Se eliminaron los números automáticamente.'; }
+                    if (err){ err.style.display = 'block'; err.textContent = 'Se eliminaron los nÃºmeros automÃ¡ticamente.'; }
                 } else if (err){
                     err.style.display = 'none';
                 }
@@ -609,7 +609,7 @@
 
         attach('nombre_cliente','nombre_error_client');
         attach('apellido_cliente','apellido_error_client');
-        // Validación para teléfono: solo dígitos y máximo 11
+        // ValidaciÃ³n para telÃ©fono: solo dÃ­gitos y mÃ¡ximo 11
         (function(){
             var el = document.querySelector('input[name="telefono_cliente"]');
             var err = document.getElementById('telefono_error_client');
@@ -617,27 +617,27 @@
             el.addEventListener('keydown', function(e){
                 var allowed = ['Backspace','Delete','ArrowLeft','ArrowRight','Tab','Home','End'];
                 if (allowed.indexOf(e.key) !== -1) return;
-                // permitir solo dígitos
+                // permitir solo dÃ­gitos
                 if (!/^[0-9]$/.test(e.key)){
                     e.preventDefault();
-                    if (err){ err.style.display = 'block'; err.textContent = 'Sólo se permiten números.'; }
+                    if (err){ err.style.display = 'block'; err.textContent = 'SÃ³lo se permiten nÃºmeros.'; }
                 }
-                // si ya hay 11 dígitos bloquear más
+                // si ya hay 11 dÃ­gitos bloquear mÃ¡s
                 if (el.value && el.value.replace(/\D/g,'').length >= 11 && /^[0-9]$/.test(e.key)){
                     e.preventDefault();
-                    if (err){ err.style.display = 'block'; err.textContent = 'Máximo 11 dígitos.'; }
+                    if (err){ err.style.display = 'block'; err.textContent = 'MÃ¡ximo 11 dÃ­gitos.'; }
                 }
             });
             el.addEventListener('input', function(){
                 var only = el.value.replace(/\D/g,'').slice(0,11);
                 if (el.value !== only) {
                     el.value = only;
-                    if (err){ err.style.display = 'block'; err.textContent = 'Se eliminaron caracteres no numéricos o exceso de dígitos.'; }
+                    if (err){ err.style.display = 'block'; err.textContent = 'Se eliminaron caracteres no numÃ©ricos o exceso de dÃ­gitos.'; }
                 } else if (err){ err.style.display = 'none'; }
             });
             el.addEventListener('focus', function(){ if (err) err.style.display = 'none'; });
         })();
-        // Validación para cédula: solo dígitos y máximo 11
+        // ValidaciÃ³n para cÃ©dula: solo dÃ­gitos y mÃ¡ximo 11
         (function(){
             var elc = document.querySelector('input[name="cedula_dni"]');
             var errc = document.getElementById('cedula_error_client');
@@ -647,18 +647,18 @@
                 if (allowed.indexOf(e.key) !== -1) return;
                 if (!/^[0-9]$/.test(e.key)){
                     e.preventDefault();
-                    if (errc){ errc.style.display = 'block'; errc.textContent = 'Sólo se permiten números en la cédula.'; }
+                    if (errc){ errc.style.display = 'block'; errc.textContent = 'SÃ³lo se permiten nÃºmeros en la cÃ©dula.'; }
                 }
                 if (elc.value && elc.value.replace(/\D/g,'').length >= 11 && /^[0-9]$/.test(e.key)){
                     e.preventDefault();
-                    if (errc){ errc.style.display = 'block'; errc.textContent = 'Máximo 11 dígitos.'; }
+                    if (errc){ errc.style.display = 'block'; errc.textContent = 'MÃ¡ximo 11 dÃ­gitos.'; }
                 }
             });
             elc.addEventListener('input', function(){
                 var only = elc.value.replace(/\D/g,'').slice(0,11);
                 if (elc.value !== only){
                     elc.value = only;
-                    if (errc){ errc.style.display = 'block'; errc.textContent = 'Se eliminaron caracteres no numéricos.'; }
+                    if (errc){ errc.style.display = 'block'; errc.textContent = 'Se eliminaron caracteres no numÃ©ricos.'; }
                 } else if (errc){ errc.style.display = 'none'; }
             });
             // prevent non-digit insertion (beforeinput) and sanitize paste
@@ -666,7 +666,7 @@
                 try{
                     if (e.data && /\D/.test(e.data)){
                         e.preventDefault();
-                        if (errc){ errc.style.display = 'block'; errc.textContent = 'Sólo se permiten números en la cédula.'; }
+                        if (errc){ errc.style.display = 'block'; errc.textContent = 'SÃ³lo se permiten nÃºmeros en la cÃ©dula.'; }
                     }
                 }catch(ex){}
             });
@@ -685,7 +685,7 @@
             });
             elc.addEventListener('focus', function(){ if (errc) errc.style.display = 'none'; });
         })();
-        // Validación para RIF y cédula representante (jurídica)
+        // ValidaciÃ³n para RIF y cÃ©dula representante (jurÃ­dica)
         (function(){
             var rif = document.querySelector('input[name="rif_empresa"]');
             var errRif = document.getElementById('rif_error_client');
@@ -695,7 +695,7 @@
             if (rif){
                 // Prefer explicit prefix select if available
                 var rifPrefixSelect = document.getElementById('rif_prefix');
-                // Normalizar entrada: mantener prefijo seleccionado y dígitos
+                // Normalizar entrada: mantener prefijo seleccionado y dÃ­gitos
                 function normalizeRif(){
                     try{
                         var prefix = (rifPrefixSelect && rifPrefixSelect.value) ? rifPrefixSelect.value.toUpperCase() : '';
@@ -708,7 +708,7 @@
                         if (!prefix){
                             if (errRif){ errRif.style.display = 'block'; errRif.textContent = 'Seleccione el prefijo del RIF (V,E,J,G).'; }
                         } else if (!digits){
-                            if (errRif){ errRif.style.display = 'block'; errRif.textContent = 'Ingrese los dígitos del RIF después del guion.'; }
+                            if (errRif){ errRif.style.display = 'block'; errRif.textContent = 'Ingrese los dÃ­gitos del RIF despuÃ©s del guion.'; }
                         } else {
                             if (errRif){ errRif.style.display = 'none'; }
                         }
@@ -730,16 +730,16 @@
                     if (allowed.indexOf(e.key) !== -1) return;
                     if (!/^[0-9]$/.test(e.key)){
                         e.preventDefault();
-                        if (errCedRep){ errCedRep.style.display = 'block'; errCedRep.textContent = 'Sólo se permiten números en la cédula del representante.'; }
+                        if (errCedRep){ errCedRep.style.display = 'block'; errCedRep.textContent = 'SÃ³lo se permiten nÃºmeros en la cÃ©dula del representante.'; }
                     }
                     if (cedRep.value && cedRep.value.replace(/\D/g,'').length >= 11 && /^[0-9]$/.test(e.key)){
                         e.preventDefault();
-                        if (errCedRep){ errCedRep.style.display = 'block'; errCedRep.textContent = 'Máximo 11 dígitos.'; }
+                        if (errCedRep){ errCedRep.style.display = 'block'; errCedRep.textContent = 'MÃ¡ximo 11 dÃ­gitos.'; }
                     }
                 });
                 cedRep.addEventListener('input', function(){
                     var only = cedRep.value.replace(/\D/g,'').slice(0,11);
-                    if (cedRep.value !== only){ cedRep.value = only; if (errCedRep){ errCedRep.style.display = 'block'; errCedRep.textContent = 'Se eliminaron caracteres no numéricos.'; } }
+                    if (cedRep.value !== only){ cedRep.value = only; if (errCedRep){ errCedRep.style.display = 'block'; errCedRep.textContent = 'Se eliminaron caracteres no numÃ©ricos.'; } }
                     else if (errCedRep){ errCedRep.style.display = 'none'; }
                 });
                 // prevent non-digit insertion (beforeinput) and sanitize paste
@@ -747,7 +747,7 @@
                     try{
                         if (e.data && /\D/.test(e.data)){
                             e.preventDefault();
-                            if (errCedRep){ errCedRep.style.display = 'block'; errCedRep.textContent = 'Sólo se permiten números en la cédula del representante.'; }
+                            if (errCedRep){ errCedRep.style.display = 'block'; errCedRep.textContent = 'SÃ³lo se permiten nÃºmeros en la cÃ©dula del representante.'; }
                         }
                     }catch(ex){}
                 });
@@ -786,3 +786,4 @@
     <script src="{% static 'core/page-loader.js' %}"></script>
 </body>
 </html>
+

@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 {% load static %}
 <html lang="es">
 <head>
-    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+    <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}?v=2">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Ajustar Inventario</title>
@@ -96,7 +96,7 @@
         });
     });
 
-    // Botón global para aplicar el ajuste al producto seleccionado
+    // BotÃ³n global para aplicar el ajuste al producto seleccionado
     const btnAgregarGlobal = document.getElementById('agregar-ajuste-global');
     btnAgregarGlobal.addEventListener('click', function() {
         if (!seleccionado) {
@@ -118,7 +118,7 @@
         .then(response => response.json())
         .then(data => {
             if(data.success) {
-                alert('¡Se agregó el stock al inventario! Nuevo stock de ' + seleccionado.dataset.nombre + ': ' + data.nuevo_stock);
+                alert('Â¡Se agregÃ³ el stock al inventario! Nuevo stock de ' + seleccionado.dataset.nombre + ': ' + data.nuevo_stock);
                 window.location.href = '{% url 'inventario' %}';
             } else {
                 alert('Error: ' + (data.error || 'No se pudo actualizar el stock.'));
@@ -131,3 +131,4 @@
     </script>
 </body>
 </html>
+
