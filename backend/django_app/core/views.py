@@ -1952,7 +1952,7 @@ def pago_movil(request):
         'items': items,
         'total': total,
         'post': request.POST, # Se envía para re-renderizar inputs ocultos si es necesario
-        'cart_count': len(cart)
+        'cart_count': len(cart),
         'user_groups': list(request.user.groups.values_list('name', flat=True)),
         'cedula': cedula,
         'telefono': telefono,
