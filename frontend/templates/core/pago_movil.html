@@ -48,7 +48,7 @@
                     <div style="width:100%; display:flex; justify-content:space-between; gap:12px;">
                         <div>{{ it.producto.nombre_producto }} × {{ it.cantidad }}</div>
                         <div>$ {{ it.subtotal|floatformat:2 }}</div>
-                        <div>bs {{ precios_bs[it]}}</div>
+                        <div>bs {{ it.precio_bs}}</div>
                     </div>
                     {% if it.talla %}
                         <div class="small">Talla: {{ it.talla }}</div>
