@@ -286,6 +286,38 @@
 		text-align: center;
 	}
 
+	.pagos-notif-badge {
+		position: absolute;
+		top: -6px;
+		right: -8px;
+		background: #e11d48;
+		color: #fff;
+		border-radius: 999px;
+		padding: 1px 6px;
+		font-size: 11px;
+		font-weight: 700;
+		line-height: 1.2;
+		min-width: 18px;
+		text-align: center;
+		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+	}
+
+	.mobile-pagos-badge {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		margin-left: 6px;
+		min-width: 18px;
+		height: 18px;
+		padding: 0 6px;
+		border-radius: 999px;
+		background: #e11d48;
+		color: #fff;
+		font-size: 11px;
+		font-weight: 700;
+		line-height: 1;
+	}
+
 	.search-results {
 		position: absolute;
 		top: 100%;
@@ -449,6 +481,9 @@
 					</div>
 					<div class="pagos-menu" style="position:relative;">
 						<button id="pagosToggle" class="nav-link pagos-toggle" aria-haspopup="true" aria-expanded="false">Pagos ▾</button>
+						{% if pagos_pendientes_global and pagos_pendientes_global > 0 %}
+							<span class="pagos-notif-badge" aria-label="{{ pagos_pendientes_global }} pagos pendientes">{{ pagos_pendientes_global }}</span>
+						{% endif %}
 						<div id="pagosDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
 							<a href="{% url 'aprobar_pagos' %}" class="dropdown-item">Aprobar pagos</a>
 							<a href="{% url 'ordenes_sublimacion' %}" class="dropdown-item">Ordenes de sublimacion</a>
@@ -538,7 +573,7 @@
 				<button class="nav-item nav-subtoggle" type="button" data-target="topbarPagosSubMenu" aria-expanded="false">Pagos <span class="submenu-arrow">›</span></button>
 				<div id="topbarPagosSubMenu" class="nav-submenu" aria-hidden="true">
 					<button class="nav-item nav-back" type="button" data-close-submenu="topbarPagosSubMenu">← Menu</button>
-					<a class="nav-item" href="{% url 'aprobar_pagos' %}">Aprobar pagos</a>
+					<a class="nav-item" href="{% url 'aprobar_pagos' %}">Aprobar pagos{% if pagos_pendientes_global and pagos_pendientes_global > 0 %}<span class="mobile-pagos-badge">{{ pagos_pendientes_global }}</span>{% endif %}</a>
 					<a class="nav-item" href="{% url 'ordenes_sublimacion' %}">Ordenes de sublimacion</a>
 				</div>
 			</div>
