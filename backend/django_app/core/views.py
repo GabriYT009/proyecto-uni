@@ -1091,12 +1091,13 @@ def carrito(request):
             producto_compra = None
 
     show_purchase_only = bool(producto_compra)
-
+    total_bs = ''
     try:
         tasa= obtener_tasa_cambio()
+        total_bs= sum((p.precio_venta or 0) * p.cantidad_en_carrito for p in Productos)* float(tasa) if tasa != 'N/A' else 'N/A'
     except Exception:
         tasa = 'N/A'
-
+    
     return render(request, 'core/carrito.html', {
         'Productos': Productos,
         'producto_compra': producto_compra,
@@ -1104,6 +1105,7 @@ def carrito(request):
         'cart_count': len(carrito_validado),
         'user_groups': _user_groups(request.user),
         'valor_dolar':str(tasa),
+        'total_bs': total_bs,
         
     })
 
@@ -1953,12 +1955,21 @@ def pago_movil(request):
         
         items.append({
             'producto': p, 
-            'cantidad': cantidad, 
+            'cantidad': cantidad,
+            'precio_bs': subtotal * float(obtener_tasa_cambio() or 'N/A') if subtotal and obtener_tasa_cambio() else 'N/A',
             'subtotal': subtotal, 
             'talla': _get_session_cart_talla(request, p.pk), 
             'sublimacion': _latest_pending_sublimation(request.user, p.pk)
         })
         total += subtotal
+    
+    total_bs = ''
+    try:
+        tasa= obtener_tasa_cambio()
+        b= total* float(tasa) if tasa != 'N/A' else 'N/A'
+        total_bs = f'{b:.2f}'
+    except Exception:
+        tasa = 'N/A'
 
     return render(request, 'core/pago_movil.html', {
         'items': items,
@@ -1968,6 +1979,9 @@ def pago_movil(request):
         'user_groups': list(request.user.groups.values_list('name', flat=True)),
         'cedula': cedula,
         'telefono': telefono,
+        'valor_dolar': str(tasa),
+        'total_bs': total_bs,
+
     })
 
 
