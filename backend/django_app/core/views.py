@@ -1965,7 +1965,8 @@ def pago_movil(request):
     total_bs = ''
     try:
         tasa= obtener_tasa_cambio()
-        total_bs= total* float(tasa) if tasa != 'N/A' else 'N/A'
+        b= total* float(tasa) if tasa != 'N/A' else 'N/A'
+        total_bs = f'{b:.2f}'
     except Exception:
         tasa = 'N/A'
 
