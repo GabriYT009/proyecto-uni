@@ -1961,7 +1961,12 @@ def pago_movil(request):
             'sublimacion': _latest_pending_sublimation(request.user, p.pk)
         })
         total += subtotal
-
+    precios_bs = []
+    for item in items:
+        precios_bs.append({
+            'producto': item['producto'],
+            'precio_bs': float(item['producto'].precio_venta or 0) * float(obtener_tasa_cambio() or 'N/A') if obtener_tasa_cambio() != 'N/A' else 'N/A,'
+        })
     total_bs = ''
     try:
         tasa= obtener_tasa_cambio()
@@ -1980,6 +1985,7 @@ def pago_movil(request):
         'telefono': telefono,
         'valor_dolar': str(tasa),
         'total_bs': total_bs,
+        'precios_bs': precios_bs,
     })
 
 
