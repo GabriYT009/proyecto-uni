@@ -1091,12 +1091,13 @@ def carrito(request):
             producto_compra = None
 
     show_purchase_only = bool(producto_compra)
-    
+    total_bs = ''
     try:
         tasa= obtener_tasa_cambio()
+        total_bs= sum((p.precio_venta or 0) * p.cantidad_en_carrito for p in Productos)* float(tasa) if tasa != 'N/A' else 'N/A'
     except Exception:
         tasa = 'N/A'
-    total_bs= sum((p.precio_venta or 0) * p.cantidad_en_carrito for p in Productos)
+    
     return render(request, 'core/carrito.html', {
         'Productos': Productos,
         'producto_compra': producto_compra,
