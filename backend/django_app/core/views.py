@@ -1965,7 +1965,7 @@ def pago_movil(request):
     total_bs = ''
     try:
         tasa= obtener_tasa_cambio()
-        total_bs= sum((p.precio_venta or 0) * p.cantidad_en_carrito for p in productos)* float(tasa) if tasa != 'N/A' else 'N/A'
+        total_bs= total* float(tasa) if tasa != 'N/A' else 'N/A'
     except Exception:
         tasa = 'N/A'
 
