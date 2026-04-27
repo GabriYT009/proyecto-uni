@@ -44,23 +44,47 @@
 
         <div class="items" aria-live="polite">
             {% for it in items %}
-                <div class="item" style="flex-direction:column; align-items:flex-start; gap:6px;">
-                    <div style="width:100%; display:flex; ">
-                        <div>{{ it.producto.nombre_producto }} × {{ it.cantidad }}</div>
-                        <div>$ {{ it.subtotal|floatformat:2 }}</div>
-                        <div>bs {{ it.precio_bs}}</div>
+                <div class="item" style="flex-direction:column; align-items:flex-start; gap:8px;">
+    
+                    <div style="width:100%; display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+                        
+                        <div style="font-weight: 600; color: #333;">
+                            {{ it.producto.nombre_producto }} × {{ it.cantidad }}
+                        </div>
+                        
+                        <div style="text-align: right;">
+                            <div style="font-weight: bold;">$ {{ it.subtotal|floatformat:2 }}</div>
+                            
+                            {% if it.precio_bs != 'N/A' %}
+                                <div style="font-size: 0.85rem; color: #666; margin-top: 2px;">
+                                    Bs. {{ it.precio_bs|floatformat:2 }}
+                                </div>
+                            {% else %}
+                                <div style="font-size: 0.85rem; color: #e53e3e; margin-top: 2px;">
+                                    Tasa N/A
+                                </div>
+                            {% endif %}
+                        </div>
+
                     </div>
+
                     {% if it.talla %}
-                        <div class="small">Talla: {{ it.talla }}</div>
+                        <div class="small" style="color: #555;">Talla: <strong>{{ it.talla }}</strong></div>
                     {% endif %}
+
                     {% if it.sublimacion %}
-                        <div style="width:100%; padding:10px 12px; border-radius:10px; background:#f7f0ff; border:1px solid #e0c8f3; color:#5b2b80; font-size:0.9rem; line-height:1.45;">
+                        <div style="width:100%; padding:10px 12px; border-radius:8px; background:#f7f0ff; border:1px solid #e0c8f3; color:#5b2b80; font-size:0.9rem; line-height:1.45;">
                             <strong style="display:block; margin-bottom:4px;">Sublimación</strong>
-                            {% if it.sublimacion.talla %}<div>Talla: {{ it.sublimacion.talla }}</div>{% endif %}
-                            {% if it.sublimacion.comentario %}<div>{{ it.sublimacion.comentario }}</div>{% endif %}
+                            {% if it.sublimacion.talla %}
+                                <div>Talla: {{ it.sublimacion.talla }}</div>
+                            {% endif %}
+                            {% if it.sublimacion.comentario %}
+                                <div style="margin-top: 4px; font-style: italic;">"{{ it.sublimacion.comentario }}"</div>
+                            {% endif %}
                         </div>
                     {% endif %}
-                </div>
+
+                    </div>
             {% endfor %}
         </div>
 
