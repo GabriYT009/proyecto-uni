@@ -264,10 +264,16 @@
                             {% for it in s.items %}
 
                             {% empty %}
+                            {% if s.estado_pago == 'APROBADO' %}
                                 <li>
                                 <a href="{% url 'descargar_factura_ne' s.pk %}">Descargar Nota de entrega</a>
                                     
                                 </li>
+                            {% else %}
+                                <li>
+                                    <p>Una vez tu pago sea aprobado, podrás descargar tu nota de entrega.</p>
+                                </li>
+                            {% endif %}
                             {% endfor %}
                         </ul>
                     </article>
