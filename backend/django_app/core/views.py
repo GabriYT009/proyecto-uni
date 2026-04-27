@@ -1091,12 +1091,12 @@ def carrito(request):
             producto_compra = None
 
     show_purchase_only = bool(producto_compra)
-
+    
     try:
         tasa= obtener_tasa_cambio()
     except Exception:
         tasa = 'N/A'
-
+    total_bs= sum((p.precio_venta or 0) * p.cantidad_en_carrito for p in Productos)
     return render(request, 'core/carrito.html', {
         'Productos': Productos,
         'producto_compra': producto_compra,
@@ -1104,6 +1104,7 @@ def carrito(request):
         'cart_count': len(carrito_validado),
         'user_groups': _user_groups(request.user),
         'valor_dolar':str(tasa),
+        'total_bs': total_bs,
         
     })
 
