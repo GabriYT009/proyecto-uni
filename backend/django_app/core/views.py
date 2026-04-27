@@ -1962,6 +1962,13 @@ def pago_movil(request):
         })
         total += subtotal
 
+    total_bs = ''
+    try:
+        tasa= obtener_tasa_cambio()
+        total_bs= sum((p.precio_venta or 0) * p.cantidad_en_carrito for p in productos)* float(tasa) if tasa != 'N/A' else 'N/A'
+    except Exception:
+        tasa = 'N/A'
+
     return render(request, 'core/pago_movil.html', {
         'items': items,
         'total': total,
@@ -1970,6 +1977,8 @@ def pago_movil(request):
         'user_groups': list(request.user.groups.values_list('name', flat=True)),
         'cedula': cedula,
         'telefono': telefono,
+        'valor_dolar': str(tasa),
+        'total_bs': total_bs,
     })
 
 

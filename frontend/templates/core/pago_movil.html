@@ -64,7 +64,7 @@
         </div>
 
         <div class="total">Total: $ {{ total|floatformat:2 }}</div>
-
+        <div class="total">Total: vs {{ total_bs }}</div>
         <form method="post" action="{% url 'comprar_carrito' %}" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="field">
