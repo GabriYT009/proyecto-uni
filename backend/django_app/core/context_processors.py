@@ -3,7 +3,7 @@ import logging
 from django.contrib.auth.models import AnonymousUser
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from .models import Producto
+from .models import Producto, Nota_Entrega
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +34,29 @@ def contador_carrito(request):
     return {
         'cantidad_carrito_global': len(cart)
     }
+
+
+def contador_pagos_pendientes(request):
+    """
+    Devuelve la cantidad de pagos pendientes para admins, para mostrar badge en topbar.
+    """
+    try:
+        user = getattr(request, 'user', AnonymousUser())
+        if not getattr(user, 'is_authenticated', False):
+            return {'pagos_pendientes_global': 0}
+
+        if not user.groups.filter(name='admin').exists():
+            return {'pagos_pendientes_global': 0}
+
+        pendientes = (
+            Nota_Entrega.objects
+            .filter(comprobante_pago__isnull=False, estado_pago='PENDIENTE')
+            .count()
+        )
+        return {'pagos_pendientes_global': pendientes}
+    except Exception:
+        logger.exception("contador_pagos_pendientes fallback")
+        return {'pagos_pendientes_global': 0}
 
 def add_to_cart(request, producto_id):
     # Verificamos si la petición es POST 
