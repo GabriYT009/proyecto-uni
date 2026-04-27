@@ -101,8 +101,8 @@
                 <input type="tel" id="mobile_phone" name="mobile_phone" placeholder="Ej. 0999123456" required  value="{{ telefono }}"/>
             </div>
             <div class="field">
-                <label for="payment_proof">Comprobante (imagen opcional)</label>
-                <input type="file" id="payment_proof" name="payment_proof" accept="image/*" />
+                <label for="payment_proof">Comprobante (OBLIGATORIO )</label>
+                <input type="file" id="payment_proof" name="payment_proof" accept="image/*" required />
                 <small style="color:#666; display:block; margin-top:6px;">Formatos: JPG, PNG, WEBP. Tamaño maximo: 5 MB.</small>
             </div>
             <!-- El monto ya se muestra arriba en .total, se elimina el input duplicado -->
