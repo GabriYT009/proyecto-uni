@@ -149,6 +149,13 @@ class PasswordRecoveryForm(forms.Form):
             'autocomplete': 'new-password',
         }),
     )
+    verification_code = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Código de verificación (si ya lo recibiste)'
+        })
+    )
 
     def clean(self):
         cleaned_data = super().clean()

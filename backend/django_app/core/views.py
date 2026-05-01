@@ -28,6 +28,11 @@ from django.utils import timezone
 from django.db import transaction, IntegrityError
 from django.urls import reverse
 from django.core.files.storage import default_storage
+import random
+import string
+import datetime
+from django.core.mail import send_mail
+from .models import PasswordResetCode
 
 from .bcv import obtener_tasa_cambio
 from .NotaE import Generar_NE
@@ -571,25 +576,59 @@ def login_post(request):
 
 
 def recuperar_contrasena(request):
+    # Flujo en dos pasos: 1) Enviar código por correo, 2) Validar código y actualizar contraseña
     if request.method == 'POST':
         form = PasswordRecoveryForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username'].strip()
-            email = form.cleaned_data['email'].strip().lower()
-            new_password = form.cleaned_data['new_password']
 
-            user = User.objects.filter(username__iexact=username, email__iexact=email).first()
-            if user is None:
-                form.add_error(None, 'No encontramos un usuario con esos datos.')
-            else:
-                user.set_password(new_password)
-                user.save(update_fields=['password'])
+        # Paso 1: enviar código
+        if 'send_code' in request.POST:
+            if form.is_valid():
+                username = form.cleaned_data['username'].strip()
+                email = form.cleaned_data['email'].strip().lower()
+                user = User.objects.filter(username__iexact=username, email__iexact=email).first()
+                if user is None:
+                    form.add_error(None, 'No encontramos un usuario con esos datos.')
+                else:
+                    # generar código numérico de 6 dígitos
+                    code = ''.join(random.choices(string.digits, k=6))
+                    expires = timezone.now() + datetime.timedelta(minutes=15)
+                    PasswordResetCode.objects.create(user=user, code=code, expires_at=expires)
 
-                if request.user.is_authenticated and request.user.pk == user.pk:
-                    update_session_auth_hash(request, user)
+                    subject = 'Código de verificación para restablecer tu contraseña'
+                    message = f'Hola {user.username},\n\nTu código para restablecer la contraseña es: {code}\n\nEste código vence en 15 minutos.\nSi no solicitaste este correo, ignóralo.'
+                    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None)
+                    try:
+                        send_mail(subject, message, from_email, [user.email], fail_silently=False)
+                        messages.success(request, 'Se envió un código a tu correo. Revísalo e ingrésalo junto con la nueva contraseña.')
+                    except Exception:
+                        form.add_error(None, 'No se pudo enviar el correo. Contacta al administrador.')
 
-                messages.success(request, 'Tu contraseña fue actualizada. Ahora puedes iniciar sesión.')
-                return redirect('login')
+        # Paso 2: validar código y resetear contraseña
+        elif 'reset' in request.POST:
+            if form.is_valid():
+                username = form.cleaned_data['username'].strip()
+                email = form.cleaned_data['email'].strip().lower()
+                new_password = form.cleaned_data['new_password']
+                verification_code = form.cleaned_data.get('verification_code', '').strip()
+
+                user = User.objects.filter(username__iexact=username, email__iexact=email).first()
+                if user is None:
+                    form.add_error(None, 'No encontramos un usuario con esos datos.')
+                else:
+                    now = timezone.now()
+                    prc = PasswordResetCode.objects.filter(user=user, code=verification_code, used=False).first()
+                    if prc is None or (prc.expires_at and prc.expires_at < now):
+                        form.add_error(None, 'Código inválido o expirado. Pide un nuevo código.')
+                    else:
+                        # marcar usado y actualizar contraseña
+                        prc.used = True
+                        prc.save(update_fields=['used'])
+                        user.set_password(new_password)
+                        user.save(update_fields=['password'])
+                        if request.user.is_authenticated and request.user.pk == user.pk:
+                            update_session_auth_hash(request, user)
+                        messages.success(request, 'Tu contraseña fue actualizada. Ahora puedes iniciar sesión.')
+                        return redirect('login')
     else:
         form = PasswordRecoveryForm()
 

@@ -60,7 +60,18 @@
                 {% endfor %}
             </div>
 
-            <button type="submit">Actualizar contraseña</button>
+            <div class="full">
+                <label for="id_verification_code">Código de verificación</label>
+                {{ form.verification_code }}
+                {% for error in form.verification_code.errors %}
+                    <div class="field-error">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="actions">
+                <button type="submit" name="send_code" value="1">Enviar código al correo</button>
+                <button type="submit" name="reset" value="1">Actualizar contraseña</button>
+            </div>
 
             <div class="registrarse">
                 <a href="{% url 'login' %}">Volver al inicio de sesión</a>

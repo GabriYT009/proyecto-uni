@@ -339,6 +339,16 @@ if USE_CLOUDINARY_MEDIA:
             'SECURE': True,
         }
 
+        # Email configuration: usar variables de entorno en producción.
+        DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'no-reply@example.com')
+        EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+        EMAIL_HOST = os.environ.get('EMAIL_HOST', '')
+        EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '0') or 0)
+        EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+        EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+        EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'False').lower() in ('1', 'true', 'yes')
+        EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL', 'False').lower() in ('1', 'true', 'yes')
+
 # In production, prefer a single canonical static tree to avoid duplicate paths
 # during collectstatic. Local development can opt into the legacy trees.
 ENABLE_LEGACY_STATIC_DIRS = os.environ.get("ENABLE_LEGACY_STATIC_DIRS", "False").lower() in ("1", "true", "yes")

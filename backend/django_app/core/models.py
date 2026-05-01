@@ -132,6 +132,25 @@ class Marca_producto(models.Model):
     def __str__(self):
         return self.nombre_marca
 
+
+class PasswordResetCode(models.Model):
+    user = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    code = models.CharField(max_length=12)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(blank=True, null=True)
+    used = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'Código de recuperación'
+        verbose_name_plural = 'Códigos de recuperación'
+
+    def is_valid(self):
+        from django.utils import timezone
+        if self.used:
+            return False
+        if self.expires_at and self.expires_at < timezone.now():
+            return False
+        return True
 class Producto(models.Model):
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, null=True, blank=True)
     nombre_producto = models.CharField(max_length=45, blank=True, null=True)
