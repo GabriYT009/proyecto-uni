@@ -245,19 +245,53 @@
                             <div>
                                 <div class="order-id">Orden #{{ s.pk }}</div>
                                 <div class="order-date">{{ s.date }}</div>
-                                <div class="order-date">Estado: <strong>{{ s.get_estado_pago_display }}</strong></div>
+                                <div class="order-date">Estado: 
+                                    
+                                    {% if s.estado_pago == 'PENDIENTE' %}
+                                        <strong style="color: #ffd000;">{{ s.get_estado_pago_display }}</strong>
+                                    
+                                    {% elif s.estado_pago == 'APROBADO' %}
+                                        <strong style="color: #1e9c57;">{{ s.get_estado_pago_display }}</strong>
+                                    
+                                    {% elif s.estado_pago == 'RECHAZADO' %}
+                                        <strong style="color: #e53e3e;">{{ s.get_estado_pago_display }}</strong>
+
+                                    {% else %}
+                                    <strong>{{ s.get_estado_pago_display }}</strong>
+                                    {% endif %}
+                                
+                                
+                                
+                                </div>
+                                {% if s.estado_pago == 'PENDIENTE' %}
+                                    <div class="order-date">Tu pago está pendiente de confirmación</div>
+                                
+                                {% elif s.estado_pago == 'APROBADO' %}
+                                    <div class="order-date" style="color: #1e9c57;">Tu pago ha sido confirmado</div>
+                                
+                                {% elif s.estado_pago == 'RECHAZADO' %}
+                                    <div class="order-date" style="color: #e53e3e;">Tu pago ha sido rechazado Por favor comunícate con nosotros [Contacto]</div>
+
+                                {% endif %}
                             </div>
                             <div class="order-total">$ {{ s.total }}</div>
+                            <!-- <div class="order-total">$ {{ s.total_bs }}</div> -->
                         </div>
 
                         <ul class="items-list">
                             {% for it in s.items %}
 
                             {% empty %}
+                            {% if s.estado_pago == 'APROBADO' %}
                                 <li>
                                 <a href="{% url 'descargar_factura_ne' s.pk %}">Descargar Nota de entrega</a>
                                     
                                 </li>
+                            {% else %}
+                                <li>
+                                    <p>Una vez tu pago sea aprobado, podrás descargar tu nota de entrega.</p>
+                                </li>
+                            {% endif %}
                             {% endfor %}
                         </ul>
                     </article>
