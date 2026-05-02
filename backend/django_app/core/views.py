@@ -639,15 +639,14 @@ def recuperar_contrasena(request):
                     expires = timezone.now() + datetime.timedelta(minutes=15)
                     PasswordResetCode.objects.filter(user=user, used=False).update(used=True)
                     PasswordResetCode.objects.create(user=user, code=code, expires_at=expires)
-                    try:
-                        _send_password_reset_email_via_mailtrap(user, code)
-                        messages.success(request, 'Se envió un código a tu correo. Revísalo e ingrésalo junto con la nueva contraseña.')
-                    except Exception:
-                        logger.exception('Password reset email delivery failed for user=%s', user.pk)
-                        messages.warning(
-                            request,
-                            f'No se pudo enviar el correo. Usa este código para continuar: {code}',
-                        )
+                    # Antes intentábamos enviar el código por correo. Quitamos
+                    # esa dependencia para permitir recuperación sin verificar
+                    # el correo. Mostramos el código directamente al usuario
+                    # para continuar con el flujo de restablecimiento.
+                    messages.success(
+                        request,
+                        f'Usa este código para continuar con el restablecimiento de contraseña: {code}',
+                    )
 
         # Paso 2: validar código y resetear contraseña
         elif 'reset' in request.POST:
