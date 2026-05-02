@@ -20,7 +20,7 @@ import re
 import os
 import json
 from django.core.exceptions import ObjectDoesNotExist
-from requests import request
+import requests
 from .models import Producto, Cliente, Categoria, Historial_Inventario, MetodoPago, CarritoDeCompras, OrdenDeDespacho, SolicitudSublimacion
 from django.core.paginator import Paginator
 from .forms import ProductForm, PasswordRecoveryForm
@@ -31,7 +31,6 @@ from django.core.files.storage import default_storage
 import random
 import string
 import datetime
-from django.core.mail import send_mail
 from .models import PasswordResetCode
 
 from .bcv import obtener_tasa_cambio
@@ -88,6 +87,50 @@ def ajustar_inventario_masivo(request):
 
 
 logger = logging.getLogger(__name__)
+
+
+def _send_password_reset_email_via_mailtrap(user, code):
+    mailtrap_token = os.environ.get('MAILTRAP_API_TOKEN', '').strip()
+    if not mailtrap_token:
+        raise RuntimeError('MAILTRAP_API_TOKEN no está configurado')
+
+    mailtrap_host = os.environ.get('MAILTRAP_API_HOST', 'https://send.api.mailtrap.io').strip().rstrip('/')
+    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@example.com')
+    subject = 'Código de verificación para restablecer tu contraseña'
+    message = (
+        f'Hola {user.username},\n\n'
+        f'Tu código para restablecer la contraseña es: {code}\n\n'
+        'Este código vence en 15 minutos.\n'
+        'Si no solicitaste este correo, ignóralo.'
+    )
+
+    payload = {
+        'from': {'email': from_email},
+        'to': [{'email': user.email}],
+        'subject': subject,
+        'text': message,
+    }
+
+    response = requests.post(
+        f'{mailtrap_host}/api/send',
+        headers={
+            'Authorization': f'Bearer {mailtrap_token}',
+            'Content-Type': 'application/json',
+        },
+        json=payload,
+        timeout=15,
+    )
+    response.raise_for_status()
+
+    try:
+        data = response.json()
+    except ValueError:
+        data = {}
+
+    if data and not data.get('success', True):
+        raise RuntimeError(f'Mailtrap devolvió error: {data}')
+
+    return data
 
 HOME_PRODUCTS_LIMIT = 24
 ALLOWED_CATEGORY_NAMES = [
@@ -592,16 +635,17 @@ def recuperar_contrasena(request):
                     # generar código numérico de 6 dígitos
                     code = ''.join(random.choices(string.digits, k=6))
                     expires = timezone.now() + datetime.timedelta(minutes=15)
+                    PasswordResetCode.objects.filter(user=user, used=False).update(used=True)
                     PasswordResetCode.objects.create(user=user, code=code, expires_at=expires)
-
-                    subject = 'Código de verificación para restablecer tu contraseña'
-                    message = f'Hola {user.username},\n\nTu código para restablecer la contraseña es: {code}\n\nEste código vence en 15 minutos.\nSi no solicitaste este correo, ignóralo.'
-                    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None)
                     try:
-                        send_mail(subject, message, from_email, [user.email], fail_silently=False)
+                        _send_password_reset_email_via_mailtrap(user, code)
                         messages.success(request, 'Se envió un código a tu correo. Revísalo e ingrésalo junto con la nueva contraseña.')
                     except Exception:
-                        form.add_error(None, 'No se pudo enviar el correo. Contacta al administrador.')
+                        logger.exception('Password reset email delivery failed for user=%s', user.pk)
+                        messages.warning(
+                            request,
+                            f'No se pudo enviar el correo. Usa este código para continuar: {code}',
+                        )
 
         # Paso 2: validar código y resetear contraseña
         elif 'reset' in request.POST:
