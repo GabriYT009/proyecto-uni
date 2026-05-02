@@ -149,13 +149,7 @@ class PasswordRecoveryForm(forms.Form):
             'autocomplete': 'new-password',
         }),
     )
-    verification_code = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Código de verificación (ya no se usa)'
-        })
-    )
+    # verification_code removed: we now use security questions flow
 
     def clean(self):
         cleaned_data = super().clean()
