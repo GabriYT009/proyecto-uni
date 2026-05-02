@@ -120,6 +120,8 @@ def _send_password_reset_email_via_mailtrap(user, code):
         json=payload,
         timeout=15,
     )
+    if response.status_code == 401:
+        raise RuntimeError('MAILTRAP_API_TOKEN no es válido o no tiene permiso para enviar correos')
     response.raise_for_status()
 
     try:
