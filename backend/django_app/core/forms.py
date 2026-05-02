@@ -153,7 +153,7 @@ class PasswordRecoveryForm(forms.Form):
         required=False,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Código de verificación (si ya lo recibiste)'
+            'placeholder': 'Código de verificación (ya no se usa)'
         })
     )
 

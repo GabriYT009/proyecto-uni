@@ -151,6 +151,38 @@ class PasswordResetCode(models.Model):
         if self.expires_at and self.expires_at < timezone.now():
             return False
         return True
+
+
+class SecurityQuestion(models.Model):
+    text = models.CharField(max_length=255)
+
+    class Meta:
+        verbose_name = 'Pregunta de seguridad'
+        verbose_name_plural = 'Preguntas de seguridad'
+
+    def __str__(self):
+        return self.text
+
+
+class UserSecurityAnswer(models.Model):
+    user = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    question = models.ForeignKey(SecurityQuestion, on_delete=models.CASCADE)
+    # Guardamos el hash de la respuesta para no almacenar texto plano
+    answer_hash = models.CharField(max_length=255)
+
+    class Meta:
+        verbose_name = 'Respuesta de seguridad'
+        verbose_name_plural = 'Respuestas de seguridad'
+
+    def __str__(self):
+        return f"{self.user.username} - {self.question.text}"
+
+    def check_answer(self, raw_answer):
+        from django.contrib.auth.hashers import check_password
+        try:
+            return check_password((raw_answer or '').strip().lower(), self.answer_hash)
+        except Exception:
+            return False
 class Producto(models.Model):
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, null=True, blank=True)
     nombre_producto = models.CharField(max_length=45, blank=True, null=True)

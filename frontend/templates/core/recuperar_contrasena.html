@@ -60,13 +60,23 @@
                 {% endfor %}
             </div>
 
-            <div class="full">
-                <label for="id_verification_code">Código de verificación</label>
-                {{ form.verification_code }}
-                {% for error in form.verification_code.errors %}
-                    <div class="field-error">{{ error }}</div>
+            {# Si la vista pasó preguntas, mostrarlas para que el usuario responda #}
+            {% if questions %}
+                {% for q in questions %}
+                    <div class="full">
+                        <label for="id_answer_{{ q.id }}">{{ q.text }}</label>
+                        <input type="text" name="answer_{{ q.id }}" id="id_answer_{{ q.id }}" class="form-control" placeholder="Respuesta" />
+                    </div>
                 {% endfor %}
-            </div>
+            {% else %}
+                <div class="full">
+                    <label for="id_verification_code">Código de verificación</label>
+                    {{ form.verification_code }}
+                    {% for error in form.verification_code.errors %}
+                        <div class="field-error">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
 
             <div class="actions">
                 <button type="submit" name="send_code" value="1">Enviar código al correo</button>

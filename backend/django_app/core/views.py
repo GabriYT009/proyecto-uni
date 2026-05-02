@@ -21,7 +21,18 @@ import os
 import json
 from django.core.exceptions import ObjectDoesNotExist
 import requests
-from .models import Producto, Cliente, Categoria, Historial_Inventario, MetodoPago, CarritoDeCompras, OrdenDeDespacho, SolicitudSublimacion
+from .models import (
+    Producto,
+    Cliente,
+    Categoria,
+    Historial_Inventario,
+    MetodoPago,
+    CarritoDeCompras,
+    OrdenDeDespacho,
+    SolicitudSublimacion,
+    SecurityQuestion,
+    UserSecurityAnswer,
+)
 from django.core.paginator import Paginator
 from .forms import ProductForm, PasswordRecoveryForm
 from django.utils import timezone
@@ -625,7 +636,7 @@ def recuperar_contrasena(request):
     if request.method == 'POST':
         form = PasswordRecoveryForm(request.POST)
 
-        # Paso 1: enviar código
+        # Paso 1: mostrar preguntas de seguridad configuradas para el usuario
         if 'send_code' in request.POST:
             if form.is_valid():
                 username = form.cleaned_data['username'].strip()
@@ -634,46 +645,61 @@ def recuperar_contrasena(request):
                 if user is None:
                     form.add_error(None, 'No encontramos un usuario con esos datos.')
                 else:
-                    # generar código numérico de 6 dígitos
-                    code = ''.join(random.choices(string.digits, k=6))
-                    expires = timezone.now() + datetime.timedelta(minutes=15)
-                    PasswordResetCode.objects.filter(user=user, used=False).update(used=True)
-                    PasswordResetCode.objects.create(user=user, code=code, expires_at=expires)
-                    # Antes intentábamos enviar el código por correo. Quitamos
-                    # esa dependencia para permitir recuperación sin verificar
-                    # el correo. Mostramos el código directamente al usuario
-                    # para continuar con el flujo de restablecimiento.
-                    messages.success(
-                        request,
-                        f'Usa este código para continuar con el restablecimiento de contraseña: {code}',
-                    )
+                    # buscar las respuestas de seguridad para este usuario
+                    answers = list(UserSecurityAnswer.objects.filter(user=user).select_related('question'))
+                    if not answers:
+                        form.add_error(None, 'Este usuario no tiene preguntas de seguridad configuradas. Contacta al administrador.')
+                    else:
+                        # Guardar temporalmente el id de usuario en la sesión para el siguiente paso
+                        request.session['pr_user_id'] = user.pk
+                        # Pasamos las preguntas a la plantilla para que el usuario las responda
+                        questions = [a.question for a in answers]
+                        return render(request, 'core/recuperar_contrasena.html', {'form': form, 'questions': questions})
 
-        # Paso 2: validar código y resetear contraseña
+        # Paso 2: validar respuestas y resetear contraseña
         elif 'reset' in request.POST:
             if form.is_valid():
-                username = form.cleaned_data['username'].strip()
-                email = form.cleaned_data['email'].strip().lower()
                 new_password = form.cleaned_data['new_password']
-                verification_code = form.cleaned_data.get('verification_code', '').strip()
+                # Obtener user id desde sesión (establecido en Paso 1)
+                user_id = request.session.get('pr_user_id')
+                user = None
+                if user_id:
+                    user = User.objects.filter(pk=user_id).first()
+                else:
+                    # fallback por username+email
+                    username = form.cleaned_data['username'].strip()
+                    email = form.cleaned_data['email'].strip().lower()
+                    user = User.objects.filter(username__iexact=username, email__iexact=email).first()
 
-                user = User.objects.filter(username__iexact=username, email__iexact=email).first()
                 if user is None:
                     form.add_error(None, 'No encontramos un usuario con esos datos.')
                 else:
-                    now = timezone.now()
-                    prc = PasswordResetCode.objects.filter(user=user, code=verification_code, used=False).first()
-                    if prc is None or (prc.expires_at and prc.expires_at < now):
-                        form.add_error(None, 'Código inválido o expirado. Pide un nuevo código.')
+                    # cargar respuestas esperadas
+                    saved_answers = list(UserSecurityAnswer.objects.filter(user=user).select_related('question'))
+                    if not saved_answers:
+                        form.add_error(None, 'Este usuario no tiene preguntas de seguridad configuradas. Contacta al administrador.')
                     else:
-                        # marcar usado y actualizar contraseña
-                        prc.used = True
-                        prc.save(update_fields=['used'])
-                        user.set_password(new_password)
-                        user.save(update_fields=['password'])
-                        if request.user.is_authenticated and request.user.pk == user.pk:
-                            update_session_auth_hash(request, user)
-                        messages.success(request, 'Tu contraseña fue actualizada. Ahora puedes iniciar sesión.')
-                        return redirect('login')
+                        all_ok = True
+                        for ua in saved_answers:
+                            posted = (request.POST.get(f'answer_{ua.question.pk}', '') or '').strip()
+                            if not ua.check_answer(posted):
+                                all_ok = False
+                                break
+
+                        if not all_ok:
+                            form.add_error(None, 'Una o más respuestas son incorrectas.')
+                        else:
+                            user.set_password(new_password)
+                            user.save(update_fields=['password'])
+                            # limpiar la sesión
+                            try:
+                                del request.session['pr_user_id']
+                            except Exception:
+                                pass
+                            if request.user.is_authenticated and request.user.pk == user.pk:
+                                update_session_auth_hash(request, user)
+                            messages.success(request, 'Tu contraseña fue actualizada. Ahora puedes iniciar sesión.')
+                            return redirect('login')
     else:
         form = PasswordRecoveryForm()
 
