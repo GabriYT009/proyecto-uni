@@ -449,15 +449,21 @@
 				<a href="{% url 'catalog' %}" class="nav-link">Catálogo</a>
 				
 
-				{% if 'admin' in user_groups %}
+				{% if 'cliente' not in user_groups %}
 					<div class="producto-menu" style="position:relative;">
 						<button id="productoToggle" class="nav-link product-toggle" aria-haspopup="true" aria-expanded="false">Producto ▾</button>
 						<div id="productoDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
-							<a href="{% url 'registrar_producto' %}" class="dropdown-item">Crear producto</a>
-							<a href="{% url 'agregar_marca' %}" class="dropdown-item">Marca</a>
+							{% if 'admin' in user_groups %}
+								<a href="{% url 'registrar_producto' %}" class="dropdown-item">Crear producto</a>
+								<a href="{% url 'agregar_marca' %}" class="dropdown-item">Marca</a>
+							{% else %}
+								<a href="{% url 'catalog' %}" class="dropdown-item">Ver productos</a>
+							{% endif %}
 						</div>
 					</div>
-					<div class="inventario-menu" style="position:relative;">
+				{% endif %}
+
+				{% if 'admin' in user_groups %}
 						<button id="inventarioToggle" class="nav-link inventario-toggle" aria-haspopup="true" aria-expanded="false">Inventario ▾</button>
 						
 						<div id="inventarioDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
