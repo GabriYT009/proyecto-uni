@@ -48,6 +48,7 @@ def obtener_tasa_cambio():
             tasa = float(tasa_texto.replace('.', '').replace(',', '.'))
             if tasa > 0:
                 _persist_rate(tasa)
+                print(f"Tasa obtenida por Scraping BCV: {tasa}")
                 return tasa
     except Exception as e:
         print(f"Error en Scraping BCV: {e}") # Opcional: logging
