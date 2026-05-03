@@ -90,12 +90,12 @@ class Generar_NE(FPDF):
         self.cell(17, 10, 'Cant.', 1, 0, 'C')
         self.cell(25, 10, 'Precio Unit.', 1, 0, 'c')
         self.cell(25, 10, 'Precio Unit Bs.', 1, 0, 'c')
-        self.cell(20, 10, 'Subtotal', 1, 1, 'c')
+        self.cell(20, 10, 'Subtotal', 1, 0, 'c')
         self.cell(20, 10, 'Subtotal Bs', 1, 1, 'c')
         # Table content
         self.set_font('Arial', '', 10)
         
-        # --- AQUÍ ESTABA EL ERROR: Declarar total_usd en lugar de total ---
+
         total_usd = 0
         tasa=""
         try:
@@ -125,7 +125,7 @@ class Generar_NE(FPDF):
             self.cell(17, 8, str(cantidad), 1, 0, 'C')
             self.cell(25, 8, f'${precio_unit:.2f}', 1, 0, 'C')
             self.cell(25, 8, f'{precio_unit_bs:.2f}', 1, 0, 'C')
-            self.cell(20, 8, f'${subtotal:.2f}', 1, 1, 'C')
+            self.cell(20, 8, f'${subtotal:.2f}', 1, 0, 'C')
             self.cell(20, 8, f'${subtotal_bs:.2f}', 1, 1, 'C')
 
 
