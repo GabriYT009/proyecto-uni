@@ -1890,19 +1890,18 @@ def pago_exitoso(request, salida_id):
 def aprobar_pagos(request):
     if request.method == 'POST':
         salida_id = request.POST.get('salida_id')
-        accion = (request.POST.get('accion') or '').strip().lower()
+        nuevo_estado = (request.POST.get('estado') or '').strip().upper()
         salida = get_object_or_404(Nota_Entrega, pk=salida_id, comprobante_pago__isnull=False)
 
-        if salida.estado_pago != "PENDIENTE":
-            print("asda")
-            messages.info(request, 'Este pago ya fue revisado.')
+        if nuevo_estado not in ['APROBADO', 'RECHAZADO']:
+            messages.error(request, 'Estado no válido.')
             return redirect('aprobar_pagos')
 
-        if accion == 'aprobar':
+        if nuevo_estado == 'APROBADO':
             salida.estado_pago = "APROBADO"
             salida.motivo_rechazo = None  # Clear any previous rejection reason
             messages.success(request, f'Pago #{salida.pk} aprobado correctamente.')
-        elif accion == 'rechazar':
+        elif nuevo_estado == 'RECHAZADO':
             motivo = request.POST.get('motivo_rechazo', '').strip()
             if not motivo:
                 messages.error(request, 'Debe proporcionar un motivo para rechazar el pago.')
@@ -1910,9 +1909,11 @@ def aprobar_pagos(request):
             salida.estado_pago = "RECHAZADO"
             salida.motivo_rechazo = motivo
             messages.warning(request, f'Pago #{salida.pk} marcado como rechazado.')
-        else:
-            messages.error(request, 'Acción no válida.')
-            return redirect('aprobar_pagos')
+
+        salida.revisado_por = request.user
+        salida.fecha_revision = timezone.now()
+        salida.save(update_fields=['estado_pago', 'motivo_rechazo', 'revisado_por', 'fecha_revision'])
+        return redirect('aprobar_pagos')
 
         salida.revisado_por = request.user
         salida.fecha_revision = timezone.now()

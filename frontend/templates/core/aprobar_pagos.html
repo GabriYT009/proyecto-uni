@@ -406,13 +406,12 @@
                                 <form method="post" class="status-action" novalidate>
                                     {% csrf_token %}
                                     <input type="hidden" name="salida_id" value="{{ salida.pk }}">
-                                    <label for="accion-{{ salida.pk }}">Estado</label>
-                                    <select id="accion-{{ salida.pk }}" name="accion" class="status-select" required>
-                                        <option value="" disabled selected>Seleccionar acción</option>
-                                        <option value="aprobar">Aprobar pago</option>
-                                        <option value="rechazar">Rechazar pago</option>
+                                    <label for="estado-{{ salida.pk }}">Estado</label>
+                                    <select id="estado-{{ salida.pk }}" name="estado" class="status-select" required>
+                                        <option value="APROBADO" {% if salida.estado_pago == 'APROBADO' %}selected{% endif %}>Aprobar pago</option>
+                                        <option value="RECHAZADO" {% if salida.estado_pago == 'RECHAZADO' %}selected{% endif %}>Rechazar pago</option>
                                     </select>
-                                    <textarea name="motivo_rechazo" id="motivo-{{ salida.pk }}" class="rejection-reason" style="display:none; width: 100%; min-height: 80px; margin-top: 10px; padding: 8px; border: 1px solid #d9c7ea; border-radius: 8px; font-family: inherit;" placeholder="Motivo del rechazo"></textarea>
+                                    <textarea name="motivo_rechazo" id="motivo-{{ salida.pk }}" class="rejection-reason" style="display:{% if salida.estado_pago == 'RECHAZADO' %}block{% else %}none{% endif %}; width: 100%; min-height: 80px; margin-top: 10px; padding: 8px; border: 1px solid #d9c7ea; border-radius: 8px; font-family: inherit;" placeholder="Motivo del rechazo">{% if salida.motivo_rechazo %}{{ salida.motivo_rechazo }}{% endif %}</textarea>
                                     <button type="submit" class="btn-submit">Guardar</button>
                                 </form>
                             </div>
@@ -550,10 +549,10 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('select[name="accion"]').forEach(function(select) {
+            document.querySelectorAll('select[name="estado"]').forEach(function(select) {
                 select.addEventListener('change', function() {
                     const textarea = this.parentElement.querySelector('.rejection-reason');
-                    if (this.value === 'rechazar') {
+                    if (this.value === 'RECHAZADO') {
                         textarea.style.display = 'block';
                     } else {
                         textarea.style.display = 'none';
