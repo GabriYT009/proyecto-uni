@@ -39,17 +39,17 @@ class Generar_NE(FPDF):
         self.set_font('Arial', 'B', 12)
         self.cell(0, 8, f'N° Factura: {self.salida.pk}', 0, 1, 'L')
         self.cell(0, 8, f'Estado del Pedido: {self.salida.estado_pago}', 0, 1, 'L')
-        # Validación de fecha (tu campo se llama 'fecha')
+        # Validación de fecha
         if self.salida.fecha:
             fecha_local = timezone.localtime(self.salida.fecha)
             self.cell(0, 8, f'Fecha: {fecha_local.strftime("%d/%m/%Y %H:%M:%S")}', 0, 1, 'L')
 
         
 
-        # Información del cliente (conectado directamente a tu modelo Nota_Entrega)
+        # Información del cliente (conectado directamente a Nota_Entrega)
         if self.salida.cliente:
             cliente = self.salida.cliente
-            # Tomamos los datos asumiendo que tu modelo Cliente usa estos nombres (como en tu HTML)
+            # Tomamos los datos 
             nombre = cliente.nombre_cliente 
             apellido = cliente.apellido_cliente
             documento = cliente.documento
@@ -89,6 +89,7 @@ class Generar_NE(FPDF):
         self.cell(80, 10, 'Producto', 1, 0, 'L')
         self.cell(20, 10, 'Cant.', 1, 0, 'C')
         self.cell(30, 10, 'Precio Unit.', 1, 0, 'R')
+        self.cell(30, 10, 'Precio Unit Bs.', 1, 0, 'R')
         self.cell(30, 10, 'Subtotal', 1, 1, 'R')
 
         # Table content
@@ -100,12 +101,12 @@ class Generar_NE(FPDF):
         for item in self.items:
             producto = item.Producto
             
-            # 1. Usamos el nombre exacto de tu modelo (con C mayúscula)
+            # 1. Usamos el nombre exacto de  modelo 
             cantidad = item.Cantidad
             
             # 2. Tomamos el precio que guardaste en el carrito (o del producto si falla)
             precio_unit = item.precio_unitario or producto.precio_venta or 0
-            
+            precio_unit_bs = item.precio_unitario_bs or (precio_unit * float(self.salida.bcv) if getattr(self.salida, 'bcv', None) else 0)
             # 3. Como no tienes un campo 'sub_total_item', lo calculamos aquí mismo:
             subtotal = float(cantidad) * float(precio_unit)
             
@@ -118,6 +119,7 @@ class Generar_NE(FPDF):
             self.cell(80, 8, nombre_prod[:35], 1, 0, 'L')
             self.cell(20, 8, str(cantidad), 1, 0, 'C')
             self.cell(30, 8, f'${precio_unit:.2f}', 1, 0, 'R')
+            self.cell(30, 8, f'${precio_unit_bs:.2f}', 1, 0, 'R')
             self.cell(30, 8, f'${subtotal:.2f}', 1, 1, 'R')
 
             # If description is long, add it in next row
