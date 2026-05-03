@@ -125,8 +125,8 @@ class Generar_NE(FPDF):
             self.cell(20, 8, str(cantidad), 1, 0, 'C')
             self.cell(30, 8, f'${precio_unit:.2f}', 1, 0, 'R')
             self.cell(30, 8, f'{precio_unit_bs:.2f}', 1, 0, 'R')
-            self.cell(30, 8, f'${subtotal:.2f}', 1, 1, 'R')
-            self.cell(30, 8, f'${subtotal_bs:.2f}', 1, 1, 'R')
+            self.cell(15, 8, f'${subtotal:.2f}', 1, 1, 'R')
+            self.cell(15, 8, f'${subtotal_bs:.2f}', 1, 1, 'R')
 
 
             # If description is long, add it in next row
