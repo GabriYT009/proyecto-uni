@@ -551,7 +551,6 @@ def shared_access(view_func):
 def login_view(request):
     return render(request, 'core/index.html')
 
-@login_required
 def home(request):
     categories = []
     Productos = []
