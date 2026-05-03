@@ -449,8 +449,21 @@
 				<a href="{% url 'catalog' %}" class="nav-link">Catálogo</a>
 				
 
+				{% if 'cliente' not in user_groups %}
+					<div class="producto-menu" style="position:relative;">
+						<button id="productoToggle" class="nav-link product-toggle" aria-haspopup="true" aria-expanded="false">Producto ▾</button>
+						<div id="productoDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
+							{% if 'admin' in user_groups %}
+								<a href="{% url 'registrar_producto' %}" class="dropdown-item">Crear producto</a>
+								<a href="{% url 'agregar_marca' %}" class="dropdown-item">Marca</a>
+							{% else %}
+								<a href="{% url 'catalog' %}" class="dropdown-item">Ver productos</a>
+							{% endif %}
+						</div>
+					</div>
+				{% endif %}
+
 				{% if 'admin' in user_groups %}
-					<div class="inventario-menu" style="position:relative;">
 						<button id="inventarioToggle" class="nav-link inventario-toggle" aria-haspopup="true" aria-expanded="false">Inventario ▾</button>
 						
 						<div id="inventarioDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
@@ -459,6 +472,7 @@
 							<a href="{% url 'ajustar_inventario_masivo' %}" class="dropdown-item">Ajustar inventario</a>
 						</div>
 					</div>
+
 					<div class="pagos-menu" style="position:relative;">
 						<button id="pagosToggle" class="nav-link pagos-toggle" aria-haspopup="true" aria-expanded="false">Pagos ▾</button>
 						{% if pagos_pendientes_global and pagos_pendientes_global > 0 %}
@@ -469,13 +483,7 @@
 							<a href="{% url 'ordenes_sublimacion' %}" class="dropdown-item">Ordenes de sublimacion</a>
 						</div>
 					</div>
-					<div class="producto-menu" style="position:relative;">
-						<button id="productoToggle" class="nav-link product-toggle" aria-haspopup="true" aria-expanded="false">Producto ▾</button>
-						<div id="productoDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
-							<a href="{% url 'registrar_producto' %}" class="dropdown-item">Crear producto</a>
-							<a href="{% url 'agregar_marca' %}" class="dropdown-item">Marca</a>
-						</div>
-					</div>
+
 				{% else %}
 						
 						<a href="{% url 'catalog' %}?Categoria=Sublimación" class="nav-link">Sublimación</a>
@@ -532,6 +540,21 @@
 		{% endif %}
 		<a class="nav-item" href="{% url 'carrito' %}">Carrito</a>
 
+		{% if 'cliente' not in user_groups %}
+			<div class="nav-item-group">
+				<button class="nav-item nav-subtoggle" type="button" data-target="topbarProductsSubMenu" aria-expanded="false">Productos <span class="submenu-arrow">›</span></button>
+				<div id="topbarProductsSubMenu" class="nav-submenu" aria-hidden="true">
+					<button class="nav-item nav-back" type="button" data-close-submenu="topbarProductsSubMenu">← Menu</button>
+					{% if 'admin' in user_groups %}
+						<a class="nav-item" href="{% url 'registrar_producto' %}">Crear producto</a>
+						<a class="nav-item" href="{% url 'agregar_marca' %}">Marca</a>
+					{% else %}
+						<a class="nav-item" href="{% url 'catalog' %}">Ver productos</a>
+					{% endif %}
+				</div>
+			</div>
+		{% endif %}
+
 		{% if 'admin' in user_groups %}
 			<div class="nav-item-group">
 				<button class="nav-item nav-subtoggle" type="button" data-target="topbarInventorySubMenu" aria-expanded="false">Inventario <span class="submenu-arrow">›</span></button>
@@ -556,6 +579,7 @@
 <script>
 	(function(){
 		const menus = [
+			{ toggleId: 'productoToggle', dropdownId: 'productoDropdown' },
 			{ toggleId: 'inventarioToggle', dropdownId: 'inventarioDropdown' },
 			{ toggleId: 'pagosToggle', dropdownId: 'pagosDropdown' }
 		].map(({ toggleId, dropdownId }) => ({
