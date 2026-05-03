@@ -115,48 +115,6 @@
             gap: 14px;
         }
 
-        .filters-bar {
-            margin-top: 14px;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .filters-bar label {
-            margin: 0;
-            font-weight: 700;
-            color: var(--muted);
-        }
-
-        .filters-select {
-            min-width: 220px;
-            border: 1px solid #d9c7ea;
-            border-radius: 12px;
-            padding: 10px 14px;
-            font-size: 0.95rem;
-            color: var(--ink);
-            background: #fff;
-        }
-
-        .filters-reset {
-            display: inline-flex;
-            align-items: center;
-            border-radius: 12px;
-            padding: 10px 14px;
-            border: 1px solid #d9c7ea;
-            color: #5f2f87;
-            text-decoration: none;
-            font-weight: 700;
-            background: #fff;
-        }
-
-        .filters-reset:hover {
-            color: #4b216e;
-            border-color: #c9afe0;
-            background: #faf5ff;
-        }
-
         .order-card {
             background: var(--panel);
             border: 1px solid var(--line);
@@ -461,19 +419,6 @@
                     <div class="badge-count">{{ total_ordenes }} ordenes</div>
                 </div>
             </div>
-
-            <form method="get" class="filters-bar">
-                <label for="estado-filter">Filtrar por estado:</label>
-                <select id="estado-filter" name="estado" class="filters-select" onchange="this.form.submit()">
-                    <option value="">Todos</option>
-                    {% for estado in estados_disponibles %}
-                        <option value="{{ estado }}" {% if estado_filter == estado %}selected{% endif %}>{{ estado|title }}</option>
-                    {% endfor %}
-                </select>
-                {% if estado_filter %}
-                    <a href="{% url 'ordenes_sublimacion' %}" class="filters-reset">Limpiar filtro</a>
-                {% endif %}
-            </form>
         </section>
 
         {% include 'core/_messages.html' %}
@@ -530,11 +475,12 @@
                                 <form method="post" class="status-action" novalidate>
                                     {% csrf_token %}
                                     <input type="hidden" name="solicitud_id" value="{{ solicitud.pk }}">
-                                    <label for="estado-{{ solicitud.pk }}">Estado</label>
-                                    <select id="estado-{{ solicitud.pk }}" name="estado" class="status-select" required>
-                                        <option value="PENDIENTE" {% if solicitud.estado == 'PENDIENTE' %}selected{% endif %}>Pendiente</option>
-                                        <option value="VINCULADA" {% if solicitud.estado == 'VINCULADA' %}selected{% endif %}>Vinculada</option>
-                                        <option value="RECHAZADA" {% if solicitud.estado == 'RECHAZADA' %}selected{% endif %}>Rechazada</option>
+                                    <label for="accion-{{ solicitud.pk }}">Estado</label>
+                                    <select id="accion-{{ solicitud.pk }}" name="accion" class="status-select" required>
+                                        <option value="" disabled selected>Seleccionar acción</option>
+                                        <option value="aprobar">Aprobar</option>
+                                        <option value="pendiente">Pendiente</option>
+                                        <option value="rechazar">Rechazar</option>
                                     </select>
                                     <button type="submit" class="btn-submit">Guardar</button>
                                 </form>
@@ -573,7 +519,7 @@
             {% if page_obj and page_obj.has_other_pages %}
                 <div class="pagination" aria-label="Paginacion de ordenes de sublimacion">
                     {% if page_obj.has_previous %}
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if estado_filter %}&estado={{ estado_filter }}{% endif %}">← Anterior</a>
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">← Anterior</a>
                     {% else %}
                         <span class="page-link disabled">← Anterior</span>
                     {% endif %}
@@ -582,9 +528,9 @@
                         {% if num == page_obj.number %}
                             <span class="page-link active">{{ num }}</span>
                         {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
-                            <a class="page-link" href="?page={{ num }}{% if estado_filter %}&estado={{ estado_filter }}{% endif %}">{{ num }}</a>
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
                         {% elif num == 1 %}
-                            <a class="page-link" href="?page=1{% if estado_filter %}&estado={{ estado_filter }}{% endif %}">1</a>
+                            <a class="page-link" href="?page=1">1</a>
                             {% if page_obj.number > 3 %}
                                 <span class="page-link disabled">…</span>
                             {% endif %}
@@ -592,12 +538,12 @@
                             {% if page_obj.number < page_obj.paginator.num_pages|add:'-2' %}
                                 <span class="page-link disabled">…</span>
                             {% endif %}
-                            <a class="page-link" href="?page={{ num }}{% if estado_filter %}&estado={{ estado_filter }}{% endif %}">{{ num }}</a>
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
                         {% endif %}
                     {% endfor %}
 
                     {% if page_obj.has_next %}
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if estado_filter %}&estado={{ estado_filter }}{% endif %}">Siguiente →</a>
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente →</a>
                     {% else %}
                         <span class="page-link disabled">Siguiente →</span>
                     {% endif %}
