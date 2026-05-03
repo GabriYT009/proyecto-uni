@@ -513,9 +513,11 @@
 
 	<div id="barNavMenu" class="nav-menu" role="menu" aria-hidden="true">
 		<a class="nav-item" href="{% url 'catalog' %}">Ver catálogo</a>
-		<a class="nav-item" href="{% url 'catalog' %}?Categoria=Sublimación">Sublimación</a>
-		<a class="nav-item" href="{% url 'catalog' %}?Categoria=Papelería">Papelería</a>
-		<a class="nav-item" href="{% url 'catalog' %}?Categoria=Otros">Otros</a>
+		{% if 'cliente' in user_groups or not user.is_authenticated %}
+			<a class="nav-item" href="{% url 'catalog' %}?Categoria=Sublimación">Sublimación</a>
+			<a class="nav-item" href="{% url 'catalog' %}?Categoria=Papelería">Papelería</a>
+			<a class="nav-item" href="{% url 'catalog' %}?Categoria=Otros">Otros</a>
+		{% endif %}
 		<a class="nav-item" href="{% url 'carrito' %}">Carrito</a>
 
 		{% if 'admin' in user_groups %}
