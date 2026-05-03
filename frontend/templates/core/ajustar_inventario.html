@@ -14,7 +14,7 @@
         .ajustar-buscar{ display:flex; gap:6px; align-items:center; margin-bottom:18px; }
         .ajustar-buscar input{ flex:1; padding:8px 12px; border:1px solid #ccc; border-radius:6px; font-size:1rem; }
         .ajustar-productos{ display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:16px; }
-        .ajustar-card{ background:#fff; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.06); padding:18px; text-align:center; position:relative; border:2px solid transparent; transition:border 0.2s; }
+        .ajustar-card{ background:#fff; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.06); padding:14px; text-align:center; position:relative; border:2px solid transparent; transition:border 0.2s; overflow:hidden; box-sizing:border-box; }
         .ajustar-card.selected{ border:2px solid #9932CC; }
         .ajustar-card .nombre{ font-weight:700; margin-bottom:8px; }
         .ajustar-card .stock{ font-size:1.1rem; color:#9932CC; font-weight:600; margin-bottom:8px; }
@@ -24,11 +24,14 @@
         .ajustar-card .ajustar-btn:active{ background:#7a2ea5; }
         .ajustar-card .ajustar-cantidad{ width:48px; text-align:center; border:1px solid #ccc; border-radius:6px; font-size:1.1rem; }
         .tallas-wrap{ display:none; margin-top:10px; border-top:1px solid #f0e7f8; padding-top:10px; }
-        .talla-row{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px; font-size:0.9rem; }
-        .talla-meta{ display:flex; gap:6px; align-items:center; }
-        .talla-controles{ display:flex; gap:6px; align-items:center; }
-        .talla-btn{ background:#9932CC; color:#fff; border:none; border-radius:4px; width:26px; height:26px; cursor:pointer; }
-        .talla-ajuste{ min-width:34px; text-align:center; font-weight:700; color:#7a2ea5; }
+        /* Use a compact grid for each talla row so controls don't overflow */
+        .talla-row{ display:grid; grid-template-columns: 1fr auto; align-items:center; gap:8px; margin-bottom:6px; font-size:0.88rem; }
+        .talla-meta{ display:flex; gap:6px; align-items:center; justify-content:flex-start; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .talla-controles{ display:flex; gap:6px; align-items:center; justify-content:flex-end; }
+        .talla-btn{ background:#9932CC; color:#fff; border:none; border-radius:4px; width:22px; height:22px; cursor:pointer; padding:0; font-size:1rem; line-height:1; }
+        .talla-ajuste{ width:30px; text-align:center; font-weight:700; color:#7a2ea5; display:inline-block; }
+        /* Ensure tallas area wraps nicely on small cards */
+        .tallas-wrap, .talla-row { box-sizing: border-box; }
     </style>
 </head>
 <body>
