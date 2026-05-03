@@ -4,8 +4,9 @@ from . import views
 from . import views_inventario_api
 from .views import cobrar_caja, descargar_factura_ne
 urlpatterns = [
-    path('logins', views.login_view, name='login'),
     path('', views.home, name='home'),
+    path('home/', views.home, name='home_page'),
+    path('login/', views.login_view, name='login'),
     path('login', views.login_post, name='login_post'),
     path('recuperar-contrasena/', views.recuperar_contrasena, name='recuperar_contrasena'),
     path('cliente/registrar/', views.crear_cliente, name='registrar_cliente'),
