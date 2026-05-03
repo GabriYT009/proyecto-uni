@@ -766,7 +766,8 @@ def recuperar_contrasena(request):
                     form.add_error(None, 'No encontramos un usuario con esos datos.')
                 else:
                     # buscar las respuestas de seguridad para este usuario
-                    answers = list(UserSecurityAnswer.objects.filter(user=user).select_related('question'))
+                    # Ordenar por pk para tener comportamiento determinista
+                    answers = list(UserSecurityAnswer.objects.filter(user=user).select_related('question').order_by('pk'))
                     if not answers:
                         form.add_error(None, 'Este usuario no tiene preguntas de seguridad configuradas. Contacta al administrador.')
                     else:
@@ -795,7 +796,8 @@ def recuperar_contrasena(request):
                     form.add_error(None, 'No encontramos un usuario con esos datos.')
                 else:
                     # cargar respuestas esperadas
-                    saved_answers = list(UserSecurityAnswer.objects.filter(user=user).select_related('question'))
+                    # Orden determinista al validar (evita mostrar pregunta en orden aleatorio)
+                    saved_answers = list(UserSecurityAnswer.objects.filter(user=user).select_related('question').order_by('pk'))
                     if not saved_answers:
                         form.add_error(None, 'Este usuario no tiene preguntas de seguridad configuradas. Contacta al administrador.')
                     else:
@@ -1126,6 +1128,13 @@ def crear_usuario(request):
 
                     if selected_question is None:
                         raise ValueError('Pregunta de seguridad inválida.')
+
+                    # Asegurar que solo exista una respuesta de seguridad por usuario: eliminar previas
+                    try:
+                        UserSecurityAnswer.objects.filter(user=nuevo_usuario).delete()
+                    except Exception:
+                        # Si falla la eliminación por cualquier motivo, continuar con creación
+                        logger.exception('No se pudo limpiar UserSecurityAnswer existente para el usuario %s', nuevo_usuario.pk)
 
                     UserSecurityAnswer.objects.create(
                         user=nuevo_usuario,
