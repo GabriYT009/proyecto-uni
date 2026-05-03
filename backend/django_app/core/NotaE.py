@@ -89,9 +89,9 @@ class Generar_NE(FPDF):
         self.cell(60, 10, 'Producto', 1, 0, 'L')
         self.cell(17, 10, 'Cant.', 1, 0, 'C')
         self.cell(25, 10, 'Precio Unit.', 1, 0, 'c')
-        self.cell(25, 10, 'Precio Unit Bs.', 1, 0, 'c')
+        self.cell(28, 10, 'Precio Unit Bs.', 1, 0, 'c')
         self.cell(20, 10, 'Subtotal', 1, 0, 'c')
-        self.cell(20, 10, 'Subtotal Bs', 1, 1, 'c')
+        self.cell(25, 10, 'Subtotal Bs', 1, 1, 'c')
         # Table content
         self.set_font('Arial', '', 10)
         
@@ -124,9 +124,9 @@ class Generar_NE(FPDF):
             self.cell(60, 8, nombre_prod[:35], 1, 0, 'L')
             self.cell(17, 8, str(cantidad), 1, 0, 'C')
             self.cell(25, 8, f'${precio_unit:.2f}', 1, 0, 'C')
-            self.cell(25, 8, f'{precio_unit_bs:.2f}', 1, 0, 'C')
+            self.cell(28, 8, f'{precio_unit_bs:.2f}', 1, 0, 'C')
             self.cell(20, 8, f'${subtotal:.2f}', 1, 0, 'C')
-            self.cell(20, 8, f'${subtotal_bs:.2f}', 1, 1, 'C')
+            self.cell(25, 8, f'${subtotal_bs:.2f}', 1, 1, 'C')
 
 
             # If description is long, add it in next row
