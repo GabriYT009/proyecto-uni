@@ -18,10 +18,17 @@
         .ajustar-card.selected{ border:2px solid #9932CC; }
         .ajustar-card .nombre{ font-weight:700; margin-bottom:8px; }
         .ajustar-card .stock{ font-size:1.1rem; color:#9932CC; font-weight:600; margin-bottom:8px; }
+        .ajustar-card .ajuste{ font-size:0.92rem; color:#666; margin-bottom:8px; }
         .ajustar-card .ajustar-controles{ display:flex; justify-content:center; gap:8px; margin-top:10px; }
         .ajustar-card .ajustar-btn{ background:#9932CC; color:#fff; border:none; border-radius:6px; padding:6px 14px; font-size:1.2rem; cursor:pointer; transition:background 0.2s; }
         .ajustar-card .ajustar-btn:active{ background:#7a2ea5; }
         .ajustar-card .ajustar-cantidad{ width:48px; text-align:center; border:1px solid #ccc; border-radius:6px; font-size:1.1rem; }
+        .tallas-wrap{ display:none; margin-top:10px; border-top:1px solid #f0e7f8; padding-top:10px; }
+        .talla-row{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px; font-size:0.9rem; }
+        .talla-meta{ display:flex; gap:6px; align-items:center; }
+        .talla-controles{ display:flex; gap:6px; align-items:center; }
+        .talla-btn{ background:#9932CC; color:#fff; border:none; border-radius:4px; width:26px; height:26px; cursor:pointer; }
+        .talla-ajuste{ min-width:34px; text-align:center; font-weight:700; color:#7a2ea5; }
     </style>
 </head>
 <body>
@@ -36,13 +43,32 @@
         </div>
         <div class="ajustar-productos" id="ajustar-productos">
             {% for p in productos %}
-            <div class="ajustar-card" data-id="{{ p.pk }}" data-nombre="{{ p.nombre_producto }}" data-stock="0">
+            <div class="ajustar-card" data-id="{{ p.pk }}" data-nombre="{{ p.nombre_producto }}" data-stock="{{ p.current_stock|default:0 }}" data-ajuste="0" data-is-tallas="{% if p.is_talla_product %}1{% else %}0{% endif %}">
                 <div class="nombre">{{ p.nombre_producto }}</div>
-                <div class="stock" style="margin-bottom: 12px;">Stock: <span class="stock-num">0</span></div>
-                <div class="ajustar-controles" style="display:none; justify-content:center; gap:8px;">
-                    <button class="ajustar-btn restar">-</button>
-                    <button class="ajustar-btn sumar">+</button>
-                </div>
+                <div class="stock" style="margin-bottom: 8px;">Stock: <span class="stock-num">{{ p.current_stock|default:0 }}</span></div>
+                <div class="ajuste">Ajuste: <span class="ajuste-num">0</span></div>
+                {% if not p.is_talla_product %}
+                    <div class="ajustar-controles" style="display:none; justify-content:center; gap:8px;">
+                        <button class="ajustar-btn restar" type="button">-</button>
+                        <button class="ajustar-btn sumar" type="button">+</button>
+                    </div>
+                {% else %}
+                    <div class="tallas-wrap">
+                        {% for t in p.tallas_stock %}
+                            <div class="talla-row" data-talla="{{ t.name }}" data-stock="{{ t.stock }}" data-ajuste="0">
+                                <div class="talla-meta">
+                                    <strong>{{ t.name }}</strong>
+                                    <span>Stock: <span class="talla-stock-num">{{ t.stock }}</span></span>
+                                </div>
+                                <div class="talla-controles">
+                                    <button class="talla-btn talla-restar" type="button">-</button>
+                                    <span class="talla-ajuste">0</span>
+                                    <button class="talla-btn talla-sumar" type="button">+</button>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
             </div>
             {% endfor %}
         </div>
@@ -52,6 +78,26 @@
     const buscarInput = document.getElementById('ajustar-buscar-input');
     const productos = Array.from(document.querySelectorAll('.ajustar-card'));
     let seleccionado = null;
+
+    function formatAjuste(n){
+        const v = parseInt(n || 0, 10) || 0;
+        return v > 0 ? `+${v}` : `${v}`;
+    }
+
+    function actualizarAjusteTotal(card){
+        const isTallas = card.dataset.isTallas === '1';
+        let ajuste = 0;
+        if (isTallas) {
+            card.querySelectorAll('.talla-row').forEach(row => {
+                ajuste += parseInt(row.dataset.ajuste || '0', 10) || 0;
+            });
+        } else {
+            ajuste = parseInt(card.dataset.ajuste || '0', 10) || 0;
+        }
+        const ajusteEl = card.querySelector('.ajuste-num');
+        if (ajusteEl) ajusteEl.textContent = formatAjuste(ajuste);
+    }
+
     buscarInput.addEventListener('input', function() {
         const term = this.value.toLowerCase();
         productos.forEach(card => {
@@ -67,10 +113,16 @@
     function seleccionarCard(card) {
         productos.forEach(c => {
             c.classList.remove('selected');
-            c.querySelector('.ajustar-controles').style.display = 'none';
+            const controles = c.querySelector('.ajustar-controles');
+            const tallasWrap = c.querySelector('.tallas-wrap');
+            if (controles) controles.style.display = 'none';
+            if (tallasWrap) tallasWrap.style.display = 'none';
         });
         card.classList.add('selected');
-        card.querySelector('.ajustar-controles').style.display = 'flex';
+        const controles = card.querySelector('.ajustar-controles');
+        const tallasWrap = card.querySelector('.tallas-wrap');
+        if (controles) controles.style.display = 'flex';
+        if (tallasWrap) tallasWrap.style.display = 'block';
         seleccionado = card;
     }
     productos.forEach(card => {
@@ -80,19 +132,49 @@
         // Sumar/restar stock de a 1
         const btnSumar = card.querySelector('.sumar');
         const btnRestar = card.querySelector('.restar');
-        btnSumar.addEventListener('click', function(e) {
-            e.stopPropagation();
-            let stock = parseInt(card.dataset.stock) || 0;
-            stock += 1;
-            card.dataset.stock = stock;
-            card.querySelector('.stock-num').textContent = stock;
-        });
-        btnRestar.addEventListener('click', function(e) {
-            e.stopPropagation();
-            let stock = parseInt(card.dataset.stock) || 0;
-            stock -= 1;
-            card.dataset.stock = stock;
-            card.querySelector('.stock-num').textContent = stock;
+        if (btnSumar && btnRestar) {
+            btnSumar.addEventListener('click', function(e) {
+                e.stopPropagation();
+                let ajuste = parseInt(card.dataset.ajuste || '0', 10) || 0;
+                ajuste += 1;
+                card.dataset.ajuste = String(ajuste);
+                actualizarAjusteTotal(card);
+            });
+            btnRestar.addEventListener('click', function(e) {
+                e.stopPropagation();
+                let ajuste = parseInt(card.dataset.ajuste || '0', 10) || 0;
+                const currentStock = parseInt(card.dataset.stock || '0', 10) || 0;
+                if ((currentStock + ajuste) <= 0) return;
+                ajuste -= 1;
+                card.dataset.ajuste = String(ajuste);
+                actualizarAjusteTotal(card);
+            });
+        }
+
+        card.querySelectorAll('.talla-row').forEach(row => {
+            const btnS = row.querySelector('.talla-sumar');
+            const btnR = row.querySelector('.talla-restar');
+            const ajusteEl = row.querySelector('.talla-ajuste');
+            const stockBase = parseInt(row.dataset.stock || '0', 10) || 0;
+
+            btnS.addEventListener('click', function(e){
+                e.stopPropagation();
+                let ajuste = parseInt(row.dataset.ajuste || '0', 10) || 0;
+                ajuste += 1;
+                row.dataset.ajuste = String(ajuste);
+                ajusteEl.textContent = formatAjuste(ajuste);
+                actualizarAjusteTotal(card);
+            });
+
+            btnR.addEventListener('click', function(e){
+                e.stopPropagation();
+                let ajuste = parseInt(row.dataset.ajuste || '0', 10) || 0;
+                if ((stockBase + ajuste) <= 0) return;
+                ajuste -= 1;
+                row.dataset.ajuste = String(ajuste);
+                ajusteEl.textContent = formatAjuste(ajuste);
+                actualizarAjusteTotal(card);
+            });
         });
     });
 
@@ -104,7 +186,19 @@
             return;
         }
         const productoId = seleccionado.dataset.id;
-        const cantidad = seleccionado.dataset.stock;
+        const cantidad = parseInt(seleccionado.dataset.ajuste || '0', 10) || 0;
+        const tallasAjuste = {};
+        seleccionado.querySelectorAll('.talla-row').forEach(row => {
+            const talla = row.dataset.talla;
+            const ajuste = parseInt(row.dataset.ajuste || '0', 10) || 0;
+            if (ajuste !== 0) tallasAjuste[talla] = ajuste;
+        });
+
+        if (cantidad === 0 && Object.keys(tallasAjuste).length === 0) {
+            alert('No hay ajustes para aplicar en el producto seleccionado.');
+            return;
+        }
+
         fetch('/api/ajustar_stock/', {
             method: 'POST',
             headers: {
@@ -112,7 +206,8 @@
             },
             body: JSON.stringify({
                 producto_id: productoId,
-                cantidad: cantidad
+                cantidad: cantidad,
+                tallas_ajuste: tallasAjuste
             })
         })
         .then(response => response.json())

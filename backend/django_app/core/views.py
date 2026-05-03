@@ -94,7 +94,34 @@ def admin_only(view_func):
 @login_required
 @admin_only
 def ajustar_inventario_masivo(request):
-    productos = Producto.objects.all().order_by('nombre_producto')
+    productos = (
+        Producto.objects
+        .select_related('categoria')
+        .prefetch_related('stocks_por_talla')
+        .order_by('nombre_producto')
+    )
+
+    for p in productos:
+        p.current_stock = int(p.cantidad_disponible or 0)
+        categoria_nombre = (p.categoria.nombre_categoria if p.categoria else '').strip()
+        p.is_talla_product = categoria_nombre in ('Camisas', 'Tazas')
+
+        if p.is_talla_product:
+            tallas = ['S', 'M', 'L', 'XL', 'XXL'] if categoria_nombre == 'Camisas' else ['Unica']
+            stock_map = {
+                str(s.talla or '').strip().upper(): int(s.stock_disponible or 0)
+                for s in p.stocks_por_talla.all()
+            }
+            p.tallas_stock = [
+                {
+                    'name': talla,
+                    'stock': stock_map.get(talla.upper(), 0),
+                }
+                for talla in tallas
+            ]
+        else:
+            p.tallas_stock = []
+
     return render(request, 'core/ajustar_inventario.html', {'productos': productos})
 
 
