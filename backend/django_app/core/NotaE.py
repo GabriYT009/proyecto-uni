@@ -5,7 +5,7 @@ from django.shortcuts import render, HttpResponse, get_object_or_404
 from django.utils import timezone
 from django.conf import settings
 import os
-
+from .bcv import obtener_tasa_cambio
 class Generar_NE(FPDF):
     def __init__(self, nota_obj, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -106,7 +106,7 @@ class Generar_NE(FPDF):
             
             # 2. Tomamos el precio que guardaste en el carrito (o del producto si falla)
             precio_unit = item.precio_unitario or producto.precio_venta or 0
-            precio_unit_bs = item.precio_unitario_bs or (precio_unit * float(self.salida.bcv) if getattr(self.salida, 'bcv', None) else 0)
+            precio_unit_bs = (precio_unit * float(obtener_tasa_cambio()) if getattr(self.salida, 'bcv', None) else 0)
             # 3. Como no tienes un campo 'sub_total_item', lo calculamos aquí mismo:
             subtotal = float(cantidad) * float(precio_unit)
             
