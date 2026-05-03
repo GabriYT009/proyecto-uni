@@ -65,13 +65,13 @@
                 {% for q in questions %}
                     <div class="full">
                         <label for="id_answer_{{ q.id }}">{{ q.text }}</label>
-                        <input type="text" name="answer_{{ q.id }}" id="id_answer_{{ q.id }}" class="form-control" placeholder="Respuesta" />
+                        <input type="text" name="answer_{{ q.id }}" id="id_answer_{{ q.id }}" class="form-control" placeholder="Respuesta" required />
                     </div>
                 {% endfor %}
             {% endif %}
 
             <div class="actions">
-                <button type="submit" name="send_code" value="1">Mostrar preguntas de seguridad</button>
+                <button type="submit" name="send_code" value="1" formnovalidate>Mostrar preguntas de seguridad</button>
                 <button type="submit" name="reset" value="1">Actualizar contraseña</button>
             </div>
 

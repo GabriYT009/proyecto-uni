@@ -175,6 +175,27 @@
                 <label for="email">correo electrónico</label>
                 <input id="email" name="email" type="text" placeholder="Correo electrónico" required>
             </div>
+
+            <div class="full">
+                <label for="security_question_id">Pregunta de seguridad</label>
+                <select id="security_question_id" name="security_question_id" required>
+                    <option value="">Selecciona una pregunta</option>
+                    {% for q in security_questions %}
+                        <option value="{{ q.pk }}">{{ q.text }}</option>
+                    {% endfor %}
+                    <option value="custom">Otra (escribir mi pregunta)</option>
+                </select>
+            </div>
+
+            <div class="full" id="security-question-custom-wrap" style="display:none;">
+                <label for="security_question_custom">Escribe tu pregunta de seguridad</label>
+                <input id="security_question_custom" name="security_question_custom" type="text" maxlength="255" placeholder="Ejemplo: ¿Cuál fue mi primer trabajo?">
+            </div>
+
+            <div class="full span-2">
+                <label for="security_answer">Respuesta de seguridad</label>
+                <input id="security_answer" name="security_answer" type="text" maxlength="255" placeholder="Tu respuesta" required>
+            </div>
             <div class="full">
                 <label for="password">Crear contraseña</label>
                 <div class="password-field">
@@ -215,6 +236,24 @@
             
         </form>
     </div>
+    <script>
+        (function(){
+            var questionSelect = document.getElementById('security_question_id');
+            var customWrap = document.getElementById('security-question-custom-wrap');
+            var customInput = document.getElementById('security_question_custom');
+            if (!questionSelect || !customWrap || !customInput) return;
+
+            function toggleCustomQuestion(){
+                var isCustom = questionSelect.value === 'custom';
+                customWrap.style.display = isCustom ? '' : 'none';
+                customInput.required = isCustom;
+                if (!isCustom) customInput.value = '';
+            }
+
+            questionSelect.addEventListener('change', toggleCustomQuestion);
+            toggleCustomQuestion();
+        })();
+    </script>
     <script>
         // Clear form inputs on load and when page is shown from bfcache
         (function(){

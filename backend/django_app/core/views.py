@@ -6,6 +6,7 @@ from django.views import View
 from django.template.loader import render_to_string
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.contrib.auth.models import User, Group
 from django.core.validators import validate_email
@@ -59,6 +60,17 @@ def is_admin(user):
 def _ensure_default_auth_groups():
     for group_name in ('admin', 'cliente', 'user', 'cajero'):
         Group.objects.get_or_create(name=group_name)
+
+
+def _ensure_default_security_questions():
+    defaults = [
+        '¿Cuál es el nombre de tu primera mascota?',
+        '¿En qué ciudad naciste?',
+        '¿Cuál es tu comida favorita?',
+        '¿Cómo se llama tu mejor amigo de la infancia?',
+    ]
+    for text in defaults:
+        SecurityQuestion.objects.get_or_create(text=text)
 
 
 def _ensure_default_admin_user():
@@ -706,14 +718,22 @@ def login_post(request):
 
 def recuperar_contrasena(request):
     # Flujo en dos pasos: 1) Enviar código por correo, 2) Validar código y actualizar contraseña
+    questions = None
+
     if request.method == 'POST':
         form = PasswordRecoveryForm(request.POST)
 
         # Paso 1: mostrar preguntas de seguridad configuradas para el usuario
         if 'send_code' in request.POST:
-            if form.is_valid():
-                username = form.cleaned_data['username'].strip()
-                email = form.cleaned_data['email'].strip().lower()
+            username = (request.POST.get('username') or '').strip()
+            email = (request.POST.get('email') or '').strip().lower()
+
+            if not username:
+                form.add_error('username', 'El nombre de usuario es obligatorio.')
+            if not email:
+                form.add_error('email', 'El correo electrónico es obligatorio.')
+
+            if not form.errors:
                 user = User.objects.filter(username__iexact=username, email__iexact=email).first()
                 if user is None:
                     form.add_error(None, 'No encontramos un usuario con esos datos.')
@@ -752,6 +772,7 @@ def recuperar_contrasena(request):
                     if not saved_answers:
                         form.add_error(None, 'Este usuario no tiene preguntas de seguridad configuradas. Contacta al administrador.')
                     else:
+                        questions = [a.question for a in saved_answers]
                         all_ok = True
                         for ua in saved_answers:
                             posted = (request.POST.get(f'answer_{ua.question.pk}', '') or '').strip()
@@ -776,7 +797,7 @@ def recuperar_contrasena(request):
     else:
         form = PasswordRecoveryForm()
 
-    return render(request, 'core/recuperar_contrasena.html', {'form': form})
+    return render(request, 'core/recuperar_contrasena.html', {'form': form, 'questions': questions})
 
 
 
@@ -953,11 +974,17 @@ def crear_cliente(request):
 
 
 def crear_usuario(request):
+    _ensure_default_security_questions()
+    security_questions = SecurityQuestion.objects.all().order_by('text')
+
     if request.method == 'POST':
         # 1. Obtener datos del formulario
         username = request.POST.get('username')
         password = request.POST.get('password')
         password_confirm = request.POST.get('password2') # Corregido nombre variable para claridad
+        security_question_id = (request.POST.get('security_question_id') or '').strip()
+        security_question_custom = (request.POST.get('security_question_custom') or '').strip()
+        security_answer = (request.POST.get('security_answer') or '').strip()
         
         # Datos para el modelo Cliente
         cedula = str(request.POST.get('tipo_documento')+request.POST.get('cedula_dni')).strip()  
@@ -971,16 +998,53 @@ def crear_usuario(request):
 
         # -- VALIDACIONES --
         if not username or not password:
-            return render(request, 'core/crear_usuario.html', {'error': 'Usuario y contraseña obligatorios.'})
+            return render(request, 'core/crear_usuario.html', {
+                'error': 'Usuario y contraseña obligatorios.',
+                'security_questions': security_questions,
+                'email': email,
+            })
         
         if password != password_confirm:
-            return render(request, 'core/crear_usuario.html', {'error': 'Las contraseñas no coinciden.'})
+            return render(request, 'core/crear_usuario.html', {
+                'error': 'Las contraseñas no coinciden.',
+                'security_questions': security_questions,
+                'email': email,
+            })
+
+        if not security_question_id and not security_question_custom:
+            return render(request, 'core/crear_usuario.html', {
+                'error': 'Selecciona o escribe una pregunta de seguridad.',
+                'security_questions': security_questions,
+                'email': email,
+            })
+
+        if security_question_id == 'custom' and not security_question_custom:
+            return render(request, 'core/crear_usuario.html', {
+                'error': 'Escribe tu pregunta de seguridad personalizada.',
+                'security_questions': security_questions,
+                'email': email,
+            })
+
+        if not security_answer:
+            return render(request, 'core/crear_usuario.html', {
+                'error': 'La respuesta de seguridad es obligatoria.',
+                'security_questions': security_questions,
+                'email': email,
+            })
 
         if User.objects.filter(username=username).exists():
-            return render(request, 'core/crear_usuario.html', {'error': 'El usuario ya existe.'})
+            return render(request, 'core/crear_usuario.html', {
+                'error': 'El usuario ya existe.',
+                'security_questions': security_questions,
+                'email': email,
+            })
 
         if User.objects.filter(email=email).exists():
-            return render(request, 'core/crear_usuario.html', {'error': 'El correo ya está registrado.'})
+            return render(request, 'core/crear_usuario.html', {
+                'error': 'El correo ya está registrado.',
+                'security_questions': security_questions,
+                'email': email,
+            })
 
         # CREACIÓN (Usamos atomic para que se creen los dos o ninguno) 
         try:
@@ -1006,6 +1070,23 @@ def crear_usuario(request):
                     telefono_cliente=telefono,
                     email=email
                 )
+
+                # D. Guardar pregunta y respuesta de seguridad
+                selected_question = None
+                if security_question_id:
+                    selected_question = SecurityQuestion.objects.filter(pk=security_question_id).first()
+
+                if selected_question is None and security_question_custom:
+                    selected_question, _ = SecurityQuestion.objects.get_or_create(text=security_question_custom)
+
+                if selected_question is None:
+                    raise ValueError('Pregunta de seguridad inválida.')
+
+                UserSecurityAnswer.objects.create(
+                    user=nuevo_usuario,
+                    question=selected_question,
+                    answer_hash=make_password(security_answer.lower()),
+                )
                 
                 # Limpieza de sesión
                 if 'pending_email' in request.session:
@@ -1015,11 +1096,16 @@ def crear_usuario(request):
 
         except Exception as e:
             # Si algo falla en la base de datos
-            return render(request, 'core/crear_usuario.html', {'error': f'Error al crear usuario: {e}'})
+            return render(request, 'core/crear_usuario.html', {
+                'error': f'Error al crear usuario: {e}',
+                'security_questions': security_questions,
+                'email': email,
+            })
 
     # GET request...
     context = {
         'email': request.session.get('pending_email', ''),
+        'security_questions': security_questions,
         'cart_count': len(request.session.get('cart', []))
     }
     return render(request, 'core/crear_usuario.html', context)
