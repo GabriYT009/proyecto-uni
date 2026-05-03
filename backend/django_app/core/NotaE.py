@@ -123,10 +123,10 @@ class Generar_NE(FPDF):
             # Product name (may need to wrap long names)
             self.cell(60, 8, nombre_prod[:35], 1, 0, 'L')
             self.cell(17, 8, str(cantidad), 1, 0, 'C')
-            self.cell(30, 8, f'${precio_unit:.2f}', 1, 0, 'R')
-            self.cell(25, 8, f'{precio_unit_bs:.2f}', 1, 0, 'R')
-            self.cell(20, 8, f'${subtotal:.2f}', 1, 1, 'R')
-            self.cell(20, 8, f'${subtotal_bs:.2f}', 1, 1, 'R')
+            self.cell(30, 8, f'${precio_unit:.2f}', 1, 0, 'C')
+            self.cell(25, 8, f'{precio_unit_bs:.2f}', 1, 0, 'C')
+            self.cell(20, 8, f'${subtotal:.2f}', 1, 1, 'C')
+            self.cell(20, 8, f'${subtotal_bs:.2f}', 1, 1, 'C')
 
 
             # If description is long, add it in next row
