@@ -111,7 +111,7 @@ class Generar_NE(FPDF):
             
             # 2. Tomamos el precio que guardaste en el carrito (o del producto si falla)
             precio_unit = item.precio_unitario or producto.precio_venta or 0
-            precio_unit_bs = precio_unit * tasa
+            precio_unit_bs = float(precio_unit) * tasa
             # 3. Como no tienes un campo 'sub_total_item', lo calculamos aquí mismo:
             subtotal = float(cantidad) * float(precio_unit)
             
