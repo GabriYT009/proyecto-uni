@@ -82,6 +82,60 @@
     </div>
 
     <script src="{% static 'core/page-loader.js' %}"></script>
+    <script>
+        (function(){
+            // Restaurar valores guardados en sessionStorage al cargar la página
+            document.addEventListener('DOMContentLoaded', function(){
+                try{
+                    var np = document.getElementById('id_new_password');
+                    var npc = document.getElementById('id_new_password_confirm');
+                    var storedNew = sessionStorage.getItem('rec_pw_new');
+                    var storedConfirm = sessionStorage.getItem('rec_pw_confirm');
+                    if(storedNew && np) np.value = storedNew;
+                    if(storedConfirm && npc) npc.value = storedConfirm;
+
+                    // Restaurar respuestas a preguntas (si las hay)
+                    document.querySelectorAll('input[name^="answer_"]').forEach(function(el){
+                        var key = 'rec_' + el.name;
+                        var v = sessionStorage.getItem(key);
+                        if(v) el.value = v;
+                    });
+                }catch(e){/* no bloquear */}
+            });
+
+            // Guardar campos antes de enviar con "Mostrar preguntas de seguridad"
+            document.addEventListener('click', function(ev){
+                var btn = ev.target;
+                if(!btn) return;
+                if(btn.name === 'send_code'){
+                    try{
+                        var np = document.getElementById('id_new_password');
+                        var npc = document.getElementById('id_new_password_confirm');
+                        if(np) sessionStorage.setItem('rec_pw_new', np.value || '');
+                        if(npc) sessionStorage.setItem('rec_pw_confirm', npc.value || '');
+
+                        document.querySelectorAll('input[name^="answer_"]').forEach(function(el){
+                            var key = 'rec_' + el.name;
+                            sessionStorage.setItem(key, el.value || '');
+                        });
+                    }catch(e){/* no bloquear */}
+                    // allow form submit to continue
+                }
+
+                // Si presionan 'reset' (actualizar contraseña), limpiar storage relacionado
+                if(btn.name === 'reset'){
+                    try{
+                        sessionStorage.removeItem('rec_pw_new');
+                        sessionStorage.removeItem('rec_pw_confirm');
+                        document.querySelectorAll('input[name^="answer_"]').forEach(function(el){
+                            var key = 'rec_' + el.name;
+                            sessionStorage.removeItem(key);
+                        });
+                    }catch(e){/* no bloquear */}
+                }
+            }, true);
+        })();
+    </script>
 </body>
 </html>
 
