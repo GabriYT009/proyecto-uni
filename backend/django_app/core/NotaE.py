@@ -117,7 +117,7 @@ class Generar_NE(FPDF):
             subtotal_bs = subtotal * tasa
             # Ahora suma correctamente
             total_usd += subtotal
-
+            total_bs = total_usd * tasa
             nombre_prod = producto.nombre_producto or "Producto sin nombre"
 
             # Product name (may need to wrap long names)
@@ -142,8 +142,9 @@ class Generar_NE(FPDF):
         
         # Total en Dólares
         self.cell(130, 10, 'TOTAL USD:', 0, 0, 'R')
-        self.cell(30, 10, f'${total_usd:.2f}', 0, 1, 'R')
-
+        self.cell(30, 10, f'${total_usd:.2f}', 0, 0, 'R')
+        self.cell(130, 10, 'TOTAL Bs:', 0, 0, 'R')
+        self.cell(30, 10, f'${total_bs:.2f}', 0, 1, 'R')
         # Payment method if available
         if getattr(self.salida, 'bcv', None):
             try:
