@@ -1849,7 +1849,7 @@ def comprar_producto(request, producto_id):
 def pago_exitoso(request, salida_id):
     nota = get_object_or_404(Nota_Entrega, pk=salida_id)
     # Intentar recuperar items del carrito si existen
-    precios_bs = []
+
 
     items = [
         {
@@ -1857,6 +1857,7 @@ def pago_exitoso(request, salida_id):
             'cantidad_item': detalle.Cantidad,
             'sub_total_item': float(detalle.precio_unitario or 0) * float(detalle.Cantidad or 0),
             'precio_unitario': detalle.precio_unitario,
+            'precio_bs': f"{float(detalle.precio_unitario or 0) * float(obtener_tasa_cambio() or 1):.2f}" if obtener_tasa_cambio() != 'N/A' else 'N/A',
         }
         for detalle in nota.detalles.all().select_related('Producto')
     ]
@@ -1872,9 +1873,7 @@ def pago_exitoso(request, salida_id):
 
     except Exception:
         tasa = 'N/A'
-    for a in items:
-        precio_bs = float(a['precio_unitario'] or 0) * float(tasa) if tasa != 'N/A' else 'N/A'
-        precios_bs.append(f"{precio_bs:.2f}" if isinstance(precio_bs, (int, float)) else 'N/A')
+
 
     return render(request, 'core/pago_exitoso.html', {
         'salida': nota,  
@@ -1882,7 +1881,7 @@ def pago_exitoso(request, salida_id):
         'cart_count': len(request.session.get('cart', [])),
         'user_groups': list(request.user.groups.values_list('name', flat=True)),
         'total_bs': total_bs,
-        'precios_bs': precios_bs,
+
 
     })
 
