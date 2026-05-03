@@ -37,7 +37,7 @@ class Generar_NE(FPDF):
 
         # Invoice details
         self.set_font('Arial', 'B', 12)
-        self.cell(0, 8, f'N° Factura: {self.salida.pk}', 0, 1, 'L')
+        self.cell(0, 8, f'N° Nota: {self.salida.pk}', 0, 1, 'L')
         self.cell(0, 8, f'Estado del Pedido: {self.salida.estado_pago}', 0, 1, 'L')
         # Validación de fecha
         if self.salida.fecha:
@@ -92,6 +92,8 @@ class Generar_NE(FPDF):
         self.cell(28, 10, 'Precio Unit Bs.', 1, 0, 'c')
         self.cell(20, 10, 'Subtotal', 1, 0, 'c')
         self.cell(25, 10, 'Subtotal Bs', 1, 1, 'c')
+        
+
         # Table content
         self.set_font('Arial', '', 10)
         
