@@ -29,14 +29,14 @@
                 </div>
             {% endif %}
 
-            <h4 style="margin-top:16px">Detalle de compras</h4>
+            <h4 style="margin-top:16px">Detalle de compra</h4>
             <!-- <p style="margin-top:8px; margin-bottom:12px;">
                 <a href="{% url 'descargar_factura_ne' salida.pk %}" class="btn btn-outline-primary btn-sm">Ver detalles del pedido</a>
             </p> -->
             <ul style="list-style:none; padding:0;">
                 {% for it in items %}
                 <li style="padding:8px 0; border-bottom:1px solid #eee;">
-                    {{ it.producto.nombre_producto }} — Cantidad: {{ it.cantidad_item }} — Subtotal: $ {{ it.sub_total_item }}
+                    {{ it.producto.nombre_producto }} — Cantidad: {{ it.cantidad_item }} — Subtotal: $ {{ it.sub_total_item }} / Bs {{ it.sub_total_item_bs }}
                 </li>
                 {% endfor %}
             </ul>
