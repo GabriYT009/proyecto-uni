@@ -1278,6 +1278,7 @@ def carrito(request):
     try:
         tasa= obtener_tasa_cambio()
         total_bs= sum((p.precio_venta or 0) * p.cantidad_en_carrito for p in Productos)* float(tasa) if tasa != 'N/A' else 'N/A'
+        total_bs = f"{total_bs:.2f}"
     except Exception:
         tasa = 'N/A'
     
