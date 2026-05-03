@@ -41,13 +41,14 @@
                 {% endfor %}
             </ul>
             
-            <h3>Su pago será verificado por nuestro personal</h3>
+            
             <div style="text-align:left; margin-bottom:16px;">
             <p>Total: <strong>$ {{ salida.total }}</strong></p>
             <p>Total <strong>Bs {{ total_bs }}</strong></p>
             </div>
+            <h3>Su pago será verificado por nuestro personal</h3>
             </div>
-    
+            
             <div style="margin-top:18px">
                 <a href="{% url 'catalog' %}" class="btn btn-primary">Seguir comprando</a>
                 <a href="{% url 'home' %}" class="btn btn-secondary" style="margin-left:8px;">Ir al inicio</a>
