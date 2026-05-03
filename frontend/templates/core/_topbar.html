@@ -454,13 +454,12 @@
 				{% endif %}
 				{% if 'cliente' not in user_groups %}
 					<div class="clients-menu" style="position:relative;">
-						<button id="clientsToggle" class="nav-link clients-toggle" aria-haspopup="true" aria-expanded="false">Clientes ▾</button>
-						<div id="clientsDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
-							<a href="{% url 'todos_clientes' %}" class="dropdown-item">Ver clientes</a>
-						</div>
+						<a href="{% url 'catalog' %}?Categoria=Sublimación" class="nav-link">Sublimación</a>
+					<a href="{% url 'catalog' %}?Categoria=Papelería" class="nav-link">Papelería</a>
+					<a href="{% url 'catalog' %}?Categoria=Otros" class="nav-link">Otros</a>
 					</div>
 				{% endif %}
-				{% if 'cliente' not in user_groups %}
+				<!-- {% if 'cliente' not in user_groups %}
 					<div class="product-menu" style="position:relative;">
 						<button id="productToggle" class="nav-link product-toggle" aria-haspopup="true" aria-expanded="false">Producto ▾</button>
 						<div id="productDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
@@ -470,7 +469,7 @@
 							{% endif %}
 						</div>
 					</div>
-				{% endif %}
+				{% endif %} -->
 				{% if 'admin' in user_groups %}
 					<div class="inventario-menu" style="position:relative;">
 						<button id="inventarioToggle" class="nav-link inventario-toggle" aria-haspopup="true" aria-expanded="false">Inventario ▾</button>

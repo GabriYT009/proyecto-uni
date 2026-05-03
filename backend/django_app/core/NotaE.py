@@ -5,7 +5,7 @@ from django.shortcuts import render, HttpResponse, get_object_or_404
 from django.utils import timezone
 from django.conf import settings
 import os
-
+from .bcv import obtener_tasa_cambio
 class Generar_NE(FPDF):
     def __init__(self, nota_obj, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -37,19 +37,19 @@ class Generar_NE(FPDF):
 
         # Invoice details
         self.set_font('Arial', 'B', 12)
-        self.cell(0, 8, f'N° Factura: {self.salida.pk}', 0, 1, 'L')
+        self.cell(0, 8, f'N° Nota: {self.salida.pk}', 0, 1, 'L')
         self.cell(0, 8, f'Estado del Pedido: {self.salida.estado_pago}', 0, 1, 'L')
-        # Validación de fecha (tu campo se llama 'fecha')
+        # Validación de fecha
         if self.salida.fecha:
             fecha_local = timezone.localtime(self.salida.fecha)
             self.cell(0, 8, f'Fecha: {fecha_local.strftime("%d/%m/%Y %H:%M:%S")}', 0, 1, 'L')
 
         
 
-        # Información del cliente (conectado directamente a tu modelo Nota_Entrega)
+        # Información del cliente (conectado directamente a Nota_Entrega)
         if self.salida.cliente:
             cliente = self.salida.cliente
-            # Tomamos los datos asumiendo que tu modelo Cliente usa estos nombres (como en tu HTML)
+            # Tomamos los datos 
             nombre = cliente.nombre_cliente 
             apellido = cliente.apellido_cliente
             documento = cliente.documento
@@ -86,39 +86,50 @@ class Generar_NE(FPDF):
 
         # Table header
         self.set_font('Arial', 'B', 10)
-        self.cell(80, 10, 'Producto', 1, 0, 'L')
-        self.cell(20, 10, 'Cant.', 1, 0, 'C')
-        self.cell(30, 10, 'Precio Unit.', 1, 0, 'R')
-        self.cell(30, 10, 'Subtotal', 1, 1, 'R')
+        self.cell(60, 10, 'Producto', 1, 0, 'L')
+        self.cell(17, 10, 'Cant.', 1, 0, 'C')
+        self.cell(25, 10, 'Precio Unit.', 1, 0, 'c')
+        self.cell(28, 10, 'Precio Unit Bs.', 1, 0, 'c')
+        self.cell(20, 10, 'Subtotal', 1, 0, 'c')
+        self.cell(25, 10, 'Subtotal Bs', 1, 1, 'c')
+        
 
         # Table content
         self.set_font('Arial', '', 10)
         
-        # --- AQUÍ ESTABA EL ERROR: Declarar total_usd en lugar de total ---
-        total_usd = 0
 
+        total_usd = 0
+        tasa=""
+        try:
+            tasa=obtener_tasa_cambio()
+
+        except Exception:
+            tasa=0
         for item in self.items:
             producto = item.Producto
             
-            # 1. Usamos el nombre exacto de tu modelo (con C mayúscula)
+            # 1. Usamos el nombre exacto de  modelo 
             cantidad = item.Cantidad
             
             # 2. Tomamos el precio que guardaste en el carrito (o del producto si falla)
             precio_unit = item.precio_unitario or producto.precio_venta or 0
-            
+            precio_unit_bs = float(precio_unit) * tasa
             # 3. Como no tienes un campo 'sub_total_item', lo calculamos aquí mismo:
             subtotal = float(cantidad) * float(precio_unit)
-            
+            subtotal_bs = subtotal * tasa
             # Ahora suma correctamente
             total_usd += subtotal
-
+            total_bs = total_usd * tasa
             nombre_prod = producto.nombre_producto or "Producto sin nombre"
 
             # Product name (may need to wrap long names)
-            self.cell(80, 8, nombre_prod[:35], 1, 0, 'L')
-            self.cell(20, 8, str(cantidad), 1, 0, 'C')
-            self.cell(30, 8, f'${precio_unit:.2f}', 1, 0, 'R')
-            self.cell(30, 8, f'${subtotal:.2f}', 1, 1, 'R')
+            self.cell(60, 8, nombre_prod[:35], 1, 0, 'L')
+            self.cell(17, 8, str(cantidad), 1, 0, 'C')
+            self.cell(25, 8, f'${precio_unit:.2f}', 1, 0, 'C')
+            self.cell(28, 8, f'{precio_unit_bs:.2f}', 1, 0, 'C')
+            self.cell(20, 8, f'${subtotal:.2f}', 1, 0, 'C')
+            self.cell(25, 8, f'{subtotal_bs:.2f}', 1, 1, 'C')
+
 
             # If description is long, add it in next row
             if len(nombre_prod) > 35:
@@ -132,9 +143,10 @@ class Generar_NE(FPDF):
         self.set_font('Arial', 'B', 12)
         
         # Total en Dólares
-        self.cell(130, 10, 'TOTAL USD:', 0, 0, 'R')
+        self.cell(150, 10, 'TOTAL USD:', 0, 0, 'R')
         self.cell(30, 10, f'${total_usd:.2f}', 0, 1, 'R')
-
+        self.cell(150, 10, 'TOTAL Bs:', 0, 0, 'R')
+        self.cell(30, 10, f'Bs {total_bs:.2f}', 0, 1, 'R')
         # Payment method if available
         if getattr(self.salida, 'bcv', None):
             try:

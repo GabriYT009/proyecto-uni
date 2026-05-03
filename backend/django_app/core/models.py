@@ -281,6 +281,7 @@ class Nota_Entrega(models.Model):
     comprobante_pago = models.ImageField(upload_to='payment_proofs/', blank=True, null=True)
 
     estado_pago = models.CharField(max_length=20, choices=ESTADO_PAGO, default='PENDIENTE')
+    motivo_rechazo = models.TextField(blank=True, null=True)
     revisado_por = models.ForeignKey(
         Usuario,
         on_delete=models.PROTECT,

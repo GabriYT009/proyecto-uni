@@ -1278,6 +1278,7 @@ def carrito(request):
     try:
         tasa= obtener_tasa_cambio()
         total_bs= sum((p.precio_venta or 0) * p.cantidad_en_carrito for p in Productos)* float(tasa) if tasa != 'N/A' else 'N/A'
+        total_bs = f"{total_bs:.2f}"
     except Exception:
         tasa = 'N/A'
     
@@ -1848,21 +1849,40 @@ def comprar_producto(request, producto_id):
 def pago_exitoso(request, salida_id):
     nota = get_object_or_404(Nota_Entrega, pk=salida_id)
     # Intentar recuperar items del carrito si existen
+
+
     items = [
         {
             'producto': detalle.Producto,
             'cantidad_item': detalle.Cantidad,
             'sub_total_item': float(detalle.precio_unitario or 0) * float(detalle.Cantidad or 0),
             'precio_unitario': detalle.precio_unitario,
+            'precio_bs': f"{float(detalle.precio_unitario or 0) * float(obtener_tasa_cambio() or 1):.2f}" if obtener_tasa_cambio() != 'N/A' else 'N/A',
         }
         for detalle in nota.detalles.all().select_related('Producto')
     ]
+
+    total= sum(item['sub_total_item'] for item in items)
+
+    total_bs = ''
+    try:
+        tasa= obtener_tasa_cambio()
+        b= total* float(tasa) if tasa != 'N/A' else 'N/A'
+        total_bs = f'{b:.2f}'
+    
+
+    except Exception:
+        tasa = 'N/A'
+
 
     return render(request, 'core/pago_exitoso.html', {
         'salida': nota,  
         'items': items,
         'cart_count': len(request.session.get('cart', [])),
-        'user_groups': list(request.user.groups.values_list('name', flat=True))
+        'user_groups': list(request.user.groups.values_list('name', flat=True)),
+        'total_bs': total_bs,
+
+
     })
 
 
@@ -1870,38 +1890,50 @@ def pago_exitoso(request, salida_id):
 def aprobar_pagos(request):
     if request.method == 'POST':
         salida_id = request.POST.get('salida_id')
-        accion = (request.POST.get('accion') or '').strip().lower()
+        nuevo_estado = (request.POST.get('estado') or '').strip().upper()
         salida = get_object_or_404(Nota_Entrega, pk=salida_id, comprobante_pago__isnull=False)
 
-        if salida.estado_pago != "PENDIENTE":
-            print("asda")
-            messages.info(request, 'Este pago ya fue revisado.')
+        if nuevo_estado not in ['APROBADO', 'RECHAZADO']:
+            messages.error(request, 'Estado no válido.')
             return redirect('aprobar_pagos')
 
-        if accion == 'aprobar':
+        if nuevo_estado == 'APROBADO':
             salida.estado_pago = "APROBADO"
+            salida.motivo_rechazo = None  # Clear any previous rejection reason
             messages.success(request, f'Pago #{salida.pk} aprobado correctamente.')
-        elif accion == 'rechazar':
+        elif nuevo_estado == 'RECHAZADO':
+            motivo = request.POST.get('motivo_rechazo', '').strip()
+            if not motivo:
+                messages.error(request, 'Debe proporcionar un motivo para rechazar el pago.')
+                return redirect('aprobar_pagos')
             salida.estado_pago = "RECHAZADO"
+            salida.motivo_rechazo = motivo
             messages.warning(request, f'Pago #{salida.pk} marcado como rechazado.')
-        else:
-            messages.error(request, 'Acción no válida.')
-            return redirect('aprobar_pagos')
 
         salida.revisado_por = request.user
         salida.fecha_revision = timezone.now()
-        salida.save(update_fields=['estado_pago', 'revisado_por', 'fecha_revision'])
+        salida.save(update_fields=['estado_pago', 'motivo_rechazo', 'revisado_por', 'fecha_revision'])
+        return redirect('aprobar_pagos')
+
+        salida.revisado_por = request.user
+        salida.fecha_revision = timezone.now()
+        salida.save(update_fields=['estado_pago', 'motivo_rechazo', 'revisado_por', 'fecha_revision'])
         return redirect('aprobar_pagos')
 
     try:
+        status_filter = request.GET.get('status', '').strip()
         queryset = (
             Nota_Entrega.objects
-            .filter(comprobante_pago__isnull=False, estado_pago='PENDIENTE')
+            .filter(comprobante_pago__isnull=False)
             .select_related('cliente', 'cliente__user', 'revisado_por')
             .prefetch_related('detalles__Producto', 'detalles__solicitudes_sublimacion')
             .order_by('-fecha', '-id')
         )
-        total_pendientes = queryset.count()
+        if status_filter:
+            queryset = queryset.filter(estado_pago=status_filter.upper())
+        
+        total_pendientes = Nota_Entrega.objects.filter(comprobante_pago__isnull=False, estado_pago='PENDIENTE').count()
+        total_registros = queryset.count()
         paginator = Paginator(queryset, 5)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
@@ -1909,15 +1941,18 @@ def aprobar_pagos(request):
             for salida in page_obj.object_list:
                 salida.comprobante_url = _safe_file_url(getattr(salida, 'comprobante_pago', None))
     except Exception as e:
-        logger.error(f'Error al cargar pagos pendientes: {e}', exc_info=True)
+        logger.error(f'Error al cargar pagos: {e}', exc_info=True)
         page_obj = None
         total_pendientes = 0
+        total_registros = 0
 
     return render(request, 'core/aprobar_pagos.html', {
         'salidas': page_obj,
         'page_obj': page_obj,
-        'paginator': paginator if total_pendientes else None,
+        'paginator': paginator if total_registros else None,
         'total_pendientes': total_pendientes,
+        'total_registros': total_registros,
+        'status_filter': status_filter,
         'cart_count': len(request.session.get('cart', [])),
         'user_groups': _user_groups(request.user),
     })
