@@ -39,6 +39,8 @@ from django.core.paginator import Paginator
 from .forms import ProductForm, PasswordRecoveryForm
 from django.utils import timezone
 from django.db import transaction, IntegrityError
+from django.db import connection
+from django.db.utils import OperationalError, ProgrammingError
 from django.urls import reverse
 from django.core.files.storage import default_storage
 import random
@@ -62,7 +64,21 @@ def _ensure_default_auth_groups():
         Group.objects.get_or_create(name=group_name)
 
 
+def _security_questions_ready():
+    try:
+        tables = set(connection.introspection.table_names())
+        return (
+            SecurityQuestion._meta.db_table in tables and
+            UserSecurityAnswer._meta.db_table in tables
+        )
+    except Exception:
+        return False
+
+
 def _ensure_default_security_questions():
+    if not _security_questions_ready():
+        return False
+
     defaults = [
         '¿Cuál es el nombre de tu primera mascota?',
         '¿En qué ciudad naciste?',
@@ -71,6 +87,7 @@ def _ensure_default_security_questions():
     ]
     for text in defaults:
         SecurityQuestion.objects.get_or_create(text=text)
+    return True
 
 
 def _ensure_default_admin_user():
@@ -719,6 +736,16 @@ def login_post(request):
 def recuperar_contrasena(request):
     # Flujo en dos pasos: 1) Enviar código por correo, 2) Validar código y actualizar contraseña
     questions = None
+    security_feature_enabled = _security_questions_ready()
+
+    if not security_feature_enabled:
+        form = PasswordRecoveryForm(request.POST or None)
+        form.add_error(None, 'La recuperación por preguntas de seguridad no está disponible todavía. Intenta más tarde.')
+        return render(request, 'core/recuperar_contrasena.html', {
+            'form': form,
+            'questions': questions,
+            'security_feature_enabled': security_feature_enabled,
+        })
 
     if request.method == 'POST':
         form = PasswordRecoveryForm(request.POST)
@@ -797,7 +824,11 @@ def recuperar_contrasena(request):
     else:
         form = PasswordRecoveryForm()
 
-    return render(request, 'core/recuperar_contrasena.html', {'form': form, 'questions': questions})
+    return render(request, 'core/recuperar_contrasena.html', {
+        'form': form,
+        'questions': questions,
+        'security_feature_enabled': security_feature_enabled,
+    })
 
 
 
@@ -974,8 +1005,16 @@ def crear_cliente(request):
 
 
 def crear_usuario(request):
-    _ensure_default_security_questions()
-    security_questions = SecurityQuestion.objects.all().order_by('text')
+    security_feature_enabled = False
+    security_questions = []
+
+    try:
+        security_feature_enabled = _ensure_default_security_questions()
+        if security_feature_enabled:
+            security_questions = SecurityQuestion.objects.all().order_by('text')
+    except (ProgrammingError, OperationalError):
+        security_feature_enabled = False
+        security_questions = []
 
     if request.method == 'POST':
         # 1. Obtener datos del formulario
@@ -1011,24 +1050,27 @@ def crear_usuario(request):
                 'email': email,
             })
 
-        if not security_question_id and not security_question_custom:
+        if security_feature_enabled and not security_question_id and not security_question_custom:
             return render(request, 'core/crear_usuario.html', {
                 'error': 'Selecciona o escribe una pregunta de seguridad.',
                 'security_questions': security_questions,
+                'security_feature_enabled': security_feature_enabled,
                 'email': email,
             })
 
-        if security_question_id == 'custom' and not security_question_custom:
+        if security_feature_enabled and security_question_id == 'custom' and not security_question_custom:
             return render(request, 'core/crear_usuario.html', {
                 'error': 'Escribe tu pregunta de seguridad personalizada.',
                 'security_questions': security_questions,
+                'security_feature_enabled': security_feature_enabled,
                 'email': email,
             })
 
-        if not security_answer:
+        if security_feature_enabled and not security_answer:
             return render(request, 'core/crear_usuario.html', {
                 'error': 'La respuesta de seguridad es obligatoria.',
                 'security_questions': security_questions,
+                'security_feature_enabled': security_feature_enabled,
                 'email': email,
             })
 
@@ -1036,6 +1078,7 @@ def crear_usuario(request):
             return render(request, 'core/crear_usuario.html', {
                 'error': 'El usuario ya existe.',
                 'security_questions': security_questions,
+                'security_feature_enabled': security_feature_enabled,
                 'email': email,
             })
 
@@ -1043,6 +1086,7 @@ def crear_usuario(request):
             return render(request, 'core/crear_usuario.html', {
                 'error': 'El correo ya está registrado.',
                 'security_questions': security_questions,
+                'security_feature_enabled': security_feature_enabled,
                 'email': email,
             })
 
@@ -1072,21 +1116,22 @@ def crear_usuario(request):
                 )
 
                 # D. Guardar pregunta y respuesta de seguridad
-                selected_question = None
-                if security_question_id:
-                    selected_question = SecurityQuestion.objects.filter(pk=security_question_id).first()
+                if security_feature_enabled:
+                    selected_question = None
+                    if security_question_id and security_question_id != 'custom':
+                        selected_question = SecurityQuestion.objects.filter(pk=security_question_id).first()
 
-                if selected_question is None and security_question_custom:
-                    selected_question, _ = SecurityQuestion.objects.get_or_create(text=security_question_custom)
+                    if selected_question is None and security_question_custom:
+                        selected_question, _ = SecurityQuestion.objects.get_or_create(text=security_question_custom)
 
-                if selected_question is None:
-                    raise ValueError('Pregunta de seguridad inválida.')
+                    if selected_question is None:
+                        raise ValueError('Pregunta de seguridad inválida.')
 
-                UserSecurityAnswer.objects.create(
-                    user=nuevo_usuario,
-                    question=selected_question,
-                    answer_hash=make_password(security_answer.lower()),
-                )
+                    UserSecurityAnswer.objects.create(
+                        user=nuevo_usuario,
+                        question=selected_question,
+                        answer_hash=make_password(security_answer.lower()),
+                    )
                 
                 # Limpieza de sesión
                 if 'pending_email' in request.session:
@@ -1099,6 +1144,7 @@ def crear_usuario(request):
             return render(request, 'core/crear_usuario.html', {
                 'error': f'Error al crear usuario: {e}',
                 'security_questions': security_questions,
+                'security_feature_enabled': security_feature_enabled,
                 'email': email,
             })
 
@@ -1106,6 +1152,7 @@ def crear_usuario(request):
     context = {
         'email': request.session.get('pending_email', ''),
         'security_questions': security_questions,
+        'security_feature_enabled': security_feature_enabled,
         'cart_count': len(request.session.get('cart', []))
     }
     return render(request, 'core/crear_usuario.html', context)
