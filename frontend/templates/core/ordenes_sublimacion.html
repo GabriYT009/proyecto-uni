@@ -430,7 +430,7 @@
                         <div class="order-head">
                             <div>
                                 <h2 class="order-title">Solicitud #{{ solicitud.pk }} · Orden #{{ solicitud.nota_entrega.pk }}</h2>
-                                <div class="order-sub">{{ solicitud.creado_en|date:"d/m/Y H:i" }} · Usuario: {{ solicitud.usuario.username }}</div>
+                                <div class="order-sub">{{ solicitud.creado_en|date:"d/m/Y H:i" }} · Usuario: {{ solicitud.usuario.username }} Numero del  cliente:  {{  solicitud.nota_entrega.cliente.telefono_cliente  }}</div>
                             </div>
                             <div class="status-pill {% if solicitud.estado == 'RECHAZADA' %}status-rejected{% elif solicitud.estado == 'VINCULADA' %}status-approved{% else %}status-pending{% endif %}">
                                 {% if solicitud.estado == 'VINCULADA' %}
