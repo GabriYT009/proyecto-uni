@@ -452,9 +452,10 @@
 				{% if 'admin' in user_groups %}
 					<div class="inventario-menu" style="position:relative;">
 						<button id="inventarioToggle" class="nav-link inventario-toggle" aria-haspopup="true" aria-expanded="false">Inventario ▾</button>
+						
 						<div id="inventarioDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
 							<a href="{% url 'inventario' %}" class="dropdown-item">Ver inventario</a>
-							<a href="{% url 'registrar_producto' %}" class="dropdown-item">Productos</a>
+							
 							<a href="{% url 'ajustar_inventario_masivo' %}" class="dropdown-item">Ajustar inventario</a>
 						</div>
 					</div>
@@ -466,6 +467,13 @@
 						<div id="pagosDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
 							<a href="{% url 'aprobar_pagos' %}" class="dropdown-item">Aprobar pagos</a>
 							<a href="{% url 'ordenes_sublimacion' %}" class="dropdown-item">Ordenes de sublimacion</a>
+						</div>
+					</div>
+					<div class="producto-menu" style="position:relative;">
+						<button id="productoToggle" class="nav-link product-toggle" aria-haspopup="true" aria-expanded="false">Producto ▾</button>
+						<div id="productoDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
+							<a href="{% url 'registrar_producto' %}" class="dropdown-item">Crear producto</a>
+							<a href="{% url 'agregar_marca' %}" class="dropdown-item">Marca</a>
 						</div>
 					</div>
 				{% else %}
