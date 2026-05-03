@@ -262,10 +262,12 @@
                 <button type="button" class="cat-scroll-btn cat-scroll-left" aria-label="Anterior">◀</button>
                 <div class="category-grid category-bar" role="navigation">
                     {% for categoria in categories %}
+                        {% if categoria.nombre_categoria|lower != 'impresión' and categoria.nombre_categoria|lower != 'impresion' %}
                     <a href="?Categoria={{ categoria.nombre_categoria|urlencode }}" class="category-card {% if selected_Categoria == categoria.nombre_categoria %}active{% endif %}">
                         <div class="category-icon">{% if categoria.nombre_categoria == 'Cajas' %}📦{% elif categoria.nombre_categoria == 'Toppers' %}🎂{% elif categoria.nombre_categoria == 'Sublimación' %}📄{% elif categoria.nombre_categoria == 'Personalización' %}🎨{% elif categoria.nombre_categoria == 'Papelería' %}📝{% elif categoria.nombre_categoria == 'Camisas' %}👕{% elif categoria.nombre_categoria == 'Tazas' %}☕{% elif categoria.nombre_categoria == 'Otros' %}🧩{% else %}📁{% endif %}</div>
                         <span>{{ categoria.nombre_categoria }}</span>
                     </a>
+                        {% endif %}
                     {% endfor %}
                 </div>
                 <button type="button" class="cat-scroll-btn cat-scroll-right" aria-label="Siguiente">▶</button>
