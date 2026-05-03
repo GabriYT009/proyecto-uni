@@ -217,6 +217,7 @@
                                 <th style="padding:6px; border:1px solid #ddd; width:80px; text-align:right;">Precio Bs</th>
                                 <th style="padding:6px; border:1px solid #ddd; width:80px; text-align:right;">Total $</th>
                                 <th style="padding:6px; border:1px solid #ddd; width:80px; text-align:right;">Total Bs</th>
+                                <th style="padding:6px; border:1px solid #ddd; width:100px; text-align:center;">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="invoice-items">
@@ -441,7 +442,7 @@
                 var tbody = document.getElementById('invoice-items');
                 tbody.innerHTML = '';
                 
-                Object.keys(items).forEach(function(k){
+                    Object.keys(items).forEach(function(k){
                     var it = items[k];
                     
                     // Cálculos
@@ -459,10 +460,13 @@
                         '<td style="padding:4px; border:1px solid #ddd; text-align:right;">$ '+format(it.price)+'</td>'+
                         '<td style="padding:4px; border:1px solid #ddd; text-align:right;">Bs '+format(precioBs)+'</td>'+
                         '<td style="padding:4px; border:1px solid #ddd; text-align:right;">$ '+format(totalUsd)+'</td>'+
-                        '<td style="padding:4px; border:1px solid #ddd; text-align:right;">Bs '+format(totalBs)+'</td>';
-                        
+                        '<td style="padding:4px; border:1px solid #ddd; text-align:right;">Bs '+format(totalBs)+'</td>'+
+                        '<td style="padding:4px; border:1px solid #ddd; text-align:center;">'+
+                            '<button type="button" class="remove-item" data-id="'+k+'" style="background:#e04a6a;color:#fff;border:none;padding:6px 8px;border-radius:6px;cursor:pointer">Eliminar</button>'+
+                        '</td>';
+
                     tbody.appendChild(tr);
-                    
+
                     // Actualizar cantidades
                     tr.querySelector('input').addEventListener('input', function(e){
                         var v = parseInt(this.value,10) || 1;
@@ -470,6 +474,19 @@
                         renderInvoice();
                         recalc();
                     });
+
+                    // Handler para eliminar el item
+                    var rem = tr.querySelector('.remove-item');
+                    if(rem){
+                        rem.addEventListener('click', function(e){
+                            var id = this.getAttribute('data-id');
+                            if(id && items[id]){
+                                delete items[id];
+                                renderInvoice();
+                                recalc();
+                            }
+                        });
+                    }
                 });
             }
 
