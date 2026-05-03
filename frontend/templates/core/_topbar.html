@@ -447,10 +447,7 @@
 		<div class="group bar-center">
 			<nav class="main-nav">
 				
-				<a href="{% url 'catalog' %}" class="nav-link">Catálogo</a>
-				<a href="{% url 'catalog' %}?Categoria=Sublimación" class="nav-link">Sublimación</a>
-				<a href="{% url 'catalog' %}?Categoria=Papelería" class="nav-link">Papelería</a>
-				<a href="{% url 'catalog' %}?Categoria=Otros" class="nav-link">Otros</a>
+				
 
 				{% if 'admin' in user_groups %}
 					<div class="inventario-menu" style="position:relative;">
@@ -470,6 +467,11 @@
 							<a href="{% url 'ordenes_sublimacion' %}" class="dropdown-item">Ordenes de sublimacion</a>
 						</div>
 					</div>
+				{% else %}
+						<a href="{% url 'catalog' %}" class="nav-link">Catálogo</a>
+						<a href="{% url 'catalog' %}?Categoria=Sublimación" class="nav-link">Sublimación</a>
+						<a href="{% url 'catalog' %}?Categoria=Papelería" class="nav-link">Papelería</a>
+						<a href="{% url 'catalog' %}?Categoria=Otros" class="nav-link">Otros</a>
 				{% endif %}
 
 				{% if 'admin' in user_groups or 'cajero' in user_groups %}
