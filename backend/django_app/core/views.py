@@ -1914,14 +1914,19 @@ def aprobar_pagos(request):
         return redirect('aprobar_pagos')
 
     try:
+        status_filter = request.GET.get('status', '').strip()
         queryset = (
             Nota_Entrega.objects
-            .filter(comprobante_pago__isnull=False, estado_pago='PENDIENTE')
+            .filter(comprobante_pago__isnull=False)
             .select_related('cliente', 'cliente__user', 'revisado_por')
             .prefetch_related('detalles__Producto', 'detalles__solicitudes_sublimacion')
             .order_by('-fecha', '-id')
         )
-        total_pendientes = queryset.count()
+        if status_filter:
+            queryset = queryset.filter(estado_pago=status_filter.upper())
+        
+        total_pendientes = Nota_Entrega.objects.filter(comprobante_pago__isnull=False, estado_pago='PENDIENTE').count()
+        total_registros = queryset.count()
         paginator = Paginator(queryset, 5)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
@@ -1929,15 +1934,18 @@ def aprobar_pagos(request):
             for salida in page_obj.object_list:
                 salida.comprobante_url = _safe_file_url(getattr(salida, 'comprobante_pago', None))
     except Exception as e:
-        logger.error(f'Error al cargar pagos pendientes: {e}', exc_info=True)
+        logger.error(f'Error al cargar pagos: {e}', exc_info=True)
         page_obj = None
         total_pendientes = 0
+        total_registros = 0
 
     return render(request, 'core/aprobar_pagos.html', {
         'salidas': page_obj,
         'page_obj': page_obj,
-        'paginator': paginator if total_pendientes else None,
+        'paginator': paginator if total_registros else None,
         'total_pendientes': total_pendientes,
+        'total_registros': total_registros,
+        'status_filter': status_filter,
         'cart_count': len(request.session.get('cart', [])),
         'user_groups': _user_groups(request.user),
     })

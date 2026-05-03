@@ -366,12 +366,23 @@
             <div class="hero-top">
                 <div>
                     <h1>Aprobar pagos</h1>
-                    <p class="subtitle">Revisa los comprobantes enviados por los clientes y decide si el pago queda aprobado o rechazado.</p>
+                    <p class="subtitle">Revisa todos los comprobantes enviados por los clientes y filtra por estado de pago.</p>
                 </div>
                 <div class="hero-actions">
                     <a href="{% url 'home' %}" class="btn-back">Volver</a>
-                    <div class="badge-count">{{ total_pendientes }} pagos pendientes</div>
+                    <div class="badge-count">{{ total_registros }} registros</div>
                 </div>
+            </div>
+            <div class="hero-actions" style="margin-top: 16px;">
+                <form method="get" style="display: flex; gap: 10px; align-items: center;">
+                    <label for="status-filter" style="font-weight: 700; color: var(--muted);">Filtrar por estado:</label>
+                    <select id="status-filter" name="status" class="status-select" onchange="this.form.submit()">
+                        <option value="" {% if not status_filter %}selected{% endif %}>Todos</option>
+                        <option value="PENDIENTE" {% if status_filter == 'PENDIENTE' %}selected{% endif %}>Pendiente</option>
+                        <option value="APROBADO" {% if status_filter == 'APROBADO' %}selected{% endif %}>Aprobado</option>
+                        <option value="RECHAZADO" {% if status_filter == 'RECHAZADO' %}selected{% endif %}>Rechazado</option>
+                    </select>
+                </form>
             </div>
         </section>
 
@@ -492,9 +503,9 @@
                 {% endfor %}
             </div>
             {% if page_obj and page_obj.has_other_pages %}
-                <div class="pagination" aria-label="Paginación de pagos pendientes">
+                <div class="pagination" aria-label="Paginación de pagos">
                     {% if page_obj.has_previous %}
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">← Anterior</a>
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}">← Anterior</a>
                     {% else %}
                         <span class="page-link disabled">← Anterior</span>
                     {% endif %}
@@ -503,9 +514,9 @@
                         {% if num == page_obj.number %}
                             <span class="page-link active">{{ num }}</span>
                         {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
-                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            <a class="page-link" href="?page={{ num }}{% if status_filter %}&status={{ status_filter }}{% endif %}">{{ num }}</a>
                         {% elif num == 1 %}
-                            <a class="page-link" href="?page=1">1</a>
+                            <a class="page-link" href="?page=1{% if status_filter %}&status={{ status_filter }}{% endif %}">1</a>
                             {% if page_obj.number > 3 %}
                                 <span class="page-link disabled">…</span>
                             {% endif %}
@@ -513,12 +524,12 @@
                             {% if page_obj.number < page_obj.paginator.num_pages|add:'-2' %}
                                 <span class="page-link disabled">…</span>
                             {% endif %}
-                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            <a class="page-link" href="?page={{ num }}{% if status_filter %}&status={{ status_filter }}{% endif %}">{{ num }}</a>
                         {% endif %}
                     {% endfor %}
 
                     {% if page_obj.has_next %}
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente →</a>
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}">Siguiente →</a>
                     {% else %}
                         <span class="page-link disabled">Siguiente →</span>
                     {% endif %}
@@ -526,8 +537,8 @@
             {% endif %}
         {% else %}
             <div class="empty-state">
-                <h2>No hay pagos pendientes</h2>
-                <p>Cuando los clientes suban un comprobante de pago, aparecerá aquí para su revisión.</p>
+                <h2>No hay pagos{% if status_filter %} con estado "{{ status_filter|title }}"{% endif %}</h2>
+                <p>{% if status_filter %}No se encontraron pagos con el filtro seleccionado.{% else %}Cuando los clientes suban un comprobante de pago, aparecerá aquí para su revisión.{% endif %}</p>
             </div>
         {% endif %}
     </div>
