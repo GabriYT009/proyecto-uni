@@ -699,7 +699,7 @@
                     {% else %}
                         <a href="{% url 'catalog' %}?Categoria={{ category.nombre_categoria }}" class="category-card">
                             <div class="category-icon">
-                                {% if category.nombre_categoria == 'Cajas' %}📦{% elif category.nombre_categoria == 'Toppers' %}🎂{% elif category.nombre_categoria == 'Sublimación' %}📄{% elif category.nombre_categoria == 'Personalización' %}🎨{% elif category.nombre_categoria == 'Papelería' %}📝{% elif category.nombre_categoria == 'Camisas' %}👕{% elif category.nombre_categoria == 'Tazas' %}☕{% elif category.nombre_categoria == 'Otros' %}🧩{% else %}🖥️{% endif %}
+                                {% if category.nombre_categoria == 'Cajas' %}📦{% elif category.nombre_categoria == 'Toppers' %}🎂{% elif category.nombre_categoria == 'Sublimación' %}🖨️{% elif category.nombre_categoria == 'Impresión' %}📄{% elif category.nombre_categoria == 'Personalización' %}🎨{% elif category.nombre_categoria == 'Papelería' %}📝{% elif category.nombre_categoria == 'Camisas' %}👕{% elif category.nombre_categoria == 'Tazas' %}☕{% elif category.nombre_categoria == 'Otros' %}🧩{% else %}🖥️{% endif %}
                             </div>
                             <span>{{ category.nombre_categoria }}</span>
                         </a>
