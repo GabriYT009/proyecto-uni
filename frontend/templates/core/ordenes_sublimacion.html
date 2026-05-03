@@ -82,6 +82,68 @@
             justify-content: flex-end;
         }
 
+        .filter-panel {
+            margin: 18px 0 0;
+            padding: 18px 22px;
+            background: #ffffff;
+            border: 1px solid #e8dee6;
+            border-radius: 18px;
+            box-shadow: 0 8px 26px rgba(58, 23, 91, 0.06);
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .filter-panel input,
+        .filter-panel select {
+            width: 100%;
+            border: 1px solid #d9c7ea;
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: 0.95rem;
+            color: var(--ink);
+            background: #fff;
+        }
+
+        .filter-panel button {
+            border: none;
+            border-radius: 12px;
+            padding: 12px 18px;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(135deg, #5b3dc4, #8f58dc);
+            cursor: pointer;
+        }
+
+        .filter-panel button:hover {
+            opacity: 0.95;
+        }
+
+        .filter-panel .filter-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .filter-panel .filter-actions a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            padding: 12px 18px;
+            font-weight: 700;
+            color: var(--brand);
+            background: #f8f3ff;
+            text-decoration: none;
+            border: 1px solid #e8dee6;
+        }
+
+        .filter-panel .filter-actions a:hover {
+            background: #f0ebff;
+        }
+
         .badge-count {
             border-radius: 999px;
             padding: 10px 14px;
@@ -419,6 +481,19 @@
                     <div class="badge-count">{{ total_ordenes }} ordenes</div>
                 </div>
             </div>
+            <form method="get" class="filter-panel" novalidate>
+                <input type="text" name="q" value="{{ search_query|default:'' }}" placeholder="Buscar por usuario, producto, orden, teléfono o comentario">
+                <select name="estado">
+                    <option value="">Todos los estados</option>
+                    <option value="PENDIENTE"{% if estado_filter == 'PENDIENTE' %} selected{% endif %}>Pendiente</option>
+                    <option value="VINCULADA"{% if estado_filter == 'VINCULADA' %} selected{% endif %}>Aprobada</option>
+                    <option value="RECHAZADA"{% if estado_filter == 'RECHAZADA' %} selected{% endif %}>Rechazada</option>
+                </select>
+                <div class="filter-actions">
+                    <button type="submit">Filtrar</button>
+                    <a href="{% url 'ordenes_sublimacion' %}">Limpiar</a>
+                </div>
+            </form>
         </section>
 
         {% include 'core/_messages.html' %}
@@ -519,7 +594,7 @@
             {% if page_obj and page_obj.has_other_pages %}
                 <div class="pagination" aria-label="Paginacion de ordenes de sublimacion">
                     {% if page_obj.has_previous %}
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">← Anterior</a>
+                        <a class="page-link" href="?{% if query_string %}{{ query_string }}&{% endif %}page={{ page_obj.previous_page_number }}">← Anterior</a>
                     {% else %}
                         <span class="page-link disabled">← Anterior</span>
                     {% endif %}
@@ -528,9 +603,9 @@
                         {% if num == page_obj.number %}
                             <span class="page-link active">{{ num }}</span>
                         {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
-                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            <a class="page-link" href="?{% if query_string %}{{ query_string }}&{% endif %}page={{ num }}">{{ num }}</a>
                         {% elif num == 1 %}
-                            <a class="page-link" href="?page=1">1</a>
+                            <a class="page-link" href="?{% if query_string %}{{ query_string }}&{% endif %}page=1">1</a>
                             {% if page_obj.number > 3 %}
                                 <span class="page-link disabled">…</span>
                             {% endif %}
@@ -538,12 +613,12 @@
                             {% if page_obj.number < page_obj.paginator.num_pages|add:'-2' %}
                                 <span class="page-link disabled">…</span>
                             {% endif %}
-                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            <a class="page-link" href="?{% if query_string %}{{ query_string }}&{% endif %}page={{ num }}">{{ num }}</a>
                         {% endif %}
                     {% endfor %}
 
                     {% if page_obj.has_next %}
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente →</a>
+                        <a class="page-link" href="?{% if query_string %}{{ query_string }}&{% endif %}page={{ page_obj.next_page_number }}">Siguiente →</a>
                     {% else %}
                         <span class="page-link disabled">Siguiente →</span>
                     {% endif %}

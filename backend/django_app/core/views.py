@@ -2128,16 +2128,38 @@ def ordenes_sublimacion(request):
         return redirect('ordenes_sublimacion')
 
     try:
+        search_query = (request.GET.get('q') or '').strip()
+        estado_filter = (request.GET.get('estado') or '').strip().upper()
+        estado_pago_filter = (request.GET.get('estado_pago') or '').strip().upper()
+
         queryset = (
             SolicitudSublimacion.objects
             .filter(nota_entrega__isnull=False)
             .select_related('usuario', 'producto', 'nota_entrega', 'nota_entrega__cliente')
-            .order_by('-creado_en', '-id')
         )
 
+        if search_query:
+            queryset = queryset.filter(
+                Q(producto__nombre_producto__icontains=search_query)
+                | Q(usuario__username__icontains=search_query)
+                | Q(nota_entrega__cliente__nombre_cliente__icontains=search_query)
+                | Q(nota_entrega__cliente__apellido_cliente__icontains=search_query)
+                | Q(nota_entrega__cliente__telefono_cliente__icontains=search_query)
+                | Q(comentario__icontains=search_query)
+                | Q(nota_entrega__pk__iexact=search_query)
+            )
+
+        if estado_filter in {'PENDIENTE', 'VINCULADA', 'RECHAZADA'}:
+            queryset = queryset.filter(estado=estado_filter)
+
+        if estado_pago_filter in {'PENDIENTE', 'APROBADO', 'RECHAZADO'}:
+            queryset = queryset.filter(nota_entrega__estado_pago=estado_pago_filter)
+
+        queryset = queryset.order_by('-creado_en', '-id')
         total_ordenes = queryset.count()
         pendientes_revision = queryset.filter(estado='PENDIENTE').count()
-        paginator = Paginator(queryset, 6)
+        per_page = max(total_ordenes, 1)
+        paginator = Paginator(queryset, per_page)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
 
@@ -2152,6 +2174,9 @@ def ordenes_sublimacion(request):
         pendientes_revision = 0
         paginator = None
 
+    query_string = request.GET.copy()
+    query_string.pop('page', None)
+
     return render(request, 'core/ordenes_sublimacion.html', {
         'page_obj': page_obj,
         'paginator': paginator,
@@ -2159,6 +2184,10 @@ def ordenes_sublimacion(request):
         'pendientes_revision': pendientes_revision,
         'cart_count': len(request.session.get('cart', [])),
         'user_groups': _user_groups(request.user),
+        'search_query': search_query,
+        'estado_filter': estado_filter,
+        'estado_pago_filter': estado_pago_filter,
+        'query_string': query_string.urlencode(),
     })
 
 
