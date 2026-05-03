@@ -40,7 +40,7 @@
 <body>
     <div class="container">
         <h2 style="color:#9932CC; margin-top:0;">PAGO MÓVIL</h2>
-        <p class="note">Ingrese los datos para simular el pago móvil. El monto se calcula según las cantidades seleccionadas.</p>
+        <p class="note">Ingrese los datos requeridos para procesar su pago. El monto se calcula según las cantidades seleccionadas.</p>
 
         <div class="items" aria-live="polite">
             {% for it in items %}
@@ -116,7 +116,7 @@
 
             <div class="actions">
                 <a href="{% url 'carrito' %}" class="btn-cancel">Volver</a>
-                <button type="submit" class="btn-primary">Simular pago y finalizar</button>
+                <button type="submit" class="btn-primary">Pagar y finalizar</button>
             </div>
         </form>
     </div>
