@@ -36,7 +36,7 @@
             <ul style="list-style:none; padding:0;">
                 {% for it in items %}
                 <li style="padding:8px 0; border-bottom:1px solid #eee;">
-                    {{ it.producto.nombre_producto }} — Cantidad: {{ it.cantidad_item }} — Subtotal: $ {{ it.sub_total_item }} / Bs {{ it.precios_bs }}
+                    {{ it.producto.nombre_producto }} — Cantidad: {{ it.cantidad_item }} — Subtotal: $ {{ it.sub_total_item }} — Bs {{ it.precios_bs }}
                 </li>
                 {% endfor %}
             </ul>
