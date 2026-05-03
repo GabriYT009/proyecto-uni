@@ -1755,7 +1755,9 @@ def camisas_shein(request, producto_id):
 
     if request.method == 'POST':
         accion = (request.POST.get('accion') or '').strip().lower()
-        talla = (request.POST.get('talla') or default_talla).strip()
+        talla_raw = (request.POST.get('talla') or default_talla).strip()
+        talla_key_map = {str(key).strip().lower(): key for key in stock_por_talla.keys()}
+        talla = talla_key_map.get(talla_raw.lower(), talla_raw)
         try:
             cantidad = int(request.POST.get('cantidad', '1') or 1)
         except ValueError:
@@ -1786,7 +1788,7 @@ def camisas_shein(request, producto_id):
             comentario = (request.POST.get('comentario') or '').strip()
             imagen = request.FILES.get('imagen_sublimacion')
 
-            if talla and talla not in tallas:
+            if talla and talla not in stock_por_talla:
                 messages.error(request, 'La talla seleccionada no es válida.')
                 return redirect('camisas_shein', producto_id=producto.pk)
 
