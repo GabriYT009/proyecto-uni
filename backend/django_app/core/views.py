@@ -1937,7 +1937,7 @@ def comprar_producto(request, producto_id):
                 if solicitud:
                     solicitud.carrito_de_compras = carrito_item
                     solicitud.nota_entrega = nota
-                    solicitud.estado = 'VINCULADA'
+                    solicitud.estado = 'PENDIENTE'
                     solicitud.save(update_fields=['carrito_de_compras', 'nota_entrega', 'estado'])
 
                 # Restar inventario
@@ -2262,7 +2262,7 @@ def comprar_carrito(request):
                 if solicitud:
                     solicitud.carrito_de_compras = CarritoDeCompras.objects.filter(Nota_Entrega=nota, Producto=p).order_by('-id').first()
                     solicitud.nota_entrega = nota
-                    solicitud.estado = 'VINCULADA'
+                    solicitud.estado = 'PENDIENTE'
                     solicitud.save(update_fields=['carrito_de_compras', 'nota_entrega', 'estado'])
 
                 # PASO 4: Actualizar inventario e historial
@@ -2421,7 +2421,7 @@ def comprar_producto_ajax(request, producto_id):
             if solicitud:
                 solicitud.carrito_de_compras = item_carrito
                 solicitud.nota_entrega = nota
-                solicitud.estado = 'VINCULADA'
+                solicitud.estado = 'PENDIENTE'
                 solicitud.save(update_fields=['carrito_de_compras', 'nota_entrega', 'estado'])
 
             # PASO 3: Actualizar inventario
