@@ -90,8 +90,8 @@ class Generar_NE(FPDF):
         self.cell(17, 10, 'Cant.', 1, 0, 'C')
         self.cell(30, 10, 'Precio Unit.', 1, 0, 'R')
         self.cell(25, 10, 'Precio Unit Bs.', 1, 0, 'c')
-        self.cell(30, 10, 'Subtotal', 1, 1, 'R')
-        self.cell(30, 10, 'Subtotal Bs', 1, 1, 'R')
+        self.cell(20, 10, 'Subtotal', 1, 1, 'R')
+        self.cell(20, 10, 'Subtotal Bs', 1, 1, 'R')
         # Table content
         self.set_font('Arial', '', 10)
         
