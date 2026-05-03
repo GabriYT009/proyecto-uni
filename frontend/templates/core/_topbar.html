@@ -469,9 +469,13 @@
 							<a href="{% url 'ordenes_sublimacion' %}" class="dropdown-item">Ordenes de sublimacion</a>
 						</div>
 					</div>
-					<div>Productos</div>
-					<a href="{% url 'crear_producto' %}" class="nav-link">Crear producto</a>
-					<a href="{% url 'agregar_marca' %}" class="nav-link">Marca</a>
+					<div class="producto-menu" style="position:relative;">
+						<button id="productoToggle" class="nav-link product-toggle" aria-haspopup="true" aria-expanded="false">Producto ▾</button>
+						<div id="productoDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
+							<a href="{% url 'crear_producto' %}" class="dropdown-item">Crear producto</a>
+							<a href="{% url 'agregar_marca' %}" class="dropdown-item">Marca</a>
+						</div>
+					</div>
 				{% else %}
 						
 						<a href="{% url 'catalog' %}?Categoria=Sublimación" class="nav-link">Sublimación</a>
