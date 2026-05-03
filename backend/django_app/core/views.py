@@ -1900,9 +1900,15 @@ def aprobar_pagos(request):
 
         if accion == 'aprobar':
             salida.estado_pago = "APROBADO"
+            salida.motivo_rechazo = None  # Clear any previous rejection reason
             messages.success(request, f'Pago #{salida.pk} aprobado correctamente.')
         elif accion == 'rechazar':
+            motivo = request.POST.get('motivo_rechazo', '').strip()
+            if not motivo:
+                messages.error(request, 'Debe proporcionar un motivo para rechazar el pago.')
+                return redirect('aprobar_pagos')
             salida.estado_pago = "RECHAZADO"
+            salida.motivo_rechazo = motivo
             messages.warning(request, f'Pago #{salida.pk} marcado como rechazado.')
         else:
             messages.error(request, 'Acción no válida.')
@@ -1910,7 +1916,7 @@ def aprobar_pagos(request):
 
         salida.revisado_por = request.user
         salida.fecha_revision = timezone.now()
-        salida.save(update_fields=['estado_pago', 'revisado_por', 'fecha_revision'])
+        salida.save(update_fields=['estado_pago', 'motivo_rechazo', 'revisado_por', 'fecha_revision'])
         return redirect('aprobar_pagos')
 
     try:

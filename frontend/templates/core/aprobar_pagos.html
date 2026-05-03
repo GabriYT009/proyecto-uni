@@ -398,6 +398,11 @@
                             </div>
                             <div class="header-actions">
                                 <div class="status-pill {% if salida.estado_pago == 'APROBADO' %}status-approved{% elif salida.estado_pago == 'RECHAZADO' %}status-rejected{% else %}status-pending{% endif %}">{{ salida.get_estado_pago_display }}</div>
+                                {% if salida.estado_pago == 'RECHAZADO' and salida.motivo_rechazo %}
+                                    <div style="margin-top: 8px; font-size: 0.9rem; color: var(--bad); background: #fde8e7; padding: 8px; border-radius: 8px; border: 1px solid #f5c2c0;">
+                                        <strong>Motivo del rechazo:</strong> {{ salida.motivo_rechazo }}
+                                    </div>
+                                {% endif %}
                                 <form method="post" class="status-action" novalidate>
                                     {% csrf_token %}
                                     <input type="hidden" name="salida_id" value="{{ salida.pk }}">
@@ -407,6 +412,7 @@
                                         <option value="aprobar">Aprobar pago</option>
                                         <option value="rechazar">Rechazar pago</option>
                                     </select>
+                                    <textarea name="motivo_rechazo" id="motivo-{{ salida.pk }}" class="rejection-reason" style="display:none; width: 100%; min-height: 80px; margin-top: 10px; padding: 8px; border: 1px solid #d9c7ea; border-radius: 8px; font-family: inherit;" placeholder="Motivo del rechazo"></textarea>
                                     <button type="submit" class="btn-submit">Guardar</button>
                                 </form>
                             </div>
@@ -542,5 +548,19 @@
             </div>
         {% endif %}
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('select[name="accion"]').forEach(function(select) {
+                select.addEventListener('change', function() {
+                    const textarea = this.parentElement.querySelector('.rejection-reason');
+                    if (this.value === 'rechazar') {
+                        textarea.style.display = 'block';
+                    } else {
+                        textarea.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
