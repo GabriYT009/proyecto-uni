@@ -34,9 +34,9 @@
                 <a href="{% url 'descargar_factura_ne' salida.pk %}" class="btn btn-outline-primary btn-sm">Ver detalles del pedido</a>
             </p> -->
             <ul style="list-style:none; padding:0;">
-                {% for it in items %}
+                {% for it,precio in items %}
                 <li style="padding:8px 0; border-bottom:1px solid #eee;">
-                    {{ it.producto.nombre_producto }} — Cantidad: {{ it.cantidad_item }} — Subtotal: $ {{ it.sub_total_item }} — Bs {{ precios_bs }}
+                    {{ it.producto.nombre_producto }} — Cantidad: {{ it.cantidad_item }} — Subtotal: $ {{ it.sub_total_item }} — Bs {{ precio }}
                 </li>
                 {% endfor %}
             </ul>

@@ -1875,6 +1875,7 @@ def pago_exitoso(request, salida_id):
     for a in items:
         precio_bs = float(a['precio_unitario'] or 0) * float(tasa) if tasa != 'N/A' else 'N/A'
         precios_bs.append(f"{precio_bs:.2f}" if isinstance(precio_bs, (int, float)) else 'N/A')
+    lista_combinada = zip(items, precios_bs)
     return render(request, 'core/pago_exitoso.html', {
         'salida': nota,  
         'items': items,
@@ -1882,6 +1883,7 @@ def pago_exitoso(request, salida_id):
         'user_groups': list(request.user.groups.values_list('name', flat=True)),
         'total_bs': total_bs,
         'precios_bs': precios_bs,
+        'lista_combinada': lista_combinada,
     })
 
 
