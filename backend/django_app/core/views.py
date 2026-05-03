@@ -1960,25 +1960,35 @@ def aprobar_pagos(request):
 
 @admin_only
 def ordenes_sublimacion(request):
+    estado_filter = (request.GET.get('estado') or '').strip().upper()
+    estados_validos = {'PENDIENTE', 'VINCULADA', 'RECHAZADA'}
+
     if request.method == 'POST':
         solicitud_id = request.POST.get('solicitud_id')
+        nuevo_estado = (request.POST.get('estado') or '').strip().upper()
         accion = (request.POST.get('accion') or '').strip().lower()
         solicitud = get_object_or_404(SolicitudSublimacion, pk=solicitud_id, nota_entrega__isnull=False)
 
-        if accion == 'aprobar':
-            solicitud.estado = 'VINCULADA'
+        # Compatibilidad: si llega la accion antigua, traducir a estado.
+        if not nuevo_estado and accion in ('aprobar', 'pendiente', 'rechazar'):
+            mapa_accion_estado = {
+                'aprobar': 'VINCULADA',
+                'pendiente': 'PENDIENTE',
+                'rechazar': 'RECHAZADA',
+            }
+            nuevo_estado = mapa_accion_estado.get(accion, '')
+
+        if nuevo_estado not in estados_validos:
+            messages.error(request, 'Estado no valido.')
+            return redirect('ordenes_sublimacion')
+
+        solicitud.estado = nuevo_estado
+        if nuevo_estado == 'VINCULADA':
             messages.success(request, f'Orden de sublimacion #{solicitud.pk} aprobada correctamente.')
-        elif accion == 'rechazar':
-            solicitud_pk = solicitud.pk
-            solicitud.delete()
-            messages.warning(request, f'Orden de sublimacion #{solicitud_pk} rechazada y eliminada.')
-            return redirect('ordenes_sublimacion')
-        elif accion == 'pendiente':
-            solicitud.estado = 'PENDIENTE'
-            messages.info(request, f'Orden de sublimacion #{solicitud.pk} movida a pendiente.')
+        elif nuevo_estado == 'RECHAZADA':
+            messages.warning(request, f'Orden de sublimacion #{solicitud.pk} marcada como rechazada.')
         else:
-            messages.error(request, 'Accion no valida.')
-            return redirect('ordenes_sublimacion')
+            messages.info(request, f'Orden de sublimacion #{solicitud.pk} movida a pendiente.')
 
         solicitud.save(update_fields=['estado'])
         return redirect('ordenes_sublimacion')
@@ -1991,8 +2001,14 @@ def ordenes_sublimacion(request):
             .order_by('-creado_en', '-id')
         )
 
+        if estado_filter in estados_validos:
+            queryset = queryset.filter(estado=estado_filter)
+
         total_ordenes = queryset.count()
-        pendientes_revision = queryset.filter(estado='PENDIENTE').count()
+        pendientes_revision = SolicitudSublimacion.objects.filter(
+            nota_entrega__isnull=False,
+            estado='PENDIENTE'
+        ).count()
         paginator = Paginator(queryset, 6)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
@@ -2013,6 +2029,8 @@ def ordenes_sublimacion(request):
         'paginator': paginator,
         'total_ordenes': total_ordenes,
         'pendientes_revision': pendientes_revision,
+        'estado_filter': estado_filter,
+        'estados_disponibles': ['PENDIENTE', 'VINCULADA', 'RECHAZADA'],
         'cart_count': len(request.session.get('cart', [])),
         'user_groups': _user_groups(request.user),
     })
