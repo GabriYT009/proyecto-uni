@@ -1878,11 +1878,10 @@ def pago_exitoso(request, salida_id):
     lista_combinada = zip(items, precios_bs)
     return render(request, 'core/pago_exitoso.html', {
         'salida': nota,  
-        'items': items,
         'cart_count': len(request.session.get('cart', [])),
         'user_groups': list(request.user.groups.values_list('name', flat=True)),
         'total_bs': total_bs,
-        'precios_bs': precios_bs,
+
         'lista_combinada': lista_combinada,
     })
 
