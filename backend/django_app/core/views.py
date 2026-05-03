@@ -30,6 +30,7 @@ from .models import (
     CarritoDeCompras,
     OrdenDeDespacho,
     SolicitudSublimacion,
+    ProductoTallaStock,
     SecurityQuestion,
     UserSecurityAnswer,
 )
@@ -402,6 +403,51 @@ def _latest_pending_sublimation(user, product_id):
         .order_by('-creado_en')
         .first()
     )
+
+
+def _sublimation_size_catalog(producto, categoria_nombre):
+    tallas_base = ['S', 'M', 'L', 'XL', 'XXL'] if categoria_nombre == 'Camisas' else ['Unica']
+    stock_map = {
+        str(stock.talla).strip(): int(stock.stock_disponible or 0)
+        for stock in ProductoTallaStock.objects.filter(producto=producto)
+    }
+
+    if not stock_map:
+        fallback_talla = 'M' if categoria_nombre == 'Camisas' else 'Unica'
+        stock_map = {talla: 0 for talla in tallas_base}
+        stock_map[fallback_talla] = int(producto.cantidad_disponible or 0)
+
+    tallas = []
+    for talla in tallas_base:
+        stock = max(0, int(stock_map.get(talla, 0)))
+        tallas.append({'talla': talla, 'stock': stock})
+
+    default_talla = next((item['talla'] for item in tallas if item['stock'] > 0), tallas_base[0])
+    return tallas, default_talla, {item['talla']: item['stock'] for item in tallas}
+
+
+def _get_sublimation_stock_record(producto, talla):
+    talla_normalizada = (talla or '').strip()
+    if not talla_normalizada:
+        return None
+    return ProductoTallaStock.objects.filter(producto=producto, talla=talla_normalizada).first()
+
+
+def _consume_sublimation_stock(producto, talla, cantidad):
+    talla_normalizada = (talla or '').strip()
+    if not talla_normalizada:
+        return
+
+    stock = _get_sublimation_stock_record(producto, talla_normalizada)
+    if stock is None:
+        stock = ProductoTallaStock.objects.create(producto=producto, talla=talla_normalizada, stock_disponible=0)
+
+    disponible = int(stock.stock_disponible or 0)
+    if cantidad > disponible:
+        raise ValueError(f'Stock insuficiente para la talla {talla_normalizada}. Disponible: {disponible}.')
+
+    stock.stock_disponible = disponible - cantidad
+    stock.save(update_fields=['stock_disponible'])
 
 
 def _attach_pending_sublimation(products, user):
@@ -1535,16 +1581,34 @@ def camisas_shein(request, producto_id):
         return redirect('comprar_producto', producto_id=producto.pk)
 
     producto.img_url = _safe_img_url(producto)
-    tallas = ['S', 'M', 'L', 'XL', 'XXL'] if categoria_nombre == 'Camisas' else ['Unica']
-    default_talla = 'M' if categoria_nombre == 'Camisas' else tallas[0]
+    tallas, default_talla, stock_por_talla = _sublimation_size_catalog(producto, categoria_nombre)
 
     if request.method == 'POST':
         accion = (request.POST.get('accion') or '').strip().lower()
         talla = (request.POST.get('talla') or default_talla).strip()
+        try:
+            cantidad = int(request.POST.get('cantidad', '1') or 1)
+        except ValueError:
+            cantidad = 1
+
+        stock_seleccionado = int(stock_por_talla.get(talla, 0))
+
+        if cantidad <= 0:
+            messages.error(request, 'Debes seleccionar una cantidad válida.')
+            return redirect('camisas_shein', producto_id=producto.pk)
+
+        if talla and talla not in stock_por_talla:
+            messages.error(request, 'La talla seleccionada no es válida.')
+            return redirect('camisas_shein', producto_id=producto.pk)
+
+        if cantidad > stock_seleccionado:
+            messages.error(request, f'No hay suficiente stock para la talla {talla}. Disponible: {stock_seleccionado}.')
+            return redirect('camisas_shein', producto_id=producto.pk)
 
         if accion == 'agregar_carrito':
             _set_session_cart_talla(request, producto.pk, talla)
-            _append_to_session_cart(request, producto.pk)
+            for _ in range(cantidad):
+                _append_to_session_cart(request, producto.pk)
             messages.success(request, 'Camisa agregada al carrito.')
             return redirect('carrito')
 
@@ -1564,12 +1628,14 @@ def camisas_shein(request, producto_id):
                 usuario=request.user,
                 producto=producto,
                 talla=talla,
+                cantidad=cantidad,
                 comentario=comentario,
                 imagen_sublimacion=imagen,
                 estado='PENDIENTE',
             )
             _set_session_cart_talla(request, producto.pk, talla)
-            _append_to_session_cart(request, producto.pk)
+            for _ in range(cantidad):
+                _append_to_session_cart(request, producto.pk)
             messages.success(request, 'Sublimación guardada y producto agregado al carrito.')
             return redirect('carrito')
 
@@ -1588,6 +1654,8 @@ def camisas_shein(request, producto_id):
         'producto': producto,
         'tallas': tallas,
         'default_talla': default_talla,
+        'stock_por_talla': stock_por_talla,
+        'default_cantidad': 1,
         'categoria_nombre': categoria_nombre,
         'solicitud': related_solicitud,
         'cart_count': len(request.session.get('cart', [])),
@@ -1704,6 +1772,7 @@ def comprar_producto(request, producto_id):
                 cantidad_anterior = producto.cantidad_disponible or 0
                 producto.cantidad_disponible = max(0, cantidad_anterior - cantidad)
                 producto.save()
+                _consume_sublimation_stock(producto, solicitud.talla if solicitud else _get_session_cart_talla(request, producto.pk), cantidad)
 
                 # Registrar en historial de inventario
                 Historial_Inventario.objects.create(
@@ -1994,6 +2063,7 @@ def comprar_carrito(request):
                 cant_anterior = p.cantidad_disponible or 0
                 p.cantidad_disponible = max(0, cant_anterior - cantidad)
                 p.save()
+                _consume_sublimation_stock(p, _get_session_cart_talla(request, p.pk), cantidad)
 
                 Historial_Inventario.objects.create(
                     producto=p,
@@ -2152,6 +2222,7 @@ def comprar_producto_ajax(request, producto_id):
             cantidad_anterior = producto.cantidad_disponible or 0
             producto.cantidad_disponible = max(0, cantidad_anterior - cantidad)
             producto.save()
+            _consume_sublimation_stock(producto, item_carrito.talla, cantidad)
 
             # PASO 4: Registrar historial de inventario
             Historial_Inventario.objects.create(

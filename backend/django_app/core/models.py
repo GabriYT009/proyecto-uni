@@ -227,6 +227,21 @@ class Producto(models.Model):
                 pass
 
 
+class ProductoTallaStock(models.Model):
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='stocks_por_talla')
+    talla = models.CharField(max_length=10)
+    stock_disponible = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        verbose_name = 'Stock por talla'
+        verbose_name_plural = 'Stocks por talla'
+        unique_together = ('producto', 'talla')
+        ordering = ['producto__nombre_producto', 'talla']
+
+    def __str__(self):
+        return f'{self.producto} - {self.talla}: {self.stock_disponible}'
+
+
 # ==========================================
 # 3. Tablas de Operación y Transacciones
 
@@ -325,6 +340,7 @@ class SolicitudSublimacion(models.Model):
     carrito_de_compras = models.ForeignKey(CarritoDeCompras, on_delete=models.SET_NULL, null=True, blank=True, related_name='solicitudes_sublimacion')
     nota_entrega = models.ForeignKey('Nota_Entrega', on_delete=models.SET_NULL, null=True, blank=True, related_name='solicitudes_sublimacion')
     talla = models.CharField(max_length=10, blank=True, null=True)
+    cantidad = models.PositiveIntegerField(default=1)
     comentario = models.TextField(blank=True, null=True)
     imagen_sublimacion = models.ImageField(upload_to='sublimaciones/', blank=True, null=True)
     estado = models.CharField(max_length=20, choices=ESTADOS, default='PENDIENTE')
