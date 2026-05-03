@@ -1874,7 +1874,7 @@ def pago_exitoso(request, salida_id):
         tasa = 'N/A'
     for a in items:
         precio_bs = float(a['precio_unitario'] or 0) * float(tasa) if tasa != 'N/A' else 'N/A'
-        precios_bs.append(precio_bs if isinstance(precio_bs, (int, float)) else 'N/A')
+        precios_bs.append(f"{precio_bs:.2f}" if isinstance(precio_bs, (int, float)) else 'N/A')
 
     return render(request, 'core/pago_exitoso.html', {
         'salida': nota,  
