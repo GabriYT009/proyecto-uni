@@ -815,7 +815,6 @@
                         {% for cat in categories %}
                         <option value="{{ cat.nombre_categoria }}">{{ cat.nombre_categoria }}</option>
                         {% endfor %}
-                        <option value="otros">Otros</option>
                     </select>
 
                     <select id="inventoryBrand" class="form-control" style="width:220px;">
@@ -1298,23 +1297,36 @@
         }
 
         // Vista previa de imagen (con guardas)
-        const imagenEditar = document.getElementById('imagenEditar');
-        if (imagenEditar) {
-            imagenEditar.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                const previewImg = document.getElementById('previewImg');
+        function bindImagePreview(){
+            const imagenEditar = document.getElementById('imagenEditar');
+            const previewImg = document.getElementById('previewImg');
+            if (!imagenEditar || !previewImg) return;
 
-                if (file && previewImg) {
+            imagenEditar.addEventListener('change', function(e) {
+                const file = e.target.files && e.target.files[0];
+
+                if (file) {
                     const reader = new FileReader();
-                    reader.onload = function(e) {
-                        previewImg.src = e.target.result;
+                    reader.onload = function(event) {
+                        previewImg.src = event.target.result;
                         previewImg.style.display = 'block';
                     };
+                    reader.onerror = function() {
+                        previewImg.removeAttribute('src');
+                        previewImg.style.display = 'none';
+                    };
                     reader.readAsDataURL(file);
-                } else if (previewImg) {
+                } else {
+                    previewImg.removeAttribute('src');
                     previewImg.style.display = 'none';
                 }
             });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', bindImagePreview);
+        } else {
+            bindImagePreview();
         }
 
         // Cerrar modal al hacer clic fuera (si existe)
@@ -1475,7 +1487,6 @@
                             {% for cat in categories %}
                             <option value="{{ cat.pk }}">{{ cat.nombre_categoria }}</option>
                             {% endfor %}
-                            <option value="otros">Otros</option>
                         </select>
                     </div>
                     
