@@ -470,6 +470,28 @@
                 }, 50);
 
                 setTimeout(function(){ clearInterval(checkReady); }, 3000);
+
+                // If cards are rendered later by other scripts, use a MutationObserver
+                // to detect when `.grid .card` elements appear and then apply the
+                // show-only behavior.
+                try {
+                    const body = document.body;
+                    const obs = new MutationObserver(function(mutations, observer){
+                        const grid = document.querySelector('.grid');
+                        if (!grid) return;
+                        const anyCard = grid.querySelector('.card');
+                        if (anyCard) {
+                            try {
+                                if (showOnlyProduct(openId)) {
+                                    observer.disconnect();
+                                }
+                            } catch(e){ console.warn('observer showOnlyProduct failed', e); }
+                        }
+                    });
+                    obs.observe(body, { childList: true, subtree: true });
+                    // safety timeout
+                    setTimeout(function(){ try{ obs.disconnect(); }catch(e){} }, 4000);
+                } catch(e) { console.warn('MutationObserver setup failed', e); }
             }
 
             if (document.readyState === 'loading') {
