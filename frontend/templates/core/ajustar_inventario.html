@@ -202,6 +202,14 @@
             return;
         }
 
+        // Solicitar motivo antes de enviar el ajuste
+        const motivo = prompt('Ingrese el motivo para este ajuste (ej: Compra, devolución, corrección):');
+        if(motivo === null) return; // usuario canceló
+        if((motivo||'').trim() === ''){
+            alert('Debes indicar un motivo para el ajuste.');
+            return;
+        }
+
         fetch('/api/ajustar_stock/', {
             method: 'POST',
             headers: {
@@ -210,7 +218,8 @@
             body: JSON.stringify({
                 producto_id: productoId,
                 cantidad: cantidad,
-                tallas_ajuste: tallasAjuste
+                tallas_ajuste: tallasAjuste,
+                motivo: motivo
             })
         })
         .then(response => response.json())

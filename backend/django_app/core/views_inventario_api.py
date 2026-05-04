@@ -17,6 +17,10 @@ def ajustar_stock_producto(request):
 
         producto = Producto.objects.get(pk=producto_id)
 
+        motivo = (data.get('motivo') or '').strip()
+        if not motivo:
+            return JsonResponse({'success': False, 'error': 'Se requiere un motivo para el ajuste.'}, status=400)
+
         if isinstance(tallas_ajuste, dict) and tallas_ajuste:
             existentes = {
                 str(s.talla or '').strip().upper(): s
@@ -49,12 +53,28 @@ def ajustar_stock_producto(request):
                 stock_obj.stock_disponible = max(0, current + delta)
                 stock_obj.save(update_fields=['stock_disponible'])
 
+            # Calcular totales antes y despues para el historial
+            total_before = int(producto.cantidad_disponible or 0)
             total = sum(
                 int(s.stock_disponible or 0)
                 for s in ProductoTallaStock.objects.filter(producto=producto)
             )
             producto.cantidad_disponible = total
             producto.save(update_fields=['cantidad_disponible'])
+
+            # Registrar en historial de inventario (resumen del ajuste)
+            try:
+                from .models import Historial_Inventario
+                Historial_Inventario.objects.create(
+                    producto=producto,
+                    cantidad_anterior=total_before,
+                    cantidad_nueva=producto.cantidad_disponible,
+                    tipo_movimiento='Ajuste por tallas',
+                    motivo=motivo,
+                    usuario_responsable=str(getattr(request, 'user', 'API') or 'API')
+                )
+            except Exception:
+                pass
 
             tallas_actualizadas = {
                 str(s.talla): int(s.stock_disponible or 0)
@@ -71,8 +91,24 @@ def ajustar_stock_producto(request):
             return JsonResponse({'success': False, 'error': 'No hay ajuste para aplicar'}, status=400)
 
         current_stock = int(producto.cantidad_disponible or 0)
-        producto.cantidad_disponible = max(0, current_stock + cantidad)
+        nuevo = max(0, current_stock + cantidad)
+        producto.cantidad_disponible = nuevo
         producto.save(update_fields=['cantidad_disponible'])
+
+        # Registrar en historial de inventario
+        try:
+            from .models import Historial_Inventario
+            Historial_Inventario.objects.create(
+                producto=producto,
+                cantidad_anterior=current_stock,
+                cantidad_nueva=producto.cantidad_disponible,
+                tipo_movimiento='Ajuste manual',
+                motivo=motivo,
+                usuario_responsable=str(getattr(request, 'user', 'API') or 'API')
+            )
+        except Exception:
+            pass
+
         return JsonResponse({'success': True, 'nuevo_stock': producto.cantidad_disponible})
     except Producto.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'Producto no encontrado'}, status=404)

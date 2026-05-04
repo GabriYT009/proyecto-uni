@@ -339,6 +339,11 @@
                                     {{ producto.cantidad_disponible|default:"N/A" }}
                                 </span>
                             </div>
+                            {% if not producto.cantidad_disponible or producto.cantidad_disponible <= 0 %}
+                            <div class="info-item" style="margin-top:12px;">
+                                <strong style="color:#dc3545">Este producto está agotado y no puede comprarse en este momento.</strong>
+                            </div>
+                            {% endif %}
                         </div>
 
                         <div class="info-group">
