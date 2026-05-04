@@ -301,6 +301,23 @@ body.login-page .login-card .auth-error {
     color: #8e1234;
 }
 
+body.login-page.password-recovery-page .login-card,
+body.login-page.password-recovery-page .login-card .full label,
+body.login-page.password-recovery-page .login-card .field-error,
+body.login-page.password-recovery-page .login-card .registrarse,
+body.login-page.password-recovery-page .login-card .registrarse a,
+body.login-page.password-recovery-page .login-card .auth-error {
+    color: #ffffff;
+}
+
+body.login-page.password-recovery-page .login-card .registrarse a {
+    text-decoration-color: rgba(255, 255, 255, 0.55);
+}
+
+body.login-page.password-recovery-page .login-card .registrarse a:hover {
+    color: #f4eaff;
+}
+
 body.login-page .register-card {
     width: min(980px, calc(100vw - 44px));
 }
