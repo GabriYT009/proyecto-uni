@@ -27,7 +27,7 @@
             const product = (window.products || []).find(function(item){ return Number(item.id) === Number(id); });
             const category = String((product && (product.category || product.Categoria)) || '').trim();
             const normalizedCategory = category.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-            if (normalizedCategory === 'camisas' || normalizedCategory === 'tazas') {
+            if (normalizedCategory === 'camisas' || normalizedCategory === 'tazas' || normalizedCategory === 'sublimacion') {
                 window.location.href = '/producto/' + id + '/camisas/';
                 return;
             }
@@ -928,7 +928,7 @@
 
                 const category = String((product && (product.category || product.Categoria)) || '').trim();
                 const normalizedCategory = category.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-                if (normalizedCategory === 'camisas' || normalizedCategory === 'tazas') {
+                if (normalizedCategory === 'camisas' || normalizedCategory === 'tazas' || normalizedCategory === 'sublimacion') {
                     window.location.href = '/producto/' + id + '/camisas/';
                     return;
                 }

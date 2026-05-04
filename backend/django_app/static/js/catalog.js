@@ -97,6 +97,15 @@ function openDetail(id){
         console.warn('[home catalog.js] openDetail: product not found', id);
         return;
     }
+    const productCategory = String(p.category || p.Categoria || '').trim();
+    const normalizedCategory = productCategory
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+    if (normalizedCategory === 'camisas' || normalizedCategory === 'tazas' || normalizedCategory === 'sublimacion') {
+        window.location.href = '/producto/' + id + '/camisas/';
+        return;
+    }
     mTitle.textContent = p.title;
     mImg.src = p.img;
     mDesc.textContent = p.desc;

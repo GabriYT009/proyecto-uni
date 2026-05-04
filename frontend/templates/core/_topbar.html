@@ -700,8 +700,8 @@
 						const product = (window.products||[]).find(p => String(p.id) === String(id));
 						if (product) {
 							const category = String(product.category || product.Categoria || '').trim();
-							const normalized = category.normalize ? category.normalize('NFD').replace(/[\u0000-\u036f]/g, '').toLowerCase() : category.toLowerCase();
-							if (normalized === 'camisas' || normalized === 'tazas') {
+							const normalized = category.normalize ? category.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase() : category.toLowerCase();
+							if (normalized === 'camisas' || normalized === 'tazas' || normalized === 'sublimacion') {
 								window.location.href = '/producto/' + id + '/camisas/';
 								return;
 							}
@@ -732,8 +732,8 @@
 
 				// Fallback: use explicit dataset.cat or dataset.category if present
 				const rawCat = item.dataset.cat || item.dataset.category || '';
-				const category = (rawCat || '').toString().normalize ? rawCat.normalize('NFD').replace(/[\u0000-\u036f]/g, '').toLowerCase() : rawCat.toLowerCase();
-				if (category === 'camisas' || category === 'tazas') {
+				const category = (rawCat || '').toString().normalize ? rawCat.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase() : rawCat.toLowerCase();
+				if (category === 'camisas' || category === 'tazas' || category === 'sublimacion') {
 					window.location.href = '/producto/' + id + '/camisas/';
 				} else {
 					// final fallback: open canonical product detail page

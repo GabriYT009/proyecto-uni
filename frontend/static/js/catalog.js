@@ -96,7 +96,11 @@ function openDetail(id) {
     }
 
     const productCategory = String(product.category || product.Categoria || '').trim();
-    if (productCategory === 'Camisas') {
+    const normalizedCategory = productCategory
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+    if (normalizedCategory === 'camisas' || normalizedCategory === 'tazas' || normalizedCategory === 'sublimacion') {
         window.location.href = '/producto/' + id + '/camisas/';
         return;
     }
