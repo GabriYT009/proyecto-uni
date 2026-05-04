@@ -11,12 +11,23 @@
         body { font-family: Poppins, Segoe UI, sans-serif; padding: 28px; background: #f5f5f7; }
         .shell { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 12px; padding: 18px; box-shadow: 0 8px 30px rgba(20,20,30,0.06); }
         h1 { color: #6b2da8; margin: 0 0 12px; }
+        .filters { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 18px 0 16px; padding: 14px; background: #faf8fb; border: 1px solid #ece5f4; border-radius: 12px; }
+        .filters label { display:block; font-size: 0.84rem; color: #5a5167; margin-bottom: 5px; }
+        .filters input { width:100%; padding: 9px 11px; border: 1px solid #d9d3e4; border-radius: 8px; font-size: 0.95rem; background: #fff; }
+        .filters .actions { display:flex; gap: 10px; align-items: end; }
+        .filters .actions a,
+        .filters .actions button { height: 38px; display:inline-flex; align-items:center; justify-content:center; padding: 0 14px; border-radius: 8px; border: 0; text-decoration: none; font-size: 0.95rem; }
+        .filters .actions button { background: #6b2da8; color: #fff; }
+        .filters .actions a { background: #eef1f7; color: #2f3441; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 10px 8px; border-bottom: 1px solid #eef0f6; text-align: left; font-size: 0.95rem; }
         th { background: #faf8fb; color: #3b2a4a; }
         .meta { color: #6f7280; font-size: 0.9rem; }
         .pager { display:flex; gap:8px; justify-content:flex-end; padding-top:12px; }
         .btn { padding: 8px 12px; border-radius:8px; text-decoration:none; }
+        .text-product { color: #2f3441; font-weight: 600; }
+        @media (max-width: 900px) { .filters { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 640px) { .filters { grid-template-columns: 1fr; } .pager { justify-content: flex-start; flex-wrap: wrap; } }
     </style>
 </head>
 <body>
@@ -30,6 +41,29 @@
                 <a href="{% url 'inventario' %}" class="btn btn-secondary">Volver al inventario</a>
             </div>
         </div>
+
+        <form method="get" class="filters">
+            <div>
+                <label for="id_from">Fecha desde</label>
+                <input type="date" id="id_from" name="from" value="{{ filters.from }}">
+            </div>
+            <div>
+                <label for="id_to">Fecha hasta</label>
+                <input type="date" id="id_to" name="to" value="{{ filters.to }}">
+            </div>
+            <div>
+                <label for="id_usuario">Usuario</label>
+                <input type="text" id="id_usuario" name="usuario" value="{{ filters.usuario }}" placeholder="Ej. admin1">
+            </div>
+            <div>
+                <label for="id_producto">Producto</label>
+                <input type="text" id="id_producto" name="producto" value="{{ filters.producto }}" placeholder="Buscar producto">
+            </div>
+            <div class="actions" style="grid-column: 1 / -1;">
+                <button type="submit">Filtrar</button>
+                <a href="{% url 'historial_inventario' %}">Limpiar</a>
+            </div>
+        </form>
 
         <div>
             <table>
@@ -49,13 +83,7 @@
                         {% for h in history %}
                             <tr>
                                 <td>{{ h.fecha_ajuste }}</td>
-                                <td>
-                                    {% if h.producto %}
-                                        <a href="{% url 'editar_producto' h.producto.id %}">{{ h.producto.nombre_producto }}</a>
-                                    {% else %}
-                                        -
-                                    {% endif %}
-                                </td>
+                                <td>{% if h.producto %}<span class="text-product">{{ h.producto.nombre_producto }}</span>{% else %}-{% endif %}</td>
                                 <td>{{ h.usuario_responsable }}</td>
                                 <td>{{ h.tipo_movimiento }}</td>
                                 <td>{{ h.cantidad_anterior }}</td>
@@ -71,11 +99,11 @@
 
             <div class="pager">
                 {% if page_obj.has_previous %}
-                    <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-light">Anterior</a>
+                    <a href="{% if query_string %}?{{ query_string }}&{% else %}?{% endif %}page={{ page_obj.previous_page_number }}" class="btn btn-light">Anterior</a>
                 {% endif %}
                 <div class="meta">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</div>
                 {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}" class="btn btn-light">Siguiente</a>
+                    <a href="{% if query_string %}?{{ query_string }}&{% else %}?{% endif %}page={{ page_obj.next_page_number }}" class="btn btn-light">Siguiente</a>
                 {% endif %}
             </div>
         </div>

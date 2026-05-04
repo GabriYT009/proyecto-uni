@@ -1932,13 +1932,16 @@ def historial_inventario(request):
             qs = qs.filter(tipo_movimiento__icontains=q_tipo)
         try:
             if date_from:
-                d = datetime.datetime.fromisoformat(date_from)
-                qs = qs.filter(fecha_ajuste__gte=d)
+                d = datetime.datetime.strptime(date_from, '%Y-%m-%d')
+                qs = qs.filter(fecha_ajuste__date__gte=d.date())
             if date_to:
-                d2 = datetime.datetime.fromisoformat(date_to)
-                qs = qs.filter(fecha_ajuste__lte=d2)
+                d2 = datetime.datetime.strptime(date_to, '%Y-%m-%d')
+                qs = qs.filter(fecha_ajuste__date__lte=d2.date())
         except Exception:
             pass
+
+        query_params = request.GET.copy()
+        query_params.pop('page', None)
 
         paginator = Paginator(qs, 25)
         page_number = request.GET.get('page')
@@ -1947,6 +1950,7 @@ def historial_inventario(request):
         return render(request, 'core/historial_inventario.html', {
             'history': page_obj.object_list,
             'page_obj': page_obj,
+            'query_string': query_params.urlencode(),
             'filters': {
                 'producto': q_prod,
                 'usuario': q_user,
