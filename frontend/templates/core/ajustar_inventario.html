@@ -225,10 +225,12 @@
 
     document.addEventListener('click', function(e){
         if(!e.target) return;
-        if(e.target.id === 'ajusteCancelBtn'){
+        // Cerrar modal (botón X o Cancelar)
+        if(e.target.id === 'ajusteCancelBtn' || e.target.id === 'ajusteCloseBtn'){
             e.preventDefault();
             closeAjusteModal();
         }
+        // Confirmar ajuste
         if(e.target.id === 'ajusteConfirmBtn'){
             e.preventDefault();
             const motivo = (document.getElementById('motivoInputModal').value || '').trim();
@@ -260,12 +262,12 @@
     });
     </script>
     <!-- Modal para motivo de ajuste -->
-    <div id="ajusteMotivoModal" class="modal-overlay" aria-hidden="true" style="display:none;">
+    <div id="ajusteMotivoModal" class="modal-overlay" aria-hidden="true">
         <div class="modal-content" style="max-width:520px; margin:80px auto;">
             <div style="background:#fff; border-radius:12px; padding:18px; box-shadow:0 8px 30px rgba(0,0,0,0.3);">
                 <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
                     <h3 class="modal-title" style="margin:0; font-size:1.1rem; color:#4a2a6b">Ajustar stock</h3>
-                    <button id="ajusteCancelBtn" style="background:transparent;border:none;font-size:20px;cursor:pointer;">&times;</button>
+                    <button id="ajusteCloseBtn" style="background:transparent;border:none;font-size:20px;cursor:pointer;">&times;</button>
                 </div>
                 <div style="margin-top:12px;">
                     <label for="motivoInputModal" style="font-weight:700; display:block; margin-bottom:6px;">Motivo del ajuste</label>
@@ -281,7 +283,8 @@
 
     <style>
         /* simple modal overlay styling for ajustar_inventario */
-        #ajusteMotivoModal.open { display:block; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:40000; }
+        #ajusteMotivoModal { display:none; }
+        #ajusteMotivoModal.open { display:flex; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:40000; align-items:center; justify-content:center; }
         #ajusteMotivoModal .modal-content { display:flex; align-items:center; }
     </style>
 </body>
