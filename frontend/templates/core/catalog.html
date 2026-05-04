@@ -395,12 +395,55 @@
                 return true;
             }
 
+            function showOnlyProduct(productId) {
+                const grid = document.querySelector('.grid');
+                if (!grid) return false;
+                const cards = Array.from(grid.querySelectorAll('.card'));
+                let found = false;
+                cards.forEach(c => {
+                    const id = c.dataset.id || c.getAttribute('data-id');
+                    if (String(id) === String(productId)) {
+                        c.style.display = '';
+                        c.classList.add('selected');
+                        found = true;
+                    } else {
+                        c.style.display = 'none';
+                    }
+                });
+
+                // add a small 'Ver todos' control if not present
+                if (found) {
+                    let ctrl = document.getElementById('catalog-show-all');
+                    if (!ctrl) {
+                        ctrl = document.createElement('a');
+                        ctrl.id = 'catalog-show-all';
+                        ctrl.href = '/catalogo/';
+                        ctrl.textContent = 'Ver todos los productos';
+                        ctrl.style.cssText = 'position:fixed;right:20px;top:100px;z-index:12000;background:#fff;padding:8px 12px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);box-shadow:0 6px 18px rgba(0,0,0,0.08);color:#9932CC;font-weight:700;text-decoration:none;';
+                        document.body.appendChild(ctrl);
+                    }
+                    // focus the visible card
+                    const selector = '[data-id="' + productId + '"]';
+                    const card = document.querySelector(selector);
+                    if (card) {
+                        try { card.scrollIntoView({behavior:'smooth', block:'center'}); } catch(e){ card.scrollIntoView(true); }
+                    }
+                }
+
+                return found;
+            }
+
             function openCatalogProductFromQuery() {
                 const params = new URLSearchParams(window.location.search);
                 const openId = params.get('open') || params.get('product_id');
                 if (!openId) return;
 
                 const tryOpen = function(){
+                    // Prefer showing only the product in the catalog view
+                    try {
+                        if (showOnlyProduct(openId)) return true;
+                    } catch(e) { console.warn('showOnlyProduct failed', e); }
+
                     if (typeof window.openDetail === 'function') {
                         try {
                             window.openDetail(Number(openId));
