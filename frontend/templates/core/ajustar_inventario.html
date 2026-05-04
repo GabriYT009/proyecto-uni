@@ -186,7 +186,7 @@
     let _ajuste_pending = null;
     btnAgregarGlobal.addEventListener('click', function() {
         if (!seleccionado) {
-            alert('Selecciona un producto para ajustar el stock.');
+            showSystemAlert('Selecciona un producto para ajustar el stock.', 'warning', 'Inventario');
             return;
         }
         const productoId = seleccionado.dataset.id;
@@ -199,7 +199,7 @@
         });
 
         if (cantidad === 0 && Object.keys(tallasAjuste).length === 0) {
-            alert('No hay ajustes para aplicar en el producto seleccionado.');
+            showSystemAlert('No hay ajustes para aplicar en el producto seleccionado.', 'warning', 'Inventario');
             return;
         }
 
@@ -223,6 +223,38 @@
         _ajuste_pending = null;
     }
 
+    let _systemAlertOnClose = null;
+
+    function showSystemAlert(message, type = 'info', title = 'Sistema', onClose = null) {
+        const modal = document.getElementById('systemAlertModal');
+        const titleEl = document.getElementById('systemAlertTitle');
+        const messageEl = document.getElementById('systemAlertMessage');
+        if (!modal || !titleEl || !messageEl) {
+            window.alert(message);
+            if (typeof onClose === 'function') onClose();
+            return;
+        }
+        titleEl.textContent = title;
+        messageEl.textContent = message;
+        modal.dataset.type = type;
+        _systemAlertOnClose = typeof onClose === 'function' ? onClose : null;
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeSystemAlert() {
+        const modal = document.getElementById('systemAlertModal');
+        if (modal) {
+            modal.classList.remove('open');
+            modal.setAttribute('aria-hidden', 'true');
+        }
+        const onClose = _systemAlertOnClose;
+        _systemAlertOnClose = null;
+        if (typeof onClose === 'function') {
+            onClose();
+        }
+    }
+
     document.addEventListener('click', function(e){
         if(!e.target) return;
         // Cerrar modal (botón X o Cancelar)
@@ -234,8 +266,8 @@
         if(e.target.id === 'ajusteConfirmBtn'){
             e.preventDefault();
             const motivo = (document.getElementById('motivoInputModal').value || '').trim();
-            if(!motivo){ alert('Debes indicar un motivo para el ajuste.'); return; }
-            if(!_ajuste_pending){ alert('No hay ajuste pendiente.'); closeAjusteModal(); return; }
+            if(!motivo){ showSystemAlert('Debes indicar un motivo para el ajuste.', 'warning', 'Inventario'); return; }
+            if(!_ajuste_pending){ showSystemAlert('No hay ajuste pendiente.', 'warning', 'Inventario'); closeAjusteModal(); return; }
 
             fetch('/api/ajustar_stock/', {
                 method: 'POST',
@@ -250,13 +282,17 @@
             .then(r => r.json())
             .then(data => {
                 if(data.success){
-                    alert('Ajuste aplicado: nuevo stock de ' + _ajuste_pending.nombre + ': ' + data.nuevo_stock);
-                    window.location.href = '{% url 'inventario' %}';
+                    const nombreProducto = _ajuste_pending.nombre;
+                    const nuevoStock = data.nuevo_stock;
+                    closeAjusteModal();
+                    showSystemAlert('Ajuste aplicado. Nuevo stock de ' + nombreProducto + ': ' + nuevoStock, 'success', 'Inventario', function(){
+                        window.location.href = '{% url 'inventario' %}';
+                    });
                 } else {
-                    alert('Error: ' + (data.error || 'No se pudo actualizar el stock.'));
+                    showSystemAlert('Error: ' + (data.error || 'No se pudo actualizar el stock.'), 'error', 'Inventario');
                 }
             })
-            .catch(err => alert('Error de red o servidor: ' + err))
+            .catch(err => showSystemAlert('Error de red o servidor: ' + err, 'error', 'Inventario'))
             .finally(() => closeAjusteModal());
         }
     });
@@ -281,6 +317,22 @@
                     <button id="ajusteCancelBtn" class="btn-cancel" type="button">Cancelar</button>
                     <button id="ajusteConfirmBtn" class="btn-confirm" type="button">Aplicar ajuste</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alerta interna estilo sistema -->
+    <div id="systemAlertModal" class="system-alert-overlay" aria-hidden="true">
+        <div class="system-alert-box" role="alertdialog" aria-modal="true" aria-labelledby="systemAlertTitle" aria-describedby="systemAlertMessage">
+            <div class="system-alert-head">
+                <div>
+                    <p class="system-alert-kicker">Aviso</p>
+                    <h3 id="systemAlertTitle" class="system-alert-title">Sistema</h3>
+                </div>
+            </div>
+            <p id="systemAlertMessage" class="system-alert-message"></p>
+            <div class="system-alert-actions">
+                <button id="systemAlertOkBtn" type="button">Aceptar</button>
             </div>
         </div>
     </div>
@@ -386,14 +438,87 @@
             box-shadow:0 10px 22px rgba(153,50,204,0.22);
         }
         #ajusteMotivoModal .btn-confirm:hover { filter:brightness(1.02); }
+        #systemAlertModal { display:none; }
+        #systemAlertModal.open {
+            display:flex;
+            position:fixed;
+            inset:0;
+            background:rgba(32, 22, 41, 0.42);
+            z-index:50000;
+            align-items:center;
+            justify-content:center;
+            padding:20px;
+        }
+        #systemAlertModal .system-alert-box {
+            width:min(100%, 380px);
+            background:#fff;
+            border-radius:18px;
+            box-shadow:0 18px 50px rgba(0,0,0,0.24);
+            border:1px solid rgba(153,50,204,0.16);
+            padding:18px 18px 16px;
+        }
+        #systemAlertModal .system-alert-kicker {
+            margin:0 0 4px 0;
+            font-size:0.76rem;
+            font-weight:800;
+            color:#9932CC;
+            text-transform:uppercase;
+            letter-spacing:0.08em;
+        }
+        #systemAlertModal .system-alert-title {
+            margin:0;
+            font-size:1.05rem;
+            color:#2d2336;
+        }
+        #systemAlertModal .system-alert-message {
+            margin:12px 0 16px;
+            color:#4f465a;
+            line-height:1.45;
+            font-size:0.96rem;
+            white-space:pre-wrap;
+        }
+        #systemAlertModal .system-alert-actions {
+            display:flex;
+            justify-content:flex-end;
+        }
+        #systemAlertOkBtn {
+            background:#9932CC;
+            color:#fff;
+            border:none;
+            border-radius:12px;
+            padding:10px 16px;
+            font-weight:700;
+            cursor:pointer;
+            min-width:92px;
+            box-shadow:0 10px 20px rgba(153,50,204,0.18);
+        }
+        #systemAlertModal[data-type="warning"] #systemAlertOkBtn { background:#a76a12; }
+        #systemAlertModal[data-type="error"] #systemAlertOkBtn { background:#b02a37; }
+        #systemAlertModal[data-type="success"] #systemAlertOkBtn { background:#2f7d47; }
         @media (max-width: 560px) {
             #ajusteMotivoModal.open { padding:16px; }
             #ajusteMotivoModal .modal-panel { padding:18px 16px 16px; border-radius:16px; }
             #ajusteMotivoModal .modal-actions { flex-direction:column-reverse; }
             #ajusteMotivoModal .btn-cancel,
             #ajusteMotivoModal .btn-confirm { width:100%; }
+            #systemAlertModal .system-alert-box { border-radius:16px; }
         }
     </style>
+
+    <script>
+    (function(){
+        const okBtn = document.getElementById('systemAlertOkBtn');
+        if (okBtn) {
+            okBtn.addEventListener('click', closeSystemAlert);
+        }
+        const systemAlertModal = document.getElementById('systemAlertModal');
+        if (systemAlertModal) {
+            systemAlertModal.addEventListener('click', function(e){
+                if (e.target === systemAlertModal) closeSystemAlert();
+            });
+        }
+    })();
+    </script>
 </body>
 </html>
 
