@@ -482,7 +482,7 @@
                 </div>
             </div>
             <form method="get" class="filter-panel" novalidate>
-                <input type="text" name="q" value="{{ search_query|default:'' }}" placeholder="Buscar por usuario, producto, orden, teléfono o comentario">
+                <input type="text" name="q" value="{{ search_query|default:'' }}" placeholder="Buscar por usuario, orden o número de teléfono ">
                 <select name="estado">
                     <option value="">Todos los estados</option>
                     <option value="PENDIENTE"{% if estado_filter == 'PENDIENTE' %} selected{% endif %}>Pendiente</option>
