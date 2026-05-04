@@ -1246,6 +1246,7 @@ def catalog(request):
     # Obtenemos el parámetro de la URL (ej: ?Categoria=Electronica)
     categoria_param = request.GET.get('Categoria')
     search_param = request.GET.get('search', '').strip()
+    product_id_param = request.GET.get('product_id', '').strip()
     
     # Variable para guardar el objeto categoría encontrado (si existe)
     categoria_obj = None
@@ -1294,6 +1295,15 @@ def catalog(request):
             Q(nombre_producto__icontains=search_param) |
             Q(descripcion__icontains=search_param)
         )
+
+    if product_id_param:
+        try:
+            Productos = Productos.filter(pk=int(product_id_param))
+            search_param = ''
+            categoria_obj = None
+            categoria_param = None
+        except (TypeError, ValueError):
+            Productos = Productos.none()
 
     categories = _cached_categories()
 

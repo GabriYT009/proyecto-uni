@@ -1177,7 +1177,7 @@
             if (filteredProducts.length > 0) {
                 const resultsHtml = filteredProducts.map(product => {
                     const category = String(product.category || product.Categoria || '').replace(/"/g, '&quot;');
-                    const targetUrl = `/catalogo/?open=${encodeURIComponent(product.id)}`;
+                    const targetUrl = `/catalogo/?product_id=${encodeURIComponent(product.id)}`;
                     return `
                     <div class="search-result-item" data-id="${product.id}" data-title="${product.title}" data-search="${product.title}" data-category="${category}" data-url="${targetUrl}" role="button" tabindex="0" style="cursor:pointer">
                         <img src="${product.img}" alt="${product.title}" class="search-result-img">
