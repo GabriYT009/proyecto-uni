@@ -648,3 +648,35 @@
 	})();
 </script>
 
+	<script>
+		(function(){
+			const searchResults = document.getElementById('searchResults');
+			if (!searchResults) return;
+
+			// Delegate clicks on search result items to navigate to the product page.
+			searchResults.addEventListener('click', function(e){
+				const item = e.target.closest('.search-result-item');
+				if (!item) return;
+
+				// If the item includes an explicit URL, use it.
+				const explicit = item.dataset.url;
+				if (explicit) {
+					window.location.href = explicit;
+					return;
+				}
+
+				const id = item.dataset.id;
+				const rawCat = item.dataset.cat || item.dataset.category || '';
+				const category = (rawCat || '').toString().normalize ? rawCat.normalize('NFD').replace(/[\u0000-\u036f]/g, '').toLowerCase() : rawCat.toLowerCase();
+
+				if (id) {
+					if (category === 'camisas' || category === 'tazas') {
+						window.location.href = '/producto/' + id + '/camisas/';
+					} else {
+						window.location.href = '/producto/' + id + '/';
+					}
+				}
+			});
+		})();
+	</script>
+
