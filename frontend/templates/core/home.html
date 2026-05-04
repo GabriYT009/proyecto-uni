@@ -1179,7 +1179,7 @@
                     const category = String(product.category || product.Categoria || '').replace(/"/g, '&quot;');
                     const targetUrl = `/catalogo/?open=${encodeURIComponent(product.id)}`;
                     return `
-                    <div class="search-result-item" data-id="${product.id}" data-category="${category}" data-url="${targetUrl}" role="button" tabindex="0" style="cursor:pointer">
+                    <div class="search-result-item" data-id="${product.id}" data-title="${product.title}" data-search="${product.title}" data-category="${category}" data-url="${targetUrl}" role="button" tabindex="0" style="cursor:pointer">
                         <img src="${product.img}" alt="${product.title}" class="search-result-img">
                         <div class="search-result-info">
                             <div class="search-result-title">${product.title}</div>

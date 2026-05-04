@@ -657,7 +657,8 @@
 			document.addEventListener('click', function(e){
 				const item = e.target && e.target.closest ? e.target.closest('.search-result-item') : null;
 				if (!item) return;
-				const url = item.dataset.url || (item.dataset.id ? '/catalogo/?open=' + encodeURIComponent(item.dataset.id) : null);
+				const searchTerm = item.dataset.search || item.dataset.title || '';
+				const url = item.dataset.url || (searchTerm ? '/catalogo/?search=' + encodeURIComponent(searchTerm) : (item.dataset.id ? '/catalogo/?search=' + encodeURIComponent(item.dataset.id) : null));
 				if (url) {
 					try { e.stopImmediatePropagation(); } catch(_) {}
 					try { e.preventDefault && e.preventDefault(); } catch(_) {}
