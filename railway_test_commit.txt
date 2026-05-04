@@ -1,0 +1,3 @@
+Railway test commit
+Date: 2026-05-04
+Purpose: prueba de despliegue / commit de prueba enviado a origin/main
