@@ -1246,7 +1246,7 @@ def catalog(request):
     # Obtenemos el parámetro de la URL (ej: ?Categoria=Electronica)
     categoria_param = request.GET.get('Categoria')
     search_param = request.GET.get('search', '').strip()
-    product_id_param = request.GET.get('product_id', '').strip()
+    # product_id_param removed: use `search` param for catalog navigation
     
     # Variable para guardar el objeto categoría encontrado (si existe)
     categoria_obj = None
@@ -1296,14 +1296,8 @@ def catalog(request):
             Q(descripcion__icontains=search_param)
         )
 
-    if product_id_param:
-        try:
-            Productos = Productos.filter(pk=int(product_id_param))
-            search_param = ''
-            categoria_obj = None
-            categoria_param = None
-        except (TypeError, ValueError):
-            Productos = Productos.none()
+    # NOTE: we prefer server-side search by `search` text. Exact product_id
+    # routing was removed to keep behavior consistent with Enter-search.
 
     categories = _cached_categories()
 
