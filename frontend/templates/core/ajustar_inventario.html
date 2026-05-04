@@ -181,8 +181,9 @@
         });
     });
 
-    // Botón global para aplicar el ajuste al producto seleccionado
+    // Botón global para aplicar el ajuste al producto seleccionado (abre modal)
     const btnAgregarGlobal = document.getElementById('agregar-ajuste-global');
+    let _ajuste_pending = null;
     btnAgregarGlobal.addEventListener('click', function() {
         if (!seleccionado) {
             alert('Selecciona un producto para ajustar el stock.');
@@ -202,40 +203,87 @@
             return;
         }
 
-        // Solicitar motivo antes de enviar el ajuste
-        const motivo = prompt('Ingrese el motivo para este ajuste (ej: Compra, devolución, corrección):');
-        if(motivo === null) return; // usuario canceló
-        if((motivo||'').trim() === ''){
-            alert('Debes indicar un motivo para el ajuste.');
-            return;
+        _ajuste_pending = { productoId, cantidad, tallasAjuste, nombre: seleccionado.dataset.nombre };
+        const modal = document.getElementById('ajusteMotivoModal');
+        if (modal) {
+            modal.classList.add('open');
+            modal.setAttribute('aria-hidden', 'false');
+            const titulo = modal.querySelector('.modal-title');
+            if (titulo) titulo.textContent = `Ajustar stock — ${_ajuste_pending.nombre}`;
+            const motivoInput = document.getElementById('motivoInputModal');
+            if (motivoInput) motivoInput.value = '';
+            motivoInput && motivoInput.focus();
         }
+    });
 
-        fetch('/api/ajustar_stock/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                producto_id: productoId,
-                cantidad: cantidad,
-                tallas_ajuste: tallasAjuste,
-                motivo: motivo
+    // Modal handlers
+    function closeAjusteModal(){
+        const modal = document.getElementById('ajusteMotivoModal');
+        if(modal){ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); }
+        _ajuste_pending = null;
+    }
+
+    document.addEventListener('click', function(e){
+        if(!e.target) return;
+        if(e.target.id === 'ajusteCancelBtn'){
+            e.preventDefault();
+            closeAjusteModal();
+        }
+        if(e.target.id === 'ajusteConfirmBtn'){
+            e.preventDefault();
+            const motivo = (document.getElementById('motivoInputModal').value || '').trim();
+            if(!motivo){ alert('Debes indicar un motivo para el ajuste.'); return; }
+            if(!_ajuste_pending){ alert('No hay ajuste pendiente.'); closeAjusteModal(); return; }
+
+            fetch('/api/ajustar_stock/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    producto_id: _ajuste_pending.productoId,
+                    cantidad: _ajuste_pending.cantidad,
+                    tallas_ajuste: _ajuste_pending.tallasAjuste,
+                    motivo: motivo
+                })
             })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if(data.success) {
-                alert('¡Se agregó el stock al inventario! Nuevo stock de ' + seleccionado.dataset.nombre + ': ' + data.nuevo_stock);
-                window.location.href = '{% url 'inventario' %}';
-            } else {
-                alert('Error: ' + (data.error || 'No se pudo actualizar el stock.'));
-            }
-        })
-        .catch(err => {
-            alert('Error de red o servidor: ' + err);
-        });
+            .then(r => r.json())
+            .then(data => {
+                if(data.success){
+                    alert('Ajuste aplicado: nuevo stock de ' + _ajuste_pending.nombre + ': ' + data.nuevo_stock);
+                    window.location.href = '{% url 'inventario' %}';
+                } else {
+                    alert('Error: ' + (data.error || 'No se pudo actualizar el stock.'));
+                }
+            })
+            .catch(err => alert('Error de red o servidor: ' + err))
+            .finally(() => closeAjusteModal());
+        }
     });
     </script>
+    <!-- Modal para motivo de ajuste -->
+    <div id="ajusteMotivoModal" class="modal-overlay" aria-hidden="true" style="display:none;">
+        <div class="modal-content" style="max-width:520px; margin:80px auto;">
+            <div style="background:#fff; border-radius:12px; padding:18px; box-shadow:0 8px 30px rgba(0,0,0,0.3);">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+                    <h3 class="modal-title" style="margin:0; font-size:1.1rem; color:#4a2a6b">Ajustar stock</h3>
+                    <button id="ajusteCancelBtn" style="background:transparent;border:none;font-size:20px;cursor:pointer;">&times;</button>
+                </div>
+                <div style="margin-top:12px;">
+                    <label for="motivoInputModal" style="font-weight:700; display:block; margin-bottom:6px;">Motivo del ajuste</label>
+                    <textarea id="motivoInputModal" rows="4" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ddd;" placeholder="Ej: Compra, devolución, corrección..."></textarea>
+                </div>
+                <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:12px;">
+                    <button id="ajusteCancelBtn" class="btn-secondary" style="background:#eee; border-radius:8px; padding:8px 12px;">Cancelar</button>
+                    <button id="ajusteConfirmBtn" class="btn-primary" style="background:#9932CC; color:#fff; border-radius:8px; padding:8px 12px;">Aplicar ajuste</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* simple modal overlay styling for ajustar_inventario */
+        #ajusteMotivoModal.open { display:block; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:40000; }
+        #ajusteMotivoModal .modal-content { display:flex; align-items:center; }
+    </style>
 </body>
 </html>
 
