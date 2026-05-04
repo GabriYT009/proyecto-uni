@@ -1752,6 +1752,10 @@ def camisas_shein(request, producto_id):
 
     producto.img_url = _safe_img_url(producto)
     tallas, default_talla, stock_por_talla = _sublimation_size_catalog(producto, categoria_nombre)
+    es_taza = categoria_nombre == 'Tazas'
+
+    if es_taza:
+        default_talla = 'Unica'
 
     if request.method == 'POST':
         accion = (request.POST.get('accion') or '').strip().lower()
@@ -1827,6 +1831,7 @@ def camisas_shein(request, producto_id):
         'tallas': tallas,
         'default_talla': default_talla,
         'stock_por_talla': stock_por_talla,
+        'es_taza': es_taza,
         'default_cantidad': 1,
         'categoria_nombre': categoria_nombre,
         'solicitud': related_solicitud,

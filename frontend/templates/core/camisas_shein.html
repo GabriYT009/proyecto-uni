@@ -5,7 +5,7 @@
     <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}?v=2">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>{{ producto.nombre_producto }} - Camisas</title>
+    <title>{{ producto.nombre_producto }} - {% if es_taza %}Sublimación Tazas{% else %}Sublimación Camisas{% endif %}</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}">
@@ -418,26 +418,34 @@
                     </div>
 
                     <div class="section">
-                        <div class="section-title">Tallas</div>
+                        <div class="section-title">Sublimación</div>
                         {{ stock_por_talla|json_script:"stock-por-talla" }}
                         <form method="post" id="sheinForm" enctype="multipart/form-data">
                             {% csrf_token %}
                             <input type="hidden" name="accion" id="accionForm" value="agregar_carrito">
                             <input type="hidden" name="talla" id="tallaInput" value="{{ default_talla }}">
 
-                            <div class="sizes" id="sizesGroup">
-                                {% for talla in tallas %}
-                                    <button type="button" class="size-pill{% if talla.talla == default_talla %} active{% endif %}" data-size="{{ talla.talla }}" data-stock="{{ talla.stock }}">
-                                        <span>{{ talla.talla }}</span>
-                                        <small class="small">Stock: {{ talla.stock }}</small>
-                                    </button>
-                                {% endfor %}
-                            </div>
+                            {% if not es_taza %}
+                                <div class="sizes" id="sizesGroup">
+                                    {% for talla in tallas %}
+                                        <button type="button" class="size-pill{% if talla.talla == default_talla %} active{% endif %}" data-size="{{ talla.talla }}" data-stock="{{ talla.stock }}">
+                                            <span>{{ talla.talla }}</span>
+                                            <small class="small">Stock: {{ talla.stock }}</small>
+                                        </button>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
 
                             <div class="field" style="margin-top:14px;">
                                 <label for="cantidadInput">Cantidad</label>
                                 <input type="number" name="cantidad" id="cantidadInput" min="1" value="{{ default_cantidad }}" required>
-                                <div class="small" id="stockMainHint">Selecciona una talla para ver el stock disponible.</div>
+                                <div class="small" id="stockMainHint">
+                                    {% if es_taza %}
+                                        Stock disponible: {{ producto.cantidad_disponible|default:0 }}
+                                    {% else %}
+                                        Selecciona una talla para ver el stock disponible.
+                                    {% endif %}
+                                </div>
                             </div>
 
                             <div class="actions">
@@ -451,13 +459,13 @@
                         <div class="section-title">Estado de sublimación</div>
                         {% if solicitud %}
                             <div class="notice">
-                                Ya existe una solicitud pendiente para esta camisa.
+                                Ya existe una solicitud pendiente para este producto.
                                 {% if solicitud.talla %}<br>Talla: {{ solicitud.talla }}{% endif %}
                                 {% if solicitud.comentario %}<br>Comentario: {{ solicitud.comentario }}{% endif %}
                             </div>
                         {% else %}
                             <div class="notice">
-                                Si vas a sublimar esta camisa, puedes subir la imagen y dejar el comentario antes de agregarla al carrito.
+                                Si vas a sublimar este producto, puedes subir la imagen y dejar el comentario antes de agregarlo al carrito.
                             </div>
                         {% endif %}
                     </div>
@@ -480,7 +488,13 @@
                 <div class="field">
                     <label for="modalCantidadInput">Cantidad</label>
                     <input type="number" name="cantidad" id="modalCantidadInput" min="1" value="{{ default_cantidad }}" required>
-                    <div class="small" id="stockModalHint">Selecciona una talla para ver el stock disponible.</div>
+                    <div class="small" id="stockModalHint">
+                        {% if es_taza %}
+                            Stock disponible: {{ producto.cantidad_disponible|default:0 }}
+                        {% else %}
+                            Selecciona una talla para ver el stock disponible.
+                        {% endif %}
+                    </div>
                 </div>
 
                 <div class="field">
@@ -494,10 +508,12 @@
                     <textarea name="comentario" id="comentario" placeholder="Describe cómo quieres la sublimación, colores, ubicación o detalles especiales." required></textarea>
                 </div>
 
+                {% if not es_taza %}
                 <div class="field">
                     <label>Talla seleccionada</label>
                     <input type="text" id="modalTallaLabel" value="{{ default_talla }}" readonly>
                 </div>
+                {% endif %}
 
                 <div class="modal-actions">
                     <button type="button" class="btn-secondary-ghost" id="cancelModalBtn">Cancelar</button>
@@ -659,6 +675,7 @@
 
     <script>
         (function(){
+            const esTaza = {{ es_taza|yesno:"true,false" }};
             const defaultTalla = '{{ default_talla|escapejs }}';
             const stockPorTallaEl = document.getElementById('stock-por-talla');
             const stockPorTalla = stockPorTallaEl ? JSON.parse(stockPorTallaEl.textContent || '{}') : {};
@@ -680,12 +697,42 @@
             const sublimationForm = document.getElementById('sublimationForm');
 
             function getStock(talla) {
+                if (esTaza) {
+                    const base = Number('{{ producto.cantidad_disponible|default:0 }}') || 0;
+                    return base > 0 ? base : 0;
+                }
                 const raw = stockPorTalla[talla];
                 const stock = Number(raw || 0);
                 return Number.isFinite(stock) && stock > 0 ? stock : 0;
             }
 
             function syncQuantity(value) {
+                if (esTaza) {
+                    const stock = Number('{{ producto.cantidad_disponible|default:0 }}') || 0;
+                    const hasStock = stock > 0;
+                    const nextValue = hasStock ? Math.min(Number(cantidadInput?.value || 1), stock) || 1 : 0;
+
+                    if (cantidadInput) {
+                        cantidadInput.max = String(stock || 1);
+                        cantidadInput.value = String(nextValue || 1);
+                    }
+                    if (modalCantidadInput) {
+                        modalCantidadInput.max = String(stock || 1);
+                        modalCantidadInput.value = String(nextValue || 1);
+                    }
+
+                    if (stockMainHint) {
+                        stockMainHint.textContent = hasStock ? `Stock disponible: ${stock}` : 'Este producto no tiene stock disponible.';
+                    }
+                    if (stockModalHint) {
+                        stockModalHint.textContent = hasStock ? `Stock disponible: ${stock}` : 'Este producto no tiene stock disponible.';
+                    }
+
+                    if (addCartBtn) addCartBtn.disabled = !hasStock;
+                    if (modalSubmitBtn) modalSubmitBtn.disabled = !hasStock;
+                    return;
+                }
+
                 const stock = getStock(value);
                 const hasStock = stock > 0;
                 const nextValue = hasStock ? Math.min(Number(cantidadInput?.value || 1), stock) || 1 : 0;
@@ -717,6 +764,13 @@
             }
 
             function setTalla(value) {
+                if (esTaza) {
+                    if (tallaInput) tallaInput.value = 'Unica';
+                    if (modalTallaInput) modalTallaInput.value = 'Unica';
+                    if (modalTallaLabel) modalTallaLabel.value = 'Unica';
+                    syncQuantity('Unica');
+                    return;
+                }
                 tallaInput.value = value;
                 modalTallaInput.value = value;
                 modalTallaLabel.value = value;
@@ -757,7 +811,7 @@
             });
 
             sublimationForm.addEventListener('submit', function(){
-                modalTallaInput.value = tallaInput.value || defaultTalla;
+                if (modalTallaInput) modalTallaInput.value = esTaza ? 'Unica' : (tallaInput.value || defaultTalla);
                 if (cantidadInput && modalCantidadInput) {
                     cantidadInput.value = modalCantidadInput.value || cantidadInput.value || '1';
                 }
@@ -775,7 +829,7 @@
                 });
             }
 
-            setTalla(defaultTalla);
+            setTalla(esTaza ? 'Unica' : defaultTalla);
         })();
     </script>
 </body>
