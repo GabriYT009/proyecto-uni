@@ -1175,15 +1175,17 @@
             ).slice(0, 5); // Limit to 5 results
 
             if (filteredProducts.length > 0) {
-                const resultsHtml = filteredProducts.map(product => `
-                    <div class="search-result-item" data-id="${product.id}">
+                const resultsHtml = filteredProducts.map(product => {
+                    const category = String(product.category || product.Categoria || '').replace(/"/g, '&quot;');
+                    return `
+                    <div class="search-result-item" data-id="${product.id}" data-category="${category}" role="button" tabindex="0" style="cursor:pointer" onclick="window.handleSearchResultClick && window.handleSearchResultClick('${product.id}', '${category}')">
                         <img src="${product.img}" alt="${product.title}" class="search-result-img">
                         <div class="search-result-info">
                             <div class="search-result-title">${product.title}</div>
                             <div class="search-result-price">$${product.price}</div>
                         </div>
                     </div>
-                `).join('');
+                `;}).join('');
                 searchResults.innerHTML = resultsHtml;
                 searchResults.classList.add('show');
             } else {

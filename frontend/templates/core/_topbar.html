@@ -653,6 +653,56 @@
 			const searchResults = document.getElementById('searchResults');
 			if (!searchResults) return;
 
+			window.handleSearchResultClick = function(productId, category, explicitUrl) {
+				if (explicitUrl) {
+					window.location.href = explicitUrl;
+					return;
+				}
+
+				const normalized = String(category || '')
+					.normalize('NFD')
+					.replace(/[\u0300-\u036f]/g, '')
+					.toLowerCase();
+
+				if (normalized === 'camisas' || normalized === 'tazas') {
+					window.location.href = '/producto/' + productId + '/camisas/';
+					return;
+				}
+
+				if (typeof window.openDetail === 'function') {
+					try {
+						window.openDetail(Number(productId));
+						return;
+					} catch (err) {
+						console.warn('openDetail failed from search result:', err);
+					}
+				}
+
+				const detailModal = document.getElementById('detailModal');
+				const product = (window.products || []).find(function(item) {
+					return String(item.id) === String(productId);
+				});
+				if (product && detailModal) {
+					const titleEl = document.getElementById('m-title');
+					const imgEl = document.getElementById('m-img');
+					const descEl = document.getElementById('m-desc');
+					const priceEl = document.getElementById('m-price');
+					if (titleEl) titleEl.textContent = product.title || '';
+					if (imgEl) imgEl.src = product.img || '';
+					if (descEl) descEl.textContent = product.desc || '';
+					if (priceEl) priceEl.textContent = '$' + (product.price || '0');
+					detailModal.dataset.productId = productId;
+					detailModal.classList.add('show');
+					window.currentProductId = productId;
+					searchResults.classList.remove('show');
+					const searchInput = document.getElementById('searchInput');
+					if (searchInput) searchInput.value = '';
+					return;
+				}
+
+				window.location.href = '/producto/' + productId + '/';
+			};
+
 			// Delegate clicks on search result items: prefer opening the
 			// detail modal when the page provides `products` + `detailModal`;
 			// otherwise navigate to the appropriate product route.
