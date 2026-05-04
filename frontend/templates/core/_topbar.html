@@ -648,6 +648,26 @@
 	})();
 </script>
 
+<script>
+	// Global capture-phase handler: force search-result clicks to always
+	// navigate to the catalog `?open=` URL. This runs in capture so it
+	// overrides other page-specific click handlers that might open modals.
+	(function(){
+		try {
+			document.addEventListener('click', function(e){
+				const item = e.target && e.target.closest ? e.target.closest('.search-result-item') : null;
+				if (!item) return;
+				const url = item.dataset.url || (item.dataset.id ? '/catalogo/?open=' + encodeURIComponent(item.dataset.id) : null);
+				if (url) {
+					try { e.stopImmediatePropagation(); } catch(_) {}
+					try { e.preventDefault && e.preventDefault(); } catch(_) {}
+					window.location.href = url;
+				}
+			}, true); // useCapture = true
+		} catch(err) { console.warn('search enforce handler failed', err); }
+	})();
+</script>
+
 	<script>
 		(function(){
 			const searchResults = document.getElementById('searchResults');
