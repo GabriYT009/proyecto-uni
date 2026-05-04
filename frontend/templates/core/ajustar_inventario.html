@@ -263,19 +263,23 @@
     </script>
     <!-- Modal para motivo de ajuste -->
     <div id="ajusteMotivoModal" class="modal-overlay" aria-hidden="true">
-        <div class="modal-content" style="max-width:520px; margin:80px auto;">
-            <div style="background:#fff; border-radius:12px; padding:18px; box-shadow:0 8px 30px rgba(0,0,0,0.3);">
-                <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
-                    <h3 class="modal-title" style="margin:0; font-size:1.1rem; color:#4a2a6b">Ajustar stock</h3>
-                    <button id="ajusteCloseBtn" style="background:transparent;border:none;font-size:20px;cursor:pointer;">&times;</button>
+        <div class="modal-content">
+            <div class="modal-panel">
+                <div class="modal-header">
+                    <div>
+                        <p class="modal-kicker">Inventario</p>
+                        <h3 class="modal-title">Ajustar stock</h3>
+                    </div>
+                    <button id="ajusteCloseBtn" class="modal-close" type="button" aria-label="Cerrar">&times;</button>
                 </div>
-                <div style="margin-top:12px;">
-                    <label for="motivoInputModal" style="font-weight:700; display:block; margin-bottom:6px;">Motivo del ajuste</label>
-                    <textarea id="motivoInputModal" rows="4" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ddd;" placeholder="Ej: Compra, devolución, corrección..."></textarea>
+                <p class="modal-subtitle">Escribe el motivo para dejar registrado este movimiento en el historial.</p>
+                <div class="modal-field">
+                    <label for="motivoInputModal">Motivo del ajuste</label>
+                    <textarea id="motivoInputModal" rows="4" placeholder="Ej: Compra, devolución, corrección..."></textarea>
                 </div>
-                <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:12px;">
-                    <button id="ajusteCancelBtn" class="btn-secondary" style="background:#eee; border-radius:8px; padding:8px 12px;">Cancelar</button>
-                    <button id="ajusteConfirmBtn" class="btn-primary" style="background:#9932CC; color:#fff; border-radius:8px; padding:8px 12px;">Aplicar ajuste</button>
+                <div class="modal-actions">
+                    <button id="ajusteCancelBtn" class="btn-cancel" type="button">Cancelar</button>
+                    <button id="ajusteConfirmBtn" class="btn-confirm" type="button">Aplicar ajuste</button>
                 </div>
             </div>
         </div>
@@ -284,8 +288,111 @@
     <style>
         /* simple modal overlay styling for ajustar_inventario */
         #ajusteMotivoModal { display:none; }
-        #ajusteMotivoModal.open { display:flex; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:40000; align-items:center; justify-content:center; }
-        #ajusteMotivoModal .modal-content { display:flex; align-items:center; }
+        #ajusteMotivoModal.open { display:flex; position:fixed; inset:0; background:rgba(42, 19, 61, 0.58); backdrop-filter: blur(2px); z-index:40000; align-items:center; justify-content:center; padding:24px; }
+        #ajusteMotivoModal .modal-content { width:min(100%, 520px); display:flex; align-items:center; }
+        #ajusteMotivoModal .modal-panel {
+            width:100%;
+            background:#fff;
+            border-radius:18px;
+            box-shadow:0 20px 60px rgba(0,0,0,0.28);
+            padding:22px 22px 18px;
+            border:1px solid rgba(153,50,204,0.14);
+        }
+        #ajusteMotivoModal .modal-header {
+            display:flex;
+            align-items:flex-start;
+            justify-content:space-between;
+            gap:16px;
+            margin-bottom:10px;
+        }
+        #ajusteMotivoModal .modal-kicker {
+            margin:0 0 4px 0;
+            font-size:0.78rem;
+            font-weight:700;
+            letter-spacing:0.08em;
+            text-transform:uppercase;
+            color:#9932CC;
+        }
+        #ajusteMotivoModal .modal-title {
+            margin:0;
+            font-size:1.2rem;
+            line-height:1.2;
+            color:#2d2336;
+        }
+        #ajusteMotivoModal .modal-close {
+            width:36px;
+            height:36px;
+            border:none;
+            border-radius:999px;
+            background:#f3edf7;
+            color:#5b3b74;
+            font-size:26px;
+            line-height:1;
+            cursor:pointer;
+            flex:0 0 auto;
+        }
+        #ajusteMotivoModal .modal-close:hover { background:#eadcf2; }
+        #ajusteMotivoModal .modal-subtitle {
+            margin:0 0 14px 0;
+            color:#6f6478;
+            font-size:0.95rem;
+        }
+        #ajusteMotivoModal .modal-field label {
+            display:block;
+            margin-bottom:8px;
+            font-weight:700;
+            color:#3a2f47;
+        }
+        #motivoInputModal {
+            width:100%;
+            min-height:120px;
+            resize:vertical;
+            border:1px solid #d8cfe2;
+            border-radius:14px;
+            padding:12px 14px;
+            font:inherit;
+            color:#2b2234;
+            box-sizing:border-box;
+            outline:none;
+            background:#fff;
+        }
+        #motivoInputModal:focus {
+            border-color:#9932CC;
+            box-shadow:0 0 0 4px rgba(153,50,204,0.12);
+        }
+        #ajusteMotivoModal .modal-actions {
+            display:flex;
+            gap:10px;
+            justify-content:flex-end;
+            margin-top:18px;
+            flex-wrap:wrap;
+        }
+        #ajusteMotivoModal .btn-cancel,
+        #ajusteMotivoModal .btn-confirm {
+            border:none;
+            border-radius:12px;
+            padding:10px 16px;
+            font-weight:700;
+            cursor:pointer;
+            min-width:120px;
+        }
+        #ajusteMotivoModal .btn-cancel {
+            background:#f0ecf4;
+            color:#4c4158;
+        }
+        #ajusteMotivoModal .btn-confirm {
+            background:linear-gradient(135deg, #a53be0, #8d27c0);
+            color:#fff;
+            box-shadow:0 10px 22px rgba(153,50,204,0.22);
+        }
+        #ajusteMotivoModal .btn-confirm:hover { filter:brightness(1.02); }
+        @media (max-width: 560px) {
+            #ajusteMotivoModal.open { padding:16px; }
+            #ajusteMotivoModal .modal-panel { padding:18px 16px 16px; border-radius:16px; }
+            #ajusteMotivoModal .modal-actions { flex-direction:column-reverse; }
+            #ajusteMotivoModal .btn-cancel,
+            #ajusteMotivoModal .btn-confirm { width:100%; }
+        }
     </style>
 </body>
 </html>
