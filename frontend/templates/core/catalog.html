@@ -369,6 +369,68 @@
         console.log('Products loaded (catalog):', products && products.length);
     </script>
     <script>
+        (function(){
+            function focusCatalogCard(productId) {
+                const selector = '[data-id="' + productId + '"]';
+                const card = document.querySelector(selector);
+                if (!card) return false;
+
+                card.classList.add('selected');
+                try {
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } catch (err) {
+                    card.scrollIntoView(true);
+                }
+
+                window.setTimeout(function(){
+                    card.classList.remove('selected');
+                }, 1400);
+
+                return true;
+            }
+
+            function openCatalogProductFromQuery() {
+                const params = new URLSearchParams(window.location.search);
+                const openId = params.get('open') || params.get('product_id');
+                if (!openId) return;
+
+                const tryOpen = function(){
+                    if (typeof window.openDetail === 'function') {
+                        try {
+                            window.openDetail(Number(openId));
+                            focusCatalogCard(openId);
+                            return true;
+                        } catch (err) {
+                            console.warn('openDetail from query failed:', err);
+                        }
+                    }
+                    return false;
+                };
+
+                if (window.products && Array.isArray(window.products) && window.products.length) {
+                    if (tryOpen()) return;
+                }
+
+                const checkReady = setInterval(function(){
+                    if (window.products && Array.isArray(window.products) && window.products.length) {
+                        clearInterval(checkReady);
+                        if (!tryOpen()) {
+                            focusCatalogCard(openId);
+                        }
+                    }
+                }, 50);
+
+                setTimeout(function(){ clearInterval(checkReady); }, 3000);
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', openCatalogProductFromQuery, { once: true });
+            } else {
+                openCatalogProductFromQuery();
+            }
+        })();
+    </script>
+    <script>
         // Live search functionality (copied from home page)
         (function(){
             const searchInput = document.getElementById('searchInput');
@@ -388,7 +450,8 @@
                 if (filteredProducts.length > 0) {
                     const resultsHtml = filteredProducts.map(product => {
                         const category = String(product.category || product.Categoria || '').replace(/"/g, '&quot;');
-                        return `\n                        <div class="search-result-item" data-id="${product.id}" data-category="${category}" role="button" tabindex="0" style="cursor:pointer" onclick="window.handleSearchResultClick && window.handleSearchResultClick('${product.id}', '${category}')">\n                            <img src="${product.img}" alt="${product.title}" class="search-result-img">\n                            <div class="search-result-info">\n                                <div class="search-result-title">${product.title}</div>\n                                <div class="search-result-price">$${product.price}</div>\n                            </div>\n                        </div>\n                    `;}).join('');
+                        const targetUrl = `/catalogo/?open=${encodeURIComponent(product.id)}`;
+                        return `\n                        <div class="search-result-item" data-id="${product.id}" data-category="${category}" data-url="${targetUrl}" role="button" tabindex="0" style="cursor:pointer">\n                            <img src="${product.img}" alt="${product.title}" class="search-result-img">\n                            <div class="search-result-info">\n                                <div class="search-result-title">${product.title}</div>\n                                <div class="search-result-price">$${product.price}</div>\n                            </div>\n                        </div>\n                    `;}).join('');
                     searchResults.innerHTML = resultsHtml;
                     searchResults.classList.add('show');
                 } else {
@@ -403,21 +466,14 @@
 
             document.addEventListener('click', function(e){ if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) searchResults.classList.remove('show'); });
 
-                    searchResults.addEventListener('click', function(e){ const item = e.target.closest('.search-result-item'); if (item && item.dataset.id) { const product = (products||[]).find(p=>p.id==item.dataset.id); if (product) {
-                        const category = String(product.category || product.Categoria || '').trim();
-                        if (category === 'Camisas') { window.location.href = '/producto/' + item.dataset.id + '/camisas/'; return; }
-                        document.getElementById('m-title').textContent = product.title;
-                        document.getElementById('m-img').src = product.img;
-                        document.getElementById('m-desc').textContent = product.desc;
-                        document.getElementById('m-price').textContent = '$' + product.price;
-                        document.getElementById('detailModal').dataset.productId = item.dataset.id;
-                        document.getElementById('detailModal').classList.add('show');
-                        window.currentProductId = item.dataset.id;
-                        searchResults.classList.remove('show');
-                        searchInput.value = '';
-                    }
-                }
-            });
+                    searchResults.addEventListener('click', function(e){
+                        const item = e.target.closest('.search-result-item');
+                        if (!item) return;
+                        const targetUrl = item.dataset.url || ('/catalogo/?open=' + encodeURIComponent(item.dataset.id || ''));
+                        if (targetUrl && targetUrl !== '/catalogo/?open=') {
+                            window.location.href = targetUrl;
+                        }
+                    });
         })();
     </script>
     <script>

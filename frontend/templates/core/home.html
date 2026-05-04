@@ -1177,8 +1177,9 @@
             if (filteredProducts.length > 0) {
                 const resultsHtml = filteredProducts.map(product => {
                     const category = String(product.category || product.Categoria || '').replace(/"/g, '&quot;');
+                    const targetUrl = `/catalogo/?open=${encodeURIComponent(product.id)}`;
                     return `
-                    <div class="search-result-item" data-id="${product.id}" data-category="${category}" role="button" tabindex="0" style="cursor:pointer" onclick="window.handleSearchResultClick && window.handleSearchResultClick('${product.id}', '${category}')">
+                    <div class="search-result-item" data-id="${product.id}" data-category="${category}" data-url="${targetUrl}" role="button" tabindex="0" style="cursor:pointer">
                         <img src="${product.img}" alt="${product.title}" class="search-result-img">
                         <div class="search-result-info">
                             <div class="search-result-title">${product.title}</div>
@@ -1221,28 +1222,10 @@
         // Handle search result clicks
         searchResults.addEventListener('click', function(e) {
             const resultItem = e.target.closest('.search-result-item');
-            if (resultItem && resultItem.dataset.id) {
-                const productId = resultItem.dataset.id;
-                const product = products.find(p => p.id == productId);
-                if (product) {
-                    const category = String(product.category || product.Categoria || '').trim();
-                    const normalizedCategory = category.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-                    if (normalizedCategory === 'camisas' || normalizedCategory === 'tazas') {
-                        window.location.href = '/producto/' + productId + '/camisas/';
-                        return;
-                    }
-                    // Open modal with product details
-                    document.getElementById('m-title').textContent = product.title;
-                    document.getElementById('m-img').src = product.img;
-                    document.getElementById('m-desc').textContent = product.desc;
-                    document.getElementById('m-price').textContent = '$' + product.price;
-                    document.getElementById('detailModal').dataset.productId = productId;
-                    document.getElementById('detailModal').classList.add('show');
-                    window.currentProductId = productId;
-                    // Hide search results
-                    searchResults.classList.remove('show');
-                    searchInput.value = '';
-                }
+            if (!resultItem) return;
+            const targetUrl = resultItem.dataset.url || ('/catalogo/?open=' + encodeURIComponent(resultItem.dataset.id || ''));
+            if (targetUrl && targetUrl !== '/catalogo/?open=') {
+                window.location.href = targetUrl;
             }
         });
     </script>
