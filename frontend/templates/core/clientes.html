@@ -268,17 +268,6 @@
                 document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeNav(); });
             })();
 
-            // Clients dropdown toggle (clientes page)
-            (function(){
-                const toggle = document.getElementById('clientsToggle');
-                const dropdown = document.getElementById('clientsDropdown');
-                if(!toggle || !dropdown) return;
-                function close(){ dropdown.classList.remove('show'); toggle.setAttribute('aria-expanded','false'); dropdown.setAttribute('aria-hidden','true'); }
-                toggle.addEventListener('click', function(e){ e.stopPropagation(); const opened = dropdown.classList.toggle('show'); toggle.setAttribute('aria-expanded', opened ? 'true' : 'false'); dropdown.setAttribute('aria-hidden', opened ? 'false' : 'true'); });
-                document.addEventListener('click', function(e){ if(!toggle.contains(e.target) && !dropdown.contains(e.target)) close(); });
-                document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
-            })();
-
             // Product dropdown toggle (clientes page)
             (function(){
                 const toggle = document.getElementById('productToggle');

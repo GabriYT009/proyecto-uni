@@ -11,18 +11,6 @@
     </script>
     <title>Carrito</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <style>
-        /* Giant frame around everything */
-        .giant-frame {
-            border-radius: 25px;
-            margin: 40px auto;
-            padding: 50px;
-            background: rgb(229 227 227 / 92%);
-            box-shadow: 0 0 50px rgba(255, 105, 180, 0.3);
-            max-width: 1000px;
-            width: min(1000px, 94vw);
-            box-sizing: border-box;
-        }
 
         body{
             position: relative;
@@ -395,18 +383,6 @@
         });
     </script>
 
-    <script>
-        // Clients dropdown toggle
-        (function(){
-            const toggle = document.getElementById('clientsToggle');
-            const dropdown = document.getElementById('clientsDropdown');
-            if(!toggle || !dropdown) return;
-            function close(){ dropdown.classList.remove('show'); toggle.setAttribute('aria-expanded','false'); dropdown.setAttribute('aria-hidden','true'); }
-            toggle.addEventListener('click', function(e){ e.stopPropagation(); const opened = dropdown.classList.toggle('show'); toggle.setAttribute('aria-expanded', opened ? 'true' : 'false'); dropdown.setAttribute('aria-hidden', opened ? 'false' : 'true'); });
-            document.addEventListener('click', function(e){ if(!toggle.contains(e.target) && !dropdown.contains(e.target)) close(); });
-            document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
-        })();
-    </script>
     <script>
         // Product dropdown toggle
         (function(){

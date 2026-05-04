@@ -954,15 +954,6 @@
                     document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeP(); });
                 }
 
-                // Clients dropdown
-                const ct = document.getElementById('clientsToggle');
-                const cd = document.getElementById('clientsDropdown');
-                if (ct && cd) {
-                    function closeC(){ cd.classList.remove('show'); ct.setAttribute('aria-expanded','false'); cd.setAttribute('aria-hidden','true'); }
-                    ct.addEventListener('click', function(e){ e.stopPropagation(); const opened = cd.classList.toggle('show'); ct.setAttribute('aria-expanded', opened ? 'true' : 'false'); cd.setAttribute('aria-hidden', opened ? 'false' : 'true'); });
-                    document.addEventListener('click', function(e){ if(!ct.contains(e.target) && !cd.contains(e.target)) closeC(); });
-                    document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeC(); });
-                }
             }
             if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setupDropdowns); else setupDropdowns();
         })();

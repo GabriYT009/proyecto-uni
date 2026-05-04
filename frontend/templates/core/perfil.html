@@ -198,20 +198,6 @@
         })();
     </script>
 
-    <!-- perfil page -->
-    <script>
-        // Clients dropdown toggle (perfil)
-        (function(){
-            const toggle = document.getElementById('clientsToggle');
-            const dropdown = document.getElementById('clientsDropdown');
-            if(!toggle || !dropdown) return;
-            function close(){ dropdown.classList.remove('show'); toggle.setAttribute('aria-expanded','false'); dropdown.setAttribute('aria-hidden','true'); }
-            toggle.addEventListener('click', function(e){ e.stopPropagation(); const opened = dropdown.classList.toggle('show'); toggle.setAttribute('aria-expanded', opened ? 'true' : 'false'); dropdown.setAttribute('aria-hidden', opened ? 'false' : 'true'); });
-            document.addEventListener('click', function(e){ if(!toggle.contains(e.target) && !dropdown.contains(e.target)) close(); });
-            document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
-        })();
-    </script>
-
     <!-- Vendor JS Files -->
     <script src="{% static 'assets/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'assets/vendor/php-email-form/validate.js' %}"></script>
