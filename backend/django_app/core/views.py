@@ -2271,6 +2271,16 @@ def comprar_carrito(request):
 
     productos = Producto.objects.filter(pk__in=cart)
 
+    # Debug: log session/cart and posted quantity keys to help diagnose missing qtys for specific products (e.g. Tazas)
+    try:
+        logger.info('comprar_carrito invoked: user=%s cart=%s post_keys=%s files=%s',
+                    getattr(request.user, 'username', None),
+                    cart,
+                    list(request.POST.keys()),
+                    list(request.FILES.keys()))
+    except Exception:
+        logger.exception('Failed to log comprar_carrito debug info')
+
     try:
         with transaction.atomic():
             # PASO 1: Obtener cliente y crear la cabecera (Nota_Entrega)
@@ -2292,16 +2302,29 @@ def comprar_carrito(request):
 
             # PASO 2: Procesar cada producto del carrito
             for p in productos:
-                qty = request.POST.get(f'cantidad_{p.pk}') or request.POST.get(f'qty_{p.pk}') or 1
+                qty = request.POST.get(f'cantidad_{p.pk}') or request.POST.get(f'qty_{p.pk}') or request.POST.get(str(p.pk)) or 1
                 try:
                     cantidad = int(qty)
-                except:
+                except Exception:
                     cantidad = 1
 
-                available = p.cantidad_disponible or 0
-                if cantidad <= 0 or cantidad > available:
-                    messages.error(request, f'Cantidad no disponible para {p.nombre}.')
-                    raise ValueError('stock insuficiente')
+                available = int(p.cantidad_disponible or 0)
+                using_talla_stock = False
+
+                # If producto.cantidad_disponible is insufficient but there is talla-specific stock (e.g. Tazas with 'Unica'),
+                # allow consuming from ProductoTallaStock and proceed.
+                if cantidad > available:
+                    try:
+                        talla_total = ProductoTallaStock.objects.filter(producto=p).aggregate(total=__import__('django').db.models.Sum('stock_disponible'))
+                        total_talla_stock = int((talla_total.get('total') or 0) if isinstance(talla_total, dict) else (talla_total or 0))
+                    except Exception:
+                        total_talla_stock = 0
+
+                    if total_talla_stock >= cantidad:
+                        using_talla_stock = True
+                    else:
+                        messages.error(request, f'Cantidad no disponible para {p.nombre_producto}.')
+                        raise ValueError('stock insuficiente')
 
                 subtotal = float(p.precio_venta or 0) * cantidad
                 
@@ -2323,15 +2346,46 @@ def comprar_carrito(request):
                     solicitud.save(update_fields=['carrito_de_compras', 'nota_entrega', 'estado'])
 
                 # PASO 4: Actualizar inventario e historial
-                cant_anterior = p.cantidad_disponible or 0
-                p.cantidad_disponible = max(0, cant_anterior - cantidad)
-                p.save()
-                _consume_sublimation_stock(p, _get_session_cart_talla(request, p.pk), cantidad)
+                cant_anterior = int(p.cantidad_disponible or 0)
+
+                if using_talla_stock:
+                    # Consume from talla stocks first (distribute across talla records until satisfied)
+                    remaining = cantidad
+                    for st in ProductoTallaStock.objects.filter(producto=p).order_by('-stock_disponible'):
+                        available_st = int(st.stock_disponible or 0)
+                        if available_st <= 0:
+                            continue
+                        take = min(available_st, remaining)
+                        st.stock_disponible = max(0, available_st - take)
+                        st.save(update_fields=['stock_disponible'])
+                        remaining -= take
+                        if remaining <= 0:
+                            break
+
+                    # Also decrement producto.cantidad_disponible to keep masters in sync
+                    p.cantidad_disponible = max(0, cant_anterior - cantidad)
+                    p.save()
+                    # If talla specified in session, call _consume_sublimation_stock for compatibility, otherwise skip
+                    try:
+                        sel_talla = _get_session_cart_talla(request, p.pk)
+                        if sel_talla:
+                            _consume_sublimation_stock(p, sel_talla, cantidad)
+                    except Exception:
+                        logger.exception('Error consuming sublimation stock fallback for product %s', p.pk)
+
+                else:
+                    p.cantidad_disponible = max(0, cant_anterior - cantidad)
+                    p.save()
+                    # consume talla-specific stock if talla present
+                    try:
+                        _consume_sublimation_stock(p, _get_session_cart_talla(request, p.pk), cantidad)
+                    except Exception:
+                        logger.exception('Error consuming sublimation stock for product %s', p.pk)
 
                 Historial_Inventario.objects.create(
                     producto=p,
                     cantidad_anterior=cant_anterior,
-                    cantidad_nueva=p.cantidad_disponible,
+                    cantidad_nueva=int(p.cantidad_disponible or 0),
                     tipo_movimiento='venta',
                     motivo=f'Venta múltiple - Nota #{nota.id}',
                     usuario_responsable=request.user.username

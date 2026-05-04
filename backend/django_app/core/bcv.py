@@ -4,7 +4,12 @@ import requests
 from django.utils import timezone
 import requests
 
-from bs4 import BeautifulSoup
+try:
+    from bs4 import BeautifulSoup
+    _HAS_BS4 = True
+except Exception:
+    BeautifulSoup = None
+    _HAS_BS4 = False
 
 BCV_FALLBACK_RATE = 0
 
@@ -35,21 +40,24 @@ def obtener_tasa_cambio():
 
     # --- INTENTO 1: Scraping Directo al BCV con BeautifulSoup ---
     try:
-
-        response = requests.get(URL_OFICIAL, headers=HEADERS_NAV, timeout=15, verify=False)
-        response.raise_for_status()
-        
-        soup = BeautifulSoup(response.text, 'html.parser')
-        block_dolar = soup.find('div', id='dolar')
-        
-        if block_dolar:
-            tasa_texto = block_dolar.find('strong').text.strip()
-            # Limpiamos el formato: "36,12" -> "36.12"
-            tasa = float(tasa_texto.replace('.', '').replace(',', '.'))
-            if tasa > 0:
-                _persist_rate(tasa)
-                print(f"Tasa obtenida por Scraping BCV: {tasa}")
-                return tasa
+        if _HAS_BS4:
+            response = requests.get(URL_OFICIAL, headers=HEADERS_NAV, timeout=15, verify=False)
+            response.raise_for_status()
+            
+            soup = BeautifulSoup(response.text, 'html.parser')
+            block_dolar = soup.find('div', id='dolar')
+            
+            if block_dolar:
+                tasa_texto = block_dolar.find('strong').text.strip()
+                # Limpiamos el formato: "36,12" -> "36.12"
+                tasa = float(tasa_texto.replace('.', '').replace(',', '.'))
+                if tasa > 0:
+                    _persist_rate(tasa)
+                    print(f"Tasa obtenida por Scraping BCV: {tasa}")
+                    return tasa
+        else:
+            # bs4 not installed; skip scraping step
+            pass
     except Exception as e:
         print(f"Error en Scraping BCV: {e}") # Opcional: logging
 
