@@ -653,28 +653,65 @@
 			const searchResults = document.getElementById('searchResults');
 			if (!searchResults) return;
 
-			// Delegate clicks on search result items to navigate to the product page.
+			// Delegate clicks on search result items: prefer opening the
+			// detail modal when the page provides `products` + `detailModal`;
+			// otherwise navigate to the appropriate product route.
 			searchResults.addEventListener('click', function(e){
 				const item = e.target.closest('.search-result-item');
 				if (!item) return;
 
-				// If the item includes an explicit URL, use it.
 				const explicit = item.dataset.url;
-				if (explicit) {
-					window.location.href = explicit;
-					return;
-				}
+				if (explicit) { window.location.href = explicit; return; }
 
 				const id = item.dataset.id;
+				if (!id) return;
+
+				// If the page exposes the `products` array and a detail modal,
+				// reuse them to show the compact product modal (preferred UX).
+				try {
+					const detailModal = document.getElementById('detailModal');
+					if (window.products && detailModal) {
+						const product = (window.products||[]).find(p => String(p.id) === String(id));
+						if (product) {
+							const category = String(product.category || product.Categoria || '').trim();
+							const normalized = category.normalize ? category.normalize('NFD').replace(/[\u0000-\u036f]/g, '').toLowerCase() : category.toLowerCase();
+							if (normalized === 'camisas' || normalized === 'tazas') {
+								window.location.href = '/producto/' + id + '/camisas/';
+								return;
+							}
+
+							// Populate and show the modal (matches home/catalog behavior)
+							const titleEl = document.getElementById('m-title');
+							const imgEl = document.getElementById('m-img');
+							const descEl = document.getElementById('m-desc');
+							const priceEl = document.getElementById('m-price');
+							if (titleEl) titleEl.textContent = product.title || '';
+							if (imgEl) imgEl.src = product.img || '';
+							if (descEl) descEl.textContent = product.desc || '';
+							if (priceEl) priceEl.textContent = '$' + (product.price || '0');
+							detailModal.dataset.productId = id;
+							detailModal.classList.add('show');
+							window.currentProductId = id;
+							// hide results and clear input
+							searchResults.classList.remove('show');
+							const searchInput = document.getElementById('searchInput');
+							if (searchInput) searchInput.value = '';
+							return;
+						}
+					}
+				} catch (err) {
+					// fall through to navigation fallback
+					console.warn('search result modal open failed:', err);
+				}
+
+				// Fallback: use explicit dataset.cat or dataset.category if present
 				const rawCat = item.dataset.cat || item.dataset.category || '';
 				const category = (rawCat || '').toString().normalize ? rawCat.normalize('NFD').replace(/[\u0000-\u036f]/g, '').toLowerCase() : rawCat.toLowerCase();
-
-				if (id) {
-					if (category === 'camisas' || category === 'tazas') {
-						window.location.href = '/producto/' + id + '/camisas/';
-					} else {
-						window.location.href = '/producto/' + id + '/';
-					}
+				if (category === 'camisas' || category === 'tazas') {
+					window.location.href = '/producto/' + id + '/camisas/';
+				} else {
+					// final fallback: open canonical product detail page
+					window.location.href = '/producto/' + id + '/';
 				}
 			});
 		})();
