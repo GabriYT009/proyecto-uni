@@ -38,6 +38,7 @@
     </style>
 </head>
 <body>
+    {% include 'core/_messages.html' %}
     <div class="container">
         <h2 style="color:#9932CC; margin-top:0;">PAGO MÓVIL</h2>
         <p class="note">Ingrese los datos requeridos para procesar su pago. El monto se calcula según las cantidades seleccionadas.</p>
@@ -90,20 +91,23 @@
 
         <div class="total">Total: $ {{ total|floatformat:2 }}</div>
         <div class="total">Total: bs {{ total_bs }}</div>
-        <form method="post" action="{% url 'comprar_carrito' %}" enctype="multipart/form-data">
+        <form method="post" action="{% url 'comprar_carrito' %}" enctype="multipart/form-data" id="pagoMovilForm" novalidate>
             {% csrf_token %}
             <div class="field">
                 <label for="documento">Cédula / Documento</label>
-                <input type="text" id="documento" name="documento" required value="{{ cedula }}" />
+                <input type="text" id="documento" name="documento" required value="{{ cedula }}" maxlength="20" autocomplete="off" />
+                <small class="field-error" id="documentoError" style="display:none; color:#b02a37; margin-top:6px;"></small>
             </div>
             <div class="field">
                 <label for="mobile_phone">Teléfono</label>
-                <input type="tel" id="mobile_phone" name="mobile_phone" placeholder="Ej. 0999123456" required  value="{{ telefono }}"/>
+                <input type="tel" id="mobile_phone" name="mobile_phone" placeholder="Ej. 0999123456" required value="{{ telefono }}" inputmode="numeric" maxlength="11" />
+                <small class="field-error" id="phoneError" style="display:none; color:#b02a37; margin-top:6px;"></small>
             </div>
             <div class="field">
                 <label for="payment_proof">Comprobante (OBLIGATORIO )</label>
                 <input type="file" id="payment_proof" name="payment_proof" accept="image/*" required />
                 <small style="color:#666; display:block; margin-top:6px;">Formatos: JPG, PNG, WEBP. Tamaño maximo: 5 MB.</small>
+                <small class="field-error" id="proofError" style="display:none; color:#b02a37; margin-top:6px;"></small>
             </div>
             <!-- El monto ya se muestra arriba en .total, se elimina el input duplicado -->
 
@@ -121,6 +125,89 @@
         </form>
     </div>
     <script src="{% static 'core/page-loader.js' %}"></script>
+    <script>
+        (function(){
+            const form = document.getElementById('pagoMovilForm');
+            const documento = document.getElementById('documento');
+            const phone = document.getElementById('mobile_phone');
+            const proof = document.getElementById('payment_proof');
+            const docError = document.getElementById('documentoError');
+            const phoneError = document.getElementById('phoneError');
+            const proofError = document.getElementById('proofError');
+
+            function clearErrors(){
+                [docError, phoneError, proofError].forEach(function(el){
+                    if(!el) return;
+                    el.textContent = '';
+                    el.style.display = 'none';
+                });
+            }
+
+            function showError(el, message){
+                if(!el) return;
+                el.textContent = message;
+                el.style.display = 'block';
+            }
+
+            function isImageFile(file){
+                return !!file && /^image\//i.test(file.type || '');
+            }
+
+            if (documento) {
+                documento.addEventListener('input', function(){
+                    this.value = this.value.replace(/\s+/g, '');
+                });
+            }
+
+            if (phone) {
+                phone.addEventListener('input', function(){
+                    this.value = this.value.replace(/\D+/g, '').slice(0, 11);
+                });
+            }
+
+            if (form) {
+                form.addEventListener('submit', function(event){
+                    clearErrors();
+
+                    const documentoValue = (documento && documento.value || '').trim();
+                    const phoneValue = (phone && phone.value || '').trim();
+                    const file = proof && proof.files ? proof.files[0] : null;
+                    let valid = true;
+
+                    if (!documentoValue) {
+                        showError(docError, 'La cédula o documento es obligatoria.');
+                        valid = false;
+                    }
+
+                    if (!phoneValue) {
+                        showError(phoneError, 'El teléfono es obligatorio.');
+                        valid = false;
+                    } else if (!/^\d{10,11}$/.test(phoneValue)) {
+                        showError(phoneError, 'El teléfono debe tener entre 10 y 11 dígitos numéricos.');
+                        valid = false;
+                    }
+
+                    if (!file) {
+                        showError(proofError, 'Debes subir el comprobante de pago.');
+                        valid = false;
+                    } else if (!isImageFile(file)) {
+                        showError(proofError, 'El comprobante debe ser una imagen válida.');
+                        valid = false;
+                    } else if (file.size > (5 * 1024 * 1024)) {
+                        showError(proofError, 'El comprobante no puede superar 5 MB.');
+                        valid = false;
+                    }
+
+                    if (!valid) {
+                        event.preventDefault();
+                        if (typeof window.showGlobalToast === 'function') {
+                            window.showGlobalToast('Revisa los campos marcados antes de continuar.', 'warning', 3500);
+                        }
+                    }
+                });
+            }
+        })();
+    </script>
 </body>
 </html>
 

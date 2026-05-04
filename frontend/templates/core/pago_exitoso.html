@@ -22,6 +22,12 @@
             <p>Orden ID: <strong>#{{ salida.pk }}</strong></p>
             
             <p>Estado: <strong>{{ salida.get_estado_pago_display }}</strong></p>
+            {% if salida.tipo_pago %}
+                <p>Tipo de pago: <strong>{{ salida.get_tipo_pago_display|default:salida.tipo_pago }}</strong></p>
+            {% endif %}
+            {% if salida.cliente_documento or salida.cliente_telefono %}
+                <p style="margin-bottom: 0; color:#555;">Documento: {{ salida.cliente_documento|default:'-' }} | Teléfono: {{ salida.cliente_telefono|default:'-' }}</p>
+            {% endif %}
             
                 <div class="alert alert-warning" role="alert" style="margin-top:12px; text-align:left;">
                     Tu comprobante quedó enviado para revisión. La orden se aprobará cuando el equipo valide el pago.

@@ -2230,26 +2230,44 @@ def comprar_carrito(request):
         messages.error(request, 'No hay productos en el carrito.')
         return redirect('carrito')
 
-    payment_proof = request.FILES.get('payment_proof')
-    saved_proof_path = None
-    if payment_proof:
-        content_type = (payment_proof.content_type or '').lower()
-        if not content_type.startswith('image/'):
-            messages.error(request, 'El comprobante debe ser una imagen valida.')
-            return redirect('carrito')
-        
-        if payment_proof.size > (5 * 1024 * 1024):
-            messages.error(request, 'El comprobante supera el tamano maximo de 5 MB.')
-            return redirect('carrito')
+    documento = (request.POST.get('documento') or '').strip()
+    mobile_phone = (request.POST.get('mobile_phone') or '').strip()
+    if not documento:
+        messages.error(request, 'Debes ingresar la cédula o documento.')
+        return redirect('pago_movil')
+    if not mobile_phone:
+        messages.error(request, 'Debes ingresar el teléfono de pago móvil.')
+        return redirect('pago_movil')
+    if not mobile_phone.isdigit():
+        messages.error(request, 'El teléfono debe contener solo números.')
+        return redirect('pago_movil')
+    if len(mobile_phone) < 10 or len(mobile_phone) > 11:
+        messages.error(request, 'El teléfono debe tener entre 10 y 11 dígitos.')
+        return redirect('pago_movil')
 
-        _, ext = os.path.splitext(payment_proof.name or '')
-        ext = (ext or '.jpg').lower()
-        proof_name = f"payment_proofs/{request.user.pk}_{timezone.now().strftime('%Y%m%d_%H%M%S_%f')}{ext}"
-        try:
-            saved_proof_path = default_storage.save(proof_name, payment_proof)
-        except Exception:
-            messages.error(request, 'No se pudo guardar la imagen del comprobante.')
-            return redirect('carrito')
+    payment_proof = request.FILES.get('payment_proof')
+    if not payment_proof:
+        messages.error(request, 'Debes subir el comprobante de pago.')
+        return redirect('pago_movil')
+
+    saved_proof_path = None
+    content_type = (payment_proof.content_type or '').lower()
+    if not content_type.startswith('image/'):
+        messages.error(request, 'El comprobante debe ser una imagen valida.')
+        return redirect('pago_movil')
+
+    if payment_proof.size > (5 * 1024 * 1024):
+        messages.error(request, 'El comprobante supera el tamano maximo de 5 MB.')
+        return redirect('pago_movil')
+
+    _, ext = os.path.splitext(payment_proof.name or '')
+    ext = (ext or '.jpg').lower()
+    proof_name = f"payment_proofs/{request.user.pk}_{timezone.now().strftime('%Y%m%d_%H%M%S_%f')}{ext}"
+    try:
+        saved_proof_path = default_storage.save(proof_name, payment_proof)
+    except Exception:
+        messages.error(request, 'No se pudo guardar la imagen del comprobante.')
+        return redirect('pago_movil')
 
     productos = Producto.objects.filter(pk__in=cart)
 
@@ -2257,11 +2275,16 @@ def comprar_carrito(request):
         with transaction.atomic():
             # PASO 1: Obtener cliente y crear la cabecera (Nota_Entrega)
             cliente_obj = getattr(request.user, 'cliente', None)
+            metodo_pago = MetodoPago.objects.filter(nombre_metodo_pago__iexact='Pago Móvil').first() or MetodoPago.objects.filter(nombre_metodo_pago__iexact='PAGO MOVIL').first()
             nota = Nota_Entrega.objects.create(
                 cliente=cliente_obj,
                 estado_pago='PENDIENTE',
                 fecha=timezone.now(),
-                total=0.0
+                total=0.0,
+                tipo_pago='PAGO MOVIL',
+                metodo_pago=metodo_pago,
+                cliente_documento=documento[:45],
+                cliente_telefono=mobile_phone[:15],
             )
             logger.info(f'Nota_Entrega creada: {nota.pk} para usuario {request.user.username}')
             
@@ -2326,6 +2349,8 @@ def comprar_carrito(request):
 
             request.session['cart'] = []
             request.session['cart_options'] = {}
+
+            messages.success(request, f'Pago móvil registrado correctamente. Orden #{nota.pk} enviada a revisión.')
 
     except ValueError:
         return redirect('carrito')
