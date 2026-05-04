@@ -1,0 +1,84 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}?v=2">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Historial de inventario</title>
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <style>
+        body { font-family: Poppins, Segoe UI, sans-serif; padding: 28px; background: #f5f5f7; }
+        .shell { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 12px; padding: 18px; box-shadow: 0 8px 30px rgba(20,20,30,0.06); }
+        h1 { color: #6b2da8; margin: 0 0 12px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px 8px; border-bottom: 1px solid #eef0f6; text-align: left; font-size: 0.95rem; }
+        th { background: #faf8fb; color: #3b2a4a; }
+        .meta { color: #6f7280; font-size: 0.9rem; }
+        .pager { display:flex; gap:8px; justify-content:flex-end; padding-top:12px; }
+        .btn { padding: 8px 12px; border-radius:8px; text-decoration:none; }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <div>
+                <h1>Historial de inventario</h1>
+                <div class="meta">Lista de ajustes por fecha, usuario y motivo.</div>
+            </div>
+            <div>
+                <a href="{% url 'inventario' %}" class="btn btn-secondary">Volver al inventario</a>
+            </div>
+        </div>
+
+        <div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Producto</th>
+                        <th>Usuario</th>
+                        <th>Tipo</th>
+                        <th>Antes</th>
+                        <th>Después</th>
+                        <th>Motivo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if history and history|length > 0 %}
+                        {% for h in history %}
+                            <tr>
+                                <td>{{ h.fecha_ajuste }}</td>
+                                <td>
+                                    {% if h.producto %}
+                                        <a href="{% url 'editar_producto' h.producto.id %}">{{ h.producto.nombre_producto }}</a>
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>{{ h.usuario_responsable }}</td>
+                                <td>{{ h.tipo_movimiento }}</td>
+                                <td>{{ h.cantidad_anterior }}</td>
+                                <td>{{ h.cantidad_nueva }}</td>
+                                <td>{{ h.motivo }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr><td colspan="7" style="text-align:center;padding:28px;color:#6f7280;">No hay ajustes registrados.</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+
+            <div class="pager">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-light">Anterior</a>
+                {% endif %}
+                <div class="meta">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</div>
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="btn btn-light">Siguiente</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

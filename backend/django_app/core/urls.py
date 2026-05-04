@@ -27,6 +27,7 @@ urlpatterns = [
     path('remove_from_cart/<int:product_id>/', views.remove_from_cart, name='remove_from_cart'),
     path('logout/', views.logout_view, name='logout'),
     path('inventario/', views.inventario, name='inventario'),
+    path('inventario/historial/', views.historial_inventario, name='historial_inventario'),
     path('producto/<int:producto_id>/', views.producto_detalle, name='producto_detalle'),
     path('producto/<int:producto_id>/camisas/', views.camisas_shein, name='camisas_shein'),
     path('producto/<int:producto_id>/comprar/', views.comprar_producto, name='comprar_producto'),

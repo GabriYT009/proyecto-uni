@@ -1911,6 +1911,54 @@ def historial_compras(request):
 
 
 @login_required
+@admin_only
+def historial_inventario(request):
+    """Muestra el historial de ajustes de inventario con filtros simples."""
+    try:
+        qs = Historial_Inventario.objects.select_related('producto').order_by('-fecha_ajuste')
+
+        # filtros
+        q_prod = request.GET.get('producto', '').strip()
+        q_user = request.GET.get('usuario', '').strip()
+        q_tipo = request.GET.get('tipo', '').strip()
+        date_from = request.GET.get('from', '').strip()
+        date_to = request.GET.get('to', '').strip()
+
+        if q_prod:
+            qs = qs.filter(producto__nombre_producto__icontains=q_prod)
+        if q_user:
+            qs = qs.filter(usuario_responsable__icontains=q_user)
+        if q_tipo:
+            qs = qs.filter(tipo_movimiento__icontains=q_tipo)
+        try:
+            if date_from:
+                d = datetime.datetime.fromisoformat(date_from)
+                qs = qs.filter(fecha_ajuste__gte=d)
+            if date_to:
+                d2 = datetime.datetime.fromisoformat(date_to)
+                qs = qs.filter(fecha_ajuste__lte=d2)
+        except Exception:
+            pass
+
+        paginator = Paginator(qs, 25)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
+        return render(request, 'core/historial_inventario.html', {
+            'history': page_obj.object_list,
+            'page_obj': page_obj,
+            'filters': {
+                'producto': q_prod,
+                'usuario': q_user,
+                'tipo': q_tipo,
+                'from': date_from,
+                'to': date_to,
+            }
+        })
+    except Exception as e:
+        logger.exception('Error loading historial_inventario')
+        messages.error(request, 'No se pudo cargar el historial de inventario.')
+        return redirect('inventario')
 
 def comprar_producto(request, producto_id):
     producto = get_object_or_404(Producto, pk=producto_id, status_producto=True, cantidad_disponible__gt=0)
