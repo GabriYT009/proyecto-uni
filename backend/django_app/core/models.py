@@ -185,6 +185,7 @@ class UserSecurityAnswer(models.Model):
             return False
 class Producto(models.Model):
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, null=True, blank=True)
+    codigo_producto = models.CharField(max_length=50, blank=True, null=True)
     nombre_producto = models.CharField(max_length=45, blank=True, null=True)
     descripcion = models.CharField(max_length=45, blank=True, null=True)
     marca_producto = models.ForeignKey(Marca_producto, on_delete=models.SET_NULL, null=True, blank=True)

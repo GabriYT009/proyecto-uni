@@ -55,9 +55,13 @@ class ProductForm(forms.ModelForm):
     class Meta:
         model = Producto  # Modelo actualizado
     
-        fields = ['nombre_producto','marca_producto', 'precio_venta', 'imagen_producto', 'descripcion', 'categoria', 'status_producto', 'cantidad_disponible']
+        fields = ['codigo_producto', 'nombre_producto','marca_producto', 'precio_venta', 'imagen_producto', 'descripcion', 'categoria', 'status_producto', 'cantidad_disponible']
         
         widgets = {
+            'codigo_producto': forms.TextInput(attrs={
+                'placeholder': 'Código del producto',
+                'class': 'form-control'
+            }),
             'nombre_producto': forms.TextInput(attrs={
                 'placeholder': 'Nombre de producto', 
                 'class': 'form-control'
