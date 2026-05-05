@@ -46,6 +46,7 @@ from django.core.files.storage import default_storage
 import random
 import string
 import datetime
+import unicodedata
 from .models import PasswordResetCode
 
 from .bcv import obtener_tasa_cambio
@@ -461,16 +462,26 @@ def _latest_pending_sublimation(user, product_id):
     )
 
 
+def _normalize_talla_label(value):
+    text = unicodedata.normalize('NFKD', str(value or '').strip())
+    text = ''.join(ch for ch in text if not unicodedata.combining(ch))
+    return text.lower()
+
+
 def _sublimation_size_catalog(producto, categoria_nombre):
     tallas_base = ['S', 'M', 'L', 'XL', 'XXL'] if categoria_nombre == 'Camisas' else ['Unica']
-    stock_map = {
-        str(stock.talla).strip(): int(stock.stock_disponible or 0)
-        for stock in ProductoTallaStock.objects.filter(producto=producto)
-    }
+    base_by_normalized = {_normalize_talla_label(talla): talla for talla in tallas_base}
+    stock_map = {talla: 0 for talla in tallas_base}
 
-    if not stock_map:
+    for stock in ProductoTallaStock.objects.filter(producto=producto):
+        talla_registrada = str(stock.talla or '').strip()
+        talla_canonica = base_by_normalized.get(_normalize_talla_label(talla_registrada))
+        if not talla_canonica:
+            continue
+        stock_map[talla_canonica] += max(0, int(stock.stock_disponible or 0))
+
+    if all(valor <= 0 for valor in stock_map.values()):
         fallback_talla = 'M' if categoria_nombre == 'Camisas' else 'Unica'
-        stock_map = {talla: 0 for talla in tallas_base}
         stock_map[fallback_talla] = int(producto.cantidad_disponible or 0)
 
     tallas = []
@@ -486,7 +497,16 @@ def _get_sublimation_stock_record(producto, talla):
     talla_normalizada = (talla or '').strip()
     if not talla_normalizada:
         return None
-    return ProductoTallaStock.objects.filter(producto=producto, talla=talla_normalizada).first()
+
+    direct_match = ProductoTallaStock.objects.filter(producto=producto, talla__iexact=talla_normalizada).first()
+    if direct_match:
+        return direct_match
+
+    talla_busqueda = _normalize_talla_label(talla_normalizada)
+    for stock in ProductoTallaStock.objects.filter(producto=producto):
+        if _normalize_talla_label(stock.talla) == talla_busqueda:
+            return stock
+    return None
 
 
 def _consume_sublimation_stock(producto, talla, cantidad):
@@ -1764,8 +1784,10 @@ def camisas_shein(request, producto_id):
     if request.method == 'POST':
         accion = (request.POST.get('accion') or '').strip().lower()
         talla_raw = (request.POST.get('talla') or default_talla).strip()
-        talla_key_map = {str(key).strip().lower(): key for key in stock_por_talla.keys()}
-        talla = talla_key_map.get(talla_raw.lower(), talla_raw)
+        talla_key_map = {_normalize_talla_label(key): key for key in stock_por_talla.keys()}
+        talla = talla_key_map.get(_normalize_talla_label(talla_raw), talla_raw)
+        if es_taza:
+            talla = 'Unica'
         try:
             cantidad = int(request.POST.get('cantidad', '1') or 1)
         except ValueError:
