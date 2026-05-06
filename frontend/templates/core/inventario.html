@@ -452,6 +452,32 @@
             width: 16px;
         }
 
+        .dropdown-form {
+            margin: 0;
+        }
+
+        .dropdown-button {
+            width: 100%;
+            border: none;
+            background: transparent;
+            text-align: left;
+            cursor: pointer;
+            font: inherit;
+        }
+
+        .dropdown-button--activate {
+            color: #198754;
+        }
+
+        .dropdown-button--deactivate {
+            color: #dc3545;
+        }
+
+        .dropdown-button--activate:hover,
+        .dropdown-button--deactivate:hover {
+            background-color: #f8f9fa;
+        }
+
         @media (max-width: 768px) {
             .dropdown {
                 position: static;
@@ -894,10 +920,22 @@
                                             &#8942;
                                         </button>
                                         <div class="dropdown-menu">
-                                            <a href="#" class="dropdown-item js-confirm-delete" data-product-id="{{ producto.pk }}" data-product-name="{{ producto.nombre_producto|escapejs }}">
-                                                <i class="bi bi-trash3" style="font-size: 16px;"></i>
-                                                Eliminar
-                                            </a>
+                                            <form class="dropdown-form" method="post" action="{% url 'cambiar_estado_producto' producto.pk %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="status_producto" value="false">
+                                                <button type="submit" class="dropdown-item dropdown-button dropdown-button--deactivate">
+                                                    <i class="bi bi-toggle-off" style="font-size: 16px;"></i>
+                                                    Poner inactivo
+                                                </button>
+                                            </form>
+                                            <form class="dropdown-form" method="post" action="{% url 'cambiar_estado_producto' producto.pk %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="status_producto" value="true">
+                                                <button type="submit" class="dropdown-item dropdown-button dropdown-button--activate">
+                                                    <i class="bi bi-toggle-on" style="font-size: 16px;"></i>
+                                                    Poner activo
+                                                </button>
+                                            </form>
                                             <a href="#" class="dropdown-item js-open-edit" data-product-id="{{ producto.pk }}" data-product-name="{{ producto.nombre_producto|escapejs }}" data-product-desc="{{ producto.descripcion|escapejs }}" data-product-price="{{ producto.precio_venta|default:0 }}" data-product-qty="{{ producto.cantidad_disponible|default:0 }}" data-product-status="{{ producto.status_producto|lower }}" data-product-category-id="{{ producto.categoria_id|default:'' }}" data-product-img="{{ producto.img_url|escapejs }}">
                                                 <i class="bi bi-pencil-square" style="font-size: 16px;"></i>
                                                 Editar
@@ -1261,14 +1299,6 @@
 
         // Bind events for elements using data-attributes (safer than inline onclick)
         (function(){
-            // Delete handlers
-            document.querySelectorAll('.js-confirm-delete').forEach(function(el){
-                el.addEventListener('click', function(e){
-                    e.preventDefault();
-                    confirmarEliminar(this.dataset.productId, this.dataset.productName);
-                });
-            });
-
             // Edit handlers
             document.querySelectorAll('.js-open-edit').forEach(function(el){
                 el.addEventListener('click', function(e){

@@ -2698,6 +2698,28 @@ def eliminar_producto(request, producto_id):
     
     return redirect('inventario')
 
+
+@login_required
+@admin_only
+def cambiar_estado_producto(request, producto_id):
+    if request.method != 'POST':
+        return redirect('inventario')
+
+    producto = get_object_or_404(Producto, pk=producto_id)
+    status_raw = (request.POST.get('status_producto') or '').strip().lower()
+
+    if status_raw not in ('true', 'false'):
+        messages.error(request, 'Estado de producto inválido.')
+        return redirect('inventario')
+
+    nuevo_estado = status_raw == 'true'
+    producto.status_producto = nuevo_estado
+    producto.save(update_fields=['status_producto'])
+
+    mensajes = 'activado' if nuevo_estado else 'inactivado'
+    messages.success(request, f'El producto "{producto.nombre_producto}" ha sido {mensajes} correctamente.')
+    return redirect('inventario')
+
 @login_required
 @admin_only
 def ajustar_inventario(request, producto_id):
