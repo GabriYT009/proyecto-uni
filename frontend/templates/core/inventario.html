@@ -1252,12 +1252,6 @@
             if (descEl) descEl.dataset.original = String(descripcion || '');
             const precioEl = document.getElementById('precioEditar');
             if (precioEl) precioEl.dataset.original = String(precio || '0');
-            const statusEl = document.getElementById('statusEditar');
-            const statusValue = String(status || 'false').toLowerCase();
-            if (statusEl) {
-                statusEl.value = statusValue;
-                statusEl.dataset.original = statusValue;
-            }
             const categoriaSelect = document.getElementById('categoriaEditar');
             if (categoriaSelect) {
                 const categoriaValue = String(categoriaId || '');
@@ -1413,7 +1407,6 @@
                         {el: document.getElementById('descripcionEditar')},
                         {el: document.getElementById('precioEditar')},
                         {el: document.getElementById('cantidadEditar')},
-                        {el: document.getElementById('statusEditar')},
                         {el: document.getElementById('categoriaEditar')}
                     ];
 
@@ -1517,14 +1510,6 @@
                             {% for cat in categories %}
                             <option value="{{ cat.pk }}">{{ cat.nombre_categoria }}</option>
                             {% endfor %}
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="statusEditar">Estado:</label>
-                        <select id="statusEditar" name="status_producto" class="form-control">
-                            <option value="true">Activo</option>
-                            <option value="false">Inactivo</option>
                         </select>
                     </div>
                     

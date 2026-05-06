@@ -2808,7 +2808,6 @@ def editar_producto(request, producto_id):
         posted_desc = (request.POST.get('descripcion') or '').strip()
         posted_precio = nuevo_precio
         posted_cantidad = nueva_cantidad
-        posted_status = (request.POST.get('status_producto') == 'true')
         categoria_id = request.POST.get('categoria')
         try:
             posted_categoria_id = int(categoria_id) if categoria_id and categoria_id.isdigit() else (producto.categoria_id if getattr(producto, 'categoria_id', None) is not None else None)
@@ -2837,9 +2836,6 @@ def editar_producto(request, producto_id):
                 changed_non_image = True
         except Exception:
             pass
-        if bool(posted_status) != bool(producto.status_producto):
-            changed = True
-            changed_non_image = True
         if posted_categoria_id != (producto.categoria_id if getattr(producto, 'categoria_id', None) is not None else None):
             changed = True
             changed_non_image = True
@@ -2861,10 +2857,6 @@ def editar_producto(request, producto_id):
                 producto.precio_venta = nuevo_precio
 
                 producto.cantidad_disponible = nueva_cantidad
-
-                # Manejo correcto de checkbox (si no está marcado, no envía 'true', envía None)
-
-                producto.status_producto = request.POST.get('status_producto') == 'true'
 
                 # Lógica de categoría
                 if categoria_id:
