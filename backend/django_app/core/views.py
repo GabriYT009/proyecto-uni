@@ -1705,7 +1705,7 @@ def inventario(request):
 
     for p in page_obj.object_list:
         p.img_url = _safe_img_url(p)
-        p.status_producto = (p.cantidad_disponible or 0) > 0
+        p.stock_disponible = (p.cantidad_disponible or 0) > 0
 
     # Añadir motivo de la última reducción (si existe) a cada producto de la página
     try:
