@@ -1,4 +1,4 @@
-# Backend (Django) - instalar desde raíz: pip install -r backend/requirements.txt
+# Backend (Django) - instalar desde la raíz con: pip install -r backend/requirements.txt
 Django==5.2.8
 gunicorn==23.0.0
 whitenoise==6.12.0

@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-"""Django's command-line utility for administrative tasks."""
+"""Utilidad de línea de comandos de Django para tareas administrativas."""
 import os
 import sys
 
 
 def main():
-    # Project root = backend/ (so django_app is backend/django_app)
+    # Agregamos backend/ al path para que django_app se resuelva correctamente.
     project_root = os.path.dirname(os.path.abspath(__file__))
     if project_root not in sys.path:
         sys.path.insert(0, project_root)
@@ -15,8 +15,8 @@ def main():
         from django.core.management import execute_from_command_line
     except ImportError as exc:
         raise ImportError(
-            "Couldn't import Django. Are you sure it's installed and "
-            "available on your PYTHONPATH?"
+            "No se pudo importar Django. Verifica que esté instalado y "
+            "disponible en tu PYTHONPATH."
         ) from exc
     execute_from_command_line(sys.argv)
 

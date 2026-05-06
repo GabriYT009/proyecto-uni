@@ -7,16 +7,16 @@ from .models import Producto
 
 @receiver(post_delete, sender=Producto)
 def remove_deleted_product_from_carts(sender, instance, **kwargs):
-    """Remove a deleted product id from all session carts.
+    """Elimina un producto borrado de todos los carritos en sesión.
 
-    Cart is stored in session under key 'cart' as a list of product IDs.
-    This iterates sessions and removes the product id if present.
+    El carrito se guarda en sesión bajo la clave 'cart' como lista de IDs.
+    Recorre las sesiones y quita el ID si está presente.
     """
     pid = instance.pk
     if pid is None:
         return
 
-    # Iterate over sessions and update those that contain the product id
+    # Recorrer sesiones y actualizar las que contengan el ID del producto.
     for s in Session.objects.all():
         try:
             store = SessionStore(session_key=s.session_key)
@@ -26,7 +26,7 @@ def remove_deleted_product_from_carts(sender, instance, **kwargs):
                 store['cart'] = new_cart
                 store.save()
         except Exception:
-            # fail silently to avoid breaking deletion
+            # Fallar en silencio para no interrumpir el borrado.
             continue
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
@@ -38,17 +38,17 @@ from .models import Producto
 
 @receiver(post_delete, sender=Producto)
 def producto_post_delete(sender, instance, **kwargs):
-    """When a Producto is deleted, remove its id from any session 'cart' lists.
+    """Al borrar un Producto, remover su ID de listas 'cart' en sesión.
 
-    This handles deletions made outside the application's remove view
-    (e.g., admin site or scripts) so users' session carts don't reference
-    deleted products.
+    Esto cubre borrados realizados fuera de la vista de eliminación de la app
+    (por ejemplo, admin o scripts) para evitar que los carritos apunten
+    a productos eliminados.
     """
     prod_id = instance.pk
     if prod_id is None:
         return
 
-    # Iterate all sessions and remove the product id from any 'cart' list
+    # Recorrer todas las sesiones y quitar el ID del producto de cualquier lista 'cart'.
     for session in Session.objects.all():
         try:
             store = SessionStore(session_key=session.session_key)
@@ -60,5 +60,5 @@ def producto_post_delete(sender, instance, **kwargs):
                 store['cart'] = new_cart
                 store.save()
         except Exception:
-            # Don't let one bad session stop the cleanup
+            # No permitir que una sesión dañada frene la limpieza.
             continue

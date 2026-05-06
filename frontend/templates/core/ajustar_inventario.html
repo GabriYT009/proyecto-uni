@@ -24,13 +24,13 @@
         .ajustar-card .ajustar-btn:active{ background:#7a2ea5; }
         .ajustar-card .ajustar-cantidad{ width:48px; text-align:center; border:1px solid #ccc; border-radius:6px; font-size:1.1rem; }
         .tallas-wrap{ display:none; margin-top:10px; border-top:1px solid #f0e7f8; padding-top:10px; }
-        /* Use a compact grid for each talla row so controls don't overflow */
+        /* Usar grilla compacta por fila de talla para evitar desbordes de controles */
         .talla-row{ display:grid; grid-template-columns: 1fr auto; align-items:center; gap:8px; margin-bottom:6px; font-size:0.88rem; }
         .talla-meta{ display:flex; gap:6px; align-items:center; justify-content:flex-start; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         .talla-controles{ display:flex; gap:6px; align-items:center; justify-content:flex-end; }
         .talla-btn{ background:#9932CC; color:#fff; border:none; border-radius:4px; width:22px; height:22px; cursor:pointer; padding:0; font-size:1rem; line-height:1; }
         .talla-ajuste{ width:30px; text-align:center; font-weight:700; color:#7a2ea5; display:inline-block; }
-        /* Ensure tallas area wraps nicely on small cards */
+        /* Asegurar que el área de tallas haga wrap correctamente en tarjetas pequeñas */
         .tallas-wrap, .talla-row { box-sizing: border-box; }
     </style>
 </head>
@@ -338,7 +338,7 @@
     </div>
 
     <style>
-        /* simple modal overlay styling for ajustar_inventario */
+        /* Estilo simple del overlay modal para ajustar_inventario */
         #ajusteMotivoModal { display:none; }
         #ajusteMotivoModal.open { display:flex; position:fixed; inset:0; background:rgba(42, 19, 61, 0.58); backdrop-filter: blur(2px); z-index:40000; align-items:center; justify-content:center; padding:24px; }
         #ajusteMotivoModal .modal-content { width:min(100%, 520px); display:flex; align-items:center; }

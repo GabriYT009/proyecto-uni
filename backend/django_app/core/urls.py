@@ -42,12 +42,12 @@ urlpatterns = [
     path('pedido/<int:salida_id>/detalles/', views.detalles_salida, name='detalles_salida'),
     path('pagos/aprobar/', views.aprobar_pagos, name='aprobar_pagos'),
     path('pagos/sublimacion/', views.ordenes_sublimacion, name='ordenes_sublimacion'),
-    # legacy/static file requests that some templates/scripts still use
+    # Solicitudes legacy/static que algunos templates/scripts aún utilizan
     path('home.html', RedirectView.as_view(pattern_name='home', permanent=False)),
     path('index.html', RedirectView.as_view(pattern_name='login', permanent=False)),
-    # legacy compatibility: some auth redirects use /accounts/login/
+    # Compatibilidad heredada: algunos redirects de auth usan /accounts/login/
     path('accounts/login/', RedirectView.as_view(pattern_name='login', permanent=False, query_string=True)),
-    # compatibility: legacy URL used by some older links/scripts
+    # Compatibilidad: URL heredada usada por algunos enlaces/scripts antiguos
     path('comprar_producto/<int:producto_id>/', RedirectView.as_view(url='/producto/%(producto_id)s/comprar/', permanent=False)),
     path('todos_clientes/', views.todos_clientes, name='todos_clientes'),
     path('agregar_marca/', views.agregar_marca, name='agregar_marca'),

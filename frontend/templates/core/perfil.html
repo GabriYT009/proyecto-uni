@@ -81,7 +81,7 @@
         a.logout-button{ display:inline-block; background: #ffffff; color: #9932CC; padding: 8px 14px; border-radius: 20px; text-decoration: none; font-weight: 600; box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
         a.logout-button:hover{ box-shadow: 0 4px 10px rgba(0,0,0,0.16); }
 
-        /* Mobile responsive */
+        /* Responsive para móvil */
         @media (max-width: 768px) {
             body { padding-top: 70px; }
             .top-bar .bar-inner { padding: 0 10px; }
@@ -108,7 +108,7 @@
 <body>
     {% include 'core/_topbar.html' %}
     <script>
-        // Hamburger nav menu (perfil page)
+        // Menú hamburguesa de navegación (página perfil)
         (function(){
             const navToggle = document.getElementById('barToggle');
             const navMenu = document.getElementById('barNavMenu');
@@ -239,7 +239,7 @@
     </div>
 
     <script>
-        // Clear search input when page loads (for navigation)
+        // Limpiar el buscador al cargar la página (para navegación)
         document.getElementById('searchInput').value = '';
 
         // Handle Enter key to search

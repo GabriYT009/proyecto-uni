@@ -1,4 +1,4 @@
-(function () {
+﻿(function () {
   var LOADER_ID = 'pageLoaderOverlay';
   var STYLE_ID = 'pageLoaderStyles';
 
@@ -45,7 +45,7 @@
 
   function shouldSkipLink(link) {
     if (!link) return true;
-    // Skip links handled via JS (modal open / AJAX add-to-cart).
+    // Omitir enlaces manejados por JS (abrir modal / agregar al carrito por AJAX).
     if (link.classList && (link.classList.contains('view') || link.classList.contains('add-cart'))) return true;
     if (link.closest && link.closest('.view, .add-cart')) return true;
     var href = link.getAttribute('href') || '';
@@ -97,7 +97,7 @@
       hideLoader();
     });
 
-    // Expose controls for pages with async flows that must hide overlay manually.
+    // Exponer controles para páginas con flujos asíncronos que deban ocultar el overlay manualmente.
     window.PageLoader = {
       show: showLoader,
       hide: hideLoader
@@ -110,3 +110,4 @@
     init();
   }
 })();
+

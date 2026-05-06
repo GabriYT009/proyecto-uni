@@ -239,7 +239,7 @@
             width: 100%;
         }
 
-        /* Header section for inventory */
+        /* Sección de encabezado para inventario */
         .inventory-header {
             background: linear-gradient(135deg, #61247f, #46125d);
             color: white;
@@ -385,7 +385,7 @@
             color: #666;
         }
 
-        /* Dropdown menu styles */
+        /* Estilos del menú desplegable */
         .dropdown {
             position: relative;
             display: inline-block;
@@ -755,7 +755,7 @@
         .floating-messages .msg.success{ background: #28a745; }
         .floating-messages .msg.error{ background: #dc3545; }
 
-        /* Also handle mobile browsers using zoom/desktop-like viewport widths */
+        /* También manejar navegadores móviles con zoom o viewport tipo escritorio */
         @media (max-width: 1100px) {
             html, body {
                 max-width: 100%;
@@ -818,7 +818,7 @@
     <!-- MAIN CONTENT - CON EL ESTILO ORIGINAL PERO TABLA SFI -->
     <div class="giant-frame">
         <div class="wrap">
-            <!-- Header Section -->
+            <!-- Sección de encabezado -->
             <div class="inventory-header">
                 <div class="inventory-header-icon">
                     <i class="bi bi-box-seam-fill"></i>
@@ -1037,7 +1037,7 @@
         })();
 
         // inventario page: dropdown script removed
-        // Hamburger nav menu (inventario page)
+        // Menú hamburguesa de navegación (página inventario)
         (function(){
             const navToggle = document.getElementById('barToggle');
             const navMenu = document.getElementById('barNavMenu');
@@ -1124,7 +1124,7 @@
             document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeMenu(); });
         })();
 
-        // Dropdown menu functionality for action buttons
+        // Funcionalidad del menú desplegable para botones de acción
         (function(){
             const dropdowns = document.querySelectorAll('.dropdown');
 
@@ -1245,7 +1245,7 @@
             // store original quantity to validate motivo on submit
             const cantidadEl = document.getElementById('cantidadEditar');
             if (cantidadEl) cantidadEl.dataset.original = String(cantidad || 0);
-            // store originals for broader change detection
+            // Guardar valores originales para una detección de cambios más amplia
             const nombreEl = document.getElementById('nombreProductoEditar');
             if (nombreEl) nombreEl.dataset.original = String(nombre || '');
             const descEl = document.getElementById('descripcionEditar');
@@ -1291,7 +1291,7 @@
             actualizarEstadoScrollBody();
         }
 
-        // Bind events for elements using data-attributes (safer than inline onclick)
+        // Enlazar eventos para elementos con data-attributes (más seguro que inline onclick)
         (function(){
             // Edit handlers
             document.querySelectorAll('.js-open-edit').forEach(function(el){
@@ -1419,7 +1419,7 @@
                         if (original !== current) anyChanged = true;
                     });
 
-                    // if any change and motivo empty -> block
+                    // Si hay cambios y motivo vacío -> bloquear
                     if (anyChanged) {
                         if (!motivoEl || (motivoEl.value || '').trim() === '') {
                             e.preventDefault();
@@ -1433,7 +1433,7 @@
     </script>
 
     <!-- Vendor JS Files -->
-    <!-- jQuery (CDN) + fallback to admin copy -->
+    <!-- jQuery (CDN) + fallback a copia del admin -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script>window.jQuery || document.write('<script src="{% static "admin/js/vendor/jquery/jquery.min.js" %}"><\/script>')</script>
     <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
@@ -1550,7 +1550,7 @@
             });
         });
 
-        // Clear search input when page loads (for navigation)
+        // Limpiar el buscador al cargar la página (para navegación)
         const searchInput = document.getElementById('searchInput');
         if (searchInput) {
             searchInput.value = '';

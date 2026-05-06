@@ -1,9 +1,9 @@
 """
-WSGI config for django_app project.
+Configuración WSGI del proyecto django_app.
 
-It exposes the WSGI callable as a module-level variable named ``application``.
+Expone la aplicación WSGI como la variable de módulo ``application``.
 
-For more information on this file, see
+Para más información sobre este archivo, ver:
 https://docs.djangoproject.com/en/5.2/howto/deployment/wsgi/
 """
 

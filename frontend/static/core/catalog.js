@@ -1,4 +1,4 @@
-(function(){
+﻿(function(){
     function init(){
         const grid = document.getElementById('grid');
         const search = document.getElementById('search');
@@ -17,25 +17,25 @@
             if (window.__catalog_debug) console.log('[catalog-debug] openDetailFromButton start, scrollY=', window.scrollY, 'button=', button && button.dataset && button.dataset.id);
             console.log('[catalog.js] openDetailFromButton called', button && button.dataset && button.dataset.id);
             const id = button && button.dataset && button.dataset.id ? Number(button.dataset.id) : null;
-            // save current scroll position so we can restore it after opening modal
+            // Guardar la posición actual de scroll para restaurarla tras abrir el modal
             const __catalog_saved_scroll = (typeof window.scrollY !== 'undefined') ? window.scrollY : (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop || 0;
-            // If a global `openDetail(id)` exists (the function used on the home page), call it
-            // but don't bail out: some pages may not fully populate the modal, so
-            // after delegating we'll verify and apply a local fallback to ensure
-            // the modal content and visibility match the home page behavior.
+            // Si existe `openDetail(id)` global (función usada en home), llamarlo
+            // pero no salir de inmediato: algunas páginas no llenan todo el modal,
+            // así que después de delegar verificamos y aplicamos fallback local para asegurar
+            // que el contenido y la visibilidad coincidan con el comportamiento de home.
             var delegated = false;
             if (id !== null && typeof window.openDetail === 'function') {
                 try {
                     console.log('[catalog.js] delegating to global openDetail for id', id);
                     window.openDetail(id);
                     delegated = true;
-                    // If the global handler already made the modal visible, stop here.
+                    // Si el handler global ya dejó visible el modal, detener aquí.
                     try {
                         if (modal && window.getComputedStyle && getComputedStyle(modal).display !== 'none') {
                             return;
                         }
                     } catch(e){}
-                    // otherwise continue with local fallback to ensure visibility
+                    // de lo contrario, continuar con fallback local para asegurar visibilidad
                 } catch (e) {
                     console.warn('[catalog.js] global openDetail threw, falling back', e);
                 }
@@ -46,8 +46,8 @@
             const desc = button.dataset.desc || '';
             const price = button.dataset.price || '';
             console.log('[catalog.js] data values', { title, img, desc, price });
-            // If the global `openDetail` didn't populate the modal, populate here
-            // (this handles cases where `products` isn't available or openDetail didn't set elements).
+            // Si `openDetail` global no llenó el modal, poblarlo aquí
+            // (cubre casos donde `products` no está disponible o openDetail no seteó elementos).
             if ((!mTitle || !mTitle.textContent) && typeof products !== 'undefined') {
                 const prod = products.find(p => Number(p.id) === Number(id));
                 if (prod) {
@@ -70,51 +70,51 @@
         } catch (err) {
             console.error('openDetailFromButton error:', err);
         }
-        // click feedback: highlight the card briefly
+        // Feedback de clic: resaltar la tarjeta brevemente
         const cardEl = button.closest('.card');
         if (cardEl) {
             cardEl.classList.add('selected');
             setTimeout(()=> cardEl.classList.remove('selected'), 260);
         }
-        // store current product id for add/buy handlers
+        // Guardar ID actual de producto para handlers de agregar/comprar
         window.currentProductId = button.dataset.id || null;
         console.log('[catalog.js] elements', { modal: !!modal, mTitle: !!mTitle, mImg: !!mImg, mDesc: !!mDesc, mPrice: !!mPrice });
             if(modal){
-            // show modal (templates expect .show to toggle visibility)
+            // Mostrar modal (los templates esperan .show para visibilidad)
             modal.classList.add('show');
-            // ensure dataset productId for any page-level handlers
+            // Asegurar dataset productId para handlers de página
             try { if (window.currentProductId) modal.dataset.productId = window.currentProductId; } catch(e){}
             modal.setAttribute('aria-hidden','false');
-            // ensure inline style display if used and force visibility
+            // Asegurar display inline si aplica y forzar visibilidad
                 if (modal.style) {
                     modal.style.display = 'flex';
                     modal.style.visibility = 'visible';
                     modal.style.opacity = '1';
                     modal.style.zIndex = '99999';
                 }
-                // prevent background scroll while modal open without jumping: fix body position
+                // Evitar scroll de fondo con modal abierto sin saltos: ajustar body
                 try {
-                    // blur the currently focused element to avoid browser auto-scrolling
+                    // Quitar foco al elemento activo para evitar auto-scroll del navegador
                     try {
                         if (window.__catalog_debug) console.log('[catalog-debug] before blur scrollY=', window.scrollY, 'activeElement=', document.activeElement);
                         if (document.activeElement && typeof document.activeElement.blur === 'function') document.activeElement.blur();
                         if (window.__catalog_debug) setTimeout(function(){ console.log('[catalog-debug] after blur scrollY=', window.scrollY); }, 10);
                     } catch(e){}
-                        // store globally so closeModal can restore scroll position
+                        // Guardar globalmente para que closeModal pueda restaurar el scroll
                         window.__catalog_saved_scroll = (typeof __catalog_saved_scroll !== 'undefined' && __catalog_saved_scroll !== null) ? __catalog_saved_scroll : ((typeof window.scrollY !== 'undefined') ? window.scrollY : (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop || 0);
-                        // disable scrolling on root element
+                        // Deshabilitar scroll en el elemento raíz
                         try { document.documentElement.style.overflow = 'hidden'; document.body.style.overflow = 'hidden'; } catch(e){}
-                        // Keep current viewport position; avoid forced scroll jumps.
+                        // Mantener posición del viewport; evitar saltos forzados de scroll.
                 } catch(e){}
             console.log('[catalog.js] modal forced visible, style.display=', modal.style && modal.style.display);
 
-                // Ensure inner dialog matches catalog sizing (max-width and margin)
+                // Asegurar que el diálogo interno respete medidas del catálogo (max-width y margen)
             try {
                 const inner = modal.querySelector('.detail-modal');
                 if (inner && inner.style) {
                     inner.style.maxWidth = '520px';
                     inner.style.margin = '40px auto';
-                    // make inner focusable but avoid calling focus to prevent browser auto-scrolling
+                    // Hacer focusable el modal interno, pero sin llamar a focus para evitar auto-scroll.
                     try { inner.tabIndex = -1; } catch(e){}
                     if (window.__catalog_debug) {
                         console.log('[catalog-debug] modal shown, scrollY=', window.scrollY);
@@ -124,7 +124,7 @@
                 }
             } catch(e){ }
 
-            // Debug overlay: show quick visual diagnostics so the user can see state
+            // Overlay de depuración: diagnóstico visual rápido para ver el estado
             try {
                 const info = {
                     openDetailType: typeof window.openDetail,
@@ -136,7 +136,7 @@
                 };
                 console.log('[catalog.js] debug info', info);
 
-                // create a small overlay so the user can see the values visually
+                // crear un overlay pequeño para ver visualmente los valores
                 const dbgId = 'catalog-debug-overlay';
                 let dbg = document.getElementById(dbgId);
                 if (!dbg) {
@@ -174,24 +174,24 @@
         }
         }
 
-        // Also add event delegation as a fallback for dynamically added buttons
-    // capture-phase handler to catch clicks even if something blocks bubbling
+        // Agregar también delegación de eventos como fallback para botones dinámicos
+    // Handler en fase capture para capturar clics aunque algo bloquee bubbling
     document.addEventListener('click', function(e){
         try{
             const btn = e.target && e.target.closest ? e.target.closest('.view') : null;
             if (btn) {
-                // ignore clicks originating from category links (they should navigate to catalog)
+                // Ignorar clics originados en enlaces de categoría (deben navegar al catálogo)
                 try {
                     const catAncestor = btn.closest('.category-card') || btn.closest('a.category-card');
                     const anchorAncestor = btn.closest('a');
                     const href = anchorAncestor && anchorAncestor.getAttribute ? (anchorAncestor.getAttribute('href') || '') : '';
                     if (catAncestor || (/catalogo|catalog/gi.test(href))) {
-                        // allow normal navigation for category selection
+                        // Permitir navegación normal para selección de categoría
                         return;
                     }
                 } catch(e){ /* ignore */ }
 
-                // dedupe rapid duplicate events (avoid double-calling when multiple handlers existed)
+                // Deduplicar eventos rápidos para evitar doble llamada
                 try {
                     window.__catalog_last_open_ts = window.__catalog_last_open_ts || 0;
                     window.__catalog_last_open_id = window.__catalog_last_open_id || null;
@@ -220,10 +220,10 @@
             }
         } catch(err){ console.error('[catalog.js] delegation handler error', err); }
     }, true);
-        // expose for inline debugging / template hooks
+        // Exponer para depuración inline / hooks de template
         try { window.openDetailFromButton = openDetailFromButton; } catch(e){/* ignore */}
 
-        // reusable close logic (in outer scope so other handlers can call it)
+        // Lógica reutilizable de cierre (scope externo para otros handlers)
         function closeModal(){
             try {
                 if (modal) {
@@ -231,16 +231,16 @@
                     modal.setAttribute('aria-hidden','true');
                     if (modal.style) modal.style.display = 'none';
                     try {
-                        // restore body scroll state using whichever saved var exists
+                        // Restaurar estado de scroll del body con la variable guardada disponible
                         var saved = null;
                         if (typeof window.__catalog_saved_scroll !== 'undefined' && window.__catalog_saved_scroll !== null) saved = window.__catalog_saved_scroll;
                         if (saved === null && typeof window.__home_saved_scroll !== 'undefined' && window.__home_saved_scroll !== null) saved = window.__home_saved_scroll;
                         if (saved === null) saved = 0;
-                        // restore overflow and scroll
+                        // Restaurar overflow y scroll
                         try { document.documentElement.style.overflow = ''; document.body.style.overflow = ''; } catch(e){}
-                        // restore only if we actually have a numeric saved position
-                        // Keep current viewport position on close; no forced scroll jump.
-                        // cleanup both markers
+                        // Restaurar solo si existe una posición guardada numérica
+                        // Mantener la posición actual al cerrar; evitar saltos forzados
+                        // Limpiar ambos marcadores
                         try { delete window.__catalog_saved_scroll; } catch(e){}
                         try { delete window.__home_saved_scroll; } catch(e){}
                     } catch(e){}
@@ -252,14 +252,14 @@
             try { mClose.addEventListener('click', closeModal); } catch(e){}
         }
 
-        // Also close modal when clicking anywhere outside the inner dialog
+        // Cerrar modal también al hacer clic fuera del diálogo interno
         try {
             document.addEventListener('click', function(ev){
                 try {
                     if (!modal || !modal.classList.contains('show')) return;
                     const inner = modal.querySelector('.detail-modal') || modal.querySelector('.modal');
                     if (!inner) return;
-                    // if the click target is not inside the inner dialog, close
+                    // Si el objetivo del clic no está dentro del diálogo interno, cerrar
                     if (!inner.contains(ev.target)) {
                         closeModal();
                     }
@@ -267,14 +267,14 @@
             }, true);
         } catch(e){}
 
-        // Add to cart handler: try to call page-level addToCart if provided
+        // Handler de agregar al carrito: intentar usar addToCart si existe en la página
         const mAddCart = document.getElementById('m-add-cart');
         if (mAddCart) {
             mAddCart.addEventListener('click', ()=>{
                 const id = window.currentProductId;
                 if (window.addToCart) return window.addToCart(id);
                 if (id) {
-                    // fallback: submit a form POST to /carrito/
+                    // Fallback: enviar formulario POST a /carrito/
                     const form = document.createElement('form');
                     form.method = 'POST';
                     form.action = '/carrito/';
@@ -301,7 +301,7 @@
                 const id = window.currentProductId;
                 if (window.buyNow) return window.buyNow(id);
                 if (id) {
-                    // default: add to cart then go to cart page
+                    // Por defecto: agregar al carrito y luego ir a su página
                     const form = document.createElement('form');
                     form.method = 'POST';
                     form.action = '/carrito/';
@@ -332,14 +332,14 @@
             });
         }
 
-        // attach initially
+        // Enlazar inicialmente
         attachListeners();
     }
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
-        // DOMContentLoaded already fired
+        // DOMContentLoaded ya se ejecutó
         init();
     }
 })();
@@ -355,17 +355,17 @@
         const mPrice = document.getElementById('m-price');
         const mClose = document.getElementById('m-close');
         const mBuy = document.getElementById('m-buy');
-        // Prevent pointer interactions from causing native focus -> browser auto-scroll.
+        // Evitar que interacciones de puntero causen foco nativo y auto-scroll del navegador.
         try {
             document.addEventListener('pointerdown', function(e){
                 try {
                     const btn = e.target && e.target.closest ? e.target.closest('.view') : null;
                     if (!btn) return;
-                    // mark suppression flag for the next focus event; do NOT call preventDefault here
-                    // so native click behavior remains consistent
+                    // Marcar supresión para el siguiente evento de foco; NO usar preventDefault aquí
+                    // para mantener consistente el comportamiento nativo del clic
                     window.__suppress_next_focus = true;
                     setTimeout(function(){ window.__suppress_next_focus = false; }, 120);
-                    // store the bounding rect of the clicked view so modal can be anchored
+                    // Guardar bounding rect del elemento clicado para poder anclar el modal
                     try { window.__last_view_rect = btn.getBoundingClientRect(); } catch(e){}
                 } catch(e){}
             }, true);
@@ -384,25 +384,25 @@
             if (window.__catalog_debug) console.log('[catalog-debug] openDetailFromButton start, scrollY=', window.scrollY, 'button=', button && button.dataset && button.dataset.id);
             console.log('[catalog.js] openDetailFromButton called', button && button.dataset && button.dataset.id);
             const id = button && button.dataset && button.dataset.id ? Number(button.dataset.id) : null;
-            // save current scroll position so we can restore it after opening modal
+            // Guardar la posición actual de scroll para restaurarla tras abrir el modal
             const __catalog_saved_scroll = (typeof window.scrollY !== 'undefined') ? window.scrollY : (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop || 0;
-            // If a global `openDetail(id)` exists (the function used on the home page), call it
-            // but don't bail out: some pages may not fully populate the modal, so
-            // after delegating we'll verify and apply a local fallback to ensure
-            // the modal content and visibility match the home page behavior.
+            // Si existe `openDetail(id)` global (función usada en home), llamarlo
+            // pero no salir de inmediato: algunas páginas no llenan todo el modal,
+            // así que después de delegar verificamos y aplicamos fallback local para asegurar
+            // que el contenido y la visibilidad coincidan con el comportamiento de home.
             var delegated = false;
             if (id !== null && typeof window.openDetail === 'function') {
                 try {
                     console.log('[catalog.js] delegating to global openDetail for id', id);
                     window.openDetail(id);
                     delegated = true;
-                    // If the global handler already made the modal visible, stop here.
+                    // Si el handler global ya dejó visible el modal, detener aquí.
                     try {
                         if (modal && window.getComputedStyle && getComputedStyle(modal).display !== 'none') {
                             return;
                         }
                     } catch(e){}
-                    // otherwise continue with local fallback to ensure visibility
+                    // de lo contrario, continuar con fallback local para asegurar visibilidad
                 } catch (e) {
                     console.warn('[catalog.js] global openDetail threw, falling back', e);
                 }
@@ -413,8 +413,8 @@
             const desc = button.dataset.desc || '';
             const price = button.dataset.price || '';
             console.log('[catalog.js] data values', { title, img, desc, price });
-            // If the global `openDetail` didn't populate the modal, populate here
-            // (this handles cases where `products` isn't available or openDetail didn't set elements).
+            // Si el `openDetail` global no llenó el modal, completarlo aquí.
+            // (Esto cubre casos donde `products` no existe o openDetail no asignó elementos).
             if ((!mTitle || !mTitle.textContent) && typeof products !== 'undefined') {
                 const prod = products.find(p => Number(p.id) === Number(id));
                 if (prod) {
@@ -437,39 +437,39 @@
         } catch (err) {
             console.error('openDetailFromButton error:', err);
         }
-        // click feedback: highlight the card briefly
+        // Feedback de clic: resaltar la tarjeta brevemente
         const cardEl = button.closest('.card');
         if (cardEl) {
             cardEl.classList.add('selected');
             setTimeout(()=> cardEl.classList.remove('selected'), 260);
         }
-        // store current product id for add/buy handlers
+        // Guardar ID actual de producto para handlers de agregar/comprar
         window.currentProductId = button.dataset.id || null;
         console.log('[catalog.js] elements', { modal: !!modal, mTitle: !!mTitle, mImg: !!mImg, mDesc: !!mDesc, mPrice: !!mPrice });
             if(modal){
-            // show modal (templates expect .show to toggle visibility)
+            // Mostrar modal (los templates esperan .show para visibilidad)
             modal.classList.add('show');
-            // ensure dataset productId for any page-level handlers
+            // Asegurar dataset productId para handlers de página
             try { if (window.currentProductId) modal.dataset.productId = window.currentProductId; } catch(e){}
             modal.setAttribute('aria-hidden','false');
-            // ensure inline style display if used and force visibility
+            // Asegurar display inline si aplica y forzar visibilidad
                 if (modal.style) {
                     modal.style.display = 'flex';
                     modal.style.visibility = 'visible';
                     modal.style.opacity = '1';
                     modal.style.zIndex = '99999';
                 }
-                // prevent background scroll while modal open without jumping: fix body position
+                // Evitar scroll de fondo con modal abierto sin saltos: ajustar body
                 try {
-                    // blur the currently focused element to avoid browser auto-scrolling
+                    // Quitar foco al elemento activo para evitar auto-scroll del navegador
                     try {
                         if (window.__catalog_debug) console.log('[catalog-debug] before blur scrollY=', window.scrollY, 'activeElement=', document.activeElement);
                         if (document.activeElement && typeof document.activeElement.blur === 'function') document.activeElement.blur();
                         if (window.__catalog_debug) setTimeout(function(){ console.log('[catalog-debug] after blur scrollY=', window.scrollY); }, 10);
                     } catch(e){}
-                        // store globally so closeModal can restore scroll position
+                        // Guardar globalmente para que closeModal pueda restaurar el scroll
                         window.__catalog_saved_scroll = (typeof __catalog_saved_scroll !== 'undefined' && __catalog_saved_scroll !== null) ? __catalog_saved_scroll : ((typeof window.scrollY !== 'undefined') ? window.scrollY : (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop || 0);
-                        // disable scrolling on root element and avoid layout shift
+                        // Deshabilitar scroll en el elemento raíz and avoid layout shift
                         try {
                             const sb = window.innerWidth - document.documentElement.clientWidth;
                             if (sb > 0) {
@@ -477,51 +477,51 @@
                             }
                             try { document.documentElement.style.overflow = 'hidden'; document.body.style.overflow = 'hidden'; } catch(e){}
                         } catch(e){}
-                        // do NOT force-scroll here; rely on overflow:hidden to keep viewport
-                        // restore will be attempted on close only when a numeric saved value exists
+                        // NO forzar scroll aquí; usar overflow:hidden para mantener el viewport
+                        // La restauración se intenta al cerrar solo si existe un valor numérico guardado
                 } catch(e){}
             console.log('[catalog.js] modal forced visible, style.display=', modal.style && modal.style.display);
 
-                // Ensure inner dialog matches catalog sizing. If we have a recent
-                // `__last_view_rect` (from pointerdown), anchor the dialog near that
-                // element instead of centering it — this keeps the modal where the
-                // user clicked and avoids scrolling the page.
+                // Asegurar medidas del diálogo interno. Si existe un valor reciente
+                // `__last_view_rect` (de pointerdown), anclar el diálogo cerca de ese
+                // elemento en lugar de centrarlo; así el modal queda donde el
+                // usuario hizo clic y se evita desplazar la página.
             try {
                 const inner = modal.querySelector('.detail-modal');
                 if (inner && inner.style) {
                     inner.style.maxWidth = '520px';
-                    // default to centered modal
+                    // Por defecto, modal centrado
                     inner.style.position = '';
                     inner.style.left = '';
                     inner.style.top = '';
                     inner.style.margin = '40px auto';
-                    // If we have a saved rect, position absolutely relative to viewport
+                    // Si hay un rect guardado, posicionar absoluto respecto al viewport.
                     try {
                         const rect = window.__last_view_rect || null;
                         if (rect && typeof rect.top !== 'undefined') {
-                            // anchor below the element if it fits, otherwise above
+                            // anclar debajo del elemento si cabe; si no, arriba
                             const spaceBelow = window.innerHeight - rect.bottom;
                             const spaceAbove = rect.top;
                             inner.style.position = 'absolute';
-                            // compute left so dialog is roughly aligned with element
+                            // calcular left para alinear aproximadamente el diálogo con el elemento
                             let left = rect.left;
-                            // ensure dialog doesn't overflow viewport horizontally
+                            // asegurar que el diálogo no se desborde horizontalmente del viewport
                             const dialogWidth = Math.min(520, window.innerWidth - 32);
                             if (left + dialogWidth + 16 > window.innerWidth) left = Math.max(8, window.innerWidth - dialogWidth - 16);
                             inner.style.left = left + 'px';
-                            // place below if enough space, else above
+                            // Ubicar abajo si hay espacio suficiente; si no, arriba.
                             if (spaceBelow > (inner.offsetHeight || 200) || spaceBelow > spaceAbove) {
                                 inner.style.top = (rect.bottom + 8) + 'px';
                             } else {
                                 inner.style.top = Math.max(8, rect.top - (inner.offsetHeight || 200) - 8) + 'px';
                             }
-                            // remove automatic entrance animation so it appears instantly
+                            // quitar animación automática de entrada para que aparezca al instante
                             try { inner.style.animation = 'none'; inner.style.transform = 'none'; inner.style.opacity = '1'; } catch(e){}
                         } else {
                             inner.style.margin = '40px auto';
                         }
                     } catch(e){}
-                    // make inner focusable but avoid calling focus to prevent browser auto-scrolling
+                    // Hacer focusable el modal interno, pero sin llamar a focus para evitar auto-scroll.
                     try { inner.tabIndex = -1; } catch(e){}
                     if (window.__catalog_debug) {
                         console.log('[catalog-debug] modal shown, scrollY=', window.scrollY);
@@ -531,7 +531,7 @@
                 }
             } catch(e){ }
 
-            // Debug overlay: show quick visual diagnostics so user can see state
+            // Overlay de depuración: diagnóstico visual rápido para ver el estado
             try {
                 const info = {
                     openDetailType: typeof window.openDetail,
@@ -543,7 +543,7 @@
                 };
                 console.log('[catalog.js] debug info', info);
 
-                // create a small overlay so the user can see the values visually
+                // crear un overlay pequeño para ver visualmente los valores
                 const dbgId = 'catalog-debug-overlay';
                 let dbg = document.getElementById(dbgId);
                 if (!dbg) {
@@ -581,24 +581,24 @@
         }
         }
 
-        // Also add event delegation as a fallback for dynamically added buttons
-    // capture-phase handler to catch clicks even if something blocks bubbling
+        // Agregar también delegación de eventos como fallback para botones dinámicos
+    // Handler en fase capture para capturar clics aunque algo bloquee bubbling
     document.addEventListener('click', function(e){
         try{
             const btn = e.target && e.target.closest ? e.target.closest('.view') : null;
                 if (btn) {
-                // ignore clicks originating from category links (they should navigate to catalog)
+                // Ignorar clics originados en enlaces de categoría (deben navegar al catálogo)
                 try {
                     const catAncestor = btn.closest('.category-card') || btn.closest('a.category-card');
                     const anchorAncestor = btn.closest('a');
                     const href = anchorAncestor && anchorAncestor.getAttribute ? (anchorAncestor.getAttribute('href') || '') : '';
                     if (catAncestor || (/catalogo|catalog/gi.test(href))) {
-                        // allow normal navigation for category selection
+                        // Permitir navegación normal para selección de categoría
                         return;
                     }
                 } catch(e){ /* ignore */ }
 
-                // dedupe rapid duplicate events (avoid double-calling when multiple handlers existed)
+                // Deduplicar eventos rápidos para evitar doble llamada
                 try {
                     window.__catalog_last_open_ts = window.__catalog_last_open_ts || 0;
                     window.__catalog_last_open_id = window.__catalog_last_open_id || null;
@@ -614,9 +614,9 @@
                 const localType = typeof openDetailFromButton === 'function';
                 const winType = !!window.openDetailFromButton;
                 console.log('[catalog.js] handlers present', { localType, winType });
-                // Prevent other handlers from executing for this event and open modal
-                // asynchronously to avoid layout/scroll side-effects while the browser
-                // is still handling the input event.
+                // Evitar que otros handlers ejecuten este evento y abrir modal
+                // de forma asíncrona para evitar efectos secundarios de layout/scroll mientras el navegador
+                // todavía procesa el evento de entrada.
                 try { e.preventDefault(); e.stopImmediatePropagation(); e.stopPropagation(); } catch(e){}
                 if (localType || winType) {
                     setTimeout(function(){
@@ -631,10 +631,10 @@
             }
         } catch(err){ console.error('[catalog.js] delegation handler error', err); }
     }, true);
-        // expose for inline debugging / template hooks
+        // Exponer para depuración inline / hooks de template
         try { window.openDetailFromButton = openDetailFromButton; } catch(e){/* ignore */}
 
-        // reusable close logic (in outer scope so other handlers can call it)
+        // Lógica reutilizable de cierre (scope externo para otros handlers)
         function closeModal(){
             try {
                 if (modal) {
@@ -642,15 +642,15 @@
                     modal.setAttribute('aria-hidden','true');
                     if (modal.style) modal.style.display = 'none';
                     try {
-                        // restore body scroll state using whichever saved var exists
+                        // Restaurar estado de scroll del body con la variable guardada disponible
                         var saved = null;
                         if (typeof window.__catalog_saved_scroll !== 'undefined' && window.__catalog_saved_scroll !== null) saved = window.__catalog_saved_scroll;
                         if (saved === null && typeof window.__home_saved_scroll !== 'undefined' && window.__home_saved_scroll !== null) saved = window.__home_saved_scroll;
                         if (saved === null) saved = 0;
-                        // restore overflow and scroll (also remove padding added to avoid layout shift)
+                        // Restaurar overflow y scroll (también remover padding agregado para evitar salto de layout)
                         try { document.documentElement.style.overflow = ''; document.body.style.overflow = ''; document.documentElement.style.paddingRight = ''; document.body.style.paddingRight = ''; } catch(e){}
-                        // restore only if we actually have a numeric saved position
-                        // Keep current viewport position on close; no forced scroll jump.
+                        // Restaurar solo si existe una posición guardada numérica
+                        // Mantener la posición actual al cerrar; evitar saltos forzados
                         // cleanup both markers
                         try { delete window.__catalog_saved_scroll; } catch(e){}
                         try { delete window.__home_saved_scroll; } catch(e){}
@@ -663,14 +663,14 @@
             try { mClose.addEventListener('click', closeModal); } catch(e){}
         }
 
-        // Also close modal when clicking anywhere outside the inner dialog
+        // Cerrar modal también al hacer clic fuera del diálogo interno
         try {
             document.addEventListener('click', function(ev){
                 try {
                     if (!modal || !modal.classList.contains('show')) return;
                     const inner = modal.querySelector('.detail-modal') || modal.querySelector('.modal');
                     if (!inner) return;
-                    // if the click target is not inside the inner dialog, close
+                    // Si el objetivo del clic no está dentro del diálogo interno, cerrar
                     if (!inner.contains(ev.target)) {
                         closeModal();
                     }
@@ -678,14 +678,14 @@
             }, true);
         } catch(e){}
 
-        // Add to cart handler: try to call page-level addToCart if provided
+        // Handler de agregar al carrito: intentar usar addToCart si existe en la página
         const mAddCart = document.getElementById('m-add-cart');
         if (mAddCart) {
             mAddCart.addEventListener('click', ()=>{
                 const id = window.currentProductId;
                 if (window.addToCart) return window.addToCart(id);
                 if (id) {
-                    // fallback: submit a form POST to /carrito/
+                    // Fallback: enviar formulario POST a /carrito/
                     const form = document.createElement('form');
                     form.method = 'POST';
                     form.action = '/carrito/';
@@ -712,7 +712,7 @@
                 const id = window.currentProductId;
                 if (window.buyNow) return window.buyNow(id);
                 if (id) {
-                    // default: add to cart then go to cart page
+                    // Por defecto: agregar al carrito y luego ir a su página
                     const form = document.createElement('form');
                     form.method = 'POST';
                     form.action = '/carrito/';
@@ -743,19 +743,19 @@
             });
         }
 
-        // attach initially
+        // Enlazar inicialmente
         attachListeners();
     }
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
-        // DOMContentLoaded already fired
+        // DOMContentLoaded ya se ejecutó
         init();
     }
 })();
 
-// Global-safe close handler for product detail modal.
+// Handler global seguro para cerrar el modal de detalle de producto.
 (function(){
     if (window.__detailModalGlobalCloseBound) return;
     window.__detailModalGlobalCloseBound = true;

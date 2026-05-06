@@ -19,19 +19,19 @@ def _load_dotenv():
 
 _load_dotenv()
 
-# Build paths: BASE_DIR = backend/django_app
+# Rutas base: BASE_DIR = backend/django_app
 BASE_DIR = Path(__file__).resolve().parent
 # Raíz del repo (donde están backend/ y frontend/)
 REPO_ROOT = BASE_DIR.parent.parent
 FRONTEND_DIR = REPO_ROOT / "frontend"
 
-# Quick-start development settings - unsuitable for production
+# Configuración rápida de desarrollo: no apta para producción
 SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-@%i@jah3u_9f!b*vpzdx(15!xw9c@9187mt%n&4o994j!to=!s")
 DEBUG = True
 # os.environ.get("DEBUG", "True").lower() in ("1", "true", "yes")
 
-# Allow host from Railway (RAILWAY_PUBLIC_DOMAIN), Render (RENDER_EXTERNAL_HOSTNAME), or env.
-# In development, also allow localhost + 127.0.0.1.
+# Permitir host desde Railway (RAILWAY_PUBLIC_DOMAIN), Render (RENDER_EXTERNAL_HOSTNAME) o variables de entorno.
+# En desarrollo también permitir localhost + 127.0.0.1.
 def _strip_proto(host: str | None) -> str | None:
     if not host:
         return None
@@ -57,7 +57,7 @@ ALLOWED_HOSTS = ["*"]
 if not ALLOWED_HOSTS:
     ALLOWED_HOSTS = base_hosts
 
-# CSRF trusted origins: Railway, Render, or env.
+# Orígenes confiables para CSRF: Railway, Render o variables de entorno.
 csrf_trusted = []
 if railway_host:
     csrf_trusted.append(f"https://{railway_host}")
@@ -74,7 +74,7 @@ CSRF_TRUSTED_ORIGINS = [_ensure_scheme(h) for h in csrf_trusted if h]
 # Application definition
 
 INSTALLED_APPS = [
-    # The `homepage` app lives inside the django_app package.
+    # La app `homepage` vive dentro del paquete django_app.
     'django_app.homepage.apps.HomepageConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -101,7 +101,7 @@ _aws_region = (
 ).strip()
 _aws_endpoint = (os.environ.get("AWS_S3_ENDPOINT_URL") or "").strip()
 
-# S3-compatible media backend (AWS S3, Cloudflare R2, Backblaze B2, Spaces, etc.).
+# Backend de media compatible con S3 (AWS S3, Cloudflare R2, Backblaze B2, Spaces, etc.).
 USE_S3_MEDIA = ENABLE_S3_MEDIA and bool(
     _aws_bucket and _aws_access_key and _aws_secret_key and (_aws_region or _aws_endpoint)
 )
@@ -138,7 +138,7 @@ def _has_placeholder(value):
     return any(token in value for token in placeholder_tokens)
 
 
-# Avoid crashing uploads when Cloudinary env vars are present but invalid placeholders.
+# Evitar fallos en subidas cuando existen variables de Cloudinary con placeholders inválidos.
 if USE_CLOUDINARY_MEDIA:
     raw_cloudinary_url = os.environ.get("CLOUDINARY_URL", "")
     raw_cloud_name = os.environ.get("CLOUDINARY_CLOUD_NAME", "")
@@ -166,8 +166,8 @@ if USE_CLOUDINARY_MEDIA:
         'cloudinary_storage',
     ]
 
-# Email configuration: use environment variables in all environments so the
-# password-reset flow can send mail on Railway without depending on Cloudinary.
+# Configuración de correo: usar variables de entorno en todos los ambientes para que
+# el flujo de recuperación de contraseña envíe correo en Railway sin depender de Cloudinary.
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'no-reply@example.com')
 EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
 EMAIL_HOST = os.environ.get('EMAIL_HOST', '')
@@ -180,7 +180,7 @@ EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL', 'False').lower() in ('1', 'true'
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.middleware.gzip.GZipMiddleware',
-    # WhiteNoise serves static files directly.
+    # WhiteNoise sirve archivos estáticos directamente.
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -190,7 +190,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# The project is packaged under `django_app`, so URLconf must match.
+# El proyecto está empaquetado bajo `django_app`, por eso URLconf debe coincidir.
 ROOT_URLCONF = 'django_app.urls'
 
 TEMPLATES = [
@@ -321,8 +321,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-# In production (Render, etc) we collect all static files into this folder
-# and serve them with WhiteNoise.
+# En producción (Render, etc.) se recolectan los estáticos en esta carpeta
+# y se sirven con WhiteNoise.
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = os.environ.get("MEDIA_URL", '/media/')
@@ -333,15 +333,15 @@ if _media_root_env:
 elif _railway_volume_mount:
     MEDIA_ROOT = Path(_railway_volume_mount) / 'media'
 elif Path('/data').exists():
-    # Railway volume path (when mounted) without requiring manual env setup.
+    # Ruta de volumen de Railway (cuando está montado) sin requerir configuración manual.
     MEDIA_ROOT = Path('/data/media')
 else:
     MEDIA_ROOT = BASE_DIR / 'media'
 
 if USE_CLOUDINARY_MEDIA:
-    # Optional Cloudinary integration: when env vars are present, user-uploaded
-    # media is stored remotely instead of Railway ephemeral disk.
-    # Support both CLOUDINARY_URL and explicit variables.
+    # Integración opcional con Cloudinary: cuando hay variables configuradas,
+    # los archivos media subidos se almacenan remoto en lugar del disco efímero de Railway.
+    # Soporta tanto CLOUDINARY_URL como variables explícitas.
     if os.environ.get("CLOUDINARY_CLOUD_NAME"):
         CLOUDINARY_STORAGE = {
             'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
@@ -350,8 +350,8 @@ if USE_CLOUDINARY_MEDIA:
             'SECURE': True,
         }
 
-# In production, prefer a single canonical static tree to avoid duplicate paths
-# during collectstatic. Local development can opt into the legacy trees.
+# En producción se prefiere un único árbol canónico de estáticos para evitar rutas duplicadas
+# durante collectstatic. En desarrollo local se puede optar por los árboles heredados.
 ENABLE_LEGACY_STATIC_DIRS = os.environ.get("ENABLE_LEGACY_STATIC_DIRS", "False").lower() in ("1", "true", "yes")
 
 _static_dirs = []
@@ -367,7 +367,7 @@ if ENABLE_LEGACY_STATIC_DIRS:
 
 STATICFILES_DIRS = [d for d in _static_dirs if os.path.exists(d)]
 
-# Use WhiteNoise to serve static files in production (especially when running under Waitress).
+# Usar WhiteNoise para servir estáticos en producción (especialmente bajo Waitress).
 # See https://whitenoise.evans.io/en/stable/
 USE_MANIFEST_STATICFILES = os.environ.get("USE_MANIFEST_STATICFILES", "False").lower() in ("1", "true", "yes")
 _staticfiles_backend = (
@@ -422,7 +422,7 @@ if _default_storage_options:
     STORAGES['default']['OPTIONS'] = _default_storage_options
 WHITENOISE_MAX_AGE = 31536000 if not DEBUG else 0
 
-# Cookie-backed session/messages avoid hard dependency on DB during template rendering.
+# Sesiones/mensajes en cookies evitan dependencia fuerte de base de datos al renderizar templates.
 SESSION_ENGINE = os.environ.get("SESSION_ENGINE", "django.contrib.sessions.backends.signed_cookies")
 MESSAGE_STORAGE = os.environ.get("MESSAGE_STORAGE", "django.contrib.messages.storage.cookie.CookieStorage")
 

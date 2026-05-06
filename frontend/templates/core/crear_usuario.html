@@ -261,7 +261,7 @@
         })();
     </script>
     <script>
-        // Clear form inputs on load and when page is shown from bfcache
+        // Limpiar campos del formulario al cargar y al volver desde bfcache
         (function(){
             function clearFormFields(){
                 document.querySelectorAll('form input, form textarea, form select').forEach(function(el){
@@ -396,7 +396,7 @@
                     if (errc){ errc.style.display = 'block'; errc.textContent = 'Se eliminaron caracteres no numéricos.'; }
                 } else if (errc){ errc.style.display = 'none'; }
             });
-            // prevent non-digit insertion (beforeinput) and sanitize paste
+            // Evitar inserción de no numéricos (beforeinput) y sanear pegado
             elc.addEventListener('beforeinput', function(e){
                 try{
                     if (e.data && /\D/.test(e.data)){

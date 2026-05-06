@@ -83,7 +83,7 @@ function getFilteredAndSortedProducts(){
 
 function openDetail(id){
     console.log('[home catalog.js] openDetail called', id);
-    // preserve scroll and blur active element to avoid browser auto-scrolling
+    // Conservar scroll y quitar foco del elemento activo para evitar auto-scroll del navegador.
     const __saved_scroll = (typeof window.scrollY !== 'undefined') ? window.scrollY : (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop || 0;
     try { if (document.activeElement && typeof document.activeElement.blur === 'function') document.activeElement.blur(); } catch(e){}
     if (!modal) modal = document.getElementById('detailModal');
@@ -114,8 +114,8 @@ function openDetail(id){
         modal.classList.add('show');
         modal.setAttribute('aria-hidden','false');
         try { modal.dataset.productId = id; } catch(e){}
-        // Ensure inline styles also make the modal visible in case the template
-        // includes an inline `style="display:none"` which overrides CSS rules.
+        // Asegurar que estilos inline tambien hagan visible el modal cuando el template
+        // trae `style="display:none"` y sobreescribe las reglas CSS.
         try {
             if (modal.style) {
                 modal.style.display = 'flex';
@@ -123,16 +123,16 @@ function openDetail(id){
                 modal.style.opacity = '1';
                 modal.style.zIndex = '99999';
             }
-            // prevent background scroll while modal open: use overflow hidden only
+            // Evitar scroll de fondo con el modal abierto: usar solo overflow hidden.
             try {
                 window.__home_saved_scroll = __saved_scroll;
                 try { document.documentElement.style.overflow = 'hidden'; document.body.style.overflow = 'hidden'; } catch(e){}
-                // do NOT force-scroll here; rely on overflow:hidden to keep viewport
-                // restoration will be attempted on close only when a numeric saved value exists
+                // NO forzar scroll aqui; usar overflow:hidden para mantener el viewport.
+                // La restauracion se intenta al cerrar solo si existe un valor numerico guardado.
             } catch(e){}
         } catch(e){}
         console.log('[home catalog.js] modal shown, className=', modal.className, 'display=', (window.getComputedStyle? getComputedStyle(modal).display : (modal.style && modal.style.display)));
-        // Do not force window scroll on open; keep current viewport position.
+        // No forzar scroll de ventana al abrir; conservar posicion actual del viewport.
     } else {
         console.warn('[home catalog.js] modal element not found');
     }
@@ -140,7 +140,7 @@ function openDetail(id){
 
 if (!mClose) mClose = document.getElementById('m-close');
 if (!mBuy) mBuy = document.getElementById('m-buy');
-// defensive close/open helpers and guarded listeners
+// Helpers defensivos para cerrar/abrir y listeners protegidos.
 function closeModal() {
     try {
         if (modal) {
@@ -148,13 +148,13 @@ function closeModal() {
             modal.setAttribute('aria-hidden','true');
             try {
                 if (modal.style) modal.style.display = 'none';
-                // restore scroll only if a saved numeric position exists
+                // Restaurar scroll solo si existe una posicion numerica guardada.
                 var saved = null;
                 if (typeof window.__home_saved_scroll !== 'undefined' && window.__home_saved_scroll !== null) saved = window.__home_saved_scroll;
                 if (saved === null && typeof window.__catalog_saved_scroll !== 'undefined' && window.__catalog_saved_scroll !== null) saved = window.__catalog_saved_scroll;
                 if (saved === null) saved = 0;
                 try { document.documentElement.style.overflow = ''; document.body.style.overflow = ''; } catch(e){}
-                // Keep current viewport position on close; no forced scroll jump.
+                // Mantener posicion actual del viewport al cerrar; sin salto forzado de scroll.
                 try { delete window.__home_saved_scroll; } catch(e){}
                 try { delete window.__catalog_saved_scroll; } catch(e){}
             } catch(e){}
@@ -187,8 +187,8 @@ try {
 
 if (!search) search = document.getElementById('search');
 if (search){
-    // No live filtering while the user types. Prevent Enter from triggering anything
-    // so the search only runs when the user clicks the `Buscar` button.
+    // Sin filtrado en vivo mientras el usuario escribe. Bloquear Enter
+    // para que la busqueda solo corra al hacer clic en el boton `Buscar`.
     search.addEventListener('keydown', (e)=>{
         if (e.key === 'Enter' || e.keyCode === 13) {
             e.preventDefault();
@@ -196,35 +196,35 @@ if (search){
     });
 }
 
-// set default sort to price ascending if none selected
+// Definir orden por precio ascendente por defecto si no hay seleccion.
 if (!sortBy) sortBy = document.getElementById('sortBy');
 if (sortBy && !sortBy.value){
     sortBy.value = 'price_asc';
 }
 
-// Event listeners removed - now handled in home.js with category filtering
+// Listeners removidos: ahora se manejan en home.js con filtrado por categoria.
 
-// When user clicks "Ver catálogo" -> reset search & sort and show all products
+// Cuando el usuario hace clic en "Ver catalogo" -> reiniciar busqueda/orden y mostrar todos los productos.
 if (!viewCatalogBtn) viewCatalogBtn = document.getElementById('viewCatalogBtn');
 if (viewCatalogBtn){
     viewCatalogBtn.addEventListener('click', (e)=>{
         e.preventDefault();
         if (search) search.value = '';
         if (sortBy) sortBy.value = 'title_asc';
-        // close modal if open
+        // Cerrar modal si esta abierto.
         if (modal){
             modal.classList.remove('show');
             modal.setAttribute('aria-hidden','true');
         }
-        // render all products
+        // Renderizar todos los productos.
         render(applySort(products, 'title_asc'));
-        // scroll to the grid section
+        // Hacer scroll hasta la seccion del grid.
         const gridEl = document.getElementById('grid');
         if (gridEl && gridEl.scrollIntoView) gridEl.scrollIntoView({ behavior: 'smooth' });
     });
 }
 
-// Delegated handler for any element with `view` class (works on home and catalog)
+// Handler delegado para cualquier elemento con clase `view` (funciona en home y catalogo).
 document.addEventListener('click', function(e){
     try{
         const el = e.target && e.target.closest ? e.target.closest('.view') : null;
@@ -238,7 +238,7 @@ document.addEventListener('click', function(e){
     } catch(err){ console.error('[home catalog.js] delegated handler error', err); }
 }, false);
 
-// Expose openDetail and products to global scope for other scripts/templates
+// Exponer openDetail y products en scope global para otros scripts/templates.
 try {
     if (typeof openDetail === 'function') {
 
@@ -246,7 +246,7 @@ try {
     }
 } catch(e){ console.warn('[home catalog.js] products exposure check failed', e); }
 
-// Global-safe close handler for product detail modal.
+// Handler global seguro de cierre para el modal de detalle de producto.
 (function(){
     if (window.__detailModalGlobalCloseBound) return;
     window.__detailModalGlobalCloseBound = true;
@@ -280,10 +280,10 @@ try {
     });
 })();
 
-// Ensure a page load always starts at the top (do not restore previous scroll)
+// Asegurar que la carga de pagina no fuerce restaurar un scroll previo.
 try {
     window.addEventListener('load', function(){
-            // Avoid forcing page to top on load.
+            // Evitar forzar la pagina al tope al cargar.
     });
 } catch(e){}
 
@@ -328,7 +328,7 @@ function getFilteredAndSortedProducts(){
 
 function openDetail(id){
     console.log('[home catalog.js] openDetail called', id);
-    // preserve scroll and blur active element to avoid browser auto-scrolling
+    // Conservar scroll y quitar foco del elemento activo para evitar auto-scroll del navegador.
     const __saved_scroll = (typeof window.scrollY !== 'undefined') ? window.scrollY : (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop || 0;
     try { if (document.activeElement && typeof document.activeElement.blur === 'function') document.activeElement.blur(); } catch(e){}
     if (!modal) modal = document.getElementById('detailModal');
@@ -350,8 +350,8 @@ function openDetail(id){
         modal.classList.add('show');
         modal.setAttribute('aria-hidden','false');
         try { modal.dataset.productId = id; } catch(e){}
-        // Ensure inline styles also make the modal visible in case the template
-        // includes an inline `style="display:none"` which overrides CSS rules.
+        // Asegurar que estilos inline tambien hagan visible el modal cuando el template
+        // trae `style="display:none"` y sobreescribe las reglas CSS.
         try {
             if (modal.style) {
                 modal.style.display = 'flex';
@@ -359,23 +359,23 @@ function openDetail(id){
                 modal.style.opacity = '1';
                 modal.style.zIndex = '99999';
             }
-            // prevent background scroll while modal open: use overflow hidden only
+            // Evitar scroll de fondo con el modal abierto: usar solo overflow hidden.
             try {
                 window.__home_saved_scroll = __saved_scroll;
                 try {
-                    // avoid layout shift when hiding scrollbar by adding equivalent padding
+                    // Evitar salto de layout al ocultar scrollbar agregando padding equivalente.
                     const sb = window.innerWidth - document.documentElement.clientWidth;
                     if (sb > 0) {
                         try { document.documentElement.style.paddingRight = sb + 'px'; document.body.style.paddingRight = sb + 'px'; } catch(e){}
                     }
                     try { document.documentElement.style.overflow = 'hidden'; document.body.style.overflow = 'hidden'; } catch(e){}
                 } catch(e){}
-                // do NOT force-scroll here; rely on overflow:hidden to keep viewport
-                // restoration will be attempted on close only when a numeric saved value exists
+                // NO forzar scroll aqui; usar overflow:hidden para mantener el viewport.
+                // La restauracion se intenta al cerrar solo si existe un valor numerico guardado.
             } catch(e){}
         } catch(e){}
         console.log('[home catalog.js] modal shown, className=', modal.className, 'display=', (window.getComputedStyle? getComputedStyle(modal).display : (modal.style && modal.style.display)));
-        // Always center the inner dialog for consistent UX
+        // Centrar siempre el dialogo interno para una UX consistente.
         try {
             const inner = modal.querySelector('.detail-modal');
             if (inner && inner.style) {
@@ -396,7 +396,7 @@ function openDetail(id){
 
 if (!mClose) mClose = document.getElementById('m-close');
 if (!mBuy) mBuy = document.getElementById('m-buy');
-// defensive close/open helpers and guarded listeners
+// Helpers defensivos para cerrar/abrir y listeners protegidos.
 function closeModal() {
     try {
         if (modal) {
@@ -404,12 +404,12 @@ function closeModal() {
             modal.setAttribute('aria-hidden','true');
             try {
                 if (modal.style) modal.style.display = 'none';
-                // restore scroll only if a saved numeric position exists
+                // Restaurar scroll solo si existe una posicion numerica guardada.
                 var saved = null;
                 if (typeof window.__home_saved_scroll !== 'undefined' && window.__home_saved_scroll !== null) saved = window.__home_saved_scroll;
                 if (saved === null && typeof window.__catalog_saved_scroll !== 'undefined' && window.__catalog_saved_scroll !== null) saved = window.__catalog_saved_scroll;
                 try { document.documentElement.style.overflow = ''; document.body.style.overflow = ''; document.documentElement.style.paddingRight = ''; document.body.style.paddingRight = ''; } catch(e){}
-                // Keep current viewport position on close; no forced scroll jump.
+                // Mantener posicion actual del viewport al cerrar; sin salto forzado de scroll.
                 try { delete window.__home_saved_scroll; } catch(e){}
                 try { delete window.__catalog_saved_scroll; } catch(e){}
             } catch(e){}
@@ -429,12 +429,12 @@ try {
     }
 } catch(e){ /* ignore */ }
 
-// removed legacy blocking alert for mBuy; fallback handled elsewhere in templates/static
+// Se removio alerta bloqueante legacy de mBuy; fallback manejado en templates/static.
 
 if (!search) search = document.getElementById('search');
 if (search){
-    // No live filtering while the user types. Prevent Enter from triggering anything
-    // so the search only runs when the user clicks the `Buscar` button.
+    // Sin filtrado en vivo mientras el usuario escribe. Bloquear Enter
+    // para que la busqueda solo corra al hacer clic en el boton `Buscar`.
     search.addEventListener('keydown', (e)=>{
         if (e.key === 'Enter' || e.keyCode === 13) {
             e.preventDefault();
@@ -442,35 +442,35 @@ if (search){
     });
 }
 
-// set default sort to price ascending if none selected
+// Definir orden por precio ascendente por defecto si no hay seleccion.
 if (!sortBy) sortBy = document.getElementById('sortBy');
 if (sortBy && !sortBy.value){
     sortBy.value = 'price_asc';
 }
 
-// Event listeners removed - now handled in home.js with category filtering
+// Listeners removidos: ahora se manejan en home.js con filtrado por categoria.
 
-// When user clicks "Ver catálogo" -> reset search & sort and show all products
+// Cuando el usuario hace clic en "Ver catalogo" -> reiniciar busqueda/orden y mostrar todos los productos.
 if (!viewCatalogBtn) viewCatalogBtn = document.getElementById('viewCatalogBtn');
 if (viewCatalogBtn){
     viewCatalogBtn.addEventListener('click', (e)=>{
         e.preventDefault();
         if (search) search.value = '';
         if (sortBy) sortBy.value = 'title_asc';
-        // close modal if open
+        // Cerrar modal si esta abierto.
         if (modal){
             modal.classList.remove('show');
             modal.setAttribute('aria-hidden','true');
         }
-        // render all products
+        // Renderizar todos los productos.
         render(applySort(products, 'title_asc'));
-        // scroll to the grid section
+        // Hacer scroll hasta la seccion del grid.
         const gridEl = document.getElementById('grid');
         if (gridEl && gridEl.scrollIntoView) gridEl.scrollIntoView({ behavior: 'smooth' });
     });
 }
 
-// Delegated handler for any element with `view` class (works on home and catalog)
+// Handler delegado para cualquier elemento con clase `view` (funciona en home y catalogo).
 document.addEventListener('click', function(e){
     try{
         const el = e.target && e.target.closest ? e.target.closest('.view') : null;
@@ -484,7 +484,7 @@ document.addEventListener('click', function(e){
     } catch(err){ console.error('[home catalog.js] delegated handler error', err); }
 }, false);
 
-// Expose openDetail and products to global scope for other scripts/templates
+// Exponer openDetail y products en scope global para otros scripts/templates.
 try {
     if (typeof openDetail === 'function') {
         window.openDetail = openDetail;
@@ -493,7 +493,7 @@ try {
 } catch(e){ console.warn('[home catalog.js] cannot expose openDetail', e); }
 
 try {
-    // If server-side provided products exist, prefer them
+    // Si existen productos provistos por servidor, priorizarlos.
     if (window.products && window.products.length) {
         console.log('[home catalog.js] window.products present, length=', window.products.length);
     } else if (products && products.length) {

@@ -1,8 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800&display=swap");
 @import url("../vendor/bootstrap-icons/bootstrap-icons.css");
 
-/* Unified style.css for login and catalog
-   Includes modern container-based layout and legacy .formulario rules for compatibility */
+/* style.css unificado para login y catálogo
+    Incluye layout moderno por contenedor y reglas heredadas .formulario por compatibilidad */
 
 :root {
     --primary-color: #6A1B9A;
@@ -17,9 +17,9 @@ html, body {
     height: 100%;
 }
 
-/* Paint the gradient on the root element so it spans the full document
-   and remains visible when the page is scrolled. Use fixed attachment
-   so the gradient does not tile or clip on long pages. */
+/* Pintar el degradado en el elemento raíz para cubrir todo el documento
+    y mantenerlo visible al hacer scroll. Usar attachment fijo
+    para evitar que se repita o se corte en páginas largas. */
 html {
     background: var(--background-gradient);
     background-attachment: fixed;
@@ -31,12 +31,12 @@ body {
     margin: 0;
     padding: 0;
     font-family: "Urbanist", "Segoe UI", Roboto, Arial, sans-serif;
-    /* force transparency to let the html gradient show through (overrides inline styles) */
+    /* Forzar transparencia para que se vea el degradado del html (sobrescribe estilos inline) */
     background: transparent !important;
     min-height: 100vh;
 }
 
-/* Mobile topbar hardening across templates */
+/* Refuerzo del topbar móvil en todos los templates */
 @media (max-width: 768px) {
     .top-bar.collapsed {
         left: 0 !important;
@@ -81,7 +81,7 @@ body {
     }
 }
 
-/* Modern centered card container */
+/* Contenedor moderno centrado tipo tarjeta */
 .container {
     /* match login container: frosted/translucent so gradient shows through */
     background: rgba(255,255,255,0.08);
@@ -114,7 +114,7 @@ button[type="submit"], .btn.primary { background: rgba(155, 39, 176, 0.739); col
 button[type="submit"]:hover, .btn.primary:hover { background: rgba(255,255,255,0.18); }
 .hint { font-size:13px; color:#444; margin-bottom:12px; }
 
-/* Legacy .formulario rules kept for compatibility with older templates */
+/* Reglas heredadas de .formulario conservadas por compatibilidad con templates antiguos */
 .formulario {
     position: absolute;
     top: 50%;
@@ -134,7 +134,7 @@ button[type="submit"]:hover, .btn.primary:hover { background: rgba(255,255,255,0
 /* Responsive */
 @media (max-width:480px){ .container { width: calc(100% - 48px); padding:20px; } }
 
-/* Catalog specific small helpers */
+/* Helpers pequeños específicos de catálogo */
 .grid { display:grid; grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); gap:16px; }
 .card, .card-prod { background:#fff; color:#111; border-radius:10px; padding:12px; box-shadow:0 6px 18px rgba(0,0,0,.12); display:flex; flex-direction:column }
 .card img, .card-prod img{ width:100%; height:140px; object-fit:cover; border-radius:6px }
@@ -446,7 +446,7 @@ body.login-page button[type="submit"] {
     width: 100%;
 }
 
-/* On hover/focus/active show white background and purple text (pressed look) */
+/* En hover/focus/active mostrar fondo blanco y texto morado (efecto presionado) */
 body.login-page button[type="submit"]:hover,
 body.login-page button[type="submit"]:focus,
 body.login-page button[type="submit"]:active {
@@ -496,7 +496,7 @@ body.login-page button[type="submit"]:active { transform: translateY(1px); box-s
     }
 }
 
-/* Logo positioning for login page */
+/* Posicionamiento del logo en la página de login */
 body.login-page #logo{
     position: fixed;
     top: 20px;
@@ -515,7 +515,7 @@ body.login-page .bar-logo-link {
     z-index: 10000;
 }
 
-/* Text logo styles (replace image logo with text) */
+/* Estilos del logo en texto (reemplaza logo imagen por texto) */
 .logo-text {
     font-weight: 800;
     font-size: 20px;

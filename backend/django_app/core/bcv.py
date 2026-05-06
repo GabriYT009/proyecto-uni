@@ -56,7 +56,7 @@ def obtener_tasa_cambio():
                     print(f"Tasa obtenida por Scraping BCV: {tasa}")
                     return tasa
         else:
-            # bs4 not installed; skip scraping step
+            # bs4 no está instalado; omitir paso de scraping
             pass
     except Exception as e:
         print(f"Error en Scraping BCV: {e}") # Opcional: logging

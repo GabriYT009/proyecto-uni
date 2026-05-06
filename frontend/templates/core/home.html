@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Inicio</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <!-- Catalog vendor and main styles to match modal appearance -->
+    <!-- Estilos vendor y principales de catálogo para mantener la apariencia del modal -->
     <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
     <link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
     <meta name="csrf-token" content="{{ csrf_token }}">
@@ -87,7 +87,7 @@
             margin:0;
             color:#000;
             min-height:100vh;
-            padding-top:80px; /* leave space for top bar */
+            padding-top:80px; /* dejar espacio para el top bar */
             display: flex;
             flex-direction: column;
             overflow-x: hidden;
@@ -126,7 +126,7 @@
         .top-bar .bar-inner{ max-width:1400px; margin:0 auto; height:70px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; position:relative; }
         .top-bar .btn{ background:transparent; color:#9932CC; border:1px solid rgba(153,50,204,0.12); padding:8px 14px; border-radius:8px; }
 
-        /* collapsed (minimized) top-bar to corner - only on mobile */
+        /* top-bar colapsado (minimizado) a la esquina: solo en móvil */
         .top-bar.collapsed{ left:12px; right:auto; width:56px; height:56px; border-radius:10px; padding:6px; border-bottom: none; box-shadow:0 6px 18px rgba(0,0,0,0.08); }
         .top-bar.collapsed .bar-inner{ display:none; }
         .bar-logo-link{ display:flex; align-items:center; font-size:24px; font-weight:700; color:#9932CC; text-decoration:none; }
@@ -235,7 +235,7 @@
         .profile-dropdown .dropdown-item{ display:block; padding:8px 12px; color:#333; text-decoration:none; font-weight:600; font-size:16px; border-radius:6px; transition: all 0.3s ease; }
         .profile-dropdown .dropdown-item:hover{ background:#f0f0f0; color:#9932CC; }
         .top-bar.collapsed .user-name{ display:none; }
-        /* nav menu for hamburger (3-line) */
+        /* menú de navegación para hamburguesa (3 líneas) */
         .nav-menu{ position:absolute; left:12px; top:64px; background:#fff; border:1px solid rgba(0,0,0,0.06); border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.08); display:none; z-index:10006; min-width:180px; }
         .nav-menu.show{ display:block; }
         .nav-menu .nav-item{ display:block; padding:10px 12px; color:#333; text-decoration:none; font-weight:700; }
@@ -265,11 +265,11 @@
         .search-wrap{ display:flex; gap:8px; align-items:center; }
         .search{ padding:8px 12px; border-radius:8px; border: 1px solid #ccc; width:260px; background:#fff; color:#111; }
         .select{ padding:8px 12px; border-radius:8px; border: 1px solid #ccc; background:#fff; color:#111; }
-        /* Product grid and card styles (desktop grid) */
+        /* Estilos de grilla y tarjetas de producto (grilla de escritorio) */
         .grid{ display:grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap:30px 24px; padding:24px 0; grid-auto-rows: minmax(320px, auto); align-items:start; justify-items:stretch; }
         .card{ background:#fff; color:#111; border-radius:10px; padding:20px; box-shadow:0 14px 30px rgba(22, 24, 35, .14), 0 4px 10px rgba(22, 24, 35, .08); display:flex; flex-direction:column; justify-content:space-between; transition: none; margin-bottom:16px; border:1px solid rgba(0,0,0,0.14); min-height:320px; position:relative; z-index:1; }
         .card .row{ position:relative; z-index:2; }
-        /* Keep columns aligned; remove manual column offsets that broke ordering */
+        /* Mantener columnas alineadas; quitar offsets manuales que rompían el orden */
         .grid > .card{ margin:0; width:100%; }
         .card:hover{ transform: none; box-shadow:0 16px 34px rgba(22, 24, 35, .16), 0 6px 12px rgba(22, 24, 35, .10); }
         .card img{ width:100%; height:180px; object-fit:cover; border-radius:6px; }
@@ -286,9 +286,9 @@
         /* modal detalle (match catalog) */
         #detailModal{ position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.45); z-index: 9999; }
         #detailModal.show{ display: flex; }
-        /* initial state for inner dialog to allow entrance animation */
+        /* estado inicial del diálogo interno para permitir animación de entrada */
         #detailModal .detail-modal{ transform: translateY(12px) scale(0.98); opacity: 0; max-width:900px; width: min(92vw, 900px); margin:40px auto; padding:20px; background:#fff; color:#000; border-radius:8px; box-sizing:border-box; }
-        /* make product image scale to fit the viewport while preserving aspect ratio */
+        /* hacer que la imagen del producto escale al viewport preservando proporción */
         #detailModal .detail-modal img{ width:100%; height:auto; max-height:70vh; object-fit:contain; display:block; border-radius:6px; margin-bottom:12px; }
         @keyframes modalIn { from { opacity: 0; transform: translateY(12px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
         #detailModal.show .detail-modal{ animation: modalIn 260ms cubic-bezier(.2,.9,.2,1) forwards; }
@@ -313,7 +313,7 @@
         }
         #welcomeAlert.show{ opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
 
-        /* Hero Section (improved illumination) */
+        /* Sección Hero (iluminación mejorada) */
         .hero {
             position: relative;
             overflow: hidden;
@@ -360,7 +360,7 @@
             transform: translateY(-2px);
         }
 
-        /* Categories Section */
+        /* Sección de categorías */
         .categories {
             margin: 50px 0;
             text-align: center;
@@ -467,7 +467,7 @@
             min-width: 0;
         }
 
-        /* Mobile responsive styles (minimal for PC focus) */
+        /* Estilos responsive móvil (mínimos para enfoque en PC) */
         @media (max-width: 768px) {
             html, body {
                 width: 100%;
@@ -569,7 +569,7 @@
 
     <div class="wrap" style="flex:1; padding:0; max-width:1100px; margin:0 auto;">
 
-        <!-- Hero Section -->
+        <!-- Sección Hero -->
         <section class="hero">
             <div class="hero-content">
                 <h1>Descubre la Mejor Tienda</h1>
@@ -578,7 +578,7 @@
             </div>
         </section>
 
-        <!-- Categories Section -->
+        <!-- Sección de categorías -->
         <style>
         .category-bar-wrap{ display:flex; align-items:center; gap:8px; margin:12px 0; justify-content:center; }
         .cat-scroll-btn{
@@ -757,8 +757,8 @@
             updateBtns();
         })();
         (function(){
-            // Auto-advance categories by centering each card and wrapping to start
-            // Improved: fully pause auto-advance while the user is pressing/click-dragging
+            // Autoavanzar categorías centrando cada tarjeta y volviendo al inicio
+            // Mejora: pausar completamente el autoavance mientras el usuario presiona/arrastra
             const bar = document.querySelector('.category-bar');
             if (!bar) return;
             let cards = Array.from(bar.querySelectorAll('.category-card'));
@@ -800,27 +800,27 @@
                 }catch(e){ /* ignore */ }
             }
 
-            // Pause when user starts interacting with the bar (pointer or touch) or uses wheel
+            // Pausar cuando el usuario empieza a interactuar con la barra (puntero o touch) o usa rueda
             bar.addEventListener('pointerdown', function(e){
                 isPointerDown = true;
                 userInteracting = true;
                 stop();
                 if (resumeTimeoutId) clearTimeout(resumeTimeoutId);
-                // cancel any in-progress smooth scroll so the user's drag feels immediate
+                // cancelar scroll suave en curso para que el arrastre se sienta inmediato
                 cancelSmoothScroll();
             }, { passive: true });
 
             bar.addEventListener('pointermove', function(e){
                 // while pointer is down, maintain interacting state; no-op otherwise
                 if (!isPointerDown) return;
-                // ensure interval remains stopped while dragging
+                // asegurar que el intervalo siga detenido mientras arrastra
                 if (!userInteracting) { userInteracting = true; stop(); }
             }, { passive: true });
 
             bar.addEventListener('pointerup', function(e){
                 if (isPointerDown) {
                     isPointerDown = false;
-                    // let user finish and then resume after a short delay
+                    // permitir que termine y reanudar tras una breve espera
                     scheduleResume(900);
                 }
             }, { passive: true });
@@ -830,14 +830,14 @@
             bar.addEventListener('touchstart', function(){ userInteracting = true; stop(); if (resumeTimeoutId) clearTimeout(resumeTimeoutId); cancelSmoothScroll(); }, { passive: true });
             bar.addEventListener('wheel', function(){ userInteracting = true; stop(); scheduleResume(1200); }, { passive: true });
 
-            // Global end events in case pointerup occurs outside the bar
+            // Eventos globales de fin por si pointerup ocurre fuera de la barra
             document.addEventListener('pointerup', function(){ if (!isPointerDown && userInteracting) scheduleResume(); }, { passive: true });
             document.addEventListener('touchend', function(){ if (userInteracting) scheduleResume(); }, { passive: true });
             document.addEventListener('mouseup', function(){ if (userInteracting) scheduleResume(); }, { passive: true });
 
             // Also detect manual scroll (e.g., dragging scrollbar) to pause/resume
             bar.addEventListener('scroll', function(){
-                // if a timer is running, assume it's user-driven scroll and pause
+                // si hay temporizador activo, asumir scroll del usuario y pausar
                 if (!userInteracting) {
                     userInteracting = true;
                     stop();
@@ -846,7 +846,7 @@
                 scheduleResume(1200);
             }, { passive: true });
 
-            // keep mouseenter/leave behavior integrated with interaction state
+            // mantener comportamiento mouseenter/leave integrado al estado de interacción
             bar.addEventListener('mouseenter', function(){ if (!isPointerDown) { userInteracting = true; stop(); } });
             bar.addEventListener('focusin', function(){ userInteracting = true; stop(); });
             bar.addEventListener('mouseleave', function(){ if (!timer && !userInteracting && !isPointerDown) start(); });
@@ -904,12 +904,12 @@
     </div>
 
     <script>
-        // provide the same products array used on catalog page
+        // Proveer el mismo array de productos usado en la página de catálogo
         products = {{ Productos_json|safe }};
         console.log('Products loaded (home):', products && products.length);
     </script>
     <script>
-        // Robust product open handler for Home: open modal, fallback to detail page.
+        // Handler robusto de apertura de producto en Home: abrir modal, fallback a detalle.
         (function(){
             function findProduct(id){
                 const list = window.products || products || [];
@@ -985,7 +985,7 @@
         })();
     </script>
     <script>
-        // bind server-rendered product elements to the products array
+        // Vincular elementos de producto renderizados por servidor al array de productos
         (function(){
             try {
                 const prods = window.products || products || [];
@@ -1020,7 +1020,7 @@
         })();
     </script>
     <script>
-        // Defensive: prevent anchor default only for product clicks so page doesn't jump to top
+        // Defensivo: prevenir comportamiento por defecto solo en clics de producto para evitar salto al tope
         document.addEventListener('click', function(e){
             try{
                 const prod = e.target.closest('.view, [data-id]');
@@ -1032,7 +1032,7 @@
                         e.preventDefault();
                     }
                 } else {
-                    // also prevent default on elements that might be focusable and cause jump
+                    // también prevenir default en elementos enfocables que podrían causar salto
                     try{ e.preventDefault(); } catch(e){}
                 }
             }catch(err){/* ignore */}
@@ -1050,7 +1050,7 @@
         })();
     </script>
     <script>
-        // Hamburger nav menu
+        // Menú hamburguesa de navegación
         (function(){
             const navToggle = document.getElementById('barToggle');
             const navMenu = document.getElementById('barNavMenu');
@@ -1154,13 +1154,13 @@
             document.getElementById('cart-count').textContent = count;
         }
 
-        // Modal and cart handled by core/catalog.js (included below)
+        // Modal y carrito gestionados por core/catalog.js (incluido abajo)
 
         // Live search functionality
         const searchInput = document.getElementById('searchInput');
         const searchResults = document.getElementById('searchResults');
 
-        // Clear search input when page loads (for navigation)
+        // Limpiar el buscador al cargar la página (para navegación)
         searchInput.value = '';
 
         function performSearch(query) {
@@ -1202,7 +1202,7 @@
             searchTimeout = setTimeout(() => performSearch(query), 300); // Debounce search
         });
 
-        // Handle Enter key to redirect to catalog
+        // Manejar tecla Enter para redirigir al catálogo
         searchInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 const query = e.target.value.trim();
@@ -1231,7 +1231,7 @@
     </script>
 
     <script>
-        // Ensure addToCart is available globally for modal buttons
+        // Asegurar que addToCart esté disponible globalmente para botones del modal
         (function(){
             function getCsrf(){ const m = document.querySelector('meta[name="csrf-token"]'); return m?m.content:null; }
             window.addToCart = async function(id){
@@ -1248,7 +1248,7 @@
                         const data = await res.json();
                         try{ const cc = document.getElementById('cart-count'); if(cc) cc.textContent = data.count; }catch(e){}
 
-                        // Fetch purchase partial and show in modal (do not redirect)
+                        // Obtener parcial de compra y mostrar en modal (sin redirigir)
                         try{
                             const part = await fetch('/producto/' + encodeURIComponent(id) + '/comprar/?partial=1&single=1', { credentials: 'include' });
                             if (part.ok) {
@@ -1319,7 +1319,7 @@
         })();
     </script>
     <script>
-        // Ensure modal "Añadir al carrito" button posts directly to add_to_cart (home page)
+        // Asegurar que el botón "Añadir al carrito" del modal haga POST directo a add_to_cart (home)
         (function(){
             const btn = document.getElementById('m-add-cart');
             function getCsrf(){ const m = document.querySelector('meta[name="csrf-token"]'); return m?m.content:null; }
@@ -1338,7 +1338,7 @@
                         });
                         if (res.ok) {
                             const data = await res.json();
-                                // Redirect to cart and show purchase UI
+                                // Redirigir al carrito y mostrar interfaz de compra
                                 window.location.href = '/carrito/?buy=' + encodeURIComponent(id);
                             return;
                         } else if (res.redirected) {
@@ -1352,7 +1352,7 @@
         })();
     </script>
     <script>
-        // Ensure modal "Comprar" button redirects to comprar page (home)
+        // Asegurar que el botón "Comprar" del modal redirija a la página de compra (home)
         (function(){
             const buyBtn = document.getElementById('m-buy');
             if (!buyBtn) return;
@@ -1360,7 +1360,7 @@
                 e.preventDefault();
                 const id = window.currentProductId || (document.getElementById('detailModal') && document.getElementById('detailModal').dataset.productId);
                 if (!id) return;
-                // go to the standalone comprar page
+                // Ir a la página independiente de compra
                 window.location.href = '/producto/' + id + '/comprar/';
             });
         })();

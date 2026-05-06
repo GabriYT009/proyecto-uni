@@ -26,7 +26,7 @@
             margin:0;
             color:#000;
             min-height:100vh;
-            padding-top:100px; /* leave space for top bar */
+            padding-top:100px; /* dejar espacio para el top bar */
         }
 
         /* top full-width bar */
@@ -34,7 +34,7 @@
         .top-bar .bar-inner{ max-width:1400px; margin:0 auto; height:70px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; position:relative; }
     .top-bar .btn{ background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.24); padding:8px 14px; border-radius:8px; }
 
-        /* collapsed (minimized) top-bar to corner - only on mobile */
+        /* top-bar colapsado (minimizado) a la esquina: solo en móvil */
         .top-bar.collapsed{ left:12px; right:auto; width:56px; height:56px; border-radius:10px; padding:6px; border-bottom: none; box-shadow:0 6px 18px rgba(0,0,0,0.08); }
         .top-bar.collapsed .bar-inner{ display:none; }
         .bar-logo-link{ display:flex; align-items:center; font-size:24px; font-weight:700; color:#fff; text-decoration:none; }
@@ -78,7 +78,7 @@
         .profile-dropdown .dropdown-item{ display:block; padding:8px 12px; color:#333; text-decoration:none; font-weight:600; font-size:16px; border-radius:6px; transition: all 0.3s ease; }
         .profile-dropdown .dropdown-item:hover{ background:#f0f0f0; color:#9932CC; }
         .top-bar.collapsed .user-name{ display:none; }
-        /* nav menu for hamburger (3-line) */
+        /* menú de navegación para hamburguesa (3 líneas) */
         .nav-menu{ position:absolute; left:12px; top:64px; background:#fff; border:1px solid rgba(0,0,0,0.06); border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.08); display:none; z-index:10006; min-width:180px; }
         .nav-menu.show{ display:block; }
         .nav-menu .nav-item{ display:block; padding:10px 12px; color:#333; text-decoration:none; font-weight:700; }
@@ -334,7 +334,7 @@
     })();
     </script>
     <script>
-        // Hamburger nav menu
+        // Menú hamburguesa de navegación
         (function(){
             const navToggle = document.getElementById('barToggle');
             const navMenu = document.getElementById('barNavMenu');
@@ -661,7 +661,7 @@
                     if (errc){ errc.style.display = 'block'; errc.textContent = 'Se eliminaron caracteres no numéricos.'; }
                 } else if (errc){ errc.style.display = 'none'; }
             });
-            // prevent non-digit insertion (beforeinput) and sanitize paste
+            // Evitar inserción de no numéricos (beforeinput) y sanear pegado
             elc.addEventListener('beforeinput', function(e){
                 try{
                     if (e.data && /\D/.test(e.data)){
@@ -742,7 +742,7 @@
                     if (cedRep.value !== only){ cedRep.value = only; if (errCedRep){ errCedRep.style.display = 'block'; errCedRep.textContent = 'Se eliminaron caracteres no numéricos.'; } }
                     else if (errCedRep){ errCedRep.style.display = 'none'; }
                 });
-                // prevent non-digit insertion (beforeinput) and sanitize paste
+                // Evitar inserción de no numéricos (beforeinput) y sanear pegado
                 cedRep.addEventListener('beforeinput', function(e){
                     try{
                         if (e.data && /\D/.test(e.data)){
@@ -767,7 +767,7 @@
             }
         })();
 
-        // Clear search input when page loads (for navigation)
+        // Limpiar el buscador al cargar la página (para navegación)
         document.getElementById('searchInput').value = '';
 
         // Handle Enter key to search

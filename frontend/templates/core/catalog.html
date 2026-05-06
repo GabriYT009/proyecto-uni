@@ -128,7 +128,7 @@
         a.logout-button{ display:inline-block; background: #ffffff; color: #9932CC; padding: 8px 14px; border-radius: 20px; text-decoration: none; font-weight: 600; box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
         a.logout-button:hover{ box-shadow: 0 4px 10px rgba(0,0,0,0.16); }
 
-        /* Mobile responsive */
+        /* Responsive para móvil */
         @media (max-width: 768px) {
             body { padding-top: 132px; }
             .top-bar { height: 124px; }
@@ -185,7 +185,7 @@
         @keyframes modalIn { from { opacity: 0; transform: translateY(12px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
         #detailModal.show .detail-modal{ animation: modalIn 260ms cubic-bezier(.2,.9,.2,1) forwards; }
         .card .row{ position:relative; z-index:2; }
-        /* Keep columns aligned; remove manual column offsets that broke ordering */
+        /* Mantener columnas alineadas; quitar offsets manuales que rompían el orden */
         .grid > .card{ margin-left:0; }
         .card:hover{ transform: translateY(-6px) scale(1.01); box-shadow: 0 12px 30px rgba(0,0,0,0.12); }
         .card img{ width:100%; height:120px; object-fit:cover; border-radius:6px; }
@@ -193,7 +193,7 @@
         .card p{ margin:0 0 8px 0; font-size:12px; color:#666; flex:1; }
         .card .row{ display:flex; justify-content:space-between; align-items:center; gap:8px; }
         .btn{ background:#9932CC; color:#fff; padding:8px 12px; border-radius:8px; text-decoration:none; border:none; cursor:pointer; }
-        /* Ensure view buttons are always clickable (avoid invisible overlays) */
+        /* Asegurar que los botones de vista siempre sean clicables (evitar overlays invisibles) */
         .card .view{ position:relative; z-index:60; pointer-events:auto; }
         /* Pagination buttons (match inventario style) */
         .btn-pagination{
@@ -255,13 +255,13 @@
     .category-bar::-webkit-scrollbar-thumb{ background:#d8b6e6; border-radius:8px; }
     .category-card{ flex:0 0 auto; white-space:nowrap; width:200px; padding:18px 14px; display:flex; flex-direction:column; align-items:center; justify-content:center; }
     .category-card .category-icon{ font-size:40px; margin-bottom:10px; }
-    /* Auto-scroll fallback highlight when everything fits (no horizontal scroll) */
+    /* Resalte de fallback de auto-scroll cuando todo cabe (sin scroll horizontal) */
     .category-card.auto-active{ transform: translateY(-6px); background: rgba(153,50,204,0.06); border-radius:8px; transition: transform 260ms ease, background 260ms ease; }
     </style>
 
     <div class="giant-frame">
         <div class="wrap">
-        <!-- Categories Section -->
+        <!-- Sección de categorías -->
         <section class="categories">
             <h2>Categorías</h2>
             <div class="category-bar-wrap" aria-label="Barra de categorías">
@@ -293,7 +293,7 @@
                     <div class="row">
                             <strong class="price-usd" data-price="{{ product.precio_venta }}">$ {{ product.precio_venta }}</strong>
                             <div>
-                                <!-- Comprar moved to modal; button removed from product card -->
+                                <!-- Comprar se movió al modal; botón removido de la tarjeta -->
                             <strong class="total-bs">Bs. <span class="price-bs-value">0</span></strong>
                             </div>
                         </div>
@@ -368,9 +368,9 @@
 
     <script src="{% static 'js/catalog.js' %}"></script>
     <script>
-        // Provide the same `products` array used on the home page so the
-        // canonical `openDetail(id)` implementation is available and works
-        // identically on the catalog page.
+        // Proveer el mismo array `products` usado en home para que
+        // la implementación canónica `openDetail(id)` esté disponible y funcione
+        // igual en la página de catálogo.
         products = {{ Productos_json|safe }};
         console.log('Products loaded (catalog):', products && products.length);
     </script>
@@ -422,7 +422,7 @@
                         ctrl.style.cssText = 'position:fixed;right:20px;top:100px;z-index:12000;background:#fff;padding:8px 12px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);box-shadow:0 6px 18px rgba(0,0,0,0.08);color:#9932CC;font-weight:700;text-decoration:none;';
                         document.body.appendChild(ctrl);
                     }
-                    // focus the visible card
+                    // enfocar la tarjeta visible
                     const selector = '[data-id="' + productId + '"]';
                     const card = document.querySelector(selector);
                     if (card) {
@@ -439,7 +439,7 @@
                 if (!openId) return;
 
                 const tryOpen = function(){
-                    // Prefer showing only the product in the catalog view
+                    // Preferir mostrar solo el producto en la vista de catálogo
                     try {
                         if (showOnlyProduct(openId)) return true;
                     } catch(e) { console.warn('showOnlyProduct failed', e); }
@@ -472,7 +472,7 @@
                 setTimeout(function(){ clearInterval(checkReady); }, 3000);
 
                 // If cards are rendered later by other scripts, use a MutationObserver
-                // to detect when `.grid .card` elements appear and then apply the
+                // para detectar cuando aparezcan elementos `.grid .card` y luego aplicar
                 // show-only behavior.
                 try {
                     const body = document.body;
@@ -502,13 +502,13 @@
         })();
     </script>
     <script>
-        // Live search functionality (copied from home page)
+        // Funcionalidad de búsqueda en vivo (copiada de home)
         (function(){
             const searchInput = document.getElementById('searchInput');
             const searchResults = document.getElementById('searchResults');
             if (!searchInput || !searchResults) return;
 
-            // Clear search input when page loads (for navigation)
+            // Limpiar el buscador al cargar la página (para navegación)
             try{ searchInput.value = ''; }catch(e){}
 
             function performSearch(query) {
@@ -548,7 +548,7 @@
         })();
     </script>
     <script>
-        // Global helper to add product to cart via AJAX
+        // Helper global para agregar productos al carrito vía AJAX
         (function(){
             function getCsrf(){ const m = document.querySelector('meta[name="csrf-token"]'); return m?m.content:null; }
             function clearAddToCartOverlays(){
@@ -602,7 +602,7 @@
     </script>
     
     <script>
-        // Ensure modal "Añadir al carrito" button posts directly to add_to_cart
+        // Asegurar que el botón "Añadir al carrito" del modal haga POST directo a add_to_cart
         (function(){
             const btn = document.getElementById('m-add-cart');
             function getCsrf(){ const m = document.querySelector('meta[name="csrf-token"]'); return m?m.content:null; }
@@ -617,7 +617,7 @@
         })();
     </script>
     <script>
-        // Ensure modal "Comprar" button redirects to comprar page
+        // Asegurar que el botón "Comprar" del modal redirija a la página de compra
         (function(){
             const buyBtn = document.getElementById('m-buy');
             if (!buyBtn) return;
@@ -640,9 +640,9 @@
         }, true);
     </script>
     <script>
-        // Ensure server-rendered product elements are bound to the products
-        // array and have the expected `data-*` attributes and `view` class so
-        // delegated handlers and `openDetail` work the same as on the home page.
+        // Asegurar que los elementos de producto renderizados por servidor estén ligados al array
+        // y tengan los atributos `data-*` esperados y clase `view` para que
+        // los handlers delegados y `openDetail` funcionen igual que en home.
         (function(){
             try {
                 const prods = window.products || products || [];
@@ -677,14 +677,14 @@
         })();
     </script>
     <script>
-        // Staggered entrance animation for catalog cards
+        // Animación de entrada escalonada para tarjetas del catálogo
         document.addEventListener('DOMContentLoaded', function(){
             const cards = document.querySelectorAll('.grid .card');
             cards.forEach((c, i)=> setTimeout(()=> c.classList.add('animate'), i * 80));
         });
     </script>
     <script>
-        // Subtle proximity effect: cards react as the cursor approaches
+        // Efecto de proximidad sutil: las tarjetas reaccionan al acercarse el cursor
         (function(){
             const grid = document.querySelector('.grid');
             if(!grid) return;
@@ -732,7 +732,7 @@
         })();
     </script>
     <script>
-        // Hamburger menu toggle + click-outside to close
+        // Toggle de menú hamburguesa + clic fuera para cerrar
         (function(){
             const navToggle = document.getElementById('barToggle');
             const navMenu = document.getElementById('barNavMenu');
@@ -849,7 +849,7 @@
 
     <!-- Search functionality -->
     <script>
-        // Clear search input when page loads (for navigation)
+        // Limpiar el buscador al cargar la página (para navegación)
         document.getElementById('searchInput').value = '';
 
         // Handle Enter key to search
@@ -885,8 +885,8 @@
             updateBtns();
         })();
         (function(){
-            // Auto-advance categories by centering each card and looping back to start
-            // without duplicating the category elements.
+            // Autoavanzar categorías centrando cada tarjeta y regresando al inicio
+            // sin duplicar los elementos de categorías.
             const bar = document.querySelector('.category-bar');
             if (!bar) return;
             let cards = Array.from(bar.querySelectorAll('.category-card'));
@@ -908,8 +908,8 @@
                     center(idx);
                     return;
                 }
-                // reached past the last card -> wrap to start without duplicating
-                // briefly show the last card, then jump to the beginning instantly
+                // se pasó de la última tarjeta -> volver al inicio sin duplicar
+                // mostrar brevemente la última tarjeta y luego saltar al inicio
                 setTimeout(function(){
                     try { bar.scrollTo({ left: 0, behavior: 'auto' }); } catch(e){ bar.scrollLeft = 0; }
                     idx = 0;

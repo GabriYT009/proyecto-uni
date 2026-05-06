@@ -3,17 +3,17 @@ from django.apps import AppConfig
 
 class CoreConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    # The app is located under the django_app package.
+    # La app está ubicada dentro del paquete django_app.
     name = 'django_app.core'
 
     def ready(self):
-        # import signals to ensure they are registered
+        # Importar signals para asegurar su registro.
         try:
             from . import signals  # noqa: F401
         except Exception:
             pass
 
-        # Register startup checks for external integrations.
+        # Registrar chequeos de arranque para integraciones externas.
         try:
             from . import mailtrap_checks  # noqa: F401
         except Exception:

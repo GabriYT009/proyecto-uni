@@ -1,7 +1,7 @@
 ﻿{% load static %}
 
 <style>
-	/* Shared topbar baseline (same visual language as crear_producto) */
+	/* Base compartida del topbar (misma línea visual que crear_producto) */
 	.top-bar{ position: fixed; top:0; left:0; right:0; height:70px; background:rgb(72 13 102); border-bottom:1px solid rgba(153,50,204,0.12); z-index:10000; transition: all 240ms cubic-bezier(.2,.9,.2,1); box-shadow: 0 16px 36px rgba(102,32,128,0.12); }
 	.top-bar .bar-inner{ max-width:1400px; margin:0 auto; height:70px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; position:relative; }
 	.top-bar .btn{ background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.24); padding:8px 14px; border-radius:8px; }
@@ -97,7 +97,7 @@
 		-webkit-appearance: none;
 	}
 
-	/* Keep all dropdown toggles with the same visual pattern. */
+	/* Mantener todos los toggles del dropdown con el mismo patrón visual. */
 	.top-bar .clients-toggle,
 	.top-bar .product-toggle,
 	.top-bar .inventario-toggle,
@@ -206,7 +206,7 @@
 		min-width: 180px;
 	}
 
-	/* Keep long labels (e.g. "Ordenes de sublimacion") inside the dropdown. */
+	/* Evitar que etiquetas largas (por ejemplo, "Ordenes de sublimacion") se salgan del dropdown. */
 	.top-bar .pagos-menu > .profile-dropdown {
 		min-width: 230px;
 	}
@@ -649,9 +649,9 @@
 </script>
 
 <script>
-	// Global capture-phase handler: force search-result clicks to always
-	// navigate to the catalog `?open=` URL. This runs in capture so it
-	// overrides other page-specific click handlers that might open modals.
+	// Manejador global en fase capture: obliga a que los clics en resultados
+	// de búsqueda vayan siempre al catálogo mediante `?open=`. Al ejecutarse
+	// en capture, sobrescribe otros manejadores de la página que podrían abrir modales.
 	(function(){
 		try {
 			document.addEventListener('click', function(e){
@@ -664,7 +664,7 @@
 					try { e.preventDefault && e.preventDefault(); } catch(_) {}
 					window.location.href = url;
 				}
-			}, true); // useCapture = true
+			}, true); // useCapture = true para priorizar este flujo sobre otros handlers
 		} catch(err) { console.warn('search enforce handler failed', err); }
 	})();
 </script>
@@ -679,9 +679,9 @@
 				window.location.href = target;
 			};
 
-			// Delegate clicks on search result items: prefer opening the
-			// detail modal when the page provides `products` + `detailModal`;
-			// otherwise navigate to the appropriate product route.
+			// Delegar los clics en resultados de búsqueda: preferimos abrir el
+			// modal de detalle cuando la página expone `products` + `detailModal`;
+			// si no existe ese contexto, navegamos a la ruta de producto adecuada.
 			searchResults.addEventListener('click', function(e){
 				const item = e.target.closest('.search-result-item');
 				if (!item) return;
@@ -692,8 +692,8 @@
 				const id = item.dataset.id;
 				if (!id) return;
 
-				// If the page exposes the `products` array and a detail modal,
-				// reuse them to show the compact product modal (preferred UX).
+				// Si la página expone `products` y un modal de detalle,
+				// reutilizamos ese contexto para mostrar la vista compacta del producto.
 				try {
 					const detailModal = document.getElementById('detailModal');
 					if (window.products && detailModal) {
@@ -706,7 +706,8 @@
 								return;
 							}
 
-							// Populate and show the modal (matches home/catalog behavior)
+							// Cargar y mostrar el modal. Esto mantiene el mismo comportamiento
+							// que ya usamos en home y catálogo.
 							const titleEl = document.getElementById('m-title');
 							const imgEl = document.getElementById('m-img');
 							const descEl = document.getElementById('m-desc');
@@ -718,7 +719,7 @@
 							detailModal.dataset.productId = id;
 							detailModal.classList.add('show');
 							window.currentProductId = id;
-							// hide results and clear input
+							// Ocultar resultados y limpiar el campo para evitar estados viejos.
 							searchResults.classList.remove('show');
 							const searchInput = document.getElementById('searchInput');
 							if (searchInput) searchInput.value = '';
@@ -726,17 +727,17 @@
 						}
 					}
 				} catch (err) {
-					// fall through to navigation fallback
+					// Si algo falla aquí, dejamos que continúe el fallback de navegación.
 					console.warn('search result modal open failed:', err);
 				}
 
-				// Fallback: use explicit dataset.cat or dataset.category if present
+				// Fallback: usar dataset.cat o dataset.category si existe.
 				const rawCat = item.dataset.cat || item.dataset.category || '';
 				const category = (rawCat || '').toString().normalize ? rawCat.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase() : rawCat.toLowerCase();
 				if (category === 'camisas' || category === 'tazas' || category === 'sublimacion') {
 					window.location.href = '/producto/' + id + '/camisas/';
 				} else {
-					// final fallback: open canonical product detail page
+					// Fallback final: abrir la ruta canónica del detalle del producto.
 					window.location.href = '/producto/' + id + '/';
 				}
 			});

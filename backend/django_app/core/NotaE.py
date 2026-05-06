@@ -22,12 +22,12 @@ class Generar_NE(FPDF):
 
         company_phone = (os.environ.get('COMPANY_PHONE') or '04245684179').strip()
 
-        # Logo or company info
+        # Logo o información de la empresa
         self.set_font('Arial', 'B', 16)
         self.cell(0, 10, 'Nota de Entrega', 0, 1, 'C')
         self.ln(5)
 
-        # Company info
+        # Información de la empresa
         self.set_font('Arial', '', 12)
         self.cell(0, 8, 'SolucionArte - Tienda de Productos Personalizados', 0, 1, 'C')
         self.cell(0, 8, 'Dirección: Guanare-Portuguesa', 0, 1, 'C')
@@ -35,7 +35,7 @@ class Generar_NE(FPDF):
             self.cell(0, 8, f'Teléfono: {company_phone}', 0, 1, 'C')
         self.ln(10)
 
-        # Invoice details
+        # Detalles de la factura
         self.set_font('Arial', 'B', 12)
         self.cell(0, 8, f'N° Nota: {self.salida.pk}', 0, 1, 'L')
         self.cell(0, 8, f'Estado del Pedido: {self.salida.estado_pago}', 0, 1, 'L')
@@ -84,7 +84,7 @@ class Generar_NE(FPDF):
     def generate_invoice(self):
         self.add_page()
 
-        # Table header
+        # Encabezado de tabla
         self.set_font('Arial', 'B', 10)
         self.cell(60, 10, 'Producto', 1, 0, 'L')
         self.cell(17, 10, 'Cant.', 1, 0, 'C')
@@ -94,7 +94,7 @@ class Generar_NE(FPDF):
         self.cell(25, 10, 'Subtotal Bs', 1, 1, 'c')
         
 
-        # Table content
+        # Contenido de tabla
         self.set_font('Arial', '', 10)
         
 
@@ -122,7 +122,7 @@ class Generar_NE(FPDF):
             total_bs = total_usd * tasa
             nombre_prod = producto.nombre_producto or "Producto sin nombre"
 
-            # Product name (may need to wrap long names)
+            # Nombre del producto (puede requerir salto para nombres largos)
             self.cell(60, 8, nombre_prod[:35], 1, 0, 'L')
             self.cell(17, 8, str(cantidad), 1, 0, 'C')
             self.cell(25, 8, f'${precio_unit:.2f}', 1, 0, 'C')
@@ -131,7 +131,7 @@ class Generar_NE(FPDF):
             self.cell(25, 8, f'{subtotal_bs:.2f}', 1, 1, 'C')
 
 
-            # If description is long, add it in next row
+            # Si la descripción es larga, agregarla en la siguiente fila
             if len(nombre_prod) > 35:
                 self.cell(80, 6, nombre_prod[35:70], 1, 0, 'L')
                 self.cell(20, 6, '', 1, 0, 'C')

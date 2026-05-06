@@ -1,4 +1,4 @@
-// home.js - JavaScript for home page categories and filtering
+// home.js - JavaScript para categorías y filtrado en la página home
 let currentCategory = '';
 
 function populateCategories(){
@@ -38,12 +38,12 @@ function applyFilters(){
     render(applySort(list, sortVal));
 }
 
-// wire up search and sort controls to use new filter flow
+// Conectar controles de búsqueda y orden para usar el nuevo flujo de filtros
 document.addEventListener('DOMContentLoaded', ()=>{
     populateCategories();
     const sBtn = document.getElementById('searchBtn');
     if (sBtn) sBtn.addEventListener('click', applyFilters);
     if (sortBy) sortBy.addEventListener('change', applyFilters);
-    // initial render
+    // Render inicial
     applyFilters();
 });

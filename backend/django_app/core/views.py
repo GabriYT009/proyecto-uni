@@ -278,7 +278,7 @@ def _safe_img_url(producto):
     if not image_name:
         return fallback
 
-    # Prefer direct FieldFile URL first (signed URL on private S3/R2 buckets).
+    # Preferir primero la URL directa de FieldFile (URL firmada en buckets privados S3/R2).
     try:
         raw_url = image_field.url
         normalized = _normalize_media_url(raw_url)
@@ -292,8 +292,8 @@ def _safe_img_url(producto):
     except Exception:
         pass
 
-    # Handle legacy names that already include the media location (e.g. media/products/..)
-    # so S3 backends don't build duplicated paths like /media/media/products/..
+    # Manejar nombres heredados que ya incluyen la ubicación media (ej. media/products/..)
+    # para evitar rutas duplicadas como /media/media/products/.. en backends S3.
     media_location = (os.environ.get('AWS_MEDIA_LOCATION') or 'media').strip('/')
     if media_location and image_name.startswith(media_location + '/'):
         trimmed_name = image_name[len(media_location) + 1:]
@@ -399,7 +399,7 @@ def _safe_file_url(file_field):
     except Exception:
         pass
 
-    # Fix legacy names that include media location to avoid /media/media/... URLs.
+    # Corregir nombres heredados que incluyen media para evitar URLs /media/media/...
     media_location = (os.environ.get('AWS_MEDIA_LOCATION') or 'media').strip('/')
     if media_location and file_name.startswith(media_location + '/'):
         trimmed_name = file_name[len(media_location) + 1:]
@@ -694,7 +694,7 @@ def login_post(request):
                 login(request, user)
                 return redirect('home')
 
-            # If the DB has no users yet (fresh deployment), allow default admin credentials.
+            # Si la BD aún no tiene usuarios (despliegue nuevo), permitir credenciales admin por defecto.
             if username == fallback_user and password == fallback_pass:
                 user_obj, created = User.objects.get_or_create(
                     username=username,
@@ -807,7 +807,7 @@ def recuperar_contrasena(request):
                 if user_id:
                     user = User.objects.filter(pk=user_id).first()
                 else:
-                    # fallback por username+email
+                    # respaldo por username+email
                     username = form.cleaned_data['username'].strip()
                     email = form.cleaned_data['email'].strip().lower()
                     user = User.objects.filter(username__iexact=username, email__iexact=email).first()
@@ -1266,7 +1266,7 @@ def catalog(request):
     # Obtenemos el parámetro de la URL (ej: ?Categoria=Electronica)
     categoria_param = request.GET.get('Categoria')
     search_param = request.GET.get('search', '').strip()
-    # product_id_param removed: use `search` param for catalog navigation
+    # product_id_param fue removido: usar `search` para la navegación del catálogo
     
     # Variable para guardar el objeto categoría encontrado (si existe)
     categoria_obj = None
@@ -1316,8 +1316,8 @@ def catalog(request):
             Q(descripcion__icontains=search_param)
         )
 
-    # NOTE: we prefer server-side search by `search` text. Exact product_id
-    # routing was removed to keep behavior consistent with Enter-search.
+    # NOTA: se prefiere búsqueda del lado servidor con `search`.
+    # El enrutamiento exacto por product_id se removió para mantener consistencia con Enter.
 
     categories = _cached_categories()
 
@@ -1480,7 +1480,7 @@ def remove_from_cart(request, product_id):
     cart = request.session.get('cart', [])
     cart_options = request.session.get('cart_options', {}) or {}
 
-    # Remove the product entirely from session cart, even if it appears multiple times.
+    # Eliminar el producto por completo del carrito en sesión, aunque aparezca varias veces.
     pid = str(product_id)
     cart = [item for item in cart if str(item) != pid]
     cart_options.pop(pid, None)
@@ -1491,7 +1491,7 @@ def remove_from_cart(request, product_id):
 
 
 def logout_view(request):
-    """Log out the current user and redirect to the login page."""
+    """Cerrar sesión del usuario actual y redirigir al login."""
     try:
         logout(request)
     except Exception:
@@ -2057,7 +2057,7 @@ def comprar_producto(request, producto_id):
             messages.error(request, f'Error al procesar la compra: {e}')
             return redirect('comprar_producto', producto_id=producto_id)
 
-    # If requested as a partial (AJAX), return only the purchase form partial
+    # Si se solicita como parcial (AJAX), devolver solo el formulario de compra parcial
     if request.method == 'GET' and request.GET.get('partial'):
         single = bool(request.GET.get('single'))
         return render(request, 'core/_purchase_form.html', {
@@ -2126,7 +2126,7 @@ def aprobar_pagos(request):
 
         if nuevo_estado == 'APROBADO':
             salida.estado_pago = "APROBADO"
-            salida.motivo_rechazo = None  # Clear any previous rejection reason
+            salida.motivo_rechazo = None  # Limpiar cualquier motivo de rechazo previo
             messages.success(request, f'Pago #{salida.pk} aprobado correctamente.')
         elif nuevo_estado == 'RECHAZADO':
             motivo = request.POST.get('motivo_rechazo', '').strip()
@@ -2349,7 +2349,7 @@ def comprar_carrito(request):
 
     productos = Producto.objects.filter(pk__in=cart)
 
-    # Debug: log session/cart and posted quantity keys to help diagnose missing qtys for specific products (e.g. Tazas)
+    # Depuración: registrar sesión/carrito y claves de cantidades enviadas para diagnosticar qty faltantes.
     try:
         logger.info('comprar_carrito invoked: user=%s cart=%s post_keys=%s files=%s',
                     getattr(request.user, 'username', None),
@@ -2389,8 +2389,8 @@ def comprar_carrito(request):
                 available = int(p.cantidad_disponible or 0)
                 using_talla_stock = False
 
-                # If producto.cantidad_disponible is insufficient but there is talla-specific stock (e.g. Tazas with 'Unica'),
-                # allow consuming from ProductoTallaStock and proceed.
+                # Si producto.cantidad_disponible no alcanza pero hay stock por talla (ej. Tazas 'Unica'),
+                # permitir consumir desde ProductoTallaStock y continuar.
                 if cantidad > available:
                     try:
                         talla_total = ProductoTallaStock.objects.filter(producto=p).aggregate(total=__import__('django').db.models.Sum('stock_disponible'))
@@ -2427,7 +2427,7 @@ def comprar_carrito(request):
                 cant_anterior = int(p.cantidad_disponible or 0)
 
                 if using_talla_stock:
-                    # Consume from talla stocks first (distribute across talla records until satisfied)
+                    # Consumir primero desde stock por talla (distribuir entre registros hasta completar)
                     remaining = cantidad
                     for st in ProductoTallaStock.objects.filter(producto=p).order_by('-stock_disponible'):
                         available_st = int(st.stock_disponible or 0)
@@ -2440,10 +2440,10 @@ def comprar_carrito(request):
                         if remaining <= 0:
                             break
 
-                    # Also decrement producto.cantidad_disponible to keep masters in sync
+                    # También decrementar producto.cantidad_disponible para mantener sincronía
                     p.cantidad_disponible = max(0, cant_anterior - cantidad)
                     p.save()
-                    # If talla specified in session, call _consume_sublimation_stock for compatibility, otherwise skip
+                    # Si hay talla en sesión, llamar _consume_sublimation_stock por compatibilidad; si no, omitir
                     try:
                         sel_talla = _get_session_cart_talla(request, p.pk)
                         if sel_talla:
@@ -2679,7 +2679,7 @@ def eliminar_producto(request, producto_id):
                 return redirect('inventario')
 
             producto.delete()
-            # Ensure current session cart is cleaned (remove any occurrence of this product id)
+            # Asegurar limpieza del carrito actual en sesión (quitar cualquier ocurrencia del ID)
             try:
                 cart = request.session.get('cart', [])
                 if producto_id in cart:
@@ -2800,10 +2800,10 @@ def editar_producto(request, producto_id):
             messages.error(request, 'Error: La cantidad o el precio deben ser números válidos.')
             return redirect('inventario')
 
-        # Pre-validate: require a non-empty motivo if any editable field changes
+        # Prevalidación: exigir motivo no vacío si cambia cualquier campo editable
         motivo = (request.POST.get('motivoAjuste') or '').strip()
 
-        # Determine posted values for comparison
+        # Determinar valores enviados para comparación
         posted_nombre = (request.POST.get('nombre_producto') or '').strip()
         posted_desc = (request.POST.get('descripcion') or '').strip()
         posted_precio = nuevo_precio
@@ -2823,7 +2823,7 @@ def editar_producto(request, producto_id):
         if posted_desc != (producto.descripcion or ''):
             changed = True
             changed_non_image = True
-        # compare numeric with tolerance for floats
+        # Comparar numéricos con tolerancia para flotantes
         try:
             if float(posted_precio) != float(producto.precio_venta or 0):
                 changed = True
