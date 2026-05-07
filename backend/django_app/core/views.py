@@ -879,7 +879,7 @@ def crear_cliente(request):
         else:
             if len(nombre) > 45:
                 errors['nombre_cliente'] = 'El nombre no puede tener más de 45 caracteres.'
-            elif re.search(r'\d', nombre):
+            elif tipo == '2':
                 errors['nombre_cliente'] = 'El nombre no puede contener números.'
             elif not re.match(r'^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$', nombre):
                 errors['nombre_cliente'] = 'El nombre contiene caracteres inválidos.'
@@ -892,14 +892,6 @@ def crear_cliente(request):
                 errors['apellido_cliente'] = 'El apellido no puede contener números.'
             elif not re.match(r'^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$', apellido):
                 errors['apellido_cliente'] = 'El apellido contiene caracteres inválidos.'
-
-        # Validar teléfono (si fue suministrado): solo dígitos y hasta 11 caracteres
-        if telefono:
-            if not telefono.isdigit():
-                errors['telefono_cliente'] = 'El teléfono debe contener solo números.'
-            elif len(telefono) > 11:
-                errors['telefono_cliente'] = 'El teléfono no puede tener más de 11 dígitos.'
-
         if not email:
             errors['email'] = 'El correo electrónico es obligatorio.'
         else:
@@ -945,6 +937,15 @@ def crear_cliente(request):
                     errors['cedula_dni_representante'] = 'La cédula del representante debe ser numérica.'
                 elif len(ced_rep) > 11:
                     errors['cedula_dni_representante'] = 'La cédula del representante no puede tener más de 11 dígitos.'
+
+        documento_nuevo = ''
+        if tipo == '1' and tipo_documento in ('V', 'E'):
+            documento_nuevo = f'{tipo_documento}{data.get("cedula_dni", "").strip()}'
+        elif tipo == '2':
+            documento_nuevo = data.get('cedula_dni_representante', '').strip()
+
+        if documento_nuevo and Cliente.objects.filter(documento=documento_nuevo).exists():
+            errors['cedula_dni'] = 'La cédula ya está registrada.'
 
         # Si hay errores, re-renderizar la plantilla con los mensajes y datos previos
         if errors:
@@ -996,6 +997,17 @@ def crear_cliente(request):
                 ced_rep = data.get('cedula_dni_representante','').strip()
                 if ced_rep:
                     cliente_kwargs['documento'] = ced_rep
+
+            documento_guardado = (cliente_kwargs.get('documento') or '').strip()
+            if documento_guardado and Cliente.objects.filter(documento=documento_guardado).exists():
+                errors['non_field'] = 'La cédula ya está registrada.'
+                context = {
+                    'errors': errors,
+                    'form': form_data,
+                    'cart_count': len(request.session.get('cart', [])),
+                    'user_groups': list(request.user.groups.values_list('name', flat=True))
+                }
+                return render(request, 'core/crear_cliente.html', context)
 
             cliente = Cliente.objects.create(**cliente_kwargs)
         except Exception as ex:
@@ -1107,6 +1119,14 @@ def crear_usuario(request):
         if User.objects.filter(email=email).exists():
             return render(request, 'core/crear_usuario.html', {
                 'error': 'El correo ya está registrado.',
+                'security_questions': security_questions,
+                'security_feature_enabled': security_feature_enabled,
+                'email': email,
+            })
+
+        if cedula and Cliente.objects.filter(documento=cedula).exists():
+            return render(request, 'core/crear_usuario.html', {
+                'error': 'La cédula ya está registrada.',
                 'security_questions': security_questions,
                 'security_feature_enabled': security_feature_enabled,
                 'email': email,
