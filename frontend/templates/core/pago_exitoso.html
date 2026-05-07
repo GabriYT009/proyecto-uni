@@ -26,7 +26,7 @@
                 <p>Tipo de pago: <strong>{{ salida.get_tipo_pago_display|default:salida.tipo_pago }}</strong></p>
             {% endif %}
             {% if salida.cliente_documento or salida.cliente_telefono %}
-                <p style="margin-bottom: 0; color:#555;">Documento: {{ salida.cliente_documento|default:'-' }} | Teléfono: {{ salida.cliente_telefono|default:'-' }}</p>
+                <p style="margin-bottom: 0; color:#555;">Documento: {{ salida.cliente_documento|default:'-' }} | Teléfono: {{ salida.cliente_telefono|default:'-' }} | Referencia {{ salida.referencia_pago|default:'-' }} </p>
             {% endif %}
             
                 <div class="alert alert-warning" role="alert" style="margin-top:12px; text-align:left;">

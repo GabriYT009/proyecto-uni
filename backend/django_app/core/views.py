@@ -2330,6 +2330,7 @@ def comprar_carrito(request):
 
     documento = (request.POST.get('documento') or '').strip()
     mobile_phone = (request.POST.get('mobile_phone') or '').strip()
+    referencia = (request.POST.get('referencia') or '').strip()
     if not documento:
         messages.error(request, 'Debes ingresar la cédula o documento.')
         return redirect('pago_movil')
@@ -2341,6 +2342,9 @@ def comprar_carrito(request):
         return redirect('pago_movil')
     if len(mobile_phone) < 10 or len(mobile_phone) > 11:
         messages.error(request, 'El teléfono debe tener entre 10 y 11 dígitos.')
+        return redirect('pago_movil')
+    if not referencia:
+        messages.error(request, 'Debes ingresar la referencia de pago.')
         return redirect('pago_movil')
 
     payment_proof = request.FILES.get('payment_proof')
@@ -2393,6 +2397,7 @@ def comprar_carrito(request):
                 metodo_pago=metodo_pago,
                 cliente_documento=documento[:45],
                 cliente_telefono=mobile_phone[:15],
+                referencia_pago=referencia,
             )
             logger.info(f'Nota_Entrega creada: {nota.pk} para usuario {request.user.username}')
             
@@ -2537,6 +2542,7 @@ def pago_movil(request):
         cliente = request.user.cliente 
         cedula = getattr(cliente, 'documento', '') or ''
         telefono = getattr(cliente, 'telefono_cliente', None) or getattr(cliente, 'telefono', '') or ''
+        
     except ObjectDoesNotExist:
         # Si el usuario no tiene perfil de cliente, se queda con los valores vacíos
         pass 
