@@ -109,6 +109,10 @@
                 <small style="color:#666; display:block; margin-top:6px;">Formatos: JPG, PNG, WEBP. Tamaño maximo: 5 MB.</small>
                 <small class="field-error" id="proofError" style="display:none; color:#b02a37; margin-top:6px;"></small>
             </div>
+            <div class="field">
+                <label for="referencia">Referencia </label>
+                <input type="text" id="referencia" name="referencia" value="{{ referencia }}" maxlength="50" autocomplete="off" required />
+            </div>
             <!-- El monto ya se muestra arriba en .total, se elimina el input duplicado -->
 
             {# Reinyectar los campos de cantidad recibidos desde el carrito como inputs ocultos para que comprar_carrito los procese #}
