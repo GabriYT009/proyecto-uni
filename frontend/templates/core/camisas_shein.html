@@ -462,10 +462,12 @@
                                 Ya existe una solicitud pendiente para este producto.
                                 {% if solicitud.talla %}<br>Talla: {{ solicitud.talla }}{% endif %}
                                 {% if solicitud.comentario %}<br>Comentario: {{ solicitud.comentario }}{% endif %}
+                                {% if sublimation_extra_cost > 0 %}<br>Recargo adicional por sublimación: $ {{ sublimation_extra_cost|floatformat:2 }} por unidad.{% endif %}
                             </div>
                         {% else %}
                             <div class="notice">
                                 Si vas a sublimar este producto, puedes subir la imagen y dejar el comentario antes de agregarlo al carrito.
+                                {% if sublimation_extra_cost > 0 %}<br>La sublimación tiene un recargo adicional de $ {{ sublimation_extra_cost|floatformat:2 }} por unidad.{% endif %}
                             </div>
                         {% endif %}
                     </div>

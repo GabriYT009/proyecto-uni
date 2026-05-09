@@ -452,6 +452,20 @@ def _get_session_cart_talla(request, product_id):
     return (cart_options.get(str(int(product_id))) or {}).get('talla', '')
 
 
+def _sublimation_extra_cost(quantity=1):
+    try:
+        base_cost = float(getattr(settings, 'SUBLIMATION_EXTRA_COST', 0) or 0)
+    except Exception:
+        base_cost = 0.0
+
+    try:
+        qty = max(1, int(quantity or 1))
+    except Exception:
+        qty = 1
+
+    return round(base_cost * qty, 2)
+
+
 def _latest_pending_sublimation(user, product_id):
     if not user or not getattr(user, 'is_authenticated', False):
         return None
@@ -1506,7 +1520,13 @@ def carrito(request):
     total_bs = ''
     try:
         tasa= obtener_tasa_cambio()
-        total_bs= sum((p.precio_venta or 0) * p.cantidad_en_carrito for p in Productos)* float(tasa) if tasa != 'N/A' else 'N/A'
+        total_carrito = 0.0
+        for p in Productos:
+            cantidad = getattr(p, 'cantidad_en_carrito', 0) or 0
+            subtotal = float(p.precio_venta or 0) * cantidad
+            costo_sublimacion = _sublimation_extra_cost(cantidad) if getattr(p, 'solicitud_sublimacion', None) else 0.0
+            total_carrito += subtotal + costo_sublimacion
+        total_bs= total_carrito * float(tasa) if tasa != 'N/A' else 'N/A'
         total_bs = f"{total_bs:.2f}"
     except Exception:
         tasa = 'N/A'
@@ -1519,6 +1539,7 @@ def carrito(request):
         'user_groups': _user_groups(request.user),
         'valor_dolar':str(tasa),
         'total_bs': total_bs,
+        'sublimation_extra_cost': _sublimation_extra_cost(),
         
     })
 
@@ -1880,6 +1901,7 @@ def camisas_shein(request, producto_id):
         if accion == 'guardar_sublimacion':
             comentario = (request.POST.get('comentario') or '').strip()
             imagen = request.FILES.get('imagen_sublimacion')
+            costo_sublimacion = _sublimation_extra_cost(cantidad)
 
             if talla and talla not in stock_por_talla:
                 messages.error(request, 'La talla seleccionada no es válida.')
@@ -1901,7 +1923,10 @@ def camisas_shein(request, producto_id):
             _set_session_cart_talla(request, producto.pk, talla)
             for _ in range(cantidad):
                 _append_to_session_cart(request, producto.pk)
-            messages.success(request, 'Sublimación guardada y producto agregado al carrito.')
+            if costo_sublimacion > 0:
+                messages.success(request, f'Sublimación guardada. Recargo adicional: $ {costo_sublimacion:.2f}. Producto agregado al carrito.')
+            else:
+                messages.success(request, 'Sublimación guardada y producto agregado al carrito.')
             return redirect('carrito')
 
     related_solicitud = _latest_pending_sublimation(request.user, producto.pk)
@@ -1924,6 +1949,7 @@ def camisas_shein(request, producto_id):
         'default_cantidad': 1,
         'categoria_nombre': categoria_nombre,
         'solicitud': related_solicitud,
+        'sublimation_extra_cost': _sublimation_extra_cost(),
         'cart_count': len(request.session.get('cart', [])),
         'user_groups': _user_groups(request.user),
         'valor_dolar': str(tasa),
@@ -2069,17 +2095,18 @@ def comprar_producto(request, producto_id):
         try:
             with transaction.atomic():
                 cliente_obj = getattr(request.user, 'cliente', None)
+                solicitud = _latest_pending_sublimation(request.user, producto.pk)
                 nota = Nota_Entrega.objects.create(
                     cliente=cliente_obj,
                     estado_pago='PENDIENTE',
-                    fecha=timezone.now()
+                    fecha=timezone.now(),
+                    total=float(producto.precio_venta or 0) * cantidad + (_sublimation_extra_cost(cantidad) if solicitud else 0.0)
                 )
                 carrito_item = CarritoDeCompras.objects.create(Nota_Entrega=nota, Producto = producto, cantidad=cantidad, status_carrito=True, precio_unitario=producto.precio_venta
                 ) 
                 nota.carrito_de_compras = carrito_item
                 nota.save()
 
-                solicitud = _latest_pending_sublimation(request.user, producto.pk)
                 if solicitud:
                     solicitud.carrito_de_compras = carrito_item
                     solicitud.nota_entrega = nota
@@ -2101,6 +2128,9 @@ def comprar_producto(request, producto_id):
                     motivo=f'Compra por usuario {request.user.username} (cantidad {cantidad})',
                     usuario_responsable=request.user.username
                 )
+
+                if solicitud:
+                    messages.info(request, f'La sublimación agrega un recargo adicional de $ {_sublimation_extra_cost(cantidad):.2f} al pedido.')
                 
 
 
@@ -2473,6 +2503,8 @@ def comprar_carrito(request):
                         raise ValueError('stock insuficiente')
 
                 subtotal = float(p.precio_venta or 0) * cantidad
+                solicitud = _latest_pending_sublimation(request.user, p.pk)
+                costo_sublimacion = _sublimation_extra_cost(cantidad) if solicitud else 0.0
                 
                 # PASO 3: Crear el detalle en CarritoDeCompras vinculado a la Nota
                 CarritoDeCompras.objects.create(
@@ -2484,7 +2516,6 @@ def comprar_carrito(request):
                     status_carrito=True
                 )
 
-                solicitud = _latest_pending_sublimation(request.user, p.pk)
                 if solicitud:
                     solicitud.carrito_de_compras = CarritoDeCompras.objects.filter(Nota_Entrega=nota, Producto=p).order_by('-id').first()
                     solicitud.nota_entrega = nota
@@ -2537,7 +2568,7 @@ def comprar_carrito(request):
                     usuario_responsable=request.user.username
                 )
 
-                total_acumulado += subtotal
+                total_acumulado += subtotal + costo_sublimacion
 
             # PASO 5: Actualizar el total final de la Nota
             nota.total = total_acumulado
@@ -2604,16 +2635,21 @@ def pago_movil(request):
             cantidad = 1
             
         subtotal = float(p.precio_venta or 0) * cantidad
+        solicitud = _latest_pending_sublimation(request.user, p.pk)
+        costo_sublimacion = _sublimation_extra_cost(cantidad) if solicitud else 0.0
+        total_linea = subtotal + costo_sublimacion
         
         items.append({
             'producto': p, 
             'cantidad': cantidad,
-            'precio_bs': subtotal * float(obtener_tasa_cambio() or 'N/A') if subtotal and obtener_tasa_cambio() else 'N/A',
+            'precio_bs': total_linea * float(obtener_tasa_cambio() or 'N/A') if total_linea and obtener_tasa_cambio() else 'N/A',
             'subtotal': subtotal, 
+            'costo_sublimacion': costo_sublimacion,
+            'total_linea': total_linea,
             'talla': _get_session_cart_talla(request, p.pk), 
-            'sublimacion': _latest_pending_sublimation(request.user, p.pk)
+            'sublimacion': solicitud
         })
-        total += subtotal
+        total += total_linea
     
     total_bs = ''
     try:

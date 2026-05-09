@@ -82,6 +82,9 @@
                             {% if it.sublimacion.comentario %}
                                 <div style="margin-top: 4px; font-style: italic;">"{{ it.sublimacion.comentario }}"</div>
                             {% endif %}
+                            {% if it.costo_sublimacion %}
+                                <div style="margin-top: 4px; font-weight: 700;">Cargo adicional: $ {{ it.costo_sublimacion|floatformat:2 }}</div>
+                            {% endif %}
                         </div>
                     {% endif %}
 

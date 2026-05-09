@@ -177,6 +177,10 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'False').lower() in ('1', 'true', 'yes')
 EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL', 'False').lower() in ('1', 'true', 'yes')
 
+# Tarifa adicional por sublimación. Se mantiene configurable por entorno para
+# no fijar una cifra de negocio dentro del código fuente.
+SUBLIMATION_EXTRA_COST = float(os.environ.get('SUBLIMATION_EXTRA_COST', '5') or 5)
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.middleware.gzip.GZipMiddleware',

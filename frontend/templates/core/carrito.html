@@ -418,9 +418,10 @@
                                         <strong>{{ p.nombre_producto }}</strong>
                                         <div class="desc">{{ p.descripcion }}</div>
                                         {% if p.solicitud_sublimacion %}
-                                            <div style="margin-top:8px; padding:10px 12px; border-radius:10px; background:#f7f0ff; border:1px solid #e0c8f3; color:#5b2b80; font-size:0.9rem; line-height:1.45;">
+                                            <div class="sublimation-charge" style="margin-top:8px; padding:10px 12px; border-radius:10px; background:#f7f0ff; border:1px solid #e0c8f3; color:#5b2b80; font-size:0.9rem; line-height:1.45;">
                                                 <strong style="display:block; margin-bottom:4px;">Sublimación registrada</strong>
                                                 {% if p.solicitud_sublimacion.comentario %}<div>{{ p.solicitud_sublimacion.comentario }}</div>{% endif %}
+                                                {% if sublimation_extra_cost > 0 %}<div style="margin-top:4px; font-weight:700;">Cargo adicional: $ {{ sublimation_extra_cost|floatformat:2 }} por unidad</div>{% endif %}
                                             </div>
                                         {% endif %}
                                     </div>
@@ -486,6 +487,7 @@
                             // 1. Capturamos el valor del backend. 
                             // Usamos el filtro |default:0 para evitar errores si la variable llega vacía
                             var tasaBackend = parseFloat("{{ valor_dolar|default:0 }}") || 0;
+                            var sublimationExtraCost = parseFloat("{{ sublimation_extra_cost|default:0 }}") || 0;
 
                             function recalcularTotal() {
                                 // 2. Usamos la tasa que viene del backend en lugar del input
@@ -510,7 +512,8 @@
                                         }
                                         
                                         var precioUsd = parseFloat(priceText) || 0;
-                                        var subtotalUsd = precioUsd * cantidad;
+                                        var hasSublimacion = !!row.querySelector('.sublimation-charge');
+                                        var subtotalUsd = (precioUsd * cantidad) + (hasSublimacion ? sublimationExtraCost * cantidad : 0);
                                         var subtotalBs = subtotalUsd * tasa;
 
                                         granTotalUsd += subtotalUsd;
@@ -580,9 +583,10 @@
                                     var priceText = '0';
                                     try{ priceText = row.querySelector('.price').textContent.replace('Precio:','').replace('$','').trim(); }catch(err){}
                                     var price = parseFloat(priceText) || 0;
+                                    var hasSublimacion = !!row.querySelector('.sublimation-charge');
                                     if (v < 1) { invalid = true; msgs.push('Cantidad mínima para ' + name + ' es 1.'); }
                                     if (max > 0 && v > max) { invalid = true; msgs.push('Cantidad solicitada para ' + name + ' supera el stock (' + max + ').'); }
-                                    items.push({id: pid, name: name, qty: v, price: price});
+                                    items.push({id: pid, name: name, qty: v, price: price, hasSublimacion: hasSublimacion});
                                 });
                                 if (invalid) {
                                     hidePageLoader();
@@ -603,13 +607,14 @@
                                     line.className = 'item';
                                     
                                     // Cálculos por producto
-                                    var subtotalUsd = it.price * it.qty;
+                                    var subtotalUsd = (it.price * it.qty) + (it.hasSublimacion ? sublimationExtraCost * it.qty : 0);
                                     var subtotalBs = subtotalUsd * tasaBackend; 
+                                    var sublimationNote = it.hasSublimacion ? '<br><small style="color:#7a2ea5; font-weight:normal;">Sublimación: $ ' + (sublimationExtraCost * it.qty).toFixed(2) + '</small>' : '';
                                     
                                     // HTML de la línea (incluye $ y Bs)
                                     line.innerHTML = '<div>' + it.name + ' × ' + it.qty + '</div>' + 
                                                     '<div style="text-align:right;">$ ' + subtotalUsd.toFixed(2) + 
-                                                    '<br><small style="color:#666; font-weight:normal;">Bs ' + subtotalBs.toLocaleString('es-VE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '</small></div>';
+                                                    '<br><small style="color:#666; font-weight:normal;">Bs ' + subtotalBs.toLocaleString('es-VE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '</small>' + sublimationNote + '</div>';
                                     
                                     list.appendChild(line);
                                     
