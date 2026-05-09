@@ -51,6 +51,7 @@ from .models import PasswordResetCode
 
 from .bcv import obtener_tasa_cambio
 from .NotaE import Generar_NE
+from .image_utils import optimize_uploaded_image
 
 from .models import Producto, Nota_Entrega, CarritoDeCompras, Historial_Inventario, Cliente,Marca_producto
 
@@ -1911,6 +1912,8 @@ def camisas_shein(request, producto_id):
                 messages.error(request, 'Debes subir una imagen para la sublimación.')
                 return redirect('camisas_shein', producto_id=producto.pk)
 
+            imagen = optimize_uploaded_image(imagen, max_size=(1400, 1400), quality=80)
+
             SolicitudSublimacion.objects.create(
                 usuario=request.user,
                 producto=producto,
@@ -2458,6 +2461,8 @@ def comprar_carrito(request):
     if payment_proof.size > (5 * 1024 * 1024):
         messages.error(request, 'El comprobante supera el tamano maximo de 5 MB.')
         return redirect('pago_movil')
+
+    payment_proof = optimize_uploaded_image(payment_proof, max_size=(1600, 1600), quality=82)
 
     _, ext = os.path.splitext(payment_proof.name or '')
     ext = (ext or '.jpg').lower()

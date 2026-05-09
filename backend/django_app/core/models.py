@@ -1,6 +1,7 @@
 from django.db import models
 from django.db import models
 from django.contrib.auth.models import User as Usuario
+from .image_utils import optimize_uploaded_image
 
 # ==========================================
 # 1. Tablas Maestras
@@ -203,6 +204,9 @@ class Producto(models.Model):
         return self.nombre_producto
 
     def save(self, *args, **kwargs):
+        if self.imagen_producto and getattr(self.imagen_producto, '_committed', True) is False:
+            self.imagen_producto = optimize_uploaded_image(self.imagen_producto)
+
         super().save(*args, **kwargs)
         # Copiar la imagen a static/product-images/ si existe
         if self.imagen_producto and self.imagen_producto.name:
