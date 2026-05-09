@@ -1187,6 +1187,7 @@ def crear_usuario(request):
                 if 'pending_email' in request.session:
                     del request.session['pending_email']
 
+                messages.success(request, 'Usuario registrado correctamente.')
                 return redirect('login')
 
         except Exception as e:
