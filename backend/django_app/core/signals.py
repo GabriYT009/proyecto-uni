@@ -3,6 +3,9 @@ from django.dispatch import receiver
 from django.contrib.sessions.backends.db import SessionStore
 from django.contrib.sessions.models import Session
 from .models import Producto
+from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from .models import UserProfile
 
 
 @receiver(post_delete, sender=Producto)
@@ -62,3 +65,18 @@ def producto_post_delete(sender, instance, **kwargs):
         except Exception:
             # No permitir que una sesión dañada frene la limpieza.
             continue
+
+
+@receiver(post_save, sender=User)
+def ensure_user_profile(sender, instance, created, **kwargs):
+    """Crear un UserProfile automáticamente al crear un Usuario."""
+    try:
+        if created:
+            UserProfile.objects.create(user=instance)
+        else:
+            # Si existe, garantizar que la relación exista (caso de usuarios antiguos)
+            if not hasattr(instance, 'profile'):
+                UserProfile.objects.get_or_create(user=instance)
+    except Exception:
+        # No fallar por errores de señales
+        pass

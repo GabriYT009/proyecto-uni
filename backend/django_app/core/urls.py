@@ -57,4 +57,9 @@ urlpatterns = [
     # API para ajuste de stock
     path('api/ajustar_stock/', views_inventario_api.ajustar_stock_producto, name='api_ajustar_stock'),
     path('cobrar-caja/', cobrar_caja, name='cobrar_caja'),
+    # Verificación de correo y teléfono
+    path('verify/email/send/', views.send_email_verification, name='send_email_verification'),
+    path('verify/email/', views.verify_email, name='verify_email'),
+    path('verify/phone/send/', views.send_phone_verification, name='send_phone_verification'),
+    path('verify/phone/', views.verify_phone, name='verify_phone'),
 ]

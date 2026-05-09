@@ -1,6 +1,45 @@
 from django.db import models
 from django.db import models
 from django.contrib.auth.models import User as Usuario
+from django.utils import timezone
+import secrets
+
+
+# Modelo para estado de verificación de usuario (correo y teléfono)
+class UserProfile(models.Model):
+    user = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='profile')
+    email_verified = models.BooleanField(default=False)
+    email_verification_token = models.CharField(max_length=128, blank=True, null=True)
+    email_verification_sent_at = models.DateTimeField(blank=True, null=True)
+
+    phone_number = models.CharField(max_length=30, blank=True, null=True)
+    phone_verified = models.BooleanField(default=False)
+    phone_verification_code = models.CharField(max_length=10, blank=True, null=True)
+    phone_verification_sent_at = models.DateTimeField(blank=True, null=True)
+
+    def generate_email_token(self):
+        token = secrets.token_urlsafe(48)
+        self.email_verification_token = token
+        self.email_verification_sent_at = timezone.now()
+        self.save(update_fields=['email_verification_token', 'email_verification_sent_at'])
+        return token
+
+    def generate_phone_code(self):
+        code = f"{secrets.randbelow(10**6):06d}"
+        self.phone_verification_code = code
+        self.phone_verification_sent_at = timezone.now()
+        self.save(update_fields=['phone_verification_code', 'phone_verification_sent_at'])
+        return code
+
+    def mark_email_verified(self):
+        self.email_verified = True
+        self.email_verification_token = None
+        self.save(update_fields=['email_verified', 'email_verification_token'])
+
+    def mark_phone_verified(self):
+        self.phone_verified = True
+        self.phone_verification_code = None
+        self.save(update_fields=['phone_verified', 'phone_verification_code'])
 
 # ==========================================
 # 1. Tablas Maestras
