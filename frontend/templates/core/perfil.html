@@ -212,25 +212,44 @@
     <div class="giant-frame">
         <div class="wrap">
             <h2>Mi perfil</h2>
+            {% include 'core/_messages.html' %}
             {% if cliente %}
-                <p><strong>Nombre:</strong> {{ cliente.nombre_cliente }}</p>
-                <p><strong>Apellido:</strong>{{ cliente.apellido_cliente }}</p>
-                <p><strong>Dirección:</strong> {{ cliente.direccion }}</p>
+                <form method="post" class="perfil-form" style="text-align:left; margin-top:18px;">
+                    {% csrf_token %}
+                    <div style="display:grid; gap:14px;">
+                        <label>
+                            <strong>Nombre</strong>
+                            <input type="text" name="nombre_cliente" value="{{ cliente.nombre_cliente }}" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;">
+                        </label>
+                        <label>
+                            <strong>Apellido</strong>
+                            <input type="text" name="apellido_cliente" value="{{ cliente.apellido_cliente }}" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;">
+                        </label>
+                        <label>
+                            <strong>Dirección</strong>
+                            <input type="text" name="direccion" value="{{ cliente.direccion }}" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;">
+                        </label>
+                        <label>
+                            <strong>Teléfono</strong>
+                            <input type="text" name="telefono_cliente" value="{{ cliente.telefono_cliente }}" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;">
+                        </label>
+                    </div>
             {% endif %}
             {% if user %}
 
-                <p><strong>Usuario:</strong> {{ user.username }}</p>
-                <p><strong>Email:</strong> {{ user.email }}</p>
+                <p style="margin-top:20px;"><strong>Usuario:</strong> {{ user.username }}</p>
+                <label>
+                    <strong>Email</strong>
+                    <input type="email" name="email" value="{{ user.email }}" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;">
+                </label>
                 {% if cedula %}
                     <p><strong>Cédula:</strong> {{ cedula }}</p>
                 {% endif %}
                 {% if telefono %}
-                    <p><strong>Teléfono:</strong> {{ telefono }}</p>
+                    <p><strong>Teléfono actual:</strong> {{ telefono }}</p>
                 {% endif %}
-
-
-
-                
+                <button type="submit" style="margin-top:18px; padding:12px 18px; border:none; border-radius:10px; background:#7a2ea5; color:#fff; font-weight:700; cursor:pointer;">Guardar cambios</button>
+                </form>
             {% else %}
                 <p>No has iniciado sesión.</p>
                 <p><a href="{% url 'login_post' %}">Iniciar sesión</a></p>

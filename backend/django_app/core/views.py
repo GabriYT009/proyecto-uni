@@ -1392,6 +1392,9 @@ def perfil(request):
     cliente = None
     cedula = ''
     telefono = ''
+    nombre = ''
+    apellido = ''
+    direccion = ''
     try:
         if user and user.email:
             cliente = Cliente.objects.filter(email__iexact=user.email).first()
@@ -1399,8 +1402,43 @@ def perfil(request):
                 # soportar diferentes nombres de campo según la versión del modelo
                 cedula = getattr(cliente, 'documento', '') or ''
                 telefono = getattr(cliente, 'telefono_cliente', None) or getattr(cliente, 'telefono', '') or ''
+                nombre = getattr(cliente, 'nombre_cliente', '') or ''
+                apellido = getattr(cliente, 'apellido_cliente', '') or ''
+                direccion = getattr(cliente, 'direccion', '') or ''
     except Exception:
         cliente = None
+
+    if request.method == 'POST' and user and user.is_authenticated:
+        nombre = (request.POST.get('nombre_cliente') or '').strip()
+        apellido = (request.POST.get('apellido_cliente') or '').strip()
+        direccion = (request.POST.get('direccion') or '').strip()
+        telefono = (request.POST.get('telefono_cliente') or '').strip()
+        email = (request.POST.get('email') or '').strip()
+
+        if not cliente and user.email:
+            cliente = Cliente.objects.filter(email__iexact=user.email).first()
+
+        try:
+            with transaction.atomic():
+                if cliente is None:
+                    cliente = Cliente(user=user)
+
+                cliente.nombre_cliente = nombre
+                cliente.apellido_cliente = apellido
+                cliente.direccion = direccion
+                cliente.telefono_cliente = telefono
+                if email:
+                    cliente.email = email
+                    user.email = email
+
+                cliente.save()
+                if email:
+                    user.save(update_fields=['email'])
+
+                messages.success(request, 'Información del cliente actualizada correctamente.')
+                return redirect('perfil')
+        except Exception as e:
+            messages.error(request, f'No se pudo actualizar el perfil: {e}')
 
     return render(request, 'core/perfil.html', {
         'user': user,
@@ -1409,6 +1447,9 @@ def perfil(request):
         'cliente': cliente,
         'cedula': cedula,
         'telefono': telefono,
+        'nombre': nombre,
+        'apellido': apellido,
+        'direccion': direccion,
     })
 
 
