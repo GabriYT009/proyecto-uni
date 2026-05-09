@@ -2170,6 +2170,14 @@ def pago_exitoso(request, salida_id):
     nota = get_object_or_404(Nota_Entrega, pk=salida_id)
     # Intentar recuperar items del carrito si existen
 
+    tasa_guardada = float(nota.bcv or 0) if nota.bcv else 0.0
+    if tasa_guardada <= 0:
+        try:
+            tasa_actual = obtener_tasa_cambio()
+            tasa_guardada = float(tasa_actual) if tasa_actual != 'N/A' else 0.0
+        except Exception:
+            tasa_guardada = 0.0
+
 
     items = [
         {
@@ -2177,7 +2185,7 @@ def pago_exitoso(request, salida_id):
             'cantidad_item': detalle.Cantidad,
             'sub_total_item': float(detalle.precio_unitario or 0) * float(detalle.Cantidad or 0),
             'precio_unitario': detalle.precio_unitario,
-            'precio_bs': f"{float(detalle.precio_unitario or 0) * float(obtener_tasa_cambio() or 1):.2f}" if obtener_tasa_cambio() != 'N/A' else 'N/A',
+            'precio_bs': f"{float(detalle.precio_unitario or 0) * tasa_guardada:.2f}" if tasa_guardada else 'N/A',
         }
         for detalle in nota.detalles.all().select_related('Producto')
     ]
@@ -2186,13 +2194,12 @@ def pago_exitoso(request, salida_id):
 
     total_bs = ''
     try:
-        tasa= obtener_tasa_cambio()
-        b= total* float(tasa) if tasa != 'N/A' else 'N/A'
+        b = total * tasa_guardada if tasa_guardada else 'N/A'
         total_bs = f'{b:.2f}'
     
 
     except Exception:
-        tasa = 'N/A'
+        tasa_guardada = 0.0
 
 
     return render(request, 'core/pago_exitoso.html', {
@@ -2456,6 +2463,9 @@ def comprar_carrito(request):
     except Exception:
         logger.exception('Failed to log comprar_carrito debug info')
 
+    tasa = obtener_tasa_cambio()
+    valor_bcv = float(tasa) if tasa != 'N/A' else 0.00
+
     try:
         with transaction.atomic():
             # PASO 1: Obtener cliente y crear la cabecera (Nota_Entrega)
@@ -2466,6 +2476,7 @@ def comprar_carrito(request):
                 estado_pago='PENDIENTE',
                 fecha=timezone.now(),
                 total=0.0,
+                bcv=valor_bcv,
                 tipo_pago='PAGO MOVIL',
                 metodo_pago=metodo_pago,
                 cliente_documento=documento[:45],
@@ -2695,11 +2706,14 @@ def comprar_producto_ajax(request, producto_id):
             # PASO 1: Crear la Nota de Entrega (Cabecera)
             cliente_obj = getattr(request.user, 'cliente', None)
             subtotal = float(producto.precio_venta or 0) * cantidad
+            tasa = obtener_tasa_cambio()
+            valor_bcv = float(tasa) if tasa != 'N/A' else 0.00
             
             nota = Nota_Entrega.objects.create(
                 cliente=cliente_obj,
                 estado_pago='PENDIENTE',
                 total=subtotal,
+                bcv=valor_bcv,
                 fecha=timezone.now()
             )
 

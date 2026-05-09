@@ -10,18 +10,25 @@
     <style>
         :root {
             --primary-color: #6A1B9A;
-            --secondary-color: #9C27B0;
-            --background-gradient: linear-gradient(180deg, #e1e0e0 0%, var(--secondary-color) 100%);
-            --background-color: #EFEFEF;
+            --secondary-color: #dfe7f4;
+            --background-gradient: linear-gradient(180deg, #f7f8fc 0%, #eef1f7 100%);
+            --background-color: #f4f6fb;
             --card-background: #ffffff;
             --card-opacity: 1;
+        }
+
+        html {
+            background: linear-gradient(180deg, #f7f8fc 0%, #eef1f7 100%) !important;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            background-size: cover;
         }
 
         body {
             margin: 0;
             padding: 0;
             font-family: "Urbanist", "Segoe UI", Roboto, Arial, sans-serif;
-            background: #e1e0e0 !important;
+            background: transparent !important;
             min-height: 100vh;
         }
 
