@@ -2190,7 +2190,22 @@ def pago_exitoso(request, salida_id):
         for detalle in nota.detalles.all().select_related('Producto')
     ]
 
-    total= sum(item['sub_total_item'] for item in items)
+    sublimation_charge = 0.0
+    sublimation_items = []
+    for solicitud in nota.solicitudes_sublimacion.select_related('producto').all():
+        try:
+            charge = _sublimation_extra_cost(solicitud.cantidad)
+        except Exception:
+            charge = 0.0
+        sublimation_charge += charge
+        sublimation_items.append({
+            'producto': solicitud.producto,
+            'cantidad': solicitud.cantidad,
+            'cargo': charge,
+            'comentario': solicitud.comentario,
+        })
+
+    total = float(nota.total or 0) or (sum(item['sub_total_item'] for item in items) + sublimation_charge)
 
     total_bs = ''
     try:
@@ -2205,9 +2220,11 @@ def pago_exitoso(request, salida_id):
     return render(request, 'core/pago_exitoso.html', {
         'salida': nota,  
         'items': items,
+        'sublimation_items': sublimation_items,
         'cart_count': len(request.session.get('cart', [])),
         'user_groups': list(request.user.groups.values_list('name', flat=True)),
         'total_bs': total_bs,
+        'total': total,
 
 
     })
@@ -2708,11 +2725,13 @@ def comprar_producto_ajax(request, producto_id):
             subtotal = float(producto.precio_venta or 0) * cantidad
             tasa = obtener_tasa_cambio()
             valor_bcv = float(tasa) if tasa != 'N/A' else 0.00
+            solicitud = _latest_pending_sublimation(request.user, producto.pk)
+            costo_sublimacion = _sublimation_extra_cost(cantidad) if solicitud else 0.0
             
             nota = Nota_Entrega.objects.create(
                 cliente=cliente_obj,
                 estado_pago='PENDIENTE',
-                total=subtotal,
+                total=subtotal + costo_sublimacion,
                 bcv=valor_bcv,
                 fecha=timezone.now()
             )
@@ -2727,7 +2746,6 @@ def comprar_producto_ajax(request, producto_id):
                 status_carrito=True
             )
 
-            solicitud = _latest_pending_sublimation(request.user, producto.pk)
             if solicitud:
                 solicitud.carrito_de_compras = item_carrito
                 solicitud.nota_entrega = nota
