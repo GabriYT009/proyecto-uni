@@ -48,89 +48,12 @@ import string
 import datetime
 import unicodedata
 from .models import PasswordResetCode
-from django.core.mail import send_mail
-from django.contrib.auth.decorators import login_required
-from .models import UserProfile
 
 from .bcv import obtener_tasa_cambio
 from .NotaE import Generar_NE
 
 from .models import Producto, Nota_Entrega, CarritoDeCompras, Historial_Inventario, Cliente,Marca_producto
 
-
-@login_required
-def send_email_verification(request):
-    user = request.user
-    profile = getattr(user, 'profile', None)
-    if profile is None:
-        profile, _ = UserProfile.objects.get_or_create(user=user)
-
-    token = profile.generate_email_token()
-    verify_url = request.build_absolute_uri(reverse('verify_email')) + f'?token={token}'
-    subject = 'Verifica tu correo'
-    message = f'Hola {user.username},\n\nPor favor verifica tu correo usando este enlace:\n{verify_url}\n\nSi no solicitaste este email, ignóralo.'
-    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@example.com')
-    try:
-        send_mail(subject, message, from_email, [user.email], fail_silently=False)
-    except Exception:
-        # En entornos sin SMTP esto puede fallar; usar backend de consola está bien.
-        logger.exception('Error enviando email de verificación')
-
-    return JsonResponse({'status': 'ok', 'message': 'Email de verificación enviado'})
-
-
-def verify_email(request):
-    token = request.GET.get('token') or request.POST.get('token')
-    if not token:
-        return JsonResponse({'status': 'error', 'message': 'Token requerido'}, status=400)
-
-    try:
-        profile = UserProfile.objects.get(email_verification_token=token)
-    except UserProfile.DoesNotExist:
-        return JsonResponse({'status': 'error', 'message': 'Token inválido'}, status=400)
-
-    profile.mark_email_verified()
-    return JsonResponse({'status': 'ok', 'message': 'Correo verificado'})
-
-
-@login_required
-def send_phone_verification(request):
-    user = request.user
-    profile = getattr(user, 'profile', None)
-    if profile is None:
-        profile, _ = UserProfile.objects.get_or_create(user=user)
-
-    phone = request.POST.get('phone') or profile.phone_number
-    if not phone:
-        return JsonResponse({'status': 'error', 'message': 'Teléfono requerido'}, status=400)
-
-    profile.phone_number = phone
-    profile.save(update_fields=['phone_number'])
-    code = profile.generate_phone_code()
-
-    # Aquí iría la integración con proveedor SMS (Twilio, etc.).
-    # Por ahora registramos en logs y devolvemos éxito para entornos de desarrollo.
-    logger.info('SMS verification for %s: %s', phone, code)
-
-    return JsonResponse({'status': 'ok', 'message': 'Código SMS enviado (mock)'} )
-
-
-@login_required
-def verify_phone(request):
-    user = request.user
-    profile = getattr(user, 'profile', None)
-    if profile is None:
-        return JsonResponse({'status': 'error', 'message': 'Perfil no encontrado'}, status=404)
-
-    code = request.POST.get('code')
-    if not code:
-        return JsonResponse({'status': 'error', 'message': 'Código requerido'}, status=400)
-
-    if profile.phone_verification_code and code.strip() == profile.phone_verification_code:
-        profile.mark_phone_verified()
-        return JsonResponse({'status': 'ok', 'message': 'Teléfono verificado'})
-
-    return JsonResponse({'status': 'error', 'message': 'Código inválido'}, status=400)
 
 def is_admin(user):
     if not hasattr(user, 'is_authenticated') or not user.is_authenticated:
