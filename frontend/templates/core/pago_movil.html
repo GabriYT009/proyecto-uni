@@ -87,7 +87,9 @@
                                 <div>Talla: {{ it.sublimacion.talla }}</div>
                             {% endif %}
                             {% if it.sublimacion.comentario %}
-                                <div style="margin-top: 4px; font-style: italic;">"{{ it.sublimacion.comentario }}"</div>
+                                <div style="margin-top: 4px; font-style: italic; max-width: 100%; overflow-wrap: anywhere; word-break: break-word; white-space: normal; display: block;">
+                                    "{{ it.sublimacion.comentario }}"
+                                </div>
                             {% endif %}
                             {% if it.costo_sublimacion %}
                                 <div style="margin-top: 4px; font-weight: 700;">Cargo adicional: $ {{ it.costo_sublimacion|floatformat:2 }}</div>

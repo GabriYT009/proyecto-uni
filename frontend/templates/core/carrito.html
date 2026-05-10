@@ -420,7 +420,7 @@
                                         {% if p.solicitud_sublimacion %}
                                             <div class="sublimation-charge" style="margin-top:8px; padding:10px 12px; border-radius:10px; background:#f7f0ff; border:1px solid #e0c8f3; color:#5b2b80; font-size:0.9rem; line-height:1.45;">
                                                 <strong style="display:block; margin-bottom:4px;">Sublimación registrada</strong>
-                                                {% if p.solicitud_sublimacion.comentario %}<div>{{ p.solicitud_sublimacion.comentario }}</div>{% endif %}
+                                                {% if p.solicitud_sublimacion.comentario %}<div style="max-width:100%; overflow-wrap:anywhere; word-break:break-word; white-space:normal; display:block;">{{ p.solicitud_sublimacion.comentario }}</div>{% endif %}
                                                 {% if sublimation_extra_cost > 0 %}<div style="margin-top:4px; font-weight:700;">Cargo adicional: $ {{ sublimation_extra_cost|floatformat:2 }} por unidad</div>{% endif %}
                                             </div>
                                         {% endif %}

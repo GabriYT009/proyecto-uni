@@ -48,7 +48,7 @@
                 {% for it in sublimation_items %}
                 <li style="padding:8px 0; border-bottom:1px solid #eee; color:#7a2ea5;">
                     Sublimación {{ it.producto.nombre_producto }} — Cantidad: {{ it.cantidad }} — Cargo: $ {{ it.cargo|floatformat:2 }}
-                    {% if it.comentario %}<div style="font-size:0.92rem; color:#8f6aa8; margin-top:4px;">{{ it.comentario }}</div>{% endif %}
+                    {% if it.comentario %}<div style="font-size:0.92rem; color:#8f6aa8; margin-top:4px; max-width:100%; overflow-wrap:anywhere; word-break:break-word; white-space:normal; display:block;">{{ it.comentario }}</div>{% endif %}
                 </li>
                 {% endfor %}
             </ul>
