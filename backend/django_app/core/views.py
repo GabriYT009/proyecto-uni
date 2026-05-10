@@ -13,6 +13,7 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django.contrib import messages
+from django.core.mail import send_mail
 from django.db.models import Q, F, Case, When, IntegerField
 from django.db.models.deletion import ProtectedError
 from django.core.cache import cache
@@ -304,6 +305,28 @@ def _send_password_reset_email_via_mailtrap(user, code):
         raise RuntimeError(f'Mailtrap devolvió error: {data}')
 
     return data
+
+
+def _send_welcome_user_email(user):
+    if not user or not getattr(user, 'email', ''):
+        return False
+
+    subject = 'Bienvenido a Solucionarte'
+    message = (
+        f'Hola {user.username},\n\n'
+        'Tu usuario fue creado correctamente.\n\n'
+        f'Usuario: {user.username}\n'
+        'Si no solicitaste este registro, ignora este mensaje.\n'
+    )
+
+    send_mail(
+        subject=subject,
+        message=message,
+        from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@example.com'),
+        recipient_list=[user.email],
+        fail_silently=False,
+    )
+    return True
 
 HOME_PRODUCTS_LIMIT = 24
 ALLOWED_CATEGORY_NAMES = [
@@ -1305,6 +1328,11 @@ def crear_usuario(request):
                 # Limpieza de sesión
                 if 'pending_email' in request.session:
                     del request.session['pending_email']
+
+                try:
+                    _send_welcome_user_email(nuevo_usuario)
+                except Exception:
+                    logger.exception('No se pudo enviar el correo de bienvenida al usuario %s', nuevo_usuario.pk)
 
                 messages.success(request, 'Usuario registrado correctamente.')
                 return redirect('login')
