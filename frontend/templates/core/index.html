@@ -31,21 +31,6 @@
         </div>
     {% endif %}
 
-        <form method="post">
-            {% csrf_token %}
-            
-            <!-- Si está bloqueado, encerramos el formulario en un fieldset deshabilitado -->
-            {% if usuario_bloqueado %}
-                <fieldset disabled="disabled" style="border: none; padding: 0;">
-                    {{ form.as_p }}
-                    <button type="submit" style="background-color: #ccc; cursor: not-allowed;">Iniciar Sesión</button>
-                </fieldset>
-            {% else %}
-                <!-- Formulario normal y habilitado -->
-                {{ form.as_p }}
-                <button type="submit">Iniciar Sesión</button>
-            {% endif %}
-        </form>
         </div>
         {% include 'core/_messages.html' %}
         {% if error %}
