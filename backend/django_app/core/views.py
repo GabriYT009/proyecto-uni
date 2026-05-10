@@ -328,6 +328,28 @@ def _send_welcome_user_email(user):
     )
     return True
 
+
+def _send_profile_email_updated_notification(user):
+    if not user or not getattr(user, 'email', ''):
+        return False
+
+    subject = 'Tu correo fue actualizado'
+    message = (
+        f'Hola {user.username},\n\n'
+        'Te confirmamos que el correo de tu cuenta fue actualizado correctamente.\n\n'
+        f'Nuevo correo: {user.email}\n\n'
+        'Si no realizaste este cambio, contacta al administrador de inmediato.\n'
+    )
+
+    send_mail(
+        subject=subject,
+        message=message,
+        from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@example.com'),
+        recipient_list=[user.email],
+        fail_silently=False,
+    )
+    return True
+
 HOME_PRODUCTS_LIMIT = 24
 ALLOWED_CATEGORY_NAMES = [
     'Cajas',
@@ -1561,6 +1583,9 @@ def perfil(request):
         direccion = (request.POST.get('direccion') or '').strip()
         telefono = (request.POST.get('telefono_cliente') or '').strip()
         email = (request.POST.get('email') or '').strip()
+        previous_email = (user.email or '').strip().lower()
+        normalized_email = email.lower()
+        email_changed = bool(normalized_email) and normalized_email != previous_email
 
         if not cliente and user.email:
             cliente = Cliente.objects.filter(email__iexact=user.email).first()
@@ -1581,6 +1606,12 @@ def perfil(request):
                 cliente.save()
                 if email:
                     user.save(update_fields=['email'])
+
+                if email_changed:
+                    try:
+                        _send_profile_email_updated_notification(user)
+                    except Exception:
+                        logger.exception('No se pudo enviar el correo de confirmación de cambio de email al usuario %s', user.pk)
 
                 messages.success(request, 'Información del cliente actualizada correctamente.')
                 return redirect('perfil')
