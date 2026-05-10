@@ -1518,10 +1518,12 @@ def catalog(request):
     # Variable para guardar el objeto categoría encontrado (si existe)
     categoria_obj = None
 
-    # Base queryset: solo productos activos y con stock disponible
+    # Base queryset: solo productos activos; el filtro de stock se aplica solo
+    # cuando no hay búsqueda para que los productos sin stock sigan apareciendo
+    # en los resultados de búsqueda, pero no en el catálogo general.
     Productos = (
         Producto.objects
-        .filter(status_producto=True, cantidad_disponible__gt=0)
+        .filter(status_producto=True)
         .select_related('categoria')
         .only(
             'id',
@@ -1529,6 +1531,7 @@ def catalog(request):
             'precio_venta',
             'descripcion',
             'imagen_producto',
+            'cantidad_disponible',
             'categoria__nombre_categoria',
             'categoria_id',
         )
@@ -1562,6 +1565,8 @@ def catalog(request):
             Q(nombre_producto__icontains=search_param) |
             Q(descripcion__icontains=search_param)
         )
+    else:
+        Productos = Productos.filter(cantidad_disponible__gt=0)
 
     # NOTA: se prefiere búsqueda del lado servidor con `search`.
     # El enrutamiento exacto por product_id se removió para mantener consistencia con Enter.
@@ -1579,6 +1584,7 @@ def catalog(request):
     for p in page_obj.object_list:
         img_url = _safe_img_url(p)
         p.img_url = img_url
+        p.has_stock = (p.cantidad_disponible or 0) > 0
         lista_productos_json.append({
             'id': p.pk,
             'title': p.nombre_producto,
@@ -1599,6 +1605,7 @@ def catalog(request):
         'categories': categories, 
         'selected_Categoria': categoria_obj.nombre_categoria if categoria_obj else categoria_param,
         'search_query': search_param,
+        'search_has_unavailable': any((p.cantidad_disponible or 0) <= 0 for p in page_obj.object_list) if search_param else False,
         'cart_count': len(request.session.get('cart', [])),
         'user_groups': _user_groups(request.user),
         'Productos_json': Productos_json,

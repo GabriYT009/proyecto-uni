@@ -76,8 +76,9 @@
             cardEl.classList.add('selected');
             setTimeout(()=> cardEl.classList.remove('selected'), 260);
         }
-        // Guardar ID actual de producto para handlers de agregar/comprar
+        // Guardar ID y stock actual para handlers de agregar/comprar
         window.currentProductId = button.dataset.id || null;
+        window.currentProductStock = Number(button.dataset.stock || 0);
         console.log('[catalog.js] elements', { modal: !!modal, mTitle: !!mTitle, mImg: !!mImg, mDesc: !!mDesc, mPrice: !!mPrice });
             if(modal){
             // Mostrar modal (los templates esperan .show para visibilidad)
@@ -123,6 +124,21 @@
                     }
                 }
             } catch(e){ }
+                try {
+                    const addBtn = modal.querySelector('#m-add-cart');
+                    const stockNote = modal.querySelector('#m-stock-note');
+                    const outOfStock = Number(window.currentProductStock || 0) <= 0;
+                    if (addBtn) {
+                        addBtn.disabled = outOfStock;
+                        addBtn.textContent = outOfStock ? 'No disponible' : 'Añadir al carrito';
+                        addBtn.style.opacity = outOfStock ? '0.65' : '1';
+                        addBtn.style.cursor = outOfStock ? 'not-allowed' : 'pointer';
+                    }
+                    if (stockNote) {
+                        stockNote.style.display = outOfStock ? 'block' : 'none';
+                        stockNote.textContent = outOfStock ? 'Este producto no se encuentra en stock actualmente. Puedes verlo, pero no agregarlo al carrito.' : '';
+                    }
+                } catch(e){}
 
             // Overlay de depuración: diagnóstico visual rápido para ver el estado
             try {

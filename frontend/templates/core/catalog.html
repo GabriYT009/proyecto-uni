@@ -192,6 +192,10 @@
         .card h4{ margin:10px 0 6px 0; font-size:14px; }
         .card p{ margin:0 0 8px 0; font-size:12px; color:#666; flex:1; }
         .card .row{ display:flex; justify-content:space-between; align-items:center; gap:8px; }
+        .card.out-of-stock{ opacity:.72; }
+        .stock-badge{ display:inline-flex; align-items:center; gap:6px; margin:0 0 8px 0; padding:4px 8px; border-radius:999px; font-size:11px; font-weight:700; letter-spacing:.02em; background:#fde8ea; color:#b02a37; border:1px solid #f5c2c7; }
+        .stock-badge.in-stock{ background:#e8f5ec; color:#2f7d47; border-color:#b7e2c6; }
+        .modal-stock-note{ margin:8px 0 12px; padding:10px 12px; border-radius:10px; background:#fff3cd; color:#8a5a00; border:1px solid #ffe69c; font-size:13px; line-height:1.4; }
         .btn{ background:#9932CC; color:#fff; padding:8px 12px; border-radius:8px; text-decoration:none; border:none; cursor:pointer; }
         /* Asegurar que los botones de vista siempre sean clicables (evitar overlays invisibles) */
         .card .view{ position:relative; z-index:60; pointer-events:auto; }
@@ -270,6 +274,11 @@
 
     <div class="giant-frame">
         <div class="wrap">
+        {% if search_query and search_has_unavailable %}
+            <div style="margin: 0 0 16px; padding: 12px 14px; border-radius: 12px; background: #fff3cd; border: 1px solid #ffe69c; color: #8a5a00; font-weight: 600;">
+                Algunos resultados están sin stock actualmente; se muestran para que puedas verlos, pero no se pueden agregar al carrito.
+            </div>
+        {% endif %}
         <!-- Sección de categorías -->
         <section class="categories">
             <h2>Categorías</h2>
@@ -294,10 +303,15 @@
             <h2>{% if selected_Categoria %}Productos de {{ selected_Categoria }}{% else %}Todos los Productos{% endif %}</h2>
             <div id="grid" class="grid">
                 {% for product in Productos %}
-                <div class="card" data-id="{{ product.id }}" data-title="{{ product.nombre_producto }}" data-img="{{ product.img_url }}" data-desc="{{ product.descripcion }}" data-price="{{ product.precio_venta }}" role="button" tabindex="0" style="cursor:pointer;">
+                <div class="card {% if not product.has_stock %}out-of-stock{% endif %}" data-id="{{ product.id }}" data-title="{{ product.nombre_producto }}" data-img="{{ product.img_url }}" data-desc="{{ product.descripcion }}" data-price="{{ product.precio_venta }}" data-stock="{{ product.cantidad_disponible|default:0 }}" role="button" tabindex="0" style="cursor:pointer;">
                     <img src="{{ product.img_url }}" alt="{{ product.nombre_producto }}" class="view" loading="lazy" decoding="async" data-id="{{ product.id }}" data-title="{{ product.nombre_producto }}" data-img="{{ product.img_url }}" data-desc="{{ product.descripcion }}" data-price="$ {{ product.precio_venta }}" role="button" tabindex="0" style="cursor:pointer;" onerror="this.onerror=null;this.src='{% static 'assets/img/no-image-placeholder.svg' %}';">
                     
                     <h4 class="view" data-id="{{ product.id }}" role="button" tabindex="0" style="cursor:pointer;">{{ product.nombre_producto }}</h4>
+                    {% if not product.has_stock %}
+                        <div class="stock-badge">Sin stock / No disponible</div>
+                    {% else %}
+                        <div class="stock-badge in-stock">Disponible</div>
+                    {% endif %}
                     <p>{{ product.descripcion }}</p>
                     <div class="row">
                             <strong class="price-usd" data-price="{{ product.precio_venta }}">$ {{ product.precio_venta }}</strong>
@@ -345,6 +359,7 @@
                 <hr/>
                 <img id="m-img" src="" alt="" style="width:100%; height:200px; object-fit:cover; border-radius:6px; margin-bottom:8px;">
                 <p id="m-desc"></p>
+                <div id="m-stock-note" class="modal-stock-note" style="display:none;"></div>
                 <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
                     <strong id="m-price"></strong>
                     <div style="display:flex; gap:10px;">
@@ -592,6 +607,10 @@
                 }, 450);
             }
             window.addToCart = async function(id){
+                if (Number(window.currentProductStock || 0) <= 0) {
+                    try { if (window.PageLoader && typeof window.PageLoader.hide === 'function') window.PageLoader.hide(); } catch(e){}
+                    return;
+                }
                 let loaderShownAt = 0;
                 function showAddToCartLoader(){
                     loaderShownAt = Date.now();
