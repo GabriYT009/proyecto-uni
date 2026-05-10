@@ -208,12 +208,21 @@
         }
         .btn-pagination:hover{ background:#f5e9fb; }
         .btn-pagination.active{ background:#9932CC; color:#fff; border-color:#9932CC; }
+        .cart-pop {
+            animation: cartPop 420ms ease-out;
+        }
+        @keyframes cartPop {
+            0% { transform: scale(1); }
+            40% { transform: scale(1.28); }
+            100% { transform: scale(1); }
+        }
     </style>
 
     </style>
 </head>
 <body>
     {% include 'core/_topbar.html' %}
+    {% include 'core/_messages.html' %}
 
     <script>
         // Dropdown de Producto en la barra superior (catalogo)
@@ -572,6 +581,16 @@
                 } catch(e){}
                 try { if (window.PageLoader && typeof window.PageLoader.hide === 'function') window.PageLoader.hide(); } catch(e){}
             }
+            function popCartCount(){
+                const count = document.getElementById('cart-count');
+                if (!count) return;
+                count.classList.remove('cart-pop');
+                void count.offsetWidth;
+                count.classList.add('cart-pop');
+                window.setTimeout(function () {
+                    count.classList.remove('cart-pop');
+                }, 450);
+            }
             window.addToCart = async function(id){
                 try{
                     const detailModal = document.getElementById('detailModal');
@@ -591,6 +610,10 @@
                     if (ctype.indexOf('application/json') !== -1) {
                         const data = await res.json();
                         try{ const cc = document.getElementById('cart-count'); if(cc) cc.textContent = data.count; }catch(e){}
+                        popCartCount();
+                        if (typeof window.showGlobalToast === 'function') {
+                            window.showGlobalToast('Producto agregado al carrito', 'success', 2200);
+                        }
                         clearAddToCartOverlays();
                         return;
                     }

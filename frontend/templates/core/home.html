@@ -560,12 +560,21 @@
             .category-card { width: 108px; }
             .cat-scroll-btn { width: 30px; height: 30px; font-size: 16px; }
         }
+        .cart-pop {
+            animation: cartPop 420ms ease-out;
+        }
+        @keyframes cartPop {
+            0% { transform: scale(1); }
+            40% { transform: scale(1.28); }
+            100% { transform: scale(1); }
+        }
     </style>
 </head>
 <body>
     <div id="welcomeAlert" role="status" aria-live="polite" style="display:none">Bienvenido — Has iniciado sesión correctamente.</div>
 
     {% include 'core/_topbar.html' %}
+    {% include 'core/_messages.html' %}
 
     <div class="wrap" style="flex:1; padding:0; max-width:1100px; margin:0 auto;">
 
@@ -1244,6 +1253,16 @@
                 modal.style.opacity = '';
                 modal.style.zIndex = '';
             }
+            function popCartCount(){
+                const count = document.getElementById('cart-count');
+                if (!count) return;
+                count.classList.remove('cart-pop');
+                void count.offsetWidth;
+                count.classList.add('cart-pop');
+                window.setTimeout(function () {
+                    count.classList.remove('cart-pop');
+                }, 450);
+            }
             window.addToCart = async function(id){
                 try{
                     closeDetailModal();
@@ -1258,6 +1277,10 @@
                     if (ctype.indexOf('application/json') !== -1) {
                         const data = await res.json();
                         try{ const cc = document.getElementById('cart-count'); if(cc) cc.textContent = data.count; }catch(e){}
+                        popCartCount();
+                        if (typeof window.showGlobalToast === 'function') {
+                            window.showGlobalToast('Producto agregado al carrito', 'success', 2200);
+                        }
                         return;
                     }
                     if (res.redirected) {
