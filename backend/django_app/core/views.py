@@ -3406,7 +3406,7 @@ def agregar_marca(request):
         'is_paginated': page_obj.has_other_pages(),
     })
 
-def respuesta_bloqueo_login(request):
+def respuesta_bloqueo_login(request, credentials, *args, **kwargs):
     """
     Esta función se ejecuta automáticamente cuando Axes bloquea un acceso.
     Renderiza la misma página de login, pero inyecta una variable de bloqueo.
