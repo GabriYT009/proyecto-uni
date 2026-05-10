@@ -130,7 +130,7 @@ class PasswordRecoveryForm(forms.Form):
             'autocomplete': 'username',
         }),
     )
-    email = forms.EmailField(
+    email = forms.CharField(
         widget=forms.CharField(attrs={
             'class': 'form-control',
             'placeholder': 'Correo electrónico registrado',
