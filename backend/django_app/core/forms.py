@@ -134,6 +134,7 @@ class PasswordRecoveryForm(forms.Form):
         widget=forms.EmailInput(attrs={
             'class': 'form-control',
             'placeholder': 'Correo electrónico registrado',
+            'type': 'email',
             'autocomplete': 'email',
         }),
     )
