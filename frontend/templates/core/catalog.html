@@ -574,6 +574,12 @@
             }
             window.addToCart = async function(id){
                 try{
+                    const detailModal = document.getElementById('detailModal');
+                    if (detailModal) {
+                        detailModal.classList.remove('show');
+                        detailModal.setAttribute('aria-hidden', 'true');
+                        detailModal.style.display = 'none';
+                    }
                     const token = getCsrf();
                     const res = await fetch('/add_to_cart/' + id + '/', {
                         method: 'POST',
@@ -611,6 +617,12 @@
                     e.preventDefault();
                     const id = window.currentProductId || (document.getElementById('detailModal') && document.getElementById('detailModal').dataset.productId);
                     if (!id) return;
+                    const detailModal = document.getElementById('detailModal');
+                    if (detailModal) {
+                        detailModal.classList.remove('show');
+                        detailModal.setAttribute('aria-hidden', 'true');
+                        detailModal.style.display = 'none';
+                    }
                     if (window.addToCart) window.addToCart(id);
                 });
             }

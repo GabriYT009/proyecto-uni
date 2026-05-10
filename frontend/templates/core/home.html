@@ -1234,8 +1234,19 @@
         // Asegurar que addToCart esté disponible globalmente para botones del modal
         (function(){
             function getCsrf(){ const m = document.querySelector('meta[name="csrf-token"]'); return m?m.content:null; }
+            function closeDetailModal(){
+                const modal = document.getElementById('detailModal');
+                if (!modal) return;
+                modal.classList.remove('show');
+                modal.setAttribute('aria-hidden', 'true');
+                modal.style.display = 'none';
+                modal.style.visibility = '';
+                modal.style.opacity = '';
+                modal.style.zIndex = '';
+            }
             window.addToCart = async function(id){
                 try{
+                    closeDetailModal();
                     const token = getCsrf();
                     const res = await fetch('/add_to_cart/' + id + '/', {
                         method: 'POST',
@@ -1269,6 +1280,12 @@
                     e.preventDefault();
                     const id = window.currentProductId || (document.getElementById('detailModal') && document.getElementById('detailModal').dataset.productId);
                     if (!id) return;
+                    const modal = document.getElementById('detailModal');
+                    if (modal) {
+                        modal.classList.remove('show');
+                        modal.setAttribute('aria-hidden', 'true');
+                        modal.style.display = 'none';
+                    }
                     if (window.addToCart) {
                         window.addToCart(id);
                     }
