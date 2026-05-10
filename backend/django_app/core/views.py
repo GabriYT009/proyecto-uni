@@ -1072,6 +1072,8 @@ def crear_cliente(request):
                 errors['cedula_dni'] = 'La cédula es obligatoria para persona natural.'
             elif not cedula.isdigit():
                 errors['cedula_dni'] = 'La cédula debe contener solo números.'
+            elif len(cedula) > 8:
+                errors['cedula_dni'] = 'La cédula no puede tener más de 8 dígitos.'
         elif tipo == '2':
             rif = data.get('rif_empresa', '').strip()
             nombre_empresa = data.get('nombre_empresa', '').strip()
@@ -1100,8 +1102,8 @@ def crear_cliente(request):
             else:
                 if not ced_rep.isdigit():
                     errors['cedula_dni_representante'] = 'La cédula del representante debe ser numérica.'
-                elif len(ced_rep) > 11:
-                    errors['cedula_dni_representante'] = 'La cédula del representante no puede tener más de 11 dígitos.'
+                elif len(ced_rep) > 8:
+                    errors['cedula_dni_representante'] = 'La cédula del representante no puede tener más de 8 dígitos.'
 
         documento_nuevo = ''
         if tipo == '1' and tipo_documento in ('V', 'E'):
@@ -1225,7 +1227,9 @@ def crear_usuario(request):
         security_answer = (request.POST.get('security_answer') or '').strip()
         
         # Datos para el modelo Cliente
-        cedula = str(request.POST.get('tipo_documento')+request.POST.get('cedula_dni')).strip()  
+        tipo_documento = (request.POST.get('tipo_documento') or '').strip().upper()
+        cedula_dni = (request.POST.get('cedula_dni') or '').strip()
+        cedula = f'{tipo_documento}{cedula_dni}'
         nombre = request.POST.get('nombre_cliente')
         apellido = request.POST.get('apellido_cliente')
         direccion = request.POST.get('direccion') # Ojo con el acento en el HTML name='dirección' o 'direccion'
@@ -1268,6 +1272,30 @@ def crear_usuario(request):
         if security_feature_enabled and not security_answer:
             return render(request, 'core/crear_usuario.html', {
                 'error': 'La respuesta de seguridad es obligatoria.',
+                'security_questions': security_questions,
+                'security_feature_enabled': security_feature_enabled,
+                'email': email,
+            })
+
+        if not cedula_dni:
+            return render(request, 'core/crear_usuario.html', {
+                'error': 'La cédula es obligatoria.',
+                'security_questions': security_questions,
+                'security_feature_enabled': security_feature_enabled,
+                'email': email,
+            })
+
+        if not cedula_dni.isdigit():
+            return render(request, 'core/crear_usuario.html', {
+                'error': 'La cédula debe contener solo números.',
+                'security_questions': security_questions,
+                'security_feature_enabled': security_feature_enabled,
+                'email': email,
+            })
+
+        if len(cedula_dni) > 8:
+            return render(request, 'core/crear_usuario.html', {
+                'error': 'La cédula no puede tener más de 8 dígitos.',
                 'security_questions': security_questions,
                 'security_feature_enabled': security_feature_enabled,
                 'email': email,

@@ -151,7 +151,7 @@
 
                 <div class="campo-largo">
                     <label for="cedula_dni">Cédula / RIF:</label>
-                    <input id="cedula_dni" name="cedula_dni" type="text" placeholder="12345678" required>
+                    <input id="cedula_dni" name="cedula_dni" type="text" placeholder="12345678" required maxlength="8" pattern="[0-9]+" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'').slice(0,8);">
                 </div>
 
             </div>
@@ -372,7 +372,7 @@
             el.addEventListener('focus', function(){ if (err) err.style.display = 'none'; });
         })();
     })();
-    // Validación para cédula: solo dígitos y máximo 11
+    // Validación para cédula: solo dígitos y máximo 8
         (function(){
             var elc = document.querySelector('input[name="cedula_dni"]');
             var errc = document.getElementById('cedula_error_client');
@@ -384,13 +384,13 @@
                     e.preventDefault();
                     if (errc){ errc.style.display = 'block'; errc.textContent = 'Sólo se permiten números en la cédula.'; }
                 }
-                if (elc.value && elc.value.replace(/\D/g,'').length >= 11 && /^[0-9]$/.test(e.key)){
+                if (elc.value && elc.value.replace(/\D/g,'').length >= 8 && /^[0-9]$/.test(e.key)){
                     e.preventDefault();
-                    if (errc){ errc.style.display = 'block'; errc.textContent = 'Máximo 11 dígitos.'; }
+                    if (errc){ errc.style.display = 'block'; errc.textContent = 'Máximo 8 dígitos.'; }
                 }
             });
             elc.addEventListener('input', function(){
-                var only = elc.value.replace(/\D/g,'').slice(0,11);
+                var only = elc.value.replace(/\D/g,'').slice(0,8);
                 if (elc.value !== only){
                     elc.value = only;
                     if (errc){ errc.style.display = 'block'; errc.textContent = 'Se eliminaron caracteres no numéricos.'; }
@@ -409,11 +409,11 @@
                 try{
                     e.preventDefault();
                     var txt = (e.clipboardData || window.clipboardData).getData('text') || '';
-                    var only = txt.replace(/\D/g,'').slice(0,11);
+                    var only = txt.replace(/\D/g,'').slice(0,8);
                     // insert sanitized digits at cursor
                     var start = elc.selectionStart || 0;
                     var end = elc.selectionEnd || 0;
-                    var newVal = (elc.value.slice(0,start) + only + elc.value.slice(end)).replace(/\D/g,'').slice(0,11);
+                    var newVal = (elc.value.slice(0,start) + only + elc.value.slice(end)).replace(/\D/g,'').slice(0,8);
                     elc.value = newVal;
                     if (errc){ errc.style.display = 'none'; }
                 }catch(ex){}

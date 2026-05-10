@@ -291,7 +291,7 @@
                 var ced = (findField('cedula_dni') && findField('cedula_dni').value || '').trim();
                 if (!ced) errors.cedula_dni = 'La cédula es obligatoria para persona natural.';
                 else if (!/^\d+$/.test(ced)) errors.cedula_dni = 'La cédula debe contener solo números.';
-                else if (ced.length > 11) errors.cedula_dni = 'La cédula no puede tener más de 11 dígitos.';
+                else if (ced.length > 8) errors.cedula_dni = 'La cédula no puede tener más de 8 dígitos.';
             }
 
             if (tipo === '2'){
@@ -306,7 +306,7 @@
                 if (!nombre_empresa) errors.nombre_empresa = 'El nombre de la empresa es obligatorio.';
                 if (!cedrep) errors.cedula_dni_representante = 'La cédula del representante es obligatoria.';
                 else if (!/^\d+$/.test(cedrep)) errors.cedula_dni_representante = 'La cédula del representante debe ser numérica.';
-                else if (cedrep.length > 11) errors.cedula_dni_representante = 'La cédula del representante no puede tener más de 11 dígitos.';
+                else if (cedrep.length > 8) errors.cedula_dni_representante = 'La cédula del representante no puede tener más de 8 dígitos.';
             }
 
             // display errors if any
@@ -477,7 +477,7 @@
                         <option value="E">Extranjero</option>
                     </select>
                     <label for="cedula_dni">Cédula</label>
-                    <input type="tel" name="cedula_dni" maxlength="11" pattern="[0-9]+" inputmode="numeric" placeholder="Cédula" value="{{ form.cedula_dni|default:'' }}" oninput="this.value = this.value.replace(/\D/g,'').slice(0,11);">
+                    <input type="tel" name="cedula_dni" maxlength="8" pattern="[0-9]+" inputmode="numeric" placeholder="Cédula" value="{{ form.cedula_dni|default:'' }}" oninput="this.value = this.value.replace(/\D/g,'').slice(0,8);">
                     {% if errors and errors.cedula_dni %}<div class="field-error">{{ errors.cedula_dni }}</div>{% endif %}
                     <div id="cedula_error_client" class="field-error" style="display:none"></div>
                 </div>
@@ -485,7 +485,7 @@
                 <!-- Cédula para persona jurídica (se mostrará arriba del nombre cuando se seleccione tipo=2) -->
                 <div id="cedula_juridica" style="display:none;">
                     <label for="cedula_dni_representante">Cédula del Representante</label>
-                    <input type="tel" name="cedula_dni_representante" maxlength="11" pattern="[0-9]+" inputmode="numeric" placeholder="Cédula del Representante" value="{{ form.cedula_dni_representante|default:'' }}" oninput="this.value = this.value.replace(/\D/g,'').slice(0,11);">
+                    <input type="tel" name="cedula_dni_representante" maxlength="8" pattern="[0-9]+" inputmode="numeric" placeholder="Cédula del Representante" value="{{ form.cedula_dni_representante|default:'' }}" oninput="this.value = this.value.replace(/\D/g,'').slice(0,8);">
                     {% if errors and errors.cedula_dni_representante %}<div class="field-error">{{ errors.cedula_dni_representante }}</div>{% endif %}
                     <div id="cedula_rep_error_client" class="field-error" style="display:none"></div>
                 </div>
@@ -637,7 +637,7 @@
             });
             el.addEventListener('focus', function(){ if (err) err.style.display = 'none'; });
         })();
-        // Validación para cédula: solo dígitos y máximo 11
+        // Validación para cédula: solo dígitos y máximo 8
         (function(){
             var elc = document.querySelector('input[name="cedula_dni"]');
             var errc = document.getElementById('cedula_error_client');
@@ -649,13 +649,13 @@
                     e.preventDefault();
                     if (errc){ errc.style.display = 'block'; errc.textContent = 'Sólo se permiten números en la cédula.'; }
                 }
-                if (elc.value && elc.value.replace(/\D/g,'').length >= 11 && /^[0-9]$/.test(e.key)){
+                if (elc.value && elc.value.replace(/\D/g,'').length >= 8 && /^[0-9]$/.test(e.key)){
                     e.preventDefault();
-                    if (errc){ errc.style.display = 'block'; errc.textContent = 'Máximo 11 dígitos.'; }
+                    if (errc){ errc.style.display = 'block'; errc.textContent = 'Máximo 8 dígitos.'; }
                 }
             });
             elc.addEventListener('input', function(){
-                var only = elc.value.replace(/\D/g,'').slice(0,11);
+                var only = elc.value.replace(/\D/g,'').slice(0,8);
                 if (elc.value !== only){
                     elc.value = only;
                     if (errc){ errc.style.display = 'block'; errc.textContent = 'Se eliminaron caracteres no numéricos.'; }
@@ -674,11 +674,11 @@
                 try{
                     e.preventDefault();
                     var txt = (e.clipboardData || window.clipboardData).getData('text') || '';
-                    var only = txt.replace(/\D/g,'').slice(0,11);
+                    var only = txt.replace(/\D/g,'').slice(0,8);
                     // insert sanitized digits at cursor
                     var start = elc.selectionStart || 0;
                     var end = elc.selectionEnd || 0;
-                    var newVal = (elc.value.slice(0,start) + only + elc.value.slice(end)).replace(/\D/g,'').slice(0,11);
+                    var newVal = (elc.value.slice(0,start) + only + elc.value.slice(end)).replace(/\D/g,'').slice(0,8);
                     elc.value = newVal;
                     if (errc){ errc.style.display = 'none'; }
                 }catch(ex){}
@@ -732,13 +732,13 @@
                         e.preventDefault();
                         if (errCedRep){ errCedRep.style.display = 'block'; errCedRep.textContent = 'Sólo se permiten números en la cédula del representante.'; }
                     }
-                    if (cedRep.value && cedRep.value.replace(/\D/g,'').length >= 11 && /^[0-9]$/.test(e.key)){
+                    if (cedRep.value && cedRep.value.replace(/\D/g,'').length >= 8 && /^[0-9]$/.test(e.key)){
                         e.preventDefault();
-                        if (errCedRep){ errCedRep.style.display = 'block'; errCedRep.textContent = 'Máximo 11 dígitos.'; }
+                        if (errCedRep){ errCedRep.style.display = 'block'; errCedRep.textContent = 'Máximo 8 dígitos.'; }
                     }
                 });
                 cedRep.addEventListener('input', function(){
-                    var only = cedRep.value.replace(/\D/g,'').slice(0,11);
+                    var only = cedRep.value.replace(/\D/g,'').slice(0,8);
                     if (cedRep.value !== only){ cedRep.value = only; if (errCedRep){ errCedRep.style.display = 'block'; errCedRep.textContent = 'Se eliminaron caracteres no numéricos.'; } }
                     else if (errCedRep){ errCedRep.style.display = 'none'; }
                 });
@@ -755,10 +755,10 @@
                     try{
                         e.preventDefault();
                         var txt = (e.clipboardData || window.clipboardData).getData('text') || '';
-                        var only = txt.replace(/\D/g,'').slice(0,11);
+                        var only = txt.replace(/\D/g,'').slice(0,8);
                         var start = cedRep.selectionStart || 0;
                         var end = cedRep.selectionEnd || 0;
-                        var newVal = (cedRep.value.slice(0,start) + only + cedRep.value.slice(end)).replace(/\D/g,'').slice(0,11);
+                        var newVal = (cedRep.value.slice(0,start) + only + cedRep.value.slice(end)).replace(/\D/g,'').slice(0,8);
                         cedRep.value = newVal;
                         if (errCedRep){ errCedRep.style.display = 'none'; }
                     }catch(ex){}
