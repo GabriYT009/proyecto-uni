@@ -35,6 +35,7 @@ from .models import (
     ProductoTallaStock,
     SecurityQuestion,
     UserSecurityAnswer,
+    UserCartSnapshot,
 )
 from django.core.paginator import Paginator
 from .forms import ProductForm, PasswordRecoveryForm
@@ -164,6 +165,16 @@ def _save_cart_snapshot_for_authenticated_user(request):
     try:
         payload = _normalized_session_cart_payload(request)
         cache.set(_cart_snapshot_cache_key(user.pk), payload, _CART_SNAPSHOT_TTL_SECONDS)
+        try:
+            UserCartSnapshot.objects.update_or_create(
+                user=user,
+                defaults={
+                    'cart': payload.get('cart', []),
+                    'cart_options': payload.get('cart_options', {}),
+                },
+            )
+        except Exception:
+            logger.exception('No se pudo guardar el respaldo del carrito en BD para user=%s', getattr(user, 'pk', None))
     except Exception:
         logger.exception('No se pudo guardar el respaldo del carrito para user=%s', getattr(user, 'pk', None))
 
@@ -179,6 +190,19 @@ def _restore_cart_snapshot_for_user(request, user):
             return False
 
         payload = cache.get(_cart_snapshot_cache_key(user.pk)) or {}
+        if not isinstance(payload, dict) or (not payload.get('cart') and not payload.get('cart_options')):
+            payload = {}
+            try:
+                db_snapshot = UserCartSnapshot.objects.filter(user=user).values('cart', 'cart_options').first() or {}
+                if db_snapshot:
+                    payload = {
+                        'cart': db_snapshot.get('cart') or [],
+                        'cart_options': db_snapshot.get('cart_options') or {},
+                    }
+                    cache.set(_cart_snapshot_cache_key(user.pk), payload, _CART_SNAPSHOT_TTL_SECONDS)
+            except Exception:
+                logger.exception('No se pudo leer el respaldo del carrito en BD para user=%s', getattr(user, 'pk', None))
+
         if not isinstance(payload, dict):
             return False
 
@@ -217,6 +241,10 @@ def _clear_cart_snapshot_for_user(user):
         return
     try:
         cache.delete(_cart_snapshot_cache_key(user.pk))
+        try:
+            UserCartSnapshot.objects.filter(user=user).delete()
+        except Exception:
+            logger.exception('No se pudo limpiar el respaldo del carrito en BD para user=%s', getattr(user, 'pk', None))
     except Exception:
         logger.exception('No se pudo limpiar el respaldo del carrito para user=%s', getattr(user, 'pk', None))
 

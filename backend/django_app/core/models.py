@@ -154,6 +154,20 @@ class PasswordResetCode(models.Model):
         return True
 
 
+class UserCartSnapshot(models.Model):
+    user = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='cart_snapshot')
+    cart = models.JSONField(default=list, blank=True)
+    cart_options = models.JSONField(default=dict, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Respaldo de carrito'
+        verbose_name_plural = 'Respaldos de carrito'
+
+    def __str__(self):
+        return f'CartSnapshot<{self.user_id}>'
+
+
 class SecurityQuestion(models.Model):
     text = models.CharField(max_length=255)
 
