@@ -237,6 +237,8 @@ AXES_COOLOFF_TIME = 1  # Tiempo de bloqueo en horas (1 hora)
 AXES_LOCKOUT_CALLABLE = 'django_app.core.views.respuesta_bloqueo_login'  # Función personalizada para manejar bloqueos
 AXES_ONLY_USER_FAILURES = True
 AXES_COOLOFF_TIME = 2
+AXES_LOCKOUT_PARAMETERS = ["username"]
+SILENCED_SYSTEM_CHECKS = ['axes.W006']
 # Database
 # Prioridad: URL privada de Railway -> DATABASE_URL publica -> MYSQL_* -> SQLite
 DATABASE_URL = (
