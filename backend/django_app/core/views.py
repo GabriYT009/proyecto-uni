@@ -986,6 +986,7 @@ def recuperar_contrasena(request):
                     else:
                         # Guardar temporalmente el id de usuario en la sesión para el siguiente paso
                         request.session['pr_user_id'] = user.pk
+                        print("DEBUG: Stored user_id in session:", user.pk)
                         # Pasamos las preguntas a la plantilla para que el usuario las responda
                         questions = [a.question for a in answers]
                         return render(request, 'core/recuperar_contrasena.html', {'form': form, 'questions': questions})
@@ -996,7 +997,7 @@ def recuperar_contrasena(request):
                 new_password = form.cleaned_data['new_password']
                 # Obtener user id desde sesión (establecido en Paso 1)
                 user_id = request.session.get('pr_user_id')
-                print("DEBUG: user_id from session:", user_id)
+                
                 user = None
                 if user_id:
                     user = User.objects.filter(pk=user_id).first()
