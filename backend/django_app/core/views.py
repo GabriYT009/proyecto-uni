@@ -974,7 +974,7 @@ def recuperar_contrasena(request):
                 form.add_error('email', 'El correo electrónico es obligatorio.')
 
             if not form.errors:
-                user = User.objects.filter(username__iexact=username, email__iexact=email).first()
+                user = User.objects.filter(username__icontains=username, email__icontains=email).first()
                 if user is None:
                     form.add_error(None, 'No encontramos un usuario con esos datos.')
                 else:
@@ -1005,7 +1005,7 @@ def recuperar_contrasena(request):
                     # respaldo por username+email
                     username = form.cleaned_data['username'].strip()
                     email = form.cleaned_data['email'].strip().lower()
-                    user = User.objects.filter(username__iexact=username, email__iexact=email).first()
+                    user = User.objects.filter(username__icontains=username, email__icontains=email).first()
 
                 if user is None:
                     form.add_error(None, 'No encontramos un usuario con esos datos.')
