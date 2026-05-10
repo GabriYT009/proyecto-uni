@@ -996,6 +996,7 @@ def recuperar_contrasena(request):
                 new_password = form.cleaned_data['new_password']
                 # Obtener user id desde sesión (establecido en Paso 1)
                 user_id = request.session.get('pr_user_id')
+                print("DEBUG: user_id from session:", user_id)
                 user = None
                 if user_id:
                     user = User.objects.filter(pk=user_id).first()
@@ -1003,7 +1004,7 @@ def recuperar_contrasena(request):
                     # respaldo por username+email
                     username = form.cleaned_data['username'].strip()
                     email = form.cleaned_data['email'].strip().lower()
-                    user = User.objects.filter(username__iexact=username).first()
+                    user = User.objects.filter(username__iexact=username, email__iexact=email).first()
 
                 if user is None:
                     form.add_error(None, 'No encontramos un usuario con esos datos.')
