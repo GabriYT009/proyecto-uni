@@ -50,7 +50,7 @@ import string
 import datetime
 import unicodedata
 from .models import PasswordResetCode
-
+from django.contrib.auth.forms import AuthenticationForm
 from .bcv import obtener_tasa_cambio
 from .NotaE import Generar_NE
 from .image_utils import optimize_uploaded_image
@@ -3405,3 +3405,20 @@ def agregar_marca(request):
         'marcas_page': page_obj,
         'is_paginated': page_obj.has_other_pages(),
     })
+
+def respuesta_bloqueo_login(request):
+    """
+    Esta función se ejecuta automáticamente cuando Axes bloquea un acceso.
+    Renderiza la misma página de login, pero inyecta una variable de bloqueo.
+    """
+    # 1. Instanciamos un formulario vacío para que el HTML no falle
+    form = AuthenticationForm()
+    
+    # 2. Preparamos el contexto con una bandera (flag) que avise del bloqueo
+    context = {
+        'form': form,
+        'usuario_bloqueado': True,
+    }
+    
+    # 3. Renderizamos la plantilla original de tu login con un código de error 403
+    return render(request, 'index.html', context, status=403)

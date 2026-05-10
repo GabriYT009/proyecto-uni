@@ -20,6 +20,33 @@
     {% endif %}
     <div class="container auth-card login-card">
         <h2>Inicio de sesión</h2>
+        <div class="login-container">
+    <h2>Iniciar Sesión</h2>
+
+    <!-- Mensaje de error de bloqueo -->
+    {% if usuario_bloqueado %}
+        <div style="background-color: #fee2e2; border: 1px solid #ef4444; color: #b91c1c; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+            <strong>❌ Acceso Bloqueado:</strong> 
+            Has superado el límite de intentos fallidos. Por seguridad, debes esperar antes de volver a intentarlo.
+        </div>
+    {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Si está bloqueado, encerramos el formulario en un fieldset deshabilitado -->
+            {% if usuario_bloqueado %}
+                <fieldset disabled="disabled" style="border: none; padding: 0;">
+                    {{ form.as_p }}
+                    <button type="submit" style="background-color: #ccc; cursor: not-allowed;">Iniciar Sesión</button>
+                </fieldset>
+            {% else %}
+                <!-- Formulario normal y habilitado -->
+                {{ form.as_p }}
+                <button type="submit">Iniciar Sesión</button>
+            {% endif %}
+        </form>
+        </div>
         {% include 'core/_messages.html' %}
         {% if error %}
             <div class="auth-error">{{ error }}</div>

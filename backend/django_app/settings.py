@@ -83,6 +83,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_app.core.apps.CoreConfig',
+    'axes',
 ]
 
 
@@ -192,6 +193,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'axes.middleware.AxesMiddleware',
 ]
 
 # El proyecto está empaquetado bajo `django_app`, por eso URLconf debe coincidir.
@@ -223,6 +225,16 @@ if os.environ.get("ENABLE_MESSAGES_CONTEXT_PROCESSOR", "False").lower() in ("1",
 
 WSGI_APPLICATION = 'django_app.wsgi.application'
 
+
+
+AUTHENTICATION_BACKENDS = [
+    'axes.backends.AxesStandaloneBackend',
+    'django.contrib.auth.backends.ModelBackend', 
+]
+
+AXES_FAILURE_LIMIT = 3 # Bloquea después de 3 intentos fallidos
+AXES_COOLOFF_TIME = 1  # Tiempo de bloqueo en horas (1 hora)
+AXES_LOCKOUT_CALLABLE = 'django_app.core.views.respuesta_bloqueo_login'  # Función personalizada para manejar bloqueos
 
 # Database
 # Prioridad: URL privada de Railway -> DATABASE_URL publica -> MYSQL_* -> SQLite
