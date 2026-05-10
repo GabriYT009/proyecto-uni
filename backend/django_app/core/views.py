@@ -3421,4 +3421,4 @@ def respuesta_bloqueo_login(request, credentials, *args, **kwargs):
     }
     
     # 3. Renderizamos la plantilla original de tu login con un código de error 403
-    return render(request, 'index.html', context, status=403)
+    return render(request, 'core/index.html', context,)
