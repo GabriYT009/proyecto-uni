@@ -105,6 +105,9 @@ class Command(BaseCommand):
                     target_format = 'JPEG'
                 elif source_format in {'PNG', 'WEBP'}:
                     target_format = source_format
+                elif source_format == 'AVIF':
+                    # Convert AVIF to WEBP
+                    target_format = 'WEBP'
                 else:
                     target_format = None
 
@@ -130,19 +133,80 @@ class Command(BaseCommand):
                     self.stdout.write(f'DRY-RUN {path}')
                     return True
 
-                temp_path = path.with_name(f'{path.name}.recompressed')
+                # If converting from AVIF -> WEBP we need to change the file extension
+                if source_format == 'AVIF' and target_format == 'WEBP':
+                    new_path = path.with_suffix('.webp')
+                else:
+                    new_path = path.with_name(f'{path.name}.recompressed')
 
                 try:
-                    working.save(str(temp_path), format=target_format, **save_kwargs)
-                    new_size = temp_path.stat().st_size
-                    if new_size >= original_size:
-                        temp_path.unlink(missing_ok=True)
+                    working.save(str(new_path), format=target_format, **save_kwargs)
+                    new_size = new_path.stat().st_size
+                    if new_size >= original_size and source_format != 'AVIF':
+                        new_path.unlink(missing_ok=True)
                         return False
-                    temp_path.replace(path)
+
+                    # If we created a new filename (AVIF->WEBP), remove original and update DB references
+                    if new_path != path:
+                        try:
+                            path.unlink(missing_ok=True)
+                        except Exception:
+                            pass
+
+                        # Update DB references for known fields to point to new relative path
+                        from django.db import transaction
+                        from django.conf import settings as dj_settings
+                        rel = None
+                        media_root = Path(getattr(dj_settings, 'MEDIA_ROOT', '') or '')
+                        try:
+                            rel = str(new_path.relative_to(media_root)).replace('\\', '/')
+                        except Exception:
+                            rel = None
+
+                        if rel:
+                            try:
+                                with transaction.atomic():
+                                    try:
+                                        from ...models import Producto, SolicitudSublimacion, Nota_Entrega
+                                        Producto.objects.filter(imagen_producto=str(path.relative_to(media_root)).replace('\\', '/')).update(imagen_producto=rel)
+                                    except Exception:
+                                        pass
+                                    try:
+                                        SolicitudSublimacion.objects.filter(imagen_sublimacion=str(path.relative_to(media_root)).replace('\\', '/')).update(imagen_sublimacion=rel)
+                                    except Exception:
+                                        pass
+                                    try:
+                                        Nota_Entrega.objects.filter(comprobante_pago=str(path.relative_to(media_root)).replace('\\', '/')).update(comprobante_pago=rel)
+                                    except Exception:
+                                        pass
+                            except Exception:
+                                pass
+                        # Also update static/product-images copy if exists
+                        frontend_static = getattr(dj_settings, 'FRONTEND_DIR', None)
+                        if frontend_static:
+                            static_dir = Path(frontend_static) / 'static' / 'product-images'
+                            old_static = static_dir / path.name
+                            new_static = static_dir / new_path.name
+                            try:
+                                if old_static.exists():
+                                    old_static.unlink(missing_ok=True)
+                                if new_path.exists():
+                                    import shutil
+                                    shutil.copy2(str(new_path), str(new_static))
+                            except Exception:
+                                pass
+                    else:
+                        # Replace in-place for same-name formats
+                        new_path.replace(path)
                     return True
                 finally:
-                    if temp_path.exists():
-                        temp_path.unlink(missing_ok=True)
+                    if new_path.exists():
+                        try:
+                            # If we left a temp file with .recompressed extension, clean it up
+                            if new_path.suffix == '.recompressed':
+                                new_path.unlink(missing_ok=True)
+                        except Exception:
+                            pass
         except UnidentifiedImageError:
             self.stdout.write(self.style.WARNING(f'SKIP {path} (archivo no es una imagen válida)'))
             return False
