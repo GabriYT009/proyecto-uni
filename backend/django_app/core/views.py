@@ -2014,6 +2014,23 @@ def inventario(request):
         )
         .order_by('nombre_producto')
     )
+
+    search = request.GET.get('search', '').strip()
+    category = request.GET.get('category', '').strip()
+    brand = request.GET.get('brand', '').strip()
+    status = request.GET.get('status', '').strip().lower()
+
+    if search:
+        productos = productos.filter(nombre_producto__icontains=search)
+    if category and category.lower() != 'all':
+        productos = productos.filter(categoria__nombre_categoria__iexact=category)
+    if brand and brand.lower() != 'all':
+        productos = productos.filter(marca_producto__nombre_marca__iexact=brand)
+    if status == 'activo':
+        productos = productos.filter(status_producto=True)
+    elif status == 'inactivo':
+        productos = productos.filter(status_producto=False)
+
     # Paginación: 10 productos por página
     paginator = Paginator(productos, 10)
     page_number = request.GET.get('page')
@@ -2055,6 +2072,10 @@ def inventario(request):
         'cart_count': len(request.session.get('cart', [])),
         'user_groups': _user_groups(request.user),
         'debug_media': debug_media,
+        'search': search,
+        'category': category,
+        'brand': brand,
+        'status': status,
     })
 
 @login_required

@@ -696,10 +696,9 @@
         }
         #inventorySearch::placeholder{ color: #bfa1d9; }
         #inventoryCategory, #inventoryStatus, #inventoryBrand{
-            padding:8px 1
+            padding:6px 10px;
             border:2px solid #9932CC;
             border-radius:10px;
-            padding:6px 10px;
             font-size:14px;
             background:#fff;
             color:#333;
@@ -833,32 +832,31 @@
             <!-- SFI-V2-master Style Table -->
             <!-- Search & Filters -->
             <div class="inventory-filters" style="margin-bottom:18px; display:flex; justify-content:center;">
-                <div class="inventory-filters-inner" style="display:flex;gap:12px;align-items:center; max-width:920px; width:100%; justify-content:center;">
-                    <input id="inventorySearch" class="search-input" type="search" placeholder="Buscar por nombre..." style="flex:1;" />
+                <form id="inventoryFilterForm" method="get" class="inventory-filters-inner" style="display:flex;gap:12px;align-items:center; max-width:920px; width:100%; justify-content:center;">
+                    <input id="inventorySearch" name="search" class="search-input" type="search" placeholder="Buscar por nombre..." value="{{ search }}" style="flex:1;" />
 
-                    <select id="inventoryCategory" class="form-control" style="width:220px;">
-                        <option value="all">Todas las categorías</option>
+                    <select id="inventoryCategory" name="category" class="form-control" style="width:220px;">
+                        <option value="all" {% if category == '' or category == 'all' %}selected{% endif %}>Todas las categorías</option>
                         {% for cat in categories %}
-                        <option value="{{ cat.nombre_categoria }}">{{ cat.nombre_categoria }}</option>
+                        <option value="{{ cat.nombre_categoria }}" {% if category == cat.nombre_categoria %}selected{% endif %}>{{ cat.nombre_categoria }}</option>
                         {% endfor %}
                     </select>
 
-                    <select id="inventoryBrand" class="form-control" style="width:220px;">
-                        <option value="all">Todas las marcas</option>
+                    <select id="inventoryBrand" name="brand" class="form-control" style="width:220px;">
+                        <option value="all" {% if brand == '' or brand == 'all' %}selected{% endif %}>Todas las marcas</option>
                         {% for marca in brands %}
-                        <option value="{{ marca.nombre_marca }}">{{ marca.nombre_marca }}</option>
+                        <option value="{{ marca.nombre_marca }}" {% if brand == marca.nombre_marca %}selected{% endif %}>{{ marca.nombre_marca }}</option>
                         {% endfor %}
                     </select>
 
-                    <select id="inventoryStatus" class="form-control" style="width:160px;">
-                        <option value="all">Todos</option>
-                        <option value="activo">Activo</option>
-                        <option value="inactivo">Inactivo</option>
+                    <select id="inventoryStatus" name="status" class="form-control" style="width:160px;">
+                        <option value="all" {% if status == '' or status == 'all' %}selected{% endif %}>Todos</option>
+                        <option value="activo" {% if status == 'activo' %}selected{% endif %}>Activo</option>
+                        <option value="inactivo" {% if status == 'inactivo' %}selected{% endif %}>Inactivo</option>
                     </select>
 
                     <button id="inventoryClear" type="button" style="margin-left:6px;">Limpiar</button>
-
-                </div>
+                </form>
             </div>
 
             <div class="table-responsive">
@@ -879,7 +877,7 @@
                             <td class="mdl-data-table__cell--non-numeric">
                                 <div class="product-cell">
                                     {% if producto.img_url %}
-                                        <img src="{{ producto.img_url }}" alt="{{ producto.nombre_producto }}" class="product-image" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='{% static 'assets/img/no-image-placeholder.svg' %}';" />
+                                        <img src="{{ producto.img_url }}" alt="{{ producto.nombre_producto }}" class="product-image" loading="lazy" decoding="async" />
                                     {% else %}
                                         <div style="width: 50px; height: 50px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #999; font-size: 10px;" class="product-image">Sin img</div>
                                     {% endif %}
@@ -956,19 +954,19 @@
                 <nav aria-label="Inventario pagination">
                     <ul style="list-style:none;display:flex;gap:8px;padding:0;margin:0;align-items:center;">
                         {% if page_obj.has_previous %}
-                        <li><a href="?page={{ page_obj.previous_page_number }}" class="btn-pagination">« Anterior</a></li>
+                        <li><a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search|urlencode }}{% endif %}{% if category %}&category={{ category|urlencode }}{% endif %}{% if brand %}&brand={{ brand|urlencode }}{% endif %}{% if status %}&status={{ status|urlencode }}{% endif %}" class="btn-pagination">« Anterior</a></li>
                         {% endif %}
 
                         {% for num in paginator.page_range %}
                             {% if num == page_obj.number %}
                                 <li><span class="btn-pagination active">{{ num }}</span></li>
                             {% else %}
-                                <li><a href="?page={{ num }}" class="btn-pagination">{{ num }}</a></li>
+                                <li><a href="?page={{ num }}{% if search %}&search={{ search|urlencode }}{% endif %}{% if category %}&category={{ category|urlencode }}{% endif %}{% if brand %}&brand={{ brand|urlencode }}{% endif %}{% if status %}&status={{ status|urlencode }}{% endif %}" class="btn-pagination">{{ num }}</a></li>
                             {% endif %}
                         {% endfor %}
 
                         {% if page_obj.has_next %}
-                        <li><a href="?page={{ page_obj.next_page_number }}" class="btn-pagination">Siguiente »</a></li>
+                        <li><a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search|urlencode }}{% endif %}{% if category %}&category={{ category|urlencode }}{% endif %}{% if brand %}&brand={{ brand|urlencode }}{% endif %}{% if status %}&status={{ status|urlencode }}{% endif %}" class="btn-pagination">Siguiente »</a></li>
                         {% endif %}
                     </ul>
                 </nav>
@@ -996,42 +994,45 @@
         })();
     </script>
     <script>
-        // Inventory client-side filter
+        // Inventory filter form behavior: submit filters to the server so pagination works across all results
         (function(){
+            const form = document.getElementById('inventoryFilterForm');
             const search = document.getElementById('inventorySearch');
             const catSel = document.getElementById('inventoryCategory');
             const brandSel = document.getElementById('inventoryBrand');
             const statusSel = document.getElementById('inventoryStatus');
-            function filterInventory(){
-                const q = search ? search.value.trim().toLowerCase() : '';
-                const cat = catSel ? catSel.value : 'all';
-                const brand = brandSel ? brandSel.value : 'all';
-                const stat = statusSel ? statusSel.value : 'all';
-                const rows = document.querySelectorAll('.mdl-data-table tbody tr');
-                rows.forEach(r => {
-                    const name = (r.querySelector('.product-info strong') || {}).textContent || '';
-                    const rowCat = (r.dataset && r.dataset.category) ? r.dataset.category : '';
-                    const rowBrand = (r.dataset && r.dataset.brand) ? r.dataset.brand : '';
-                    const rowStat = (r.dataset && r.dataset.status) ? r.dataset.status : '';
-                    const matchesSearch = !q || name.toLowerCase().includes(q);
-                    const matchesCat = cat === 'all' || rowCat === cat;
-                    const matchesBrand = brand === 'all' || rowBrand === brand;
-                    const matchesStat = stat === 'all' || rowStat === stat;
-                    r.style.display = (matchesSearch && matchesCat && matchesBrand && matchesStat) ? '' : 'none';
-                });
-            }
-            if (search) search.addEventListener('input', filterInventory);
-            if (catSel) catSel.addEventListener('change', filterInventory);
-            if (brandSel) brandSel.addEventListener('change', filterInventory);
-            if (statusSel) statusSel.addEventListener('change', filterInventory);
             const clearBtn = document.getElementById('inventoryClear');
+
+            if (form) {
+                [catSel, brandSel, statusSel].forEach(function(select) {
+                    if (select) {
+                        select.addEventListener('change', function() {
+                            form.submit();
+                        });
+                    }
+                });
+
+                if (search) {
+                    search.addEventListener('keydown', function(event) {
+                        if (event.key === 'Enter') {
+                            event.preventDefault();
+                            form.submit();
+                        }
+                    });
+                }
+            }
+
             if (clearBtn) {
-                clearBtn.addEventListener('click', function(){
+                clearBtn.addEventListener('click', function() {
                     if (search) search.value = '';
                     if (catSel) catSel.value = 'all';
                     if (brandSel) brandSel.value = 'all';
                     if (statusSel) statusSel.value = 'all';
-                    filterInventory();
+                    if (form) {
+                        form.submit();
+                    } else {
+                        window.location.href = '{% url "inventario" %}';
+                    }
                 });
             }
         })();
