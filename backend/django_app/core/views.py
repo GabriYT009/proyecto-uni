@@ -119,6 +119,106 @@ def _ensure_default_admin_user():
 
     return fallback_user, fallback_pass
 
+
+_CART_SNAPSHOT_CACHE_PREFIX = 'core:cart_snapshot:user:'
+_CART_SNAPSHOT_TTL_SECONDS = 60 * 60 * 24 * 30
+
+
+def _cart_snapshot_cache_key(user_id):
+    return f'{_CART_SNAPSHOT_CACHE_PREFIX}{int(user_id)}'
+
+
+def _normalized_session_cart_payload(request):
+    raw_cart = request.session.get('cart', []) or []
+    raw_options = request.session.get('cart_options', {}) or {}
+
+    cart = []
+    for item in raw_cart:
+        try:
+            pid = int(item)
+        except Exception:
+            continue
+        if pid > 0:
+            cart.append(pid)
+
+    cart_options = {}
+    for pid in set(cart):
+        option_data = raw_options.get(str(pid))
+        if not isinstance(option_data, dict):
+            continue
+        talla = str(option_data.get('talla') or '').strip()
+        if talla:
+            cart_options[str(pid)] = {'talla': talla}
+
+    return {
+        'cart': cart,
+        'cart_options': cart_options,
+    }
+
+
+def _save_cart_snapshot_for_authenticated_user(request):
+    user = getattr(request, 'user', None)
+    if not user or not getattr(user, 'is_authenticated', False):
+        return
+    try:
+        payload = _normalized_session_cart_payload(request)
+        cache.set(_cart_snapshot_cache_key(user.pk), payload, _CART_SNAPSHOT_TTL_SECONDS)
+    except Exception:
+        logger.exception('No se pudo guardar el respaldo del carrito para user=%s', getattr(user, 'pk', None))
+
+
+def _restore_cart_snapshot_for_user(request, user):
+    if not user or not getattr(user, 'is_authenticated', False):
+        return False
+
+    try:
+        current_cart = request.session.get('cart', []) or []
+        current_options = request.session.get('cart_options', {}) or {}
+        if current_cart or current_options:
+            return False
+
+        payload = cache.get(_cart_snapshot_cache_key(user.pk)) or {}
+        if not isinstance(payload, dict):
+            return False
+
+        saved_cart = payload.get('cart', []) or []
+        saved_options = payload.get('cart_options', {}) or {}
+
+        restored_cart = []
+        for item in saved_cart:
+            try:
+                pid = int(item)
+            except Exception:
+                continue
+            if pid > 0:
+                restored_cart.append(pid)
+
+        restored_options = {}
+        for pid in set(restored_cart):
+            opt = saved_options.get(str(pid))
+            if not isinstance(opt, dict):
+                continue
+            talla = str(opt.get('talla') or '').strip()
+            if talla:
+                restored_options[str(pid)] = {'talla': talla}
+
+        request.session['cart'] = restored_cart
+        request.session['cart_options'] = restored_options
+        request.session.modified = True
+        return bool(restored_cart or restored_options)
+    except Exception:
+        logger.exception('No se pudo restaurar el respaldo del carrito para user=%s', getattr(user, 'pk', None))
+        return False
+
+
+def _clear_cart_snapshot_for_user(user):
+    if not user or not getattr(user, 'is_authenticated', False):
+        return
+    try:
+        cache.delete(_cart_snapshot_cache_key(user.pk))
+    except Exception:
+        logger.exception('No se pudo limpiar el respaldo del carrito para user=%s', getattr(user, 'pk', None))
+
 def admin_only(view_func):
     decorated_view_func = user_passes_test(is_admin, login_url='login')(login_required(view_func))
     return decorated_view_func
@@ -437,6 +537,7 @@ def _append_to_session_cart(request, product_id):
     cart.append(int(product_id))
     request.session['cart'] = cart
     request.session.modified = True
+    _save_cart_snapshot_for_authenticated_user(request)
     return len(cart)
 
 
@@ -446,6 +547,7 @@ def _set_session_cart_talla(request, product_id, talla):
     cart_options[product_key] = {'talla': (talla or '').strip()}
     request.session['cart_options'] = cart_options
     request.session.modified = True
+    _save_cart_snapshot_for_authenticated_user(request)
 
 
 def _get_session_cart_talla(request, product_id):
@@ -708,6 +810,7 @@ def login_post(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
+                _restore_cart_snapshot_for_user(request, user)
                 return redirect('home')
 
             # Si la BD aún no tiene usuarios (despliegue nuevo), permitir credenciales admin por defecto.
@@ -732,6 +835,7 @@ def login_post(request):
                 user = authenticate(request, username=username, password=password)
                 if user is not None:
                     login(request, user)
+                    _restore_cart_snapshot_for_user(request, user)
                     return redirect('home')
 
             user_exists = User.objects.filter(username=username).exists()
@@ -1557,6 +1661,7 @@ def add_to_cart(request, product_id):
     cart.append(product_id)
     request.session['cart'] = cart
     request.session.modified = True
+    _save_cart_snapshot_for_authenticated_user(request)
 
     return JsonResponse({'count': len(cart)})
 
@@ -1572,12 +1677,14 @@ def remove_from_cart(request, product_id):
     request.session['cart'] = cart
     request.session['cart_options'] = cart_options
     request.session.modified = True
+    _save_cart_snapshot_for_authenticated_user(request)
     return redirect('carrito')
 
 
 def logout_view(request):
     """Cerrar sesión del usuario actual y redirigir al login."""
     try:
+        _save_cart_snapshot_for_authenticated_user(request)
         logout(request)
     except Exception:
         pass
@@ -2144,6 +2251,7 @@ def comprar_producto(request, producto_id):
                 cart.remove(producto.pk)
                 request.session['cart'] = cart
                 request.session.modified = True
+                _save_cart_snapshot_for_authenticated_user(request)
 
             messages.success(request, 'Nota de entrega generada exitosamente.')
             # Redirigir usando el ID de la nota (antes era salida_id)
@@ -2613,6 +2721,8 @@ def comprar_carrito(request):
 
             request.session['cart'] = []
             request.session['cart_options'] = {}
+            request.session.modified = True
+            _clear_cart_snapshot_for_user(request.user)
 
             messages.success(request, f'Pago móvil registrado correctamente. Orden #{nota.pk} enviada a revisión.')
 
@@ -2783,6 +2893,7 @@ def comprar_producto_ajax(request, producto_id):
                     cart_options.pop(str(producto.pk), None)
                     request.session['cart_options'] = cart_options
                     request.session.modified = True
+                    _save_cart_snapshot_for_authenticated_user(request)
             except Exception:
                 pass
 
@@ -2798,8 +2909,12 @@ def clear_cart(request):
     """Vacía el carrito en la sesión del usuario y redirige al carrito."""
     try:
         request.session['cart'] = []
+        request.session['cart_options'] = {}
+        request.session.modified = True
     except Exception:
         request.session.pop('cart', None)
+        request.session.pop('cart_options', None)
+    _clear_cart_snapshot_for_user(request.user)
     messages.success(request, 'Se han eliminado todos los productos del carrito.')
     return redirect('carrito')
 
