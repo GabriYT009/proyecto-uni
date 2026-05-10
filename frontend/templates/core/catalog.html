@@ -592,13 +592,21 @@
                 }, 450);
             }
             window.addToCart = async function(id){
-                try{
-                    const detailModal = document.getElementById('detailModal');
-                    if (detailModal) {
-                        detailModal.classList.remove('show');
-                        detailModal.setAttribute('aria-hidden', 'true');
-                        detailModal.style.display = 'none';
+                let loaderShownAt = 0;
+                function showAddToCartLoader(){
+                    loaderShownAt = Date.now();
+                    try { if (window.PageLoader && typeof window.PageLoader.show === 'function') window.PageLoader.show(); } catch(e){}
+                }
+                async function hideAddToCartLoader(){
+                    var elapsed = Date.now() - loaderShownAt;
+                    if (elapsed < 450) {
+                        await new Promise(function(resolve){ setTimeout(resolve, 450 - elapsed); });
                     }
+                    try { clearAddToCartOverlays(); } catch(e){}
+                }
+                try{
+                    clearAddToCartOverlays();
+                    showAddToCartLoader();
                     const token = getCsrf();
                     const res = await fetch('/add_to_cart/' + id + '/', {
                         method: 'POST',
@@ -614,17 +622,17 @@
                         if (typeof window.showGlobalToast === 'function') {
                             window.showGlobalToast('Producto agregado al carrito', 'success', 2200);
                         }
-                        clearAddToCartOverlays();
+                        await hideAddToCartLoader();
                         return;
                     }
                     if (res.redirected) {
-                        clearAddToCartOverlays();
+                        await hideAddToCartLoader();
                         return;
                     }
                 } catch(err){
                     console.error('addToCart failed', err);
                 } finally {
-                    clearAddToCartOverlays();
+                    await hideAddToCartLoader();
                 }
             };
         })();
