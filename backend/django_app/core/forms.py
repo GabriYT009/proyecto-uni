@@ -131,7 +131,7 @@ class PasswordRecoveryForm(forms.Form):
         }),
     )
     email = forms.CharField(
-        widget=forms.CharField(attrs={
+        widget=forms.TextInput(attrs={
             'class': 'form-control',
             'placeholder': 'Correo electrónico registrado',
             'type': 'email',
