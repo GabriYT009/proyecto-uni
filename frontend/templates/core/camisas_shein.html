@@ -507,7 +507,29 @@
 
                 <div class="field">
                     <label for="comentario">Comentario para el administrador</label>
-                    <textarea name="comentario" id="comentario" placeholder="Describe cómo quieres la sublimación, colores, ubicación o detalles especiales." required></textarea>
+                    <textarea name="comentario" id="comentario" placeholder="Describe cómo quieres la sublimación, colores, ubicación o detalles especiales." required maxlength="300" style="max-height:160px; overflow:auto; resize:vertical; white-space:pre-wrap; word-wrap:break-word;"></textarea>
+                    <div style="margin-top:6px; display:flex; justify-content:flex-end;">
+                        <small id="comentario-counter" style="color:#666; font-size:0.9rem;">0/300</small>
+                    </div>
+
+                    <script>
+                    (function(){
+                        var max = 300;
+                        function init(){
+                            var ta = document.getElementById('comentario');
+                            var counter = document.getElementById('comentario-counter');
+                            if(!ta || !counter) return;
+                            function update(){
+                                if(ta.value.length > max) ta.value = ta.value.slice(0, max);
+                                counter.textContent = ta.value.length + '/' + max;
+                            }
+                            ta.addEventListener('input', update);
+                            // inicializar
+                            update();
+                        }
+                        if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+                    })();
+                    </script>
                 </div>
 
                 {% if not es_taza %}
