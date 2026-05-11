@@ -50,7 +50,7 @@ import string
 import datetime
 import unicodedata
 from .models import PasswordResetCode
-
+from django.contrib.auth.forms import AuthenticationForm
 from .bcv import obtener_tasa_cambio
 from .NotaE import Generar_NE
 from .image_utils import optimize_uploaded_image
@@ -974,7 +974,7 @@ def recuperar_contrasena(request):
                 form.add_error('email', 'El correo electrónico es obligatorio.')
 
             if not form.errors:
-                user = User.objects.filter(username__iexact=username, email__iexact=email).first()
+                user = User.objects.filter(username__icontains=username, email__icontains=email).first()
                 if user is None:
                     form.add_error(None, 'No encontramos un usuario con esos datos.')
                 else:
@@ -986,6 +986,7 @@ def recuperar_contrasena(request):
                     else:
                         # Guardar temporalmente el id de usuario en la sesión para el siguiente paso
                         request.session['pr_user_id'] = user.pk
+                        print("DEBUG: Stored user_id in session:", user.pk)
                         # Pasamos las preguntas a la plantilla para que el usuario las responda
                         questions = [a.question for a in answers]
                         return render(request, 'core/recuperar_contrasena.html', {'form': form, 'questions': questions})
@@ -996,6 +997,7 @@ def recuperar_contrasena(request):
                 new_password = form.cleaned_data['new_password']
                 # Obtener user id desde sesión (establecido en Paso 1)
                 user_id = request.session.get('pr_user_id')
+                
                 user = None
                 if user_id:
                     user = User.objects.filter(pk=user_id).first()
@@ -1003,7 +1005,7 @@ def recuperar_contrasena(request):
                     # respaldo por username+email
                     username = form.cleaned_data['username'].strip()
                     email = form.cleaned_data['email'].strip().lower()
-                    user = User.objects.filter(username__iexact=username, email__iexact=email).first()
+                    user = User.objects.filter(username__icontains=username, email__icontains=email).first()
 
                 if user is None:
                     form.add_error(None, 'No encontramos un usuario con esos datos.')
@@ -2021,6 +2023,23 @@ def inventario(request):
         )
         .order_by('nombre_producto')
     )
+
+    search = request.GET.get('search', '').strip()
+    category = request.GET.get('category', '').strip()
+    brand = request.GET.get('brand', '').strip()
+    status = request.GET.get('status', '').strip().lower()
+
+    if search:
+        productos = productos.filter(nombre_producto__icontains=search)
+    if category and category.lower() != 'all':
+        productos = productos.filter(categoria__nombre_categoria__iexact=category)
+    if brand and brand.lower() != 'all':
+        productos = productos.filter(marca_producto__nombre_marca__iexact=brand)
+    if status == 'activo':
+        productos = productos.filter(status_producto=True)
+    elif status == 'inactivo':
+        productos = productos.filter(status_producto=False)
+
     # Paginación: 10 productos por página
     paginator = Paginator(productos, 10)
     page_number = request.GET.get('page')
@@ -2062,6 +2081,10 @@ def inventario(request):
         'cart_count': len(request.session.get('cart', [])),
         'user_groups': _user_groups(request.user),
         'debug_media': debug_media,
+        'search': search,
+        'category': category,
+        'brand': brand,
+        'status': status,
     })
 
 @login_required
@@ -3391,3 +3414,20 @@ def agregar_marca(request):
         'marcas_page': page_obj,
         'is_paginated': page_obj.has_other_pages(),
     })
+
+def respuesta_bloqueo_login(request, credentials, *args, **kwargs):
+    """
+    Esta función se ejecuta automáticamente cuando Axes bloquea un acceso.
+    Renderiza la misma página de login, pero inyecta una variable de bloqueo.
+    """
+    # 1. Instanciamos un formulario vacío para que el HTML no falle
+    form = AuthenticationForm()
+    
+    # 2. Preparamos el contexto con una bandera (flag) que avise del bloqueo
+    context = {
+        'form': form,
+        'usuario_bloqueado': True,
+    }
+    
+    # 3. Renderizamos la plantilla original de tu login con un código de error 403
+    return render(request, 'core/index.html', context,)

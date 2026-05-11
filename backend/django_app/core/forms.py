@@ -134,6 +134,7 @@ class PasswordRecoveryForm(forms.Form):
         widget=forms.EmailInput(attrs={
             'class': 'form-control',
             'placeholder': 'Correo electrónico registrado',
+            
             'autocomplete': 'email',
         }),
     )
@@ -143,6 +144,7 @@ class PasswordRecoveryForm(forms.Form):
             'class': 'form-control',
             'placeholder': 'Nueva contraseña',
             'autocomplete': 'new-password',
+            'minlength': '8',
         }),
     )
     new_password_confirm = forms.CharField(
@@ -151,6 +153,7 @@ class PasswordRecoveryForm(forms.Form):
             'class': 'form-control',
             'placeholder': 'Confirmar nueva contraseña',
             'autocomplete': 'new-password',
+            'minlength': '8',
         }),
     )
     # verification_code removed: we now use security questions flow
