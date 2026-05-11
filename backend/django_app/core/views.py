@@ -1518,12 +1518,10 @@ def catalog(request):
     # Variable para guardar el objeto categoría encontrado (si existe)
     categoria_obj = None
 
-    # Base queryset: solo productos activos; el filtro de stock se aplica solo
-    # cuando no hay búsqueda para que los productos sin stock sigan apareciendo
-    # en los resultados de búsqueda, pero no en el catálogo general.
+    # Base queryset: incluimos todos los productos para que también se vean
+    # los inactivos o sin stock en el catálogo, pero el carrito los bloquea.
     Productos = (
         Producto.objects
-        .filter(status_producto=True)
         .select_related('categoria')
         .only(
             'id',
@@ -1565,8 +1563,6 @@ def catalog(request):
             Q(nombre_producto__icontains=search_param) |
             Q(descripcion__icontains=search_param)
         )
-    else:
-        Productos = Productos.filter(cantidad_disponible__gt=0)
 
     # NOTA: se prefiere búsqueda del lado servidor con `search`.
     # El enrutamiento exacto por product_id se removió para mantener consistencia con Enter.
@@ -1778,14 +1774,27 @@ def carrito(request):
 #DE MOMENTO NO AGREGANDO NI ELIMINANDO PRODUCTOS DEL CARRITO EN LA BASE DE DATOS.
 
 def add_to_cart(request, product_id):
+    try:
+        product_id_int = int(product_id)
+    except (TypeError, ValueError):
+        return JsonResponse({'success': False, 'error': 'Producto inválido.'}, status=400)
+
+    producto = Producto.objects.filter(pk=product_id_int).only('id', 'status_producto', 'cantidad_disponible').first()
+    if not producto:
+        return JsonResponse({'success': False, 'error': 'Producto no encontrado.'}, status=404)
+    if not producto.status_producto:
+        return JsonResponse({'success': False, 'error': 'Este producto está inactivo y no se puede agregar al carrito.'}, status=400)
+    if (producto.cantidad_disponible or 0) <= 0:
+        return JsonResponse({'success': False, 'error': 'Este producto no tiene stock disponible.'}, status=400)
+
     cart = request.session.get('cart', [])
-    
+
     cart.append(product_id)
     request.session['cart'] = cart
     request.session.modified = True
     _save_cart_snapshot_for_authenticated_user(request)
 
-    return JsonResponse({'count': len(cart)})
+    return JsonResponse({'success': True, 'count': len(cart)})
 
 @login_required
 def remove_from_cart(request, product_id):

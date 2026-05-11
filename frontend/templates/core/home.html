@@ -1264,6 +1264,18 @@
                 }, 450);
             }
             window.addToCart = async function(id){
+                if (window.currentProductStatus === false) {
+                    if (typeof window.showGlobalToast === 'function') {
+                        window.showGlobalToast('Este producto está inactivo y no se puede agregar al carrito.', 'error', 3200);
+                    }
+                    return;
+                }
+                if (window.currentProductStock !== null && window.currentProductStock !== undefined && Number(window.currentProductStock) <= 0) {
+                    if (typeof window.showGlobalToast === 'function') {
+                        window.showGlobalToast('Este producto no tiene stock disponible.', 'error', 3200);
+                    }
+                    return;
+                }
                 let loaderShownAt = 0;
                 function showAddToCartLoader(){
                     loaderShownAt = Date.now();
@@ -1291,6 +1303,13 @@
                     const ctype = res.headers.get('content-type') || '';
                     if (ctype.indexOf('application/json') !== -1) {
                         const data = await res.json();
+                        if (!res.ok || data.success === false) {
+                            if (typeof window.showGlobalToast === 'function') {
+                                window.showGlobalToast(data.error || 'No se pudo agregar el producto al carrito.', 'error', 3200);
+                            }
+                            await hideAddToCartLoader();
+                            return;
+                        }
                         try{ const cc = document.getElementById('cart-count'); if(cc) cc.textContent = data.count; }catch(e){}
                         popCartCount();
                         if (typeof window.showGlobalToast === 'function') {
