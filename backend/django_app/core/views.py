@@ -3124,6 +3124,13 @@ def cambiar_estado_producto(request, producto_id):
         return redirect('inventario')
 
     nuevo_estado = status_raw == 'true'
+    if nuevo_estado and (producto.cantidad_disponible or 0) <= 0:
+        messages.error(
+            request,
+            f'No se puede activar "{producto.nombre_producto}" porque no tiene stock disponible. Debe reponerse el inventario primero.'
+        )
+        return redirect('inventario')
+
     producto.status_producto = nuevo_estado
     producto.save(update_fields=['status_producto'])
 
@@ -3151,6 +3158,11 @@ def ajustar_inventario(request, producto_id):
                 producto.cantidad_disponible = cantidad_ajuste
             
             producto.save()
+            if (producto.cantidad_disponible or 0) <= 0:
+                messages.warning(
+                    request,
+                    f'"{producto.nombre_producto}" quedó inactivo automáticamente porque no tiene stock disponible.'
+                )
             # Registrar en historial de inventario
             try:
                 if producto.cantidad_disponible > cantidad_anterior:
@@ -3279,6 +3291,12 @@ def editar_producto(request, producto_id):
 
                 # GUARDAMOS EL PRODUCTO PRIMERO
                 producto.save()
+
+                if (producto.cantidad_disponible or 0) <= 0:
+                    messages.warning(
+                        request,
+                        f'"{producto.nombre_producto}" quedó inactivo automáticamente porque no tiene stock disponible.'
+                    )
 
                 # Diagnóstico para verificar ruta y URL final de imagen en producción.
                 if producto.imagen_producto and producto.imagen_producto.name:

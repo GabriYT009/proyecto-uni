@@ -61,6 +61,9 @@ def ajustar_stock_producto(request):
             )
             producto.cantidad_disponible = total
             producto.save(update_fields=['cantidad_disponible'])
+            warning = None
+            if total <= 0:
+                warning = f'"{producto.nombre_producto}" quedó inactivo automáticamente porque no tiene stock disponible.'
 
             # Registrar en historial de inventario (resumen del ajuste)
             try:
@@ -85,6 +88,7 @@ def ajustar_stock_producto(request):
                 'success': True,
                 'nuevo_stock': producto.cantidad_disponible,
                 'tallas': tallas_actualizadas,
+                'warning': warning,
             })
 
         if cantidad == 0:
@@ -94,6 +98,9 @@ def ajustar_stock_producto(request):
         nuevo = max(0, current_stock + cantidad)
         producto.cantidad_disponible = nuevo
         producto.save(update_fields=['cantidad_disponible'])
+        warning = None
+        if nuevo <= 0:
+            warning = f'"{producto.nombre_producto}" quedó inactivo automáticamente porque no tiene stock disponible.'
 
         # Registrar en historial de inventario
         try:
@@ -109,7 +116,7 @@ def ajustar_stock_producto(request):
         except Exception:
             pass
 
-        return JsonResponse({'success': True, 'nuevo_stock': producto.cantidad_disponible})
+        return JsonResponse({'success': True, 'nuevo_stock': producto.cantidad_disponible, 'warning': warning})
     except Producto.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'Producto no encontrado'}, status=404)
     except Exception as e:

@@ -288,6 +288,9 @@
                     showSystemAlert('Ajuste aplicado. Nuevo stock de ' + nombreProducto + ': ' + nuevoStock, 'success', 'Inventario', function(){
                         window.location.href = '{% url 'inventario' %}';
                     });
+                    if (data.warning) {
+                        showSystemAlert(data.warning, 'warning', 'Inventario');
+                    }
                 } else {
                     showSystemAlert('Error: ' + (data.error || 'No se pudo actualizar el stock.'), 'error', 'Inventario');
                 }

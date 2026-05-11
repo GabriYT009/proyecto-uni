@@ -221,6 +221,19 @@ class Producto(models.Model):
         if self.imagen_producto and getattr(self.imagen_producto, '_committed', True) is False:
             self.imagen_producto = optimize_uploaded_image(self.imagen_producto)
 
+        stock_actual = int(self.cantidad_disponible or 0)
+        if stock_actual <= 0 and self.status_producto:
+            self.status_producto = False
+            update_fields = kwargs.get('update_fields')
+            if update_fields is not None:
+                if isinstance(update_fields, (set, tuple)):
+                    update_fields = list(update_fields)
+                else:
+                    update_fields = list(update_fields)
+                if 'status_producto' not in update_fields:
+                    update_fields.append('status_producto')
+                kwargs['update_fields'] = update_fields
+
         super().save(*args, **kwargs)
         # Copiar la imagen a static/product-images/ si existe
         if self.imagen_producto and self.imagen_producto.name:
