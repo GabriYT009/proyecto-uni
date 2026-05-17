@@ -21,6 +21,10 @@
         .muted{color:#6b6b6b}
         .actions{margin-top:22px;display:flex;gap:10px;flex-wrap:wrap}
         .note{margin-top:14px;padding:14px;border-radius:8px;background:#fffaf0;border:1px solid #ffe8a8;color:#6a4b00}
+        /* Botones con la paleta del sitio */
+        .actions .btn{ background:#9932CC; color:#fff; border:none; padding:8px 14px; border-radius:8px; text-decoration:none; display:inline-block; }
+        .actions .btn.btn-outline-secondary, .actions .btn.btn-outline-primary{ background:transparent; color:#9932CC; border:1px solid #9932CC; }
+        .actions .btn:focus{ outline:2px solid rgba(153,50,204,0.18); }
         .small-label{font-size:0.92rem;color:#777}
         .big-total{font-weight:800;font-size:1.2rem}
         @media (max-width:720px){.success-card{padding:22px 18px}.check-badge{width:72px;height:72px;font-size:32px}}
@@ -85,7 +89,7 @@
             </div>
 
             <div class="actions">
-                <a href="{% url 'catalog' %}" class="btn btn-primary">Seguir comprando</a>
+                <a href="{% url 'catalog' %}" class="btn">Seguir comprando</a>
                 <a href="{% url 'home' %}" class="btn btn-outline-secondary">Ir al inicio</a>
                 <a href="{% url 'descargar_factura_ne' salida.pk %}" class="btn btn-outline-primary">Ver factura</a>
             </div>
