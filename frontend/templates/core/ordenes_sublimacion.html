@@ -493,12 +493,6 @@
                     <option value="VINCULADA"{% if estado_filter == 'VINCULADA' %} selected{% endif %}>Aprobada</option>
                     <option value="RECHAZADA"{% if estado_filter == 'RECHAZADA' %} selected{% endif %}>Rechazada</option>
                 </select>
-                <select name="estado_pago">
-                    <option value="">Todos los pagos</option>
-                    <option value="PENDIENTE"{% if estado_pago_filter == 'PENDIENTE' %} selected{% endif %}>Pendiente</option>
-                    <option value="APROBADO"{% if estado_pago_filter == 'APROBADO' %} selected{% endif %}>Aprobado</option>
-                    <option value="RECHAZADO"{% if estado_pago_filter == 'RECHAZADO' %} selected{% endif %}>Rechazado</option>
-                </select>
                 <div class="filter-actions">
                     <button type="submit">Filtrar</button>
                     <a href="{% url 'ordenes_sublimacion' %}">Limpiar</a>
