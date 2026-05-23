@@ -15,6 +15,7 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.db.models import Q, F, Case, When, IntegerField
+from django.db.models.functions import Lower, Trim
 from django.db.models.deletion import ProtectedError
 from django.core.cache import cache
 from django.conf import settings
@@ -951,6 +952,17 @@ def recuperar_contrasena(request):
     questions = None
     security_feature_enabled = _security_questions_ready()
 
+    def _find_recovery_user(username, email):
+        username = (username or '').strip()
+        email = (email or '').strip().lower()
+        return (
+            User.objects
+            .annotate(normalized_username=Trim('username'))
+            .annotate(normalized_email=Lower(Trim('email')))
+            .filter(normalized_username=username, normalized_email=email)
+            .first()
+        )
+
     if not security_feature_enabled:
         form = PasswordRecoveryForm(request.POST or None)
         form.add_error(None, 'La recuperación por preguntas de seguridad no está disponible todavía. Intenta más tarde.')
@@ -974,7 +986,7 @@ def recuperar_contrasena(request):
                 form.add_error('email', 'El correo electrónico es obligatorio.')
 
             if not form.errors:
-                user = User.objects.filter(username__icontains=username, email__icontains=email).first()
+                user = _find_recovery_user(username, email)
                 if user is None:
                     form.add_error(None, 'No encontramos un usuario con esos datos.')
                 else:
@@ -1005,7 +1017,7 @@ def recuperar_contrasena(request):
                     # respaldo por username+email
                     username = form.cleaned_data['username'].strip()
                     email = form.cleaned_data['email'].strip().lower()
-                    user = User.objects.filter(username__icontains=username, email__icontains=email).first()
+                    user = _find_recovery_user(username, email)
 
                 if user is None:
                     form.add_error(None, 'No encontramos un usuario con esos datos.')
@@ -1249,7 +1261,7 @@ def crear_usuario(request):
 
     if request.method == 'POST':
         # 1. Obtener datos del formulario
-        username = request.POST.get('username')
+        username = (request.POST.get('username') or '').strip()
         password = request.POST.get('password')
         password_confirm = request.POST.get('password2') # Corregido nombre variable para claridad
         security_question_id = (request.POST.get('security_question_id') or '').strip()
@@ -1266,7 +1278,7 @@ def crear_usuario(request):
         telefono = request.POST.get('telefono_cliente')
         
         # email 
-        email = request.POST.get('email') or request.session.get('pending_email')
+        email = (request.POST.get('email') or request.session.get('pending_email') or '').strip().lower()
 
         # -- VALIDACIONES --
         if not username or not password:
