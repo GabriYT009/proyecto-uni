@@ -44,35 +44,38 @@
                 {% endfor %}
             </div>
 
-            <div class="full">
-                <label for="id_new_password">Nueva contraseña</label>
-                {{ form.new_password }}
-                {% for error in form.new_password.errors %}
-                    <div class="field-error">{{ error }}</div>
-                {% endfor %}
-            </div>
-
-            <div class="full">
-                <label for="id_new_password_confirm">Confirmar nueva contraseña</label>
-                {{ form.new_password_confirm }}
-                {% for error in form.new_password_confirm.errors %}
-                    <div class="field-error">{{ error }}</div>
-                {% endfor %}
-            </div>
-
-            {# Si la vista pasó preguntas, mostrarlas para que el usuario las responda #}
             {% if questions %}
+                {# Si la vista pasó preguntas, mostrarlas para que el usuario las responda #}
                 {% for q in questions %}
                     <div class="full">
                         <label for="id_answer_{{ q.id }}">{{ q.text }}</label>
                         <input type="text" name="answer_{{ q.id }}" id="id_answer_{{ q.id }}" class="form-control" placeholder="Respuesta" required />
                     </div>
                 {% endfor %}
+
+                <div class="full">
+                    <label for="id_new_password">Nueva contraseña</label>
+                    {{ form.new_password }}
+                    {% for error in form.new_password.errors %}
+                        <div class="field-error">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="full">
+                    <label for="id_new_password_confirm">Confirmar nueva contraseña</label>
+                    {{ form.new_password_confirm }}
+                    {% for error in form.new_password_confirm.errors %}
+                        <div class="field-error">{{ error }}</div>
+                    {% endfor %}
+                </div>
             {% endif %}
 
             <div class="actions">
-                <button type="submit" name="send_code" value="1" formnovalidate>Mostrar preguntas de seguridad</button>
-                <button type="submit" name="reset" value="1">Actualizar contraseña</button>
+                {% if questions %}
+                    <button type="submit" name="reset" value="1">Actualizar contraseña</button>
+                {% else %}
+                    <button type="submit" name="send_code" value="1">Mostrar preguntas de seguridad</button>
+                {% endif %}
             </div>
 
             <div class="registrarse">
