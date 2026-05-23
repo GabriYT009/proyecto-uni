@@ -2011,6 +2011,7 @@ def cobrar_caja(request):
                 total_acumulado += subtotal_item
 
             # PASO D: Actualizar el total final de la nota
+            nota.total_bruto = total_acumulado
             nota.total = total_acumulado
             nota.save()
 
@@ -2533,15 +2534,41 @@ def aprobar_pagos(request):
         salida_id = request.POST.get('salida_id')
         nuevo_estado = (request.POST.get('estado') or '').strip().upper()
         salida = get_object_or_404(Nota_Entrega, pk=salida_id, comprobante_pago__isnull=False)
+        total_base = float(salida.total_bruto if salida.total_bruto is not None else salida.total or 0)
 
         if nuevo_estado not in ['APROBADO', 'RECHAZADO']:
             messages.error(request, 'Estado no válido.')
             return redirect('aprobar_pagos')
 
         if nuevo_estado == 'APROBADO':
+            descuento_raw = (request.POST.get('descuento_monto') or '').strip()
+            motivo_descuento = (request.POST.get('motivo_descuento') or '').strip() or 'No'
+            descuento_monto = 0.0
+            if descuento_raw:
+                try:
+                    descuento_monto = float(descuento_raw.replace(',', '.'))
+                except ValueError:
+                    messages.error(request, 'El monto del descuento no es válido.')
+                    return redirect('aprobar_pagos')
+
+            if descuento_monto < 0:
+                messages.error(request, 'El descuento no puede ser negativo.')
+                return redirect('aprobar_pagos')
+
+            if descuento_monto > total_base:
+                messages.error(request, 'El descuento no puede superar el total de la nota.')
+                return redirect('aprobar_pagos')
+
             salida.estado_pago = "APROBADO"
             salida.motivo_rechazo = None  # Limpiar cualquier motivo de rechazo previo
-            messages.success(request, f'Pago #{salida.pk} aprobado correctamente.')
+            salida.descuento_monto = descuento_monto
+            salida.descuento_motivo = motivo_descuento
+            salida.total_bruto = total_base
+            salida.total = round(total_base - descuento_monto, 2)
+            if descuento_monto > 0:
+                messages.success(request, f'Pago #{salida.pk} aprobado con descuento de ${descuento_monto:.2f}.')
+            else:
+                messages.success(request, f'Pago #{salida.pk} aprobado correctamente.')
         elif nuevo_estado == 'RECHAZADO':
             motivo = request.POST.get('motivo_rechazo', '').strip()
             if not motivo:
@@ -2549,16 +2576,19 @@ def aprobar_pagos(request):
                 return redirect('aprobar_pagos')
             salida.estado_pago = "RECHAZADO"
             salida.motivo_rechazo = motivo
+            salida.descuento_monto = 0
+            salida.descuento_motivo = None
+            salida.total = total_base
             messages.warning(request, f'Pago #{salida.pk} marcado como rechazado.')
 
         salida.revisado_por = request.user
         salida.fecha_revision = timezone.now()
-        salida.save(update_fields=['estado_pago', 'motivo_rechazo', 'revisado_por', 'fecha_revision'])
+        salida.save(update_fields=['estado_pago', 'motivo_rechazo', 'descuento_monto', 'descuento_motivo', 'total_bruto', 'total', 'revisado_por', 'fecha_revision'])
         return redirect('aprobar_pagos')
 
         salida.revisado_por = request.user
         salida.fecha_revision = timezone.now()
-        salida.save(update_fields=['estado_pago', 'motivo_rechazo', 'revisado_por', 'fecha_revision'])
+        salida.save(update_fields=['estado_pago', 'motivo_rechazo', 'descuento_monto', 'descuento_motivo', 'total_bruto', 'total', 'revisado_por', 'fecha_revision'])
         return redirect('aprobar_pagos')
 
     try:
@@ -2792,6 +2822,7 @@ def comprar_carrito(request):
                 estado_pago='PENDIENTE',
                 fecha=timezone.now(),
                 total=0.0,
+                total_bruto=0.0,
                 bcv=valor_bcv,
                 tipo_pago='PAGO MOVIL',
                 metodo_pago=metodo_pago,
@@ -2898,6 +2929,7 @@ def comprar_carrito(request):
                 total_acumulado += subtotal + costo_sublimacion
 
             # PASO 5: Actualizar el total final de la Nota
+            nota.total_bruto = total_acumulado
             nota.total = total_acumulado
             if saved_proof_path:
                 nota.comprobante_pago = saved_proof_path
@@ -3033,6 +3065,7 @@ def comprar_producto_ajax(request, producto_id):
                 cliente=cliente_obj,
                 estado_pago='PENDIENTE',
                 total=subtotal + costo_sublimacion,
+                total_bruto=subtotal + costo_sublimacion,
                 bcv=valor_bcv,
                 fecha=timezone.now()
             )

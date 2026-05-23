@@ -99,12 +99,12 @@ class Generar_NE(FPDF):
         
 
         total_usd = 0
-        tasa=""
+        tasa = 0.0
         try:
-            tasa=obtener_tasa_cambio()
-
+            tasa_raw = obtener_tasa_cambio()
+            tasa = float(tasa_raw) if tasa_raw not in (None, '', 'N/A') else 0.0
         except Exception:
-            tasa=0
+            tasa = 0.0
         for item in self.items:
             producto = item.Producto
             
@@ -138,19 +138,35 @@ class Generar_NE(FPDF):
                 self.cell(30, 6, '', 1, 0, 'R')
                 self.cell(30, 6, '', 1, 1, 'R')
 
+        base_total_usd = float(getattr(self.salida, 'total_bruto', None) or total_usd)
+        descuento_monto = float(getattr(self.salida, 'descuento_monto', 0) or 0)
+        descuento_motivo = (getattr(self.salida, 'descuento_motivo', '') or '').strip()
+        total_final_usd = float(self.salida.total if self.salida.total is not None else max(base_total_usd - descuento_monto, 0))
+
         # Totales con conversión a Bolívares
         self.ln(5)
         self.set_font('Arial', 'B', 12)
         
-        # Total en Dólares
+        if descuento_monto > 0:
+            self.cell(150, 10, 'SUBTOTAL USD:', 0, 0, 'R')
+            self.cell(30, 10, f'${base_total_usd:.2f}', 0, 1, 'R')
+            self.cell(150, 10, 'DESCUENTO:', 0, 0, 'R')
+            self.cell(30, 10, f'-${descuento_monto:.2f}', 0, 1, 'R')
+            if descuento_motivo:
+                self.set_font('Arial', '', 9)
+                self.multi_cell(0, 6, f'Motivo del descuento: {descuento_motivo}')
+                self.ln(1)
+                self.set_font('Arial', 'B', 12)
+
         self.cell(150, 10, 'TOTAL USD:', 0, 0, 'R')
-        self.cell(30, 10, f'${total_usd:.2f}', 0, 1, 'R')
+        self.cell(30, 10, f'${total_final_usd:.2f}', 0, 1, 'R')
+        total_bs = total_final_usd * tasa
         self.cell(150, 10, 'TOTAL Bs:', 0, 0, 'R')
         self.cell(30, 10, f'Bs {total_bs:.2f}', 0, 1, 'R')
         # Payment method if available
         if getattr(self.salida, 'bcv', None):
             try:
-                total_bs = total_usd * float(self.salida.bcv)
+                total_bs = total_final_usd * float(self.salida.bcv)
                 self.set_font('Arial', 'B', 10)
                 self.cell(130, 8, f'Tasa BCV: {self.salida.bcv}', 0, 0, 'R')
                 self.cell(30, 8, '', 0, 1, 'R')

@@ -325,6 +325,9 @@ class Nota_Entrega(models.Model):
     fecha_revision = models.DateTimeField(blank=True, null=True)
     tipo_pago = models.CharField(max_length=20, choices=Tipo_pago, blank=True, null=True)
     referencia_pago = models.CharField(max_length=100, blank=True, null=True)
+    total_bruto = models.FloatField(blank=True, null=True)
+    descuento_monto = models.FloatField(default=0)
+    descuento_motivo = models.TextField(blank=True, null=True)
     total = models.FloatField(blank=True, null=True)
     fecha = models.DateTimeField(blank=True, null=True)
 
