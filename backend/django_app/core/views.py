@@ -2547,7 +2547,7 @@ def aprobar_pagos(request):
 
         if nuevo_estado == 'APROBADO':
             descuento_raw = (request.POST.get('descuento_monto') or '').strip()
-            motivo_descuento = (request.POST.get('motivo_descuento') or '').strip() or 'No'
+            motivo_descuento = ((request.POST.get('motivo_descuento') or '').strip() or 'No')[:100]
             descuento_monto = 0.0
             if descuento_raw:
                 try:

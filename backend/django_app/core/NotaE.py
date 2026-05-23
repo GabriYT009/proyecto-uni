@@ -91,7 +91,7 @@ class Generar_NE(FPDF):
         self.cell(25, 10, 'Precio Unit.', 1, 0, 'c')
         self.cell(28, 10, 'Precio Unit Bs.', 1, 0, 'c')
         self.cell(20, 10, 'Subtotal', 1, 0, 'c')
-        self.cell(25, 10, 'Subtotal Bs', 1, 1, 'c')
+        self.cell(25, 10, 'Subtotal BS', 1, 1, 'c')
         
 
         # Contenido de tabla
@@ -140,7 +140,7 @@ class Generar_NE(FPDF):
 
         base_total_usd = float(getattr(self.salida, 'total_bruto', None) or total_usd)
         descuento_monto = float(getattr(self.salida, 'descuento_monto', 0) or 0)
-        descuento_motivo = (getattr(self.salida, 'descuento_motivo', '') or '').strip()
+        descuento_motivo = (getattr(self.salida, 'descuento_motivo', '') or '').strip()[:100]
         total_final_usd = float(self.salida.total if self.salida.total is not None else max(base_total_usd - descuento_monto, 0))
 
         # Totales con conversión a Bolívares
@@ -154,8 +154,9 @@ class Generar_NE(FPDF):
             self.cell(30, 10, f'-${descuento_monto:.2f}', 0, 1, 'R')
             if descuento_motivo:
                 self.set_font('Arial', '', 9)
-                self.multi_cell(0, 6, f'Motivo del descuento: {descuento_motivo}')
-                self.ln(1)
+                self.set_x(95)
+                self.multi_cell(100, 5, f'Motivo del descuento: {descuento_motivo}')
+                self.ln(2)
                 self.set_font('Arial', 'B', 12)
 
         self.cell(150, 10, 'TOTAL USD:', 0, 0, 'R')
