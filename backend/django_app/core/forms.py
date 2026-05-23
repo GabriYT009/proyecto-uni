@@ -140,6 +140,7 @@ class PasswordRecoveryForm(forms.Form):
     )
     new_password = forms.CharField(
         min_length=8,
+        required=False,
         widget=forms.PasswordInput(attrs={
             'class': 'form-control',
             'placeholder': 'Nueva contraseña',
@@ -149,6 +150,7 @@ class PasswordRecoveryForm(forms.Form):
     )
     new_password_confirm = forms.CharField(
         min_length=8,
+        required=False,
         widget=forms.PasswordInput(attrs={
             'class': 'form-control',
             'placeholder': 'Confirmar nueva contraseña',

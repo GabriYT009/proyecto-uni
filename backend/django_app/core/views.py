@@ -1006,7 +1006,27 @@ def recuperar_contrasena(request):
         # Paso 2: validar respuestas y resetear contraseña
         elif 'reset' in request.POST:
             if form.is_valid():
-                new_password = form.cleaned_data['new_password']
+                new_password = (form.cleaned_data.get('new_password') or '').strip()
+                new_password_confirm = (form.cleaned_data.get('new_password_confirm') or '').strip()
+
+                if not new_password:
+                    form.add_error('new_password', 'La nueva contraseña es obligatoria.')
+                elif len(new_password) < 8:
+                    form.add_error('new_password', 'La nueva contraseña debe tener al menos 8 caracteres.')
+
+                if not new_password_confirm:
+                    form.add_error('new_password_confirm', 'Debes confirmar la nueva contraseña.')
+
+                if new_password and new_password_confirm and new_password != new_password_confirm:
+                    form.add_error('new_password_confirm', 'Las contraseñas no coinciden.')
+
+                if form.errors:
+                    return render(request, 'core/recuperar_contrasena.html', {
+                        'form': form,
+                        'questions': questions,
+                        'security_feature_enabled': security_feature_enabled,
+                    })
+
                 # Obtener user id desde sesión (establecido en Paso 1)
                 user_id = request.session.get('pr_user_id')
                 
