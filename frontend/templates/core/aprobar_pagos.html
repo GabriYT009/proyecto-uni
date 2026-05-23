@@ -441,7 +441,7 @@
                                     {% csrf_token %}
                                     <input type="hidden" name="salida_id" value="{{ salida.pk }}">
                                     <label for="estado-{{ salida.pk }}">Estado</label>
-                                    <select id="estado-{{ salida.pk }}" name="estado" class="status-select" required>
+                                    <select id="estado-{{ salida.pk }}" name="estado" class="status-select" {% if salida.estado_pago != 'PENDIENTE' %}disabled{% else %}required{% endif %}>
                                         {% if salida.estado_pago == 'PENDIENTE' %}
                                             <option value="" selected disabled>Selecciona una accion</option>
                                         {% endif %}
@@ -450,15 +450,18 @@
                                     </select>
                                     <div class="discount-box" style="display:{% if salida.estado_pago == 'APROBADO' %}block{% else %}none{% endif %};">
                                         <label class="field-label" for="descuento-{{ salida.pk }}">Ingrese el monto del descuento en dolares $</label>
-                                        <input type="number" id="descuento-{{ salida.pk }}" name="descuento_monto" class="money-input" min="0" step="0.01" value="{% if salida.descuento_monto is not None %}{{ salida.descuento_monto }}{% else %}0{% endif %}" placeholder="Ingrese el monto del descuento en dolares $">
+                                        <input type="number" id="descuento-{{ salida.pk }}" name="descuento_monto" class="money-input" min="0" step="0.01" value="{% if salida.descuento_monto is not None %}{{ salida.descuento_monto }}{% else %}0{% endif %}" placeholder="Ingrese el monto del descuento en dolares $" {% if salida.estado_pago != 'PENDIENTE' %}disabled{% endif %}>
                                         <label class="field-label" for="motivo-descuento-{{ salida.pk }}">Motivo del descuento</label>
-                                        <textarea name="motivo_descuento" id="motivo-descuento-{{ salida.pk }}" class="reason-input" required placeholder="No">{% if salida.descuento_motivo %}{{ salida.descuento_motivo }}{% else %}No{% endif %}</textarea>
+                                        <textarea name="motivo_descuento" id="motivo-descuento-{{ salida.pk }}" class="reason-input" required placeholder="No" {% if salida.estado_pago != 'PENDIENTE' %}disabled{% endif %}>{% if salida.descuento_motivo %}{{ salida.descuento_motivo }}{% else %}No{% endif %}</textarea>
                                     </div>
                                     <div class="rejection-box" style="display:{% if salida.estado_pago == 'RECHAZADO' %}block{% else %}none{% endif %};">
                                         <label class="field-label" for="motivo-{{ salida.pk }}">Motivo del rechazo</label>
-                                        <textarea name="motivo_rechazo" id="motivo-{{ salida.pk }}" class="reason-input" placeholder="Motivo del rechazo">{% if salida.motivo_rechazo %}{{ salida.motivo_rechazo }}{% endif %}</textarea>
+                                        <textarea name="motivo_rechazo" id="motivo-{{ salida.pk }}" class="reason-input" placeholder="Motivo del rechazo" {% if salida.estado_pago != 'PENDIENTE' %}disabled{% endif %}>{% if salida.motivo_rechazo %}{{ salida.motivo_rechazo }}{% endif %}</textarea>
                                     </div>
-                                    <button type="submit" class="btn-submit">Guardar</button>
+                                    <button type="submit" class="btn-submit" {% if salida.estado_pago != 'PENDIENTE' %}disabled style="opacity:0.6;cursor:not-allowed;"{% endif %}>Guardar</button>
+                                    {% if salida.estado_pago != 'PENDIENTE' %}
+                                        <div style="width:100%; font-size:0.85rem; color: var(--muted);">Este pago ya fue revisado y no se puede modificar.</div>
+                                    {% endif %}
                                 </form>
                             </div>
                         </div>
