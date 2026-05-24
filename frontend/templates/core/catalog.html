@@ -154,11 +154,20 @@
         .wrap{ max-width:1800px; margin:40px auto; padding:16px 80px; }
 
         .categories .category-grid{ display:flex; flex-wrap:wrap; gap:20px; justify-content:center; margin-bottom:40px; }
-        .categories .category-card{ display:flex; flex-direction:column; align-items:center; padding:15px; background:#fff; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,.1); text-decoration:none; color:#333; transition: transform 0.3s, box-shadow 0.3s; width:120px; }
+        .categories .category-card{ display:flex; flex-direction:column; align-items:center; padding:15px; background:#fff; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,.1); text-decoration:none; color:#333; transition: transform 0.3s, box-shadow 0.3s; width:140px; }
         .categories .category-card:hover{ transform:translateY(-5px); box-shadow:0 8px 20px rgba(0,0,0,.15); }
         .categories .category-card.active{ background:#9932CC; color:#fff; }
-        .categories .category-icon{ font-size:30px; margin-bottom:8px; }
+        .categories .category-icon{ font-size:28px; margin-bottom:8px; }
         .categories .category-card span{ font-weight:600; text-align:center; }
+
+        /* Mobile: mostrar en 2 columnas y reducir espacios para evitar lista larga */
+        @media (max-width: 480px) {
+            .category-bar { display: grid !important; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px; padding: 8px 4px; }
+            .category-card { width: 100% !important; padding: 12px 10px; border-radius:12px; }
+            .category-card .category-icon { font-size: 22px; margin-bottom:6px; }
+            .categories h2 { text-align: center; margin-bottom: 10px; }
+            .wrap { padding: 12px 14px; }
+        }
 
         .grid{ display:grid; grid-template-columns: repeat(auto-fill,minmax(240px,1fr)); gap:80px; grid-auto-rows: minmax(360px, auto); align-items:start; justify-items:stretch; }
         .card{ background:#fff; color:#111; border-radius:10px; padding:20px; box-shadow:0 4px 12px rgba(0,0,0,.08); display:flex; flex-direction:column; justify-content:space-between; transition: transform 240ms cubic-bezier(.2,.9,.2,1), box-shadow 240ms ease, opacity 280ms ease; margin-bottom:24px; border:1px solid rgba(0,0,0,0.06); min-height:380px; position:relative; z-index:1; opacity:0; transform:translateY(12px); }
