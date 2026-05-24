@@ -132,8 +132,25 @@
         .card-img{ width:100%; height:90px; object-fit:contain; margin-bottom:6px; }
 
         .totals{ margin-top:12px; font-weight:700; text-align:right }
-        .actions{ display:flex; gap:8px; margin-top:10px }
+        .actions{ display:flex; gap:8px; margin-top:10px; }
         .btn{ background:#9932CC; color:#fff; border:none; padding:8px 12px; border-radius:8px; cursor:pointer }
+
+        /* Mejoras del resumen y botón de pago */
+        .summary-card{ margin-top:12px; display:flex; gap:12px; align-items:center; justify-content:space-between; padding:12px; border-radius:12px; background:linear-gradient(180deg, #fff, #fbf8ff); border:1px solid rgba(153,50,204,0.06); box-shadow:0 8px 20px rgba(120,40,150,0.06); }
+        .summary-card .totals{ text-align:left; font-weight:700; margin:0 }
+        .summary-card .totals .label{ display:block; font-size:13px; color:#6b4a7a }
+        .summary-card .totals .value{ font-size:22px; color:#4b1a6b }
+
+        #checkout{ background:linear-gradient(90deg,#7b2ea5,#b23bd6); padding:12px 20px; border-radius:10px; font-size:16px; box-shadow:0 8px 20px rgba(178,59,214,0.18); transition:transform .12s ease, box-shadow .12s ease }
+        #checkout:hover{ transform:translateY(-2px); box-shadow:0 12px 28px rgba(178,59,214,0.22) }
+        #clear-invoice{ background:#f3eef9; color:#5b2b80; border:1px solid rgba(155,50,204,0.08); padding:10px 14px; border-radius:10px }
+
+        /* Sticky actions on small screens */
+        @media (max-width:768px){
+            .summary-card{ position:sticky; bottom:12px; z-index:20; }
+            .summary-card .totals{ order:1 }
+            .summary-card .actions{ order:2; gap:8px }
+        }
         .invoice-header{ margin-bottom:12px; }
         #invoice-table th, #invoice-table td{ font-size:13px; }
         #invoice-table input{ width:100%; border: none; text-align:center; }
@@ -226,16 +243,17 @@
                     </table>
                     </div>
 
-                    <div class="totals" style="margin-top:12px; text-align:right; font-weight:700;">
-                        <div style="font-size:18px; margin-top:6px"> Total $:<span id="total"></span></div>
-                        <div style="font-size:18px; margin-top:6px;">Total Bs: <span id="total-bs">N/A</span></div>
-                    </div>
-                    
-                    
-
-                    <div class="actions" style="margin-top:10px; text-align:right;">
-                        <button class="btn" id="clear-invoice">Limpiar</button>
-                        <button class="btn" id="checkout">Cobrar</button>
+                    <div class="summary-card">
+                        <div class="totals">
+                            <span class="label">Total USD</span>
+                            <div class="value">$ <span id="total">0.00</span></div>
+                            <span class="label">Total Bs</span>
+                            <div class="value">Bs <span id="total-bs">N/A</span></div>
+                        </div>
+                        <div class="actions" style="margin-left:auto;">
+                            <button id="clear-invoice" class="btn">Limpiar</button>
+                            <button id="checkout" class="btn">Procesar pago</button>
+                        </div>
                     </div>
                 </div>
 
