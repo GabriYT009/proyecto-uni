@@ -800,3 +800,39 @@ body.inventario-page .giant-frame {
     max-width: 1100px;
     box-sizing: border-box;
 }
+
+/* Mejoras específicas para móviles: aumentar objetivos táctiles, layout de una columna, ajustes de navegación */
+@media (max-width: 480px) {
+    html, body { -webkit-text-size-adjust: 100%; }
+
+    /* Barra superior más compacta y accessible */
+    .top-bar { height: 64px !important; padding: 6px 12px !important; }
+    .top-bar .bar-inner { padding: 0 12px !important; height: 64px !important; gap: 12px !important; }
+    .bar-logo-text { font-size: 1.2rem !important; }
+    .main-nav { display: none !important; }
+    .bar-toggle { display: flex !important; width: 44px; height: 44px; border-radius: 12px; align-items:center; justify-content:center; }
+
+    /* Contenedor y formularios adaptados */
+    .container { width: calc(100% - 24px); padding: 16px; border-radius: 12px; }
+    input[type="text"], input[type="password"], input[type="email"] { padding: 12px; font-size: 16px; }
+    label { font-size: 15px; }
+
+    /* Botones táctiles grandes */
+    .btn, button[type="submit"] { padding: 14px 16px; font-size: 16px; width: 100%; border-radius: 12px; touch-action: manipulation; -webkit-tap-highlight-color: rgba(0,0,0,0); }
+
+    /* Catálogo en una sola columna para mejor lectura */
+    .grid { grid-template-columns: 1fr !important; gap: 12px; }
+    .card, .card-prod { padding: 14px; border-radius: 12px; }
+    .card img, .card-prod img { height: 200px; }
+    .card h4, .card-prod h4 { font-size: 1rem; }
+
+    /* Acciones de producto apiladas verticalmente */
+    .row { flex-direction: column; align-items: stretch; gap: 10px; }
+    .product-actions { display: flex; flex-direction: column; gap: 10px; }
+
+    /* Tablas y listados pequeños: permitir scroll horizontal */
+    .table-responsive { font-size: 14px; overflow-x: auto; }
+
+    /* Ajustes del menú desplegable móvil */
+    .top-bar .nav-menu { left: 8px !important; right: 8px !important; top: 66px !important; max-height: 68vh; }
+}
