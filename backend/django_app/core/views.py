@@ -383,62 +383,6 @@ def _send_welcome_user_email(user):
     return True
 
 
-def _send_confirmation_email(user, request):
-    if not user or not getattr(user, 'email', ''):
-        return False
-
-    uid = urlsafe_base64_encode(force_bytes(user.pk))
-    token = default_token_generator.make_token(user)
-    confirm_path = reverse('confirm_email', args=[uid, token])
-    try:
-        confirm_url = request.build_absolute_uri(confirm_path)
-    except Exception:
-        # Fallback to site root + path
-        confirm_url = confirm_path
-
-    logger.info('URL de confirmacion generada para user=%s: %s', getattr(user, 'pk', None), confirm_url)
-
-    subject = 'Confirma tu correo en Solucionarte'
-    message = (
-        f'Hola {user.username},\n\n'
-        'Gracias por registrarte. Para activar tu cuenta, por favor haz clic en el siguiente enlace:\n\n'
-        f'{confirm_url}\n\n'
-        'Si no solicitaste este correo, ignóralo.\n'
-    )
-
-    mailtrap_token = os.environ.get('MAILTRAP_API_TOKEN', '').strip()
-    if mailtrap_token:
-        mailtrap_host = os.environ.get('MAILTRAP_API_HOST', 'https://send.api.mailtrap.io').strip().rstrip('/')
-        payload = {
-            'from': {'email': getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@example.com')},
-            'to': [{'email': user.email}],
-            'subject': subject,
-            'text': message,
-        }
-        response = requests.post(
-            f'{mailtrap_host}/api/send',
-            headers={
-                'Authorization': f'Bearer {mailtrap_token}',
-                'Content-Type': 'application/json',
-            },
-            json=payload,
-            timeout=15,
-        )
-        response.raise_for_status()
-        return True
-
-    connection = get_connection(timeout=getattr(settings, 'EMAIL_TIMEOUT', 12))
-    send_mail(
-        subject=subject,
-        message=message,
-        from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@example.com'),
-        recipient_list=[user.email],
-        fail_silently=False,
-        connection=connection,
-    )
-    return True
-
-
 def _send_profile_email_updated_notification(user):
     if not user or not getattr(user, 'email', ''):
         return False
@@ -1512,9 +1456,6 @@ def crear_usuario(request):
                         password=password,
                         email=email
                     )
-                    # Desactivar la cuenta hasta que el usuario confirme su correo
-                    nuevo_usuario.is_active = False
-                    nuevo_usuario.save(update_fields=['is_active'])
                     
                     # B. Asignar Grupo
                     group, _ = Group.objects.get_or_create(name='cliente')
@@ -1561,12 +1502,11 @@ def crear_usuario(request):
                         del request.session['pending_email']
 
                     try:
-                        _send_confirmation_email(nuevo_usuario, request)
-                    except Exception as exc:
-                        logger.exception('No se pudo enviar el correo de confirmación al usuario %s', nuevo_usuario.pk)
-                        raise RuntimeError('No se pudo enviar el correo de confirmación. Verifica la configuración de correo e intenta nuevamente.') from exc
+                        _send_welcome_user_email(nuevo_usuario)
+                    except Exception:
+                        logger.exception('No se pudo enviar el correo de bienvenida al usuario %s', nuevo_usuario.pk)
 
-                    messages.success(request, 'Usuario registrado correctamente. Revisa tu correo para confirmar la cuenta.')
+                    messages.success(request, 'Usuario registrado correctamente.')
                     return redirect('login')
 
             except Exception as e:
