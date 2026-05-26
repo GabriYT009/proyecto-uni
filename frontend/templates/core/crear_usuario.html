@@ -121,7 +121,7 @@
             <div class="auth-error">{{ error }}</div>
         {% endif %}
         
-        <form method="POST" action="" class="register-form">
+        <form method="POST" action="" class="register-form" autocomplete="off">
 
             {% csrf_token %}
             
@@ -205,7 +205,7 @@
             <div class="full">
                 <label for="password">Crear contraseña</label>
                 <div class="password-field">
-                    <input id="password" name="password" type="password" placeholder="Crear contraseña" required minlength="8">
+                    <input id="password" name="password" type="password" autocomplete="new-password" placeholder="Crear contraseña" required minlength="8">
                     <button type="button" class="password-toggle" data-target="password" aria-label="Mostrar contraseña">
                         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                             <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
@@ -217,7 +217,7 @@
             <div class="full">
                 <label for="password2">Confirmar contraseña</label>
                 <div class="password-field">
-                    <input id="password2" name="password2" type="password" placeholder="Confirmar contraseña" required minlength="8">
+                    <input id="password2" name="password2" type="password" autocomplete="new-password" placeholder="Confirmar contraseña" required minlength="8">
                     <button type="button" class="password-toggle" data-target="password2" aria-label="Mostrar confirmación de contraseña">
                         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                             <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>

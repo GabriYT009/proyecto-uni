@@ -35,15 +35,15 @@
         {% if error %}
             <div class="auth-error">{{ error }}</div>
         {% endif %}
-        <form id="loginForm" method="post" action="{% url 'login_post' %}">
+        <form id="loginForm" method="post" action="{% url 'login_post' %}" autocomplete="off">
             {% csrf_token %}
             <div class="full">
                 <label for="username">Nombre de usuario</label>
-                <input id="username" name="username" type="text" required>
+                <input id="username" name="username" type="text" autocomplete="username" autocapitalize="off" required>
             </div>
             <div class="full">
                 <label for="password">Contraseña</label>
-                <input id="password" name="password" type="password" required>
+                <input id="password" name="password" type="password" autocomplete="current-password" required>
             </div>
             <div class="hint">¿Olvidó su contraseña? <a href="{% url 'recuperar_contrasena' %}">Recupérala aquí</a></div>
             <button type="submit">Iniciar sesión</button>

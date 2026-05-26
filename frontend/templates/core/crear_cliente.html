@@ -503,10 +503,12 @@
                 <label for="direccion">Dirección</label>
                 <input type="text" name="direccion" placeholder="Dirección" value="{{ form.direccion|default:'' }}">
 
-                <label for="telefono_cliente">Teléfono</label>
-                <input type="tel" name="telefono_cliente" maxlength="11" minlength="10" pattern="[0-9]{10,11}" inputmode="numeric" autocomplete="tel" placeholder="Teléfono" value="{{ form.telefono_cliente|default:'' }}">
-                {% if errors and errors.telefono_cliente %}<div class="field-error">{{ errors.telefono_cliente }}</div>{% endif %}
-                <div id="telefono_error_client" class="field-error" style="display:none"></div>
+                <div class="full">
+                    <label for="telefono_cliente">Teléfono</label>
+                    <input id="telefono_cliente" name="telefono_cliente" type="tel" maxlength="11" minlength="10" pattern="[0-9]{10,11}" inputmode="numeric" autocomplete="tel" placeholder="Teléfono" value="{{ form.telefono_cliente|default:'' }}">
+                    {% if errors and errors.telefono_cliente %}<div class="field-error">{{ errors.telefono_cliente }}</div>{% endif %}
+                    <div id="telefono_error_client" class="field-error" style="display:none"></div>
+                </div>
 
                 <label for="email">Email</label>
                 <input type="email" name="email" placeholder="Email" autocomplete="email" value="{{ form.email|default:'' }}">

@@ -230,10 +230,10 @@
                             <strong>Dirección</strong>
                             <input type="text" name="direccion" value="{{ cliente.direccion }}" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;">
                         </label>
-                        <label>
-                            <strong>Teléfono</strong>
-                            <input type="tel" name="telefono_cliente" value="{{ cliente.telefono_cliente }}" minlength="10" maxlength="11" pattern="[0-9]{10,11}" inputmode="numeric" autocomplete="tel" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;">
-                        </label>
+                        <div class="full">
+                            <label for="telefono_cliente"><strong>Teléfono</strong></label>
+                            <input id="telefono_cliente" name="telefono_cliente" type="tel" value="{{ cliente.telefono_cliente }}" minlength="10" maxlength="11" pattern="[0-9]{10,11}" inputmode="numeric" autocomplete="tel" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;">
+                        </div>
                     </div>
             {% endif %}
             {% if user %}
