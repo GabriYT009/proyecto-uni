@@ -590,7 +590,6 @@
 
 <script>
 	(function(){
-		const menus = [
 		// Mobile nav toggle + submenu handlers
 		(function(){
 			const barToggle = document.getElementById('barToggle');
@@ -598,11 +597,13 @@
 			if (!barToggle || !barNav) return;
 
 			function closeAllSubmenus(){
-				document.querySelectorAll('.nav-submenu.show').forEach(s => {
+				document.querySelectorAll('.nav-submenu.show').forEach(function(s) {
 					s.classList.remove('show');
 					s.setAttribute('aria-hidden','true');
 				});
-				document.querySelectorAll('.nav-subtoggle[aria-expanded="true"]').forEach(t => t.setAttribute('aria-expanded','false'));
+				document.querySelectorAll('.nav-subtoggle[aria-expanded="true"]').forEach(function(t) {
+					t.setAttribute('aria-expanded','false');
+				});
 			}
 
 			function closeBarNav(){
@@ -620,8 +621,7 @@
 				if (!opened) closeAllSubmenus();
 			});
 
-			// Submenu toggles inside mobile nav
-			document.querySelectorAll('.nav-subtoggle').forEach(btn => {
+			document.querySelectorAll('.nav-subtoggle').forEach(function(btn) {
 				btn.addEventListener('click', function(e){
 					e.stopPropagation();
 					const targetId = btn.dataset.target;
@@ -638,8 +638,7 @@
 				});
 			});
 
-			// Back buttons to close submenus
-			document.querySelectorAll('[data-close-submenu]').forEach(btn => {
+			document.querySelectorAll('[data-close-submenu]').forEach(function(btn) {
 				btn.addEventListener('click', function(e){
 					e.stopPropagation();
 					const id = btn.dataset.closeSubmenu;
@@ -651,7 +650,6 @@
 				});
 			});
 
-			// Close menu on outside click or Escape
 			document.addEventListener('click', function(e){
 				if (!barNav.contains(e.target) && !barToggle.contains(e.target)) {
 					closeBarNav();
@@ -662,7 +660,6 @@
 				if (e.key === 'Escape') closeBarNav();
 			});
 
-			// Ensure nav closed when resizing to desktop
 			window.addEventListener('resize', function(){
 				if (window.innerWidth > 768) {
 					barNav.classList.remove('show');
@@ -672,15 +669,20 @@
 				}
 			});
 		})();
+
+		const menus = [
 			{ toggleId: 'clientsToggle', dropdownId: 'clientsDropdown' },
 			{ toggleId: 'inventarioToggle', dropdownId: 'inventarioDropdown' },
 			{ toggleId: 'pagosToggle', dropdownId: 'pagosDropdown' },
-			{ toggleId: 'productoToggle', dropdownId: 'productoDropdown' },
-			
-		].map(({ toggleId, dropdownId }) => ({
-			toggle: document.getElementById(toggleId),
-			dropdown: document.getElementById(dropdownId)
-		})).filter(({ toggle, dropdown }) => toggle && dropdown);
+			{ toggleId: 'productoToggle', dropdownId: 'productoDropdown' }
+		].map(function(item) {
+			return {
+				toggle: document.getElementById(item.toggleId),
+				dropdown: document.getElementById(item.dropdownId)
+			};
+		}).filter(function(entry) {
+			return entry.toggle && entry.dropdown;
+		});
 
 		if (!menus.length) return;
 
