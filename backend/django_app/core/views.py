@@ -1316,185 +1316,192 @@ def crear_usuario(request):
         security_questions = []
 
     if request.method == 'POST':
-        # 1. Obtener datos del formulario
-        username = (request.POST.get('username') or '').strip()
-        password = request.POST.get('password')
-        password_confirm = request.POST.get('password2') # Corregido nombre variable para claridad
-        security_question_id = (request.POST.get('security_question_id') or '').strip()
-        security_question_custom = (request.POST.get('security_question_custom') or '').strip()
-        security_answer = (request.POST.get('security_answer') or '').strip()
-        
-        # Datos para el modelo Cliente
-        tipo_documento = (request.POST.get('tipo_documento') or '').strip().upper()
-        cedula_dni = (request.POST.get('cedula_dni') or '').strip()
-        cedula = f'{tipo_documento}{cedula_dni}'
-        nombre = request.POST.get('nombre_cliente')
-        apellido = request.POST.get('apellido_cliente')
-        direccion = request.POST.get('direccion') # Ojo con el acento en el HTML name='dirección' o 'direccion'
-        telefono = request.POST.get('telefono_cliente')
-        
-        # email 
-        email = (request.POST.get('email') or request.session.get('pending_email') or '').strip().lower()
-
-        # -- VALIDACIONES --
-        if not username or not password:
-            return render(request, 'core/crear_usuario.html', {
-                'error': 'Usuario y contraseña obligatorios.',
-                'security_questions': security_questions,
-                'email': email,
-            })
-        
-        if password != password_confirm:
-            return render(request, 'core/crear_usuario.html', {
-                'error': 'Las contraseñas no coinciden.',
-                'security_questions': security_questions,
-                'email': email,
-            })
-
-        if security_feature_enabled and not security_question_id and not security_question_custom:
-            return render(request, 'core/crear_usuario.html', {
-                'error': 'Selecciona o escribe una pregunta de seguridad.',
-                'security_questions': security_questions,
-                'security_feature_enabled': security_feature_enabled,
-                'email': email,
-            })
-
-        if security_feature_enabled and security_question_id == 'custom' and not security_question_custom:
-            return render(request, 'core/crear_usuario.html', {
-                'error': 'Escribe tu pregunta de seguridad personalizada.',
-                'security_questions': security_questions,
-                'security_feature_enabled': security_feature_enabled,
-                'email': email,
-            })
-
-        if security_feature_enabled and not security_answer:
-            return render(request, 'core/crear_usuario.html', {
-                'error': 'La respuesta de seguridad es obligatoria.',
-                'security_questions': security_questions,
-                'security_feature_enabled': security_feature_enabled,
-                'email': email,
-            })
-
-        if not cedula_dni:
-            return render(request, 'core/crear_usuario.html', {
-                'error': 'La cédula es obligatoria.',
-                'security_questions': security_questions,
-                'security_feature_enabled': security_feature_enabled,
-                'email': email,
-            })
-
-        if not cedula_dni.isdigit():
-            return render(request, 'core/crear_usuario.html', {
-                'error': 'La cédula debe contener solo números.',
-                'security_questions': security_questions,
-                'security_feature_enabled': security_feature_enabled,
-                'email': email,
-            })
-
-        if len(cedula_dni) > 8:
-            return render(request, 'core/crear_usuario.html', {
-                'error': 'La cédula no puede tener más de 8 dígitos.',
-                'security_questions': security_questions,
-                'security_feature_enabled': security_feature_enabled,
-                'email': email,
-            })
-
-        if User.objects.filter(username=username).exists():
-            return render(request, 'core/crear_usuario.html', {
-                'error': 'El usuario ya existe.',
-                'security_questions': security_questions,
-                'security_feature_enabled': security_feature_enabled,
-                'email': email,
-            })
-
-        if User.objects.filter(email=email).exists():
-            return render(request, 'core/crear_usuario.html', {
-                'error': 'El correo ya está registrado.',
-                'security_questions': security_questions,
-                'security_feature_enabled': security_feature_enabled,
-                'email': email,
-            })
-
-        if cedula and Cliente.objects.filter(documento=cedula).exists():
-            return render(request, 'core/crear_usuario.html', {
-                'error': 'La cédula ya está registrada.',
-                'security_questions': security_questions,
-                'security_feature_enabled': security_feature_enabled,
-                'email': email,
-            })
-
-        # CREACIÓN (Usamos atomic para que se creen los dos o ninguno) 
         try:
-            with transaction.atomic():
-                # A. Crear el Usuario de Django
-                nuevo_usuario = User.objects.create_user(
-                    username=username,
-                    password=password,
-                    email=email
-                )
-                # Desactivar la cuenta hasta que el usuario confirme su correo
-                nuevo_usuario.is_active = False
-                nuevo_usuario.save(update_fields=['is_active'])
-                
-                # B. Asignar Grupo
-                group, _ = Group.objects.get_or_create(name='cliente')
-                nuevo_usuario.groups.add(group)
+            # 1. Obtener datos del formulario
+            username = (request.POST.get('username') or '').strip()
+            password = request.POST.get('password')
+            password_confirm = request.POST.get('password2') # Corregido nombre variable para claridad
+            security_question_id = (request.POST.get('security_question_id') or '').strip()
+            security_question_custom = (request.POST.get('security_question_custom') or '').strip()
+            security_answer = (request.POST.get('security_answer') or '').strip()
+            
+            # Datos para el modelo Cliente
+            tipo_documento = (request.POST.get('tipo_documento') or '').strip().upper()
+            cedula_dni = (request.POST.get('cedula_dni') or '').strip()
+            cedula = f'{tipo_documento}{cedula_dni}'
+            nombre = request.POST.get('nombre_cliente')
+            apellido = request.POST.get('apellido_cliente')
+            direccion = request.POST.get('direccion') # Ojo con el acento en el HTML name='dirección' o 'direccion'
+            telefono = request.POST.get('telefono_cliente')
+            
+            # email 
+            email = (request.POST.get('email') or request.session.get('pending_email') or '').strip().lower()
 
-                # C. Crear el Cliente y ENLAZARLO
-                Cliente.objects.create(
-                    user=nuevo_usuario,   # <--- AQUÍ OCURRE EL ENLACE con el Usuario
-                    documento=cedula,     # Aquí guardas la cédula
-                    nombre_cliente=nombre,
-                    apellido_cliente=apellido,
-                    direccion=direccion,
-                    telefono_cliente=telefono,
-                    email=email
-                )
+            # -- VALIDACIONES --
+            if not username or not password:
+                return render(request, 'core/crear_usuario.html', {
+                    'error': 'Usuario y contraseña obligatorios.',
+                    'security_questions': security_questions,
+                    'email': email,
+                })
+            
+            if password != password_confirm:
+                return render(request, 'core/crear_usuario.html', {
+                    'error': 'Las contraseñas no coinciden.',
+                    'security_questions': security_questions,
+                    'email': email,
+                })
 
-                # D. Guardar pregunta y respuesta de seguridad
-                if security_feature_enabled:
-                    selected_question = None
-                    if security_question_id and security_question_id != 'custom':
-                        selected_question = SecurityQuestion.objects.filter(pk=security_question_id).first()
+            if security_feature_enabled and not security_question_id and not security_question_custom:
+                return render(request, 'core/crear_usuario.html', {
+                    'error': 'Selecciona o escribe una pregunta de seguridad.',
+                    'security_questions': security_questions,
+                    'security_feature_enabled': security_feature_enabled,
+                    'email': email,
+                })
 
-                    if selected_question is None and security_question_custom:
-                        selected_question, _ = SecurityQuestion.objects.get_or_create(text=security_question_custom)
+            if security_feature_enabled and security_question_id == 'custom' and not security_question_custom:
+                return render(request, 'core/crear_usuario.html', {
+                    'error': 'Escribe tu pregunta de seguridad personalizada.',
+                    'security_questions': security_questions,
+                    'security_feature_enabled': security_feature_enabled,
+                    'email': email,
+                })
 
-                    if selected_question is None:
-                        raise ValueError('Pregunta de seguridad inválida.')
+            if security_feature_enabled and not security_answer:
+                return render(request, 'core/crear_usuario.html', {
+                    'error': 'La respuesta de seguridad es obligatoria.',
+                    'security_questions': security_questions,
+                    'security_feature_enabled': security_feature_enabled,
+                    'email': email,
+                })
 
-                    # Asegurar que solo exista una respuesta de seguridad por usuario: eliminar previas
-                    try:
-                        UserSecurityAnswer.objects.filter(user=nuevo_usuario).delete()
-                    except Exception:
-                        # Si falla la eliminación por cualquier motivo, continuar con creación
-                        logger.exception('No se pudo limpiar UserSecurityAnswer existente para el usuario %s', nuevo_usuario.pk)
+            if not cedula_dni:
+                return render(request, 'core/crear_usuario.html', {
+                    'error': 'La cédula es obligatoria.',
+                    'security_questions': security_questions,
+                    'security_feature_enabled': security_feature_enabled,
+                    'email': email,
+                })
 
-                    UserSecurityAnswer.objects.create(
-                        user=nuevo_usuario,
-                        question=selected_question,
-                        answer_hash=make_password(security_answer.lower()),
+            if not cedula_dni.isdigit():
+                return render(request, 'core/crear_usuario.html', {
+                    'error': 'La cédula debe contener solo números.',
+                    'security_questions': security_questions,
+                    'security_feature_enabled': security_feature_enabled,
+                    'email': email,
+                })
+
+            if len(cedula_dni) > 8:
+                return render(request, 'core/crear_usuario.html', {
+                    'error': 'La cédula no puede tener más de 8 dígitos.',
+                    'security_questions': security_questions,
+                    'security_feature_enabled': security_feature_enabled,
+                    'email': email,
+                })
+
+            if User.objects.filter(username=username).exists():
+                return render(request, 'core/crear_usuario.html', {
+                    'error': 'El usuario ya existe.',
+                    'security_questions': security_questions,
+                    'security_feature_enabled': security_feature_enabled,
+                    'email': email,
+                })
+
+            if User.objects.filter(email=email).exists():
+                return render(request, 'core/crear_usuario.html', {
+                    'error': 'El correo ya está registrado.',
+                    'security_questions': security_questions,
+                    'security_feature_enabled': security_feature_enabled,
+                    'email': email,
+                })
+
+            if cedula and Cliente.objects.filter(documento=cedula).exists():
+                return render(request, 'core/crear_usuario.html', {
+                    'error': 'La cédula ya está registrada.',
+                    'security_questions': security_questions,
+                    'security_feature_enabled': security_feature_enabled,
+                    'email': email,
+                })
+
+            # CREACIÓN (Usamos atomic para que se creen los dos o ninguno) 
+            try:
+                with transaction.atomic():
+                    # A. Crear el Usuario de Django
+                    nuevo_usuario = User.objects.create_user(
+                        username=username,
+                        password=password,
+                        email=email
                     )
-                
-                # Limpieza de sesión
-                if 'pending_email' in request.session:
-                    del request.session['pending_email']
+                    # Desactivar la cuenta hasta que el usuario confirme su correo
+                    nuevo_usuario.is_active = False
+                    nuevo_usuario.save(update_fields=['is_active'])
+                    
+                    # B. Asignar Grupo
+                    group, _ = Group.objects.get_or_create(name='cliente')
+                    nuevo_usuario.groups.add(group)
 
-                try:
-                    _send_confirmation_email(nuevo_usuario, request)
-                except Exception:
-                    logger.exception('No se pudo enviar el correo de confirmación al usuario %s', nuevo_usuario.pk)
+                    # C. Crear el Cliente y ENLAZARLO
+                    Cliente.objects.create(
+                        user=nuevo_usuario,   # <--- AQUÍ OCURRE EL ENLACE con el Usuario
+                        documento=cedula,     # Aquí guardas la cédula
+                        nombre_cliente=nombre,
+                        apellido_cliente=apellido,
+                        direccion=direccion,
+                        telefono_cliente=telefono,
+                        email=email
+                    )
 
-                messages.success(request, 'Usuario registrado correctamente. Revisa tu correo para confirmar la cuenta.')
-                return redirect('login')
+                    # D. Guardar pregunta y respuesta de seguridad
+                    if security_feature_enabled:
+                        selected_question = None
+                        if security_question_id and security_question_id != 'custom':
+                            selected_question = SecurityQuestion.objects.filter(pk=security_question_id).first()
 
+                        if selected_question is None and security_question_custom:
+                            selected_question, _ = SecurityQuestion.objects.get_or_create(text=security_question_custom)
+
+                        if selected_question is None:
+                            raise ValueError('Pregunta de seguridad inválida.')
+
+                        # Asegurar que solo exista una respuesta de seguridad por usuario: eliminar previas
+                        try:
+                            UserSecurityAnswer.objects.filter(user=nuevo_usuario).delete()
+                        except Exception:
+                            # Si falla la eliminación por cualquier motivo, continuar con creación
+                            logger.exception('No se pudo limpiar UserSecurityAnswer existente para el usuario %s', nuevo_usuario.pk)
+
+                        UserSecurityAnswer.objects.create(
+                            user=nuevo_usuario,
+                            question=selected_question,
+                            answer_hash=make_password(security_answer.lower()),
+                        )
+                    
+                    # Limpieza de sesión
+                    if 'pending_email' in request.session:
+                        del request.session['pending_email']
+
+                    try:
+                        _send_confirmation_email(nuevo_usuario, request)
+                    except Exception:
+                        logger.exception('No se pudo enviar el correo de confirmación al usuario %s', nuevo_usuario.pk)
+
+                    messages.success(request, 'Usuario registrado correctamente. Revisa tu correo para confirmar la cuenta.')
+                    return redirect('login')
+
+            except Exception as e:
+                # Si algo falla en la base de datos
+                raise
         except Exception as e:
-            # Si algo falla en la base de datos
+            logger.exception('Error en crear_usuario POST')
+            error_msg = 'Ocurrió un error al procesar el registro. Intenta de nuevo más tarde.'
+            if getattr(settings, 'DEBUG', False):
+                error_msg = f'Error al crear usuario: {e}'
             return render(request, 'core/crear_usuario.html', {
-                'error': f'Error al crear usuario: {e}',
+                'error': error_msg,
                 'security_questions': security_questions,
                 'security_feature_enabled': security_feature_enabled,
-                'email': email,
+                'email': (request.POST.get('email') or request.session.get('pending_email') or '').strip().lower(),
             })
 
     # GET request...
