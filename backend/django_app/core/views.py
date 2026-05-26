@@ -14,6 +14,9 @@ from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django.contrib import messages
 from django.core.mail import send_mail
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.contrib.auth.tokens import default_token_generator
 from django.db.models import Q, F, Case, When, IntegerField
 from django.db.models.functions import Lower, Trim
 from django.db.models.deletion import ProtectedError
@@ -346,6 +349,37 @@ def _send_welcome_user_email(user):
         'Tu usuario fue creado correctamente.\n\n'
         f'Usuario: {user.username}\n'
         'Si no solicitaste este registro, ignora este mensaje.\n'
+    )
+
+    send_mail(
+        subject=subject,
+        message=message,
+        from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@example.com'),
+        recipient_list=[user.email],
+        fail_silently=False,
+    )
+    return True
+
+
+def _send_confirmation_email(user, request):
+    if not user or not getattr(user, 'email', ''):
+        return False
+
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    token = default_token_generator.make_token(user)
+    confirm_path = reverse('confirm_email', args=[uid, token])
+    try:
+        confirm_url = request.build_absolute_uri(confirm_path)
+    except Exception:
+        # Fallback to site root + path
+        confirm_url = confirm_path
+
+    subject = 'Confirma tu correo en Solucionarte'
+    message = (
+        f'Hola {user.username},\n\n'
+        'Gracias por registrarte. Para activar tu cuenta, por favor haz clic en el siguiente enlace:\n\n'
+        f'{confirm_url}\n\n'
+        'Si no solicitaste este correo, ignóralo.\n'
     )
 
     send_mail(
@@ -883,6 +917,8 @@ def login_post(request):
 
             user = authenticate(request, username=username, password=password)
             if user is not None:
+                if not getattr(user, 'is_active', True):
+                    return render(request, 'core/index.html', {'error': 'Cuenta no confirmada. Revisa tu correo para activar la cuenta.'})
                 login(request, user)
                 _restore_cart_snapshot_for_user(request, user)
                 return redirect('home')
@@ -1392,10 +1428,13 @@ def crear_usuario(request):
             with transaction.atomic():
                 # A. Crear el Usuario de Django
                 nuevo_usuario = User.objects.create_user(
-                    username=username, 
-                    password=password, 
+                    username=username,
+                    password=password,
                     email=email
                 )
+                # Desactivar la cuenta hasta que el usuario confirme su correo
+                nuevo_usuario.is_active = False
+                nuevo_usuario.save(update_fields=['is_active'])
                 
                 # B. Asignar Grupo
                 group, _ = Group.objects.get_or_create(name='cliente')
@@ -1442,11 +1481,11 @@ def crear_usuario(request):
                     del request.session['pending_email']
 
                 try:
-                    _send_welcome_user_email(nuevo_usuario)
+                    _send_confirmation_email(nuevo_usuario, request)
                 except Exception:
-                    logger.exception('No se pudo enviar el correo de bienvenida al usuario %s', nuevo_usuario.pk)
+                    logger.exception('No se pudo enviar el correo de confirmación al usuario %s', nuevo_usuario.pk)
 
-                messages.success(request, 'Usuario registrado correctamente.')
+                messages.success(request, 'Usuario registrado correctamente. Revisa tu correo para confirmar la cuenta.')
                 return redirect('login')
 
         except Exception as e:
@@ -1466,6 +1505,31 @@ def crear_usuario(request):
         'cart_count': len(request.session.get('cart', []))
     }
     return render(request, 'core/crear_usuario.html', context)
+
+
+def confirm_email(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.filter(pk=uid).first()
+    except Exception:
+        user = None
+
+    if user is None:
+        messages.error(request, 'Enlace de confirmación inválido o usuario no encontrado.')
+        return redirect('login')
+
+    if default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.save(update_fields=['is_active'])
+        try:
+            _send_welcome_user_email(user)
+        except Exception:
+            logger.exception('No se pudo enviar correo de bienvenida tras confirmar usuario %s', user.pk)
+        messages.success(request, 'Correo confirmado. Ya puedes iniciar sesión.')
+        return redirect('login')
+    else:
+        messages.error(request, 'El enlace de confirmación es inválido o expiró.')
+        return redirect('login')
 
 @login_required
 @admin_only

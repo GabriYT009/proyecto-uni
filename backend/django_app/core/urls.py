@@ -11,6 +11,7 @@ urlpatterns = [
     path('recuperar-contrasena/', views.recuperar_contrasena, name='recuperar_contrasena'),
     path('cliente/registrar/', views.crear_cliente, name='registrar_cliente'),
     path('cliente/crear_usuario/', views.crear_usuario, name='crear_usuario'),
+    path('confirm-email/<uidb64>/<token>/', views.confirm_email, name='confirm_email'),
     path('producto/registrar/', views.crear_Productoo, name='registrar_producto'),
     path('producto/registrar-debug/', views.crear_Productoo_debug, name='registrar_producto_debug'),
     # Compatibilidad antigua
