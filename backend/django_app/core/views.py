@@ -17,6 +17,7 @@ from django.core.mail import send_mail
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
+import threading
 from django.db.models import Q, F, Case, When, IntegerField
 from django.db.models.functions import Lower, Trim
 from django.db.models.deletion import ProtectedError
@@ -382,13 +383,34 @@ def _send_confirmation_email(user, request):
         'Si no solicitaste este correo, ignóralo.\n'
     )
 
-    send_mail(
-        subject=subject,
-        message=message,
-        from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@example.com'),
-        recipient_list=[user.email],
-        fail_silently=False,
-    )
+    def _send():
+        try:
+            send_mail(
+                subject=subject,
+                message=message,
+                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@example.com'),
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
+        except Exception:
+            logger.exception('Fallo al enviar correo de confirmación para user=%s', getattr(user, 'pk', None))
+
+    try:
+        t = threading.Thread(target=_send, daemon=True)
+        t.start()
+    except Exception:
+        # último recurso: intentar enviar sincrónicamente
+        try:
+            send_mail(
+                subject=subject,
+                message=message,
+                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@example.com'),
+                recipient_list=[user.email],
+                fail_silently=True,
+            )
+        except Exception:
+            logger.exception('Fallo crítico al enviar correo de confirmación para user=%s', getattr(user, 'pk', None))
+
     return True
 
 
