@@ -101,7 +101,7 @@ body {
 
 .full { width: 100%; margin-bottom:12px; }
 label { display:block; font-size:14px; margin-bottom:6px; color:#222; }
-input[type="text"], input[type="password"], input[type="email"] {
+input[type="text"], input[type="password"], input[type="email"], input[type="tel"] {
     width:100%; padding:10px 12px; border:1px solid rgba(255,255,255,0.12); border-radius:8px; box-sizing:border-box; font-size:14px;
     background: rgba(255,255,255,0.95);
     color: #111;
@@ -244,7 +244,8 @@ body.login-page .login-card form {
 }
 
 body.login-page .login-card input[type="text"],
-body.login-page .login-card input[type="password"] {
+body.login-page .login-card input[type="password"],
+body.login-page .login-card input[type="tel"] {
     min-height: 48px;
     border-radius: 16px;
     border: 1px solid rgba(255, 255, 255, 0.18);
@@ -405,13 +406,15 @@ body.login-page .hint {
 
 body.login-page input[type="text"],
 body.login-page input[type="password"],
-body.login-page input[type="email"] {
+body.login-page input[type="email"],
+body.login-page input[type="tel"] {
     background: rgba(255, 255, 255, 0.92);
     color: #1f1530;
 }
 
 body.login-page input[type="text"],
-body.login-page input[type="password"] {
+body.login-page input[type="password"],
+body.login-page input[type="tel"] {
     border: 1px solid rgba(130, 70, 170, 0.34);
     box-shadow: none;
 }
