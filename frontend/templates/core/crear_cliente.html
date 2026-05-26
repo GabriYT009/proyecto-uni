@@ -277,7 +277,7 @@
             var telefono = (findField('telefono_cliente') && findField('telefono_cliente').value || '').trim();
             if (telefono){
                 if (!/^\d+$/.test(telefono)) errors.telefono_cliente = 'El teléfono debe contener solo números.';
-                else if (telefono.length > 11) errors.telefono_cliente = 'El teléfono no puede tener más de 11 dígitos.';
+                else if (telefono.length < 10 || telefono.length > 11) errors.telefono_cliente = 'El teléfono debe tener entre 10 y 11 dígitos.';
             }
 
             var email = (findField('email') && findField('email').value || '').trim();
@@ -504,12 +504,12 @@
                 <input type="text" name="direccion" placeholder="Dirección" value="{{ form.direccion|default:'' }}">
 
                 <label for="telefono_cliente">Teléfono</label>
-                <input type="text" name="telefono_cliente" maxlength="11" pattern="[0-9]+" inputmode="numeric" placeholder="Teléfono" value="{{ form.telefono_cliente|default:'' }}">
+                <input type="tel" name="telefono_cliente" maxlength="11" minlength="10" pattern="[0-9]{10,11}" inputmode="numeric" autocomplete="tel" placeholder="Teléfono" value="{{ form.telefono_cliente|default:'' }}">
                 {% if errors and errors.telefono_cliente %}<div class="field-error">{{ errors.telefono_cliente }}</div>{% endif %}
                 <div id="telefono_error_client" class="field-error" style="display:none"></div>
 
                 <label for="email">Email</label>
-                <input type="email" name="email" placeholder="Email" value="{{ form.email|default:'' }}">
+                <input type="email" name="email" placeholder="Email" autocomplete="email" value="{{ form.email|default:'' }}">
                 {% if errors and errors.email %}<div class="field-error">{{ errors.email }}</div>{% endif %}
 
                 <hr>

@@ -232,7 +232,7 @@
                         </label>
                         <label>
                             <strong>Teléfono</strong>
-                            <input type="text" name="telefono_cliente" value="{{ cliente.telefono_cliente }}" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;">
+                            <input type="tel" name="telefono_cliente" value="{{ cliente.telefono_cliente }}" minlength="10" maxlength="11" pattern="[0-9]{10,11}" inputmode="numeric" autocomplete="tel" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;">
                         </label>
                     </div>
             {% endif %}
@@ -241,7 +241,7 @@
                 <p style="margin-top:20px;"><strong>Usuario:</strong> {{ user.username }}</p>
                 <label>
                     <strong>Email</strong>
-                    <input type="email" name="email" value="{{ user.email }}" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;">
+                    <input type="email" name="email" value="{{ user.email }}" autocomplete="email" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;">
                 </label>
                 {% if cedula %}
                     <p><strong>Cédula:</strong> {{ cedula }}</p>

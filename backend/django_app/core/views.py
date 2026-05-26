@@ -75,6 +75,26 @@ def _ensure_default_auth_groups():
         Group.objects.get_or_create(name=group_name)
 
 
+def _normalize_phone_value(phone):
+    return re.sub(r'[\s\-()]+', '', (phone or '').strip())
+
+
+def _validate_phone_value(phone, required=False, field_label='El teléfono'):
+    normalized_phone = _normalize_phone_value(phone)
+    if not normalized_phone:
+        if required:
+            return '', f'{field_label} es obligatorio.'
+        return '', None
+
+    if not normalized_phone.isdigit():
+        return '', f'{field_label} debe contener solo números.'
+
+    if len(normalized_phone) < 10 or len(normalized_phone) > 11:
+        return '', f'{field_label} debe tener entre 10 y 11 dígitos.'
+
+    return normalized_phone, None
+
+
 def _security_questions_ready():
     try:
         tables = set(connection.introspection.table_names())
@@ -1157,7 +1177,7 @@ def crear_cliente(request):
         nombre = data.get('nombre_cliente', '').strip()
         apellido = data.get('apellido_cliente', '').strip()
         telefono = data.get('telefono_cliente', '').strip()
-        email = data.get('email', '').strip()
+        email = data.get('email', '').strip().lower()
         tipo_documento = data.get('tipo_documento', '').strip()
         
 
@@ -1182,6 +1202,9 @@ def crear_cliente(request):
                 errors['apellido_cliente'] = 'El apellido no puede contener números.'
             elif not re.match(r'^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$', apellido):
                 errors['apellido_cliente'] = 'El apellido contiene caracteres inválidos.'
+        telefono, telefono_error = _validate_phone_value(telefono, required=False)
+        if telefono_error:
+            errors['telefono_cliente'] = telefono_error
         if not email:
             errors['email'] = 'El correo electrónico es obligatorio.'
         else:
@@ -1425,6 +1448,35 @@ def crear_usuario(request):
                     'security_questions': security_questions,
                     'security_feature_enabled': security_feature_enabled,
                     'email': email,
+                })
+
+            telefono, telefono_error = _validate_phone_value(telefono, required=True)
+            if telefono_error:
+                return render(request, 'core/crear_usuario.html', {
+                    'error': telefono_error,
+                    'security_questions': security_questions,
+                    'security_feature_enabled': security_feature_enabled,
+                    'email': email,
+                    'telefono': telefono,
+                })
+
+            if not email:
+                return render(request, 'core/crear_usuario.html', {
+                    'error': 'El correo electrónico es obligatorio.',
+                    'security_questions': security_questions,
+                    'security_feature_enabled': security_feature_enabled,
+                    'telefono': telefono,
+                })
+
+            try:
+                validate_email(email)
+            except ValidationError:
+                return render(request, 'core/crear_usuario.html', {
+                    'error': 'El correo electrónico no tiene un formato válido.',
+                    'security_questions': security_questions,
+                    'security_feature_enabled': security_feature_enabled,
+                    'email': email,
+                    'telefono': telefono,
                 })
 
             if User.objects.filter(username=username).exists():
@@ -1774,10 +1826,22 @@ def perfil(request):
         apellido = (request.POST.get('apellido_cliente') or '').strip()
         direccion = (request.POST.get('direccion') or '').strip()
         telefono = (request.POST.get('telefono_cliente') or '').strip()
-        email = (request.POST.get('email') or '').strip()
+        email = (request.POST.get('email') or '').strip().lower()
         previous_email = (user.email or '').strip().lower()
         normalized_email = email.lower()
         email_changed = bool(normalized_email) and normalized_email != previous_email
+
+        telefono, telefono_error = _validate_phone_value(telefono, required=False)
+        if telefono_error:
+            messages.error(request, telefono_error)
+            return redirect('perfil')
+
+        if email:
+            try:
+                validate_email(email)
+            except ValidationError:
+                messages.error(request, 'El correo electrónico no tiene un formato válido.')
+                return redirect('perfil')
 
         if not cliente and user.email:
             cliente = Cliente.objects.filter(email__iexact=user.email).first()
