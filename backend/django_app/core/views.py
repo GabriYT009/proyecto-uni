@@ -14,10 +14,10 @@ from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django.contrib import messages
 from django.core.mail import send_mail
+from django.core.mail import get_connection
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
-import threading
 from django.db.models import Q, F, Case, When, IntegerField
 from django.db.models.functions import Lower, Trim
 from django.db.models.deletion import ProtectedError
@@ -375,6 +375,8 @@ def _send_confirmation_email(user, request):
         # Fallback to site root + path
         confirm_url = confirm_path
 
+    logger.info('URL de confirmacion generada para user=%s: %s', getattr(user, 'pk', None), confirm_url)
+
     subject = 'Confirma tu correo en Solucionarte'
     message = (
         f'Hola {user.username},\n\n'
@@ -383,34 +385,36 @@ def _send_confirmation_email(user, request):
         'Si no solicitaste este correo, ignóralo.\n'
     )
 
-    def _send():
-        try:
-            send_mail(
-                subject=subject,
-                message=message,
-                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@example.com'),
-                recipient_list=[user.email],
-                fail_silently=False,
-            )
-        except Exception:
-            logger.exception('Fallo al enviar correo de confirmación para user=%s', getattr(user, 'pk', None))
+    mailtrap_token = os.environ.get('MAILTRAP_API_TOKEN', '').strip()
+    if mailtrap_token:
+        mailtrap_host = os.environ.get('MAILTRAP_API_HOST', 'https://send.api.mailtrap.io').strip().rstrip('/')
+        payload = {
+            'from': {'email': getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@example.com')},
+            'to': [{'email': user.email}],
+            'subject': subject,
+            'text': message,
+        }
+        response = requests.post(
+            f'{mailtrap_host}/api/send',
+            headers={
+                'Authorization': f'Bearer {mailtrap_token}',
+                'Content-Type': 'application/json',
+            },
+            json=payload,
+            timeout=15,
+        )
+        response.raise_for_status()
+        return True
 
-    try:
-        t = threading.Thread(target=_send, daemon=True)
-        t.start()
-    except Exception:
-        # último recurso: intentar enviar sincrónicamente
-        try:
-            send_mail(
-                subject=subject,
-                message=message,
-                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@example.com'),
-                recipient_list=[user.email],
-                fail_silently=True,
-            )
-        except Exception:
-            logger.exception('Fallo crítico al enviar correo de confirmación para user=%s', getattr(user, 'pk', None))
-
+    connection = get_connection(timeout=getattr(settings, 'EMAIL_TIMEOUT', 12))
+    send_mail(
+        subject=subject,
+        message=message,
+        from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@example.com'),
+        recipient_list=[user.email],
+        fail_silently=False,
+        connection=connection,
+    )
     return True
 
 
@@ -1505,8 +1509,9 @@ def crear_usuario(request):
 
                     try:
                         _send_confirmation_email(nuevo_usuario, request)
-                    except Exception:
+                    except Exception as exc:
                         logger.exception('No se pudo enviar el correo de confirmación al usuario %s', nuevo_usuario.pk)
+                        raise RuntimeError('No se pudo enviar el correo de confirmación. Verifica la configuración de correo e intenta nuevamente.') from exc
 
                     messages.success(request, 'Usuario registrado correctamente. Revisa tu correo para confirmar la cuenta.')
                     return redirect('login')
