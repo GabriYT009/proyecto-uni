@@ -161,6 +161,7 @@
                             <th>Documento / RIF</th>
                             <th>Teléfono</th>
                             <th>Email</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -172,9 +173,18 @@
                             <td>{{ cliente.documento|default:cliente.rif_empresarial }}</td>
                             <td>{{ cliente.telefono_cliente }}</td>
                             <td>{{ cliente.email }}</td>
+                            <td>
+                                <form method="post" action="{% url 'eliminar_cliente' cliente.id %}" style="display:inline;" onsubmit="return confirm('¿Seguro que deseas eliminar este cliente? Esta acción no se puede deshacer.');">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                    <button type="submit" class="btn" style="background:#dc3545; padding:6px 12px; border-radius:6px; border:none; color:white; cursor:pointer;">
+                                        <i class="bi bi-trash"></i> Eliminar
+                                    </button>
+                                </form>
+                            </td>
                         </tr>
                         {% empty %}
-                        <tr><td colspan="6" style="text-align:center;">No hay clientes registrados.</td></tr>
+                        <tr><td colspan="7" style="text-align:center;">No hay clientes registrados.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>

@@ -8,6 +8,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.decorators import user_passes_test, login_required
+from django.views.decorators.http import require_POST
 from django.contrib.auth.models import User, Group
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
@@ -3570,6 +3571,21 @@ def todos_clientes(request):
             'email': email,
         }
     })
+
+
+@login_required
+@admin_only
+@require_POST
+def eliminar_cliente(request, cliente_id):
+    cliente = get_object_or_404(Cliente, pk=cliente_id)
+    nombre_cliente = str(cliente)
+    cliente.delete()
+    messages.success(request, f'Cliente "{nombre_cliente}" eliminado correctamente.')
+
+    next_url = (request.POST.get('next') or '').strip()
+    if next_url:
+        return redirect(next_url)
+    return redirect('todos_clientes')
 
 @login_required
 @admin_only

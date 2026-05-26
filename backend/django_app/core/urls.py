@@ -51,6 +51,7 @@ urlpatterns = [
     # Compatibilidad: URL heredada usada por algunos enlaces/scripts antiguos
     path('comprar_producto/<int:producto_id>/', RedirectView.as_view(url='/producto/%(producto_id)s/comprar/', permanent=False)),
     path('todos_clientes/', views.todos_clientes, name='todos_clientes'),
+    path('todos_clientes/<int:cliente_id>/eliminar/', views.eliminar_cliente, name='eliminar_cliente'),
     path('agregar_marca/', views.agregar_marca, name='agregar_marca'),
     path('factura/descargar/<int:pk>/', descargar_factura_ne, name='descargar_factura_ne'),
     # Nueva ruta para ajuste masivo de inventario
