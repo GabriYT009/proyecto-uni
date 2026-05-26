@@ -8,6 +8,7 @@ urlpatterns = [
     path('home/', views.home, name='home_page'),
     path('login/', views.login_view, name='login'),
     path('login', views.login_post, name='login_post'),
+    path('verificar-correo/', views.verificar_correo, name='verificar_correo'),
     path('recuperar-contrasena/', views.recuperar_contrasena, name='recuperar_contrasena'),
     path('cliente/registrar/', views.crear_cliente, name='registrar_cliente'),
     path('cliente/crear_usuario/', views.crear_usuario, name='crear_usuario'),

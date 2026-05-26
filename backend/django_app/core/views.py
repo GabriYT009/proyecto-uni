@@ -55,6 +55,7 @@ import random
 import string
 import datetime
 import unicodedata
+import secrets
 from .models import PasswordResetCode
 from django.contrib.auth.forms import AuthenticationForm
 from .bcv import obtener_tasa_cambio
@@ -393,6 +394,47 @@ def _send_profile_email_updated_notification(user):
         'Te confirmamos que el correo de tu cuenta fue actualizado correctamente.\n\n'
         f'Nuevo correo: {user.email}\n\n'
         'Si no realizaste este cambio, contacta al administrador de inmediato.\n'
+    )
+
+    send_mail(
+        subject=subject,
+        message=message,
+        from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@example.com'),
+        recipient_list=[user.email],
+        fail_silently=False,
+    )
+    return True
+
+
+def _verification_attempts_cache_key(user_id):
+    return f'core:email_verification:attempts:{int(user_id)}'
+
+
+def _generate_verification_code():
+    return f'{secrets.randbelow(1000000):06d}'
+
+
+def _issue_email_verification_code(user):
+    PasswordResetCode.objects.filter(user=user, used=False).delete()
+    code = _generate_verification_code()
+    PasswordResetCode.objects.create(
+        user=user,
+        code=code,
+        expires_at=timezone.now() + datetime.timedelta(minutes=10),
+    )
+    return code
+
+
+def _send_email_verification_code(user, code):
+    if not user or not getattr(user, 'email', ''):
+        return False
+
+    subject = 'Código de verificación de tu correo'
+    message = (
+        f'Hola {user.username},\n\n'
+        f'Tu código de verificación es: {code}\n\n'
+        'Este código vence en 10 minutos.\n'
+        'Si no solicitaste este correo, ignóralo.'
     )
 
     send_mail(
@@ -950,6 +992,13 @@ def login_post(request):
                     'date_joined': u.date_joined.isoformat() if hasattr(u, 'date_joined') else None,
                 }
 
+                if u and not u.is_active:
+                    request.session['pending_verification_user_id'] = u.pk
+                    request.session['pending_verification_email'] = u.email or ''
+                    request.session['pending_verification_username'] = u.username
+                    messages.info(request, 'Tu cuenta está pendiente de verificación. Revisa tu correo para ingresar el código.')
+                    return redirect('verificar_correo')
+
             logger.warning(
                 "Login failed. username=%s (repr=%s), user_exists=%s, fallback=%s/%s, info=%s",
                 username,
@@ -1456,6 +1505,8 @@ def crear_usuario(request):
                         password=password,
                         email=email
                     )
+                    nuevo_usuario.is_active = False
+                    nuevo_usuario.save(update_fields=['is_active'])
                     
                     # B. Asignar Grupo
                     group, _ = Group.objects.get_or_create(name='cliente')
@@ -1496,18 +1547,25 @@ def crear_usuario(request):
                             question=selected_question,
                             answer_hash=make_password(security_answer.lower()),
                         )
+
+                    verification_code = _issue_email_verification_code(nuevo_usuario)
                     
                     # Limpieza de sesión
                     if 'pending_email' in request.session:
                         del request.session['pending_email']
 
-                    try:
-                        _send_welcome_user_email(nuevo_usuario)
-                    except Exception:
-                        logger.exception('No se pudo enviar el correo de bienvenida al usuario %s', nuevo_usuario.pk)
+                request.session['pending_verification_user_id'] = nuevo_usuario.pk
+                request.session['pending_verification_email'] = email
+                request.session['pending_verification_username'] = username
 
-                    messages.success(request, 'Usuario registrado correctamente.')
-                    return redirect('login')
+                try:
+                    _send_email_verification_code(nuevo_usuario, verification_code)
+                    messages.success(request, 'Usuario registrado correctamente. Te enviamos un código de 6 dígitos para verificar tu correo.')
+                except Exception:
+                    logger.exception('No se pudo enviar el código de verificación al usuario %s', nuevo_usuario.pk)
+                    messages.warning(request, 'Tu cuenta se creó correctamente, pero no pudimos enviar el código. Puedes reenviarlo desde la pantalla de verificación.')
+
+                return redirect('verificar_correo')
 
             except Exception as e:
                 # Si algo falla en la base de datos
@@ -1525,6 +1583,15 @@ def crear_usuario(request):
             })
 
     # GET request...
+    pending_verification_user_id = request.session.get('pending_verification_user_id')
+    if pending_verification_user_id:
+        pending_user = User.objects.filter(pk=pending_verification_user_id, is_active=False).first()
+        if pending_user:
+            return redirect('verificar_correo')
+        request.session.pop('pending_verification_user_id', None)
+        request.session.pop('pending_verification_email', None)
+        request.session.pop('pending_verification_username', None)
+
     context = {
         'email': request.session.get('pending_email', ''),
         'security_questions': security_questions,
@@ -1532,6 +1599,83 @@ def crear_usuario(request):
         'cart_count': len(request.session.get('cart', []))
     }
     return render(request, 'core/crear_usuario.html', context)
+
+
+def verificar_correo(request):
+    user_id = request.session.get('pending_verification_user_id')
+    if not user_id:
+        messages.info(request, 'No tienes una verificación de correo pendiente.')
+        return redirect('login')
+
+    user = User.objects.filter(pk=user_id).first()
+    if not user:
+        request.session.pop('pending_verification_user_id', None)
+        request.session.pop('pending_verification_email', None)
+        request.session.pop('pending_verification_username', None)
+        messages.error(request, 'No encontramos la cuenta pendiente de verificación. Vuelve a registrarte.')
+        return redirect('crear_usuario')
+
+    if user.is_active:
+        request.session.pop('pending_verification_user_id', None)
+        request.session.pop('pending_verification_email', None)
+        request.session.pop('pending_verification_username', None)
+        messages.success(request, 'Tu cuenta ya está verificada. Puedes iniciar sesión.')
+        return redirect('login')
+
+    attempts_key = _verification_attempts_cache_key(user.pk)
+    email = request.session.get('pending_verification_email') or user.email
+
+    if request.method == 'POST':
+        action = (request.POST.get('action') or 'verify').strip().lower()
+
+        if action == 'resend':
+            code = _issue_email_verification_code(user)
+            cache.set(attempts_key, 0, 60 * 15)
+            try:
+                _send_email_verification_code(user, code)
+                messages.success(request, 'Enviamos un nuevo código de verificación a tu correo.')
+            except Exception:
+                logger.exception('No se pudo reenviar el código de verificación al usuario %s', user.pk)
+                messages.error(request, 'No se pudo reenviar el código. Intenta nuevamente en unos minutos.')
+            return redirect('verificar_correo')
+
+        verification_code = (request.POST.get('verification_code') or '').strip()
+        if not verification_code:
+            messages.error(request, 'Escribe el código de 6 dígitos que recibiste por correo.')
+        elif not verification_code.isdigit() or len(verification_code) != 6:
+            messages.error(request, 'El código debe tener exactamente 6 dígitos.')
+        else:
+            attempts = int(cache.get(attempts_key, 0) or 0)
+            if attempts >= 5:
+                messages.error(request, 'Has superado el límite de intentos. Solicita un nuevo código.')
+            else:
+                stored_code = PasswordResetCode.objects.filter(user=user, used=False).order_by('-created_at', '-id').first()
+                if not stored_code or not stored_code.is_valid():
+                    messages.error(request, 'El código expiró. Solicita uno nuevo.')
+                elif stored_code.code != verification_code:
+                    attempts += 1
+                    cache.set(attempts_key, attempts, 60 * 15)
+                    remaining_attempts = max(0, 5 - attempts)
+                    messages.error(request, f'Código incorrecto. Te quedan {remaining_attempts} intentos.')
+                else:
+                    stored_code.used = True
+                    stored_code.save(update_fields=['used'])
+                    user.is_active = True
+                    user.save(update_fields=['is_active'])
+
+                    request.session.pop('pending_verification_user_id', None)
+                    request.session.pop('pending_verification_email', None)
+                    request.session.pop('pending_verification_username', None)
+                    cache.delete(attempts_key)
+
+                    messages.success(request, 'Correo verificado correctamente. Ya puedes iniciar sesión.')
+                    return redirect('login')
+
+    return render(request, 'core/verificar_correo.html', {
+        'email': email,
+        'username': request.session.get('pending_verification_username', user.username),
+        'cart_count': len(request.session.get('cart', [])),
+    })
 
 
 def confirm_email(request, uidb64, token):

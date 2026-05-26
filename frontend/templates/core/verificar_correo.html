@@ -1,0 +1,63 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}?v=2">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Verificar correo</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="login-page password-recovery-page">
+    <a href="{% url 'home' %}" class="bar-logo-link" aria-label="Inicio">
+        <img id="logo" src="{% static 'core/logo nuevo.png' %}" alt="Solucionarte">
+    </a>
+
+    <div class="container auth-card login-card">
+        <h2>Verifica tu correo</h2>
+        {% include 'core/_messages.html' %}
+
+        <p style="margin-top:-4px; color: rgba(255,255,255,0.85); line-height:1.5;">
+            Te enviamos un código de 6 dígitos a <strong>{{ email }}</strong> para activar la cuenta de <strong>{{ username }}</strong>.
+        </p>
+
+        <form method="post" action="{% url 'verificar_correo' %}">
+            {% csrf_token %}
+
+            <div class="full">
+                <label for="verification_code">Código de verificación</label>
+                <input
+                    id="verification_code"
+                    name="verification_code"
+                    type="text"
+                    inputmode="numeric"
+                    autocomplete="one-time-code"
+                    maxlength="6"
+                    placeholder="123456"
+                    required
+                    style="letter-spacing:0.35em; text-align:center; font-size:1.15rem;"
+                >
+            </div>
+
+            <button type="submit" name="action" value="verify">Verificar</button>
+            <button type="submit" name="action" value="resend" formnovalidate style="margin-top:10px; background: transparent; color:#fff; border:1px solid rgba(255,255,255,0.24); box-shadow:none;">Reenviar código</button>
+
+            <div class="registrarse">
+                <a href="{% url 'login' %}">Volver al inicio de sesión</a>
+            </div>
+        </form>
+    </div>
+
+    <script src="{% static 'core/page-loader.js' %}"></script>
+    <script>
+        (function(){
+            var el = document.getElementById('verification_code');
+            if (!el) return;
+            el.addEventListener('input', function(){
+                var clean = el.value.replace(/\D/g, '').slice(0, 6);
+                if (el.value !== clean) el.value = clean;
+            });
+        })();
+    </script>
+</body>
+</html>
