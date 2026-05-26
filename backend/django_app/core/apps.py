@@ -12,9 +12,3 @@ class CoreConfig(AppConfig):
             from . import signals  # noqa: F401
         except Exception:
             pass
-
-        # Registrar chequeos de arranque para integraciones externas.
-        try:
-            from . import mailtrap_checks  # noqa: F401
-        except Exception:
-            pass

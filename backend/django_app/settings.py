@@ -167,10 +167,9 @@ if USE_CLOUDINARY_MEDIA:
         'cloudinary_storage',
     ]
 
-# Configuración de correo: usar variables de entorno en todos los ambientes para que
-# el flujo de recuperación de contraseña envíe correo en Railway sin depender de Cloudinary.
+# Configuración de correo: usar variables de entorno para enviar correos con el backend SMTP estándar.
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'no-reply@example.com')
-EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
 EMAIL_HOST = os.environ.get('EMAIL_HOST', '')
 EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '0') or 0)
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')

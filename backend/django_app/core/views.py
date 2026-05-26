@@ -316,52 +316,6 @@ def ajustar_inventario_masivo(request):
 logger = logging.getLogger(__name__)
 
 
-def _send_password_reset_email_via_mailtrap(user, code):
-    mailtrap_token = os.environ.get('MAILTRAP_API_TOKEN', '').strip()
-    if not mailtrap_token:
-        raise RuntimeError('MAILTRAP_API_TOKEN no está configurado')
-
-    mailtrap_host = os.environ.get('MAILTRAP_API_HOST', 'https://send.api.mailtrap.io').strip().rstrip('/')
-    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@example.com')
-    subject = 'Código de verificación para restablecer tu contraseña'
-    message = (
-        f'Hola {user.username},\n\n'
-        f'Tu código para restablecer la contraseña es: {code}\n\n'
-        'Este código vence en 15 minutos.\n'
-        'Si no solicitaste este correo, ignóralo.'
-    )
-
-    payload = {
-        'from': {'email': from_email},
-        'to': [{'email': user.email}],
-        'subject': subject,
-        'text': message,
-    }
-
-    response = requests.post(
-        f'{mailtrap_host}/api/send',
-        headers={
-            'Authorization': f'Bearer {mailtrap_token}',
-            'Content-Type': 'application/json',
-        },
-        json=payload,
-        timeout=15,
-    )
-    if response.status_code == 401:
-        raise RuntimeError('MAILTRAP_API_TOKEN no es válido o no tiene permiso para enviar correos')
-    response.raise_for_status()
-
-    try:
-        data = response.json()
-    except ValueError:
-        data = {}
-
-    if data and not data.get('success', True):
-        raise RuntimeError(f'Mailtrap devolvió error: {data}')
-
-    return data
-
-
 def _send_welcome_user_email(user):
     if not user or not getattr(user, 'email', ''):
         return False
