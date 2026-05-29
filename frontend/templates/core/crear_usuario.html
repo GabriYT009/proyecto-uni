@@ -121,8 +121,23 @@
     .register-form .campo-corto{ flex:0 0 120px; }
     .register-form .campo-largo{ flex:1 1 auto; }
     .register-form input[type="text"], .register-form input[type="email"], .register-form input[type="tel"], .register-form input[type="password"], .register-form select, .register-form textarea{
-        width:100%; padding:12px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.03); color:#fff;
+        width:100%; padding:12px 14px; border-radius:10px; border:1px solid rgba(0,0,0,0.08); background: #ffffff; color:#222; box-shadow: 0 1px 0 rgba(0,0,0,0.02) inset;
     }
+    .register-form input::placeholder, .register-form textarea::placeholder{ color: #9aa0a6; }
+    .register-form select{
+        -webkit-appearance: none; -moz-appearance: none; appearance: none;
+        background-image: linear-gradient(45deg, transparent 50%, #666 50%), linear-gradient(135deg, #666 50%, transparent 50%);
+        background-position: calc(100% - 18px) calc(1em + 2px), calc(100% - 13px) calc(1em + 2px);
+        background-size: 6px 6px, 6px 6px;
+        background-repeat: no-repeat;
+        padding-right:40px;
+        position: relative;
+        color: #222;
+    }
+    .register-form select:focus{ outline: 2px solid rgba(125,13,136,0.12); z-index:9999; position:relative; }
+    .register-form select option{ background: #fff; color: #222; }
+    /* Ensure dropdowns appear above other elements */
+    .register-form .full{ position: relative; }
     .register-form .password-field { position:relative }
     .register-form button[type="submit"]{ width:100%; padding:12px 18px; border-radius:10px; }
 
