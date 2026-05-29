@@ -1021,16 +1021,16 @@ def recuperar_contrasena(request):
                     form.add_error(None, 'No encontramos un usuario con esos datos.')
                 else:
                     # buscar las respuestas de seguridad para este usuario
-                    # Ordenar por pk para tener comportamiento determinista
-                    answers = list(UserSecurityAnswer.objects.filter(user=user).select_related('question').order_by('pk'))
+                    answers = list(UserSecurityAnswer.objects.filter(user=user).select_related('question'))
                     if not answers:
                         form.add_error(None, 'Este usuario no tiene preguntas de seguridad configuradas. Contacta al administrador.')
                     else:
-                        # Guardar temporalmente el id de usuario en la sesión para el siguiente paso
+                        # Elegir aleatoriamente UNA de las respuestas configuradas para mostrar al usuario
+                        selected = random.choice(answers)
                         request.session['pr_user_id'] = user.pk
-                        print("DEBUG: Stored user_id in session:", user.pk)
-                        # Pasamos las preguntas a la plantilla para que el usuario las responda
-                        questions = [a.question for a in answers]
+                        request.session['pr_question_id'] = selected.question.pk
+                        # Pasamos la única pregunta a la plantilla
+                        questions = [selected.question]
                         return render(request, 'core/recuperar_contrasena.html', {'form': form, 'questions': questions})
 
         # Paso 2: validar respuestas y resetear contraseña
@@ -1072,34 +1072,34 @@ def recuperar_contrasena(request):
                 if user is None:
                     form.add_error(None, 'No encontramos un usuario con esos datos.')
                 else:
-                    # cargar respuestas esperadas
-                    # Orden determinista al validar (evita mostrar pregunta en orden aleatorio)
-                    saved_answers = list(UserSecurityAnswer.objects.filter(user=user).select_related('question').order_by('pk'))
-                    if not saved_answers:
-                        form.add_error(None, 'Este usuario no tiene preguntas de seguridad configuradas. Contacta al administrador.')
+                    # Validar únicamente la pregunta seleccionada aleatoriamente en el paso anterior
+                    pr_qid = request.session.get('pr_question_id')
+                    if not pr_qid:
+                        form.add_error(None, 'No se encontró la pregunta a validar. Inicia de nuevo el proceso.')
                     else:
-                        questions = [a.question for a in saved_answers]
-                        all_ok = True
-                        for ua in saved_answers:
+                        ua = UserSecurityAnswer.objects.filter(user=user, question_id=pr_qid).select_related('question').first()
+                        if not ua:
+                            form.add_error(None, 'No encontramos la pregunta de seguridad para este usuario.')
+                        else:
                             posted = (request.POST.get(f'answer_{ua.question.pk}', '') or '').strip()
                             if not ua.check_answer(posted):
-                                all_ok = False
-                                break
-
-                        if not all_ok:
-                            form.add_error(None, 'Una o más respuestas son incorrectas.')
-                        else:
-                            user.set_password(new_password)
-                            user.save(update_fields=['password'])
-                            # limpiar la sesión
-                            try:
-                                del request.session['pr_user_id']
-                            except Exception:
-                                pass
-                            if request.user.is_authenticated and request.user.pk == user.pk:
-                                update_session_auth_hash(request, user)
-                            messages.success(request, 'Tu contraseña fue actualizada. Ahora puedes iniciar sesión.')
-                            return redirect('login')
+                                form.add_error(None, 'La respuesta es incorrecta.')
+                            else:
+                                user.set_password(new_password)
+                                user.save(update_fields=['password'])
+                                # limpiar la sesión
+                                try:
+                                    del request.session['pr_user_id']
+                                except Exception:
+                                    pass
+                                try:
+                                    del request.session['pr_question_id']
+                                except Exception:
+                                    pass
+                                if request.user.is_authenticated and request.user.pk == user.pk:
+                                    update_session_auth_hash(request, user)
+                                messages.success(request, 'Tu contraseña fue actualizada. Ahora puedes iniciar sesión.')
+                                return redirect('login')
     else:
         form = PasswordRecoveryForm()
 
@@ -1318,9 +1318,10 @@ def crear_usuario(request):
             username = (request.POST.get('username') or '').strip()
             password = request.POST.get('password')
             password_confirm = request.POST.get('password2') # Corregido nombre variable para claridad
-            security_question_id = (request.POST.get('security_question_id') or '').strip()
-            security_question_custom = (request.POST.get('security_question_custom') or '').strip()
-            security_answer = (request.POST.get('security_answer') or '').strip()
+            # security questions: esperamos tres pares (id/custom + answer)
+            security_q_ids = [ (request.POST.get(f'security_question_id_{i}') or '').strip() for i in (1,2,3) ]
+            security_q_customs = [ (request.POST.get(f'security_question_custom_{i}') or '').strip() for i in (1,2,3) ]
+            security_answers = [ (request.POST.get(f'security_answer_{i}') or '').strip() for i in (1,2,3) ]
             
             # Datos para el modelo Cliente
             tipo_documento = (request.POST.get('tipo_documento') or '').strip().upper()
@@ -1349,29 +1350,30 @@ def crear_usuario(request):
                     'email': email,
                 })
 
-            if security_feature_enabled and not security_question_id and not security_question_custom:
-                return render(request, 'core/crear_usuario.html', {
-                    'error': 'Selecciona o escribe una pregunta de seguridad.',
-                    'security_questions': security_questions,
-                    'security_feature_enabled': security_feature_enabled,
-                    'email': email,
-                })
-
-            if security_feature_enabled and security_question_id == 'custom' and not security_question_custom:
-                return render(request, 'core/crear_usuario.html', {
-                    'error': 'Escribe tu pregunta de seguridad personalizada.',
-                    'security_questions': security_questions,
-                    'security_feature_enabled': security_feature_enabled,
-                    'email': email,
-                })
-
-            if security_feature_enabled and not security_answer:
-                return render(request, 'core/crear_usuario.html', {
-                    'error': 'La respuesta de seguridad es obligatoria.',
-                    'security_questions': security_questions,
-                    'security_feature_enabled': security_feature_enabled,
-                    'email': email,
-                })
+            if security_feature_enabled:
+                # validar que las tres preguntas/resp estén presentes
+                for idx in (0,1,2):
+                    if not security_answers[idx]:
+                        return render(request, 'core/crear_usuario.html', {
+                            'error': f'La respuesta de seguridad #{idx+1} es obligatoria.',
+                            'security_questions': security_questions,
+                            'security_feature_enabled': security_feature_enabled,
+                            'email': email,
+                        })
+                    if not security_q_ids[idx] and not security_q_customs[idx]:
+                        return render(request, 'core/crear_usuario.html', {
+                            'error': f'Selecciona o escribe la pregunta de seguridad #{idx+1}.',
+                            'security_questions': security_questions,
+                            'security_feature_enabled': security_feature_enabled,
+                            'email': email,
+                        })
+                    if security_q_ids[idx] == 'custom' and not security_q_customs[idx]:
+                        return render(request, 'core/crear_usuario.html', {
+                            'error': f'Escribe la pregunta personalizada #{idx+1}.',
+                            'security_questions': security_questions,
+                            'security_feature_enabled': security_feature_enabled,
+                            'email': email,
+                        })
 
             if not cedula_dni:
                 return render(request, 'core/crear_usuario.html', {
@@ -1453,23 +1455,23 @@ def crear_usuario(request):
             # CREACIÓN (Usamos atomic para que se creen los dos o ninguno) 
             try:
                 with transaction.atomic():
-                    # A. Crear el Usuario de Django
+                    # A. Crear el Usuario de Django (activo inmediatamente)
                     nuevo_usuario = User.objects.create_user(
                         username=username,
                         password=password,
                         email=email
                     )
-                    nuevo_usuario.is_active = False
+                    nuevo_usuario.is_active = True
                     nuevo_usuario.save(update_fields=['is_active'])
-                    
+
                     # B. Asignar Grupo
                     group, _ = Group.objects.get_or_create(name='cliente')
                     nuevo_usuario.groups.add(group)
 
                     # C. Crear el Cliente y ENLAZARLO
                     Cliente.objects.create(
-                        user=nuevo_usuario,   # <--- AQUÍ OCURRE EL ENLACE con el Usuario
-                        documento=cedula,     # Aquí guardas la cédula
+                        user=nuevo_usuario,
+                        documento=cedula,
                         nombre_cliente=nombre,
                         apellido_cliente=apellido,
                         direccion=direccion,
@@ -1477,49 +1479,46 @@ def crear_usuario(request):
                         email=email
                     )
 
-                    # D. Guardar pregunta y respuesta de seguridad
+                    # D. Guardar tres preguntas y respuestas de seguridad (si está habilitado)
                     if security_feature_enabled:
-                        selected_question = None
-                        if security_question_id and security_question_id != 'custom':
-                            selected_question = SecurityQuestion.objects.filter(pk=security_question_id).first()
-
-                        if selected_question is None and security_question_custom:
-                            selected_question, _ = SecurityQuestion.objects.get_or_create(text=security_question_custom)
-
-                        if selected_question is None:
-                            raise ValueError('Pregunta de seguridad inválida.')
-
-                        # Asegurar que solo exista una respuesta de seguridad por usuario: eliminar previas
+                        # Limpiar respuestas previas si las hay
                         try:
                             UserSecurityAnswer.objects.filter(user=nuevo_usuario).delete()
                         except Exception:
-                            # Si falla la eliminación por cualquier motivo, continuar con creación
-                            logger.exception('No se pudo limpiar UserSecurityAnswer existente para el usuario %s', nuevo_usuario.pk)
+                            logger.exception('No se pudo limpiar UserSecurityAnswer previo para usuario %s', nuevo_usuario.pk)
 
-                        UserSecurityAnswer.objects.create(
-                            user=nuevo_usuario,
-                            question=selected_question,
-                            answer_hash=make_password(security_answer.lower()),
-                        )
+                        # Recolectar 3 respuestas: fields expected security_question_id_1..3, security_question_custom_1..3, security_answer_1..3
+                        for idx in (1, 2, 3):
+                            qid = (request.POST.get(f'security_question_id_{idx}') or '').strip()
+                            qcustom = (request.POST.get(f'security_question_custom_{idx}') or '').strip()
+                            qans = (request.POST.get(f'security_answer_{idx}') or '').strip()
 
-                    verification_code = _issue_email_verification_code(nuevo_usuario)
-                    
+                            if not qans:
+                                raise ValueError(f'Respuesta de seguridad #{idx} es obligatoria.')
+
+                            selected_question = None
+                            if qid and qid != 'custom':
+                                selected_question = SecurityQuestion.objects.filter(pk=qid).first()
+
+                            if selected_question is None and qcustom:
+                                selected_question, _ = SecurityQuestion.objects.get_or_create(text=qcustom)
+
+                            if selected_question is None:
+                                raise ValueError(f'Pregunta de seguridad #{idx} inválida.')
+
+                            UserSecurityAnswer.objects.create(
+                                user=nuevo_usuario,
+                                question=selected_question,
+                                answer_hash=make_password(qans.lower()),
+                            )
+
                     # Limpieza de sesión
                     if 'pending_email' in request.session:
                         del request.session['pending_email']
 
-                request.session['pending_verification_user_id'] = nuevo_usuario.pk
-                request.session['pending_verification_email'] = email
-                request.session['pending_verification_username'] = username
-
-                try:
-                    _send_email_verification_code(nuevo_usuario, verification_code)
-                    messages.success(request, 'Usuario registrado correctamente. Te enviamos un código de 6 dígitos para verificar tu correo.')
-                except Exception:
-                    logger.exception('No se pudo enviar el código de verificación al usuario %s', nuevo_usuario.pk)
-                    messages.warning(request, 'Tu cuenta se creó correctamente, pero no pudimos enviar el código. Puedes reenviarlo desde la pantalla de verificación.')
-
-                return redirect('verificar_correo')
+                # Registro completado: usuario activo, redirigir a login
+                messages.success(request, 'Usuario registrado correctamente. Ya puedes iniciar sesión.')
+                return redirect('login')
 
             except Exception as e:
                 # Si algo falla en la base de datos

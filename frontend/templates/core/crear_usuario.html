@@ -177,9 +177,10 @@
             </div>
 
             {% if security_feature_enabled %}
+                {% for i in "123" %}
                 <div class="full">
-                    <label for="security_question_id">Pregunta de seguridad</label>
-                    <select id="security_question_id" name="security_question_id" required>
+                    <label for="security_question_id_{{ forloop.counter }}">Pregunta de seguridad #{{ forloop.counter }}</label>
+                    <select id="security_question_id_{{ forloop.counter }}" name="security_question_id_{{ forloop.counter }}" required>
                         <option value="">Selecciona una pregunta</option>
                         {% for q in security_questions %}
                             <option value="{{ q.pk }}">{{ q.text }}</option>
@@ -188,15 +189,16 @@
                     </select>
                 </div>
 
-                <div class="full" id="security-question-custom-wrap" style="display:none;">
-                    <label for="security_question_custom">Escribe tu pregunta de seguridad</label>
-                    <input id="security_question_custom" name="security_question_custom" type="text" maxlength="255" placeholder="Ejemplo: ¿Cuál fue mi primer trabajo?">
+                <div class="full" id="security-question-custom-wrap-{{ forloop.counter }}" style="display:none;">
+                    <label for="security_question_custom_{{ forloop.counter }}">Escribe tu pregunta de seguridad #{{ forloop.counter }}</label>
+                    <input id="security_question_custom_{{ forloop.counter }}" name="security_question_custom_{{ forloop.counter }}" type="text" maxlength="255" placeholder="Ejemplo: ¿Cuál fue mi primer trabajo?">
                 </div>
 
                 <div class="full span-2">
-                    <label for="security_answer">Respuesta de seguridad</label>
-                    <input id="security_answer" name="security_answer" type="text" maxlength="255" placeholder="Tu respuesta" required>
+                    <label for="security_answer_{{ forloop.counter }}">Respuesta de seguridad #{{ forloop.counter }}</label>
+                    <input id="security_answer_{{ forloop.counter }}" name="security_answer_{{ forloop.counter }}" type="text" maxlength="255" placeholder="Tu respuesta" required>
                 </div>
+                {% endfor %}
             {% else %}
                 <div class="full span-2" style="color:#5c4d68; font-size:14px;">
                     Las preguntas de seguridad estaran disponibles despues de aplicar migraciones en el servidor.
@@ -227,7 +229,7 @@
                 </div>
             </div>
             <div class="full span-2" style="color:#5c4d68; font-size:14px; line-height:1.4;">
-                Al confirmar, te enviaremos un código de 6 dígitos por correo para activar tu cuenta.
+                Al confirmar, tu cuenta quedará activa y deberás responder una de tus tres preguntas de seguridad en caso de recuperar la contraseña.
             </div>
             <button type="submit">Confirmar</button>
             <div class="privacidad-tooltip-container">
@@ -247,20 +249,25 @@
     </div>
     <script>
         (function(){
-            var questionSelect = document.getElementById('security_question_id');
-            var customWrap = document.getElementById('security-question-custom-wrap');
-            var customInput = document.getElementById('security_question_custom');
-            if (!questionSelect || !customWrap || !customInput) return;
+            // Manejar 3 selectores de pregunta/entrada custom
+            for (var i=1;i<=3;i++){
+                (function(idx){
+                    var questionSelect = document.getElementById('security_question_id_' + idx);
+                    var customWrap = document.getElementById('security-question-custom-wrap-' + idx);
+                    var customInput = document.getElementById('security_question_custom_' + idx);
+                    if (!questionSelect || !customWrap || !customInput) return;
 
-            function toggleCustomQuestion(){
-                var isCustom = questionSelect.value === 'custom';
-                customWrap.style.display = isCustom ? '' : 'none';
-                customInput.required = isCustom;
-                if (!isCustom) customInput.value = '';
+                    function toggleCustom(){
+                        var isCustom = questionSelect.value === 'custom';
+                        customWrap.style.display = isCustom ? '' : 'none';
+                        customInput.required = isCustom;
+                        if (!isCustom) customInput.value = '';
+                    }
+
+                    questionSelect.addEventListener('change', toggleCustom);
+                    toggleCustom();
+                })(i);
             }
-
-            questionSelect.addEventListener('change', toggleCustomQuestion);
-            toggleCustomQuestion();
         })();
     </script>
     <script>
