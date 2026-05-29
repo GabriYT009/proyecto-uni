@@ -104,6 +104,35 @@
         }
     </style>
 </head>
+<style>
+    /* Layout tweaks for register page: center card and improve responsiveness */
+    .register-card{
+        max-width: 880px;
+        margin: 48px auto;
+        padding: 28px 32px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+        border-radius: 12px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+    }
+    .register-card h2{ text-align:center; margin-bottom:18px; }
+    .register-form{ display:block; width:100%; }
+    .register-form .full{ width:100%; box-sizing:border-box; }
+    .register-form .fila-cedula{ display:flex; gap:12px; }
+    .register-form .campo-corto{ flex:0 0 120px; }
+    .register-form .campo-largo{ flex:1 1 auto; }
+    .register-form input[type="text"], .register-form input[type="email"], .register-form input[type="tel"], .register-form input[type="password"], .register-form select, .register-form textarea{
+        width:100%; padding:12px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.03); color:#fff;
+    }
+    .register-form .password-field { position:relative }
+    .register-form button[type="submit"]{ width:100%; padding:12px 18px; border-radius:10px; }
+
+    @media (max-width: 900px){
+        .register-card{ margin:18px 14px; padding:20px; }
+        .register-form .fila-cedula{ flex-direction:column; }
+        .register-form .campo-corto{ flex: none; width:100%; }
+    }
+</style>
+</head>
 <body class="login-page">
     {% if user.is_authenticated %}
         <a href="{% url 'home' %}" class="bar-logo-link" aria-label="Inicio">
