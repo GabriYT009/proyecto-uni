@@ -56,7 +56,7 @@ import string
 import datetime
 import unicodedata
 import secrets
-from .models import PasswordResetCode
+# Password reset codes flow disabled for registration verification
 from django.contrib.auth.forms import AuthenticationForm
 from .bcv import obtener_tasa_cambio
 from .NotaE import Generar_NE
@@ -365,40 +365,18 @@ def _verification_attempts_cache_key(user_id):
 
 
 def _generate_verification_code():
-    return f'{secrets.randbelow(1000000):06d}'
+    # Verification-by-code flow disabled. Return empty string.
+    return ''
 
 
 def _issue_email_verification_code(user):
-    PasswordResetCode.objects.filter(user=user, used=False).delete()
-    code = _generate_verification_code()
-    PasswordResetCode.objects.create(
-        user=user,
-        code=code,
-        expires_at=timezone.now() + datetime.timedelta(minutes=10),
-    )
-    return code
+    # Disabled: do not issue any verification codes.
+    return None
 
 
 def _send_email_verification_code(user, code):
-    if not user or not getattr(user, 'email', ''):
-        return False
-
-    subject = 'Código de verificación de tu correo'
-    message = (
-        f'Hola {user.username},\n\n'
-        f'Tu código de verificación es: {code}\n\n'
-        'Este código vence en 10 minutos.\n'
-        'Si no solicitaste este correo, ignóralo.'
-    )
-
-    send_mail(
-        subject=subject,
-        message=message,
-        from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@example.com'),
-        recipient_list=[user.email],
-        fail_silently=False,
-    )
-    return True
+    # Disabled: do not send verification codes by email.
+    return False
 
 HOME_PRODUCTS_LIMIT = 24
 ALLOWED_CATEGORY_NAMES = [
@@ -947,11 +925,8 @@ def login_post(request):
                 }
 
                 if u and not u.is_active:
-                    request.session['pending_verification_user_id'] = u.pk
-                    request.session['pending_verification_email'] = u.email or ''
-                    request.session['pending_verification_username'] = u.username
-                    messages.info(request, 'Tu cuenta está pendiente de verificación. Revisa tu correo para ingresar el código.')
-                    return redirect('verificar_correo')
+                    # No usar flujo de verificación por código: informar y pedir soporte
+                    return render(request, 'core/index.html', {'error': 'Cuenta inactiva. Contacta al administrador para asistencia.'})
 
             logger.warning(
                 "Login failed. username=%s (repr=%s), user_exists=%s, fallback=%s/%s, info=%s",
@@ -1536,14 +1511,6 @@ def crear_usuario(request):
             })
 
     # GET request...
-    pending_verification_user_id = request.session.get('pending_verification_user_id')
-    if pending_verification_user_id:
-        pending_user = User.objects.filter(pk=pending_verification_user_id, is_active=False).first()
-        if pending_user:
-            return redirect('verificar_correo')
-        request.session.pop('pending_verification_user_id', None)
-        request.session.pop('pending_verification_email', None)
-        request.session.pop('pending_verification_username', None)
 
     context = {
         'email': request.session.get('pending_email', ''),
@@ -1555,80 +1522,12 @@ def crear_usuario(request):
 
 
 def verificar_correo(request):
-    user_id = request.session.get('pending_verification_user_id')
-    if not user_id:
-        messages.info(request, 'No tienes una verificación de correo pendiente.')
-        return redirect('login')
-
-    user = User.objects.filter(pk=user_id).first()
-    if not user:
-        request.session.pop('pending_verification_user_id', None)
-        request.session.pop('pending_verification_email', None)
-        request.session.pop('pending_verification_username', None)
-        messages.error(request, 'No encontramos la cuenta pendiente de verificación. Vuelve a registrarte.')
-        return redirect('crear_usuario')
-
-    if user.is_active:
-        request.session.pop('pending_verification_user_id', None)
-        request.session.pop('pending_verification_email', None)
-        request.session.pop('pending_verification_username', None)
-        messages.success(request, 'Tu cuenta ya está verificada. Puedes iniciar sesión.')
-        return redirect('login')
-
-    attempts_key = _verification_attempts_cache_key(user.pk)
-    email = request.session.get('pending_verification_email') or user.email
-
-    if request.method == 'POST':
-        action = (request.POST.get('action') or 'verify').strip().lower()
-
-        if action == 'resend':
-            code = _issue_email_verification_code(user)
-            cache.set(attempts_key, 0, 60 * 15)
-            try:
-                _send_email_verification_code(user, code)
-                messages.success(request, 'Enviamos un nuevo código de verificación a tu correo.')
-            except Exception:
-                logger.exception('No se pudo reenviar el código de verificación al usuario %s', user.pk)
-                messages.error(request, 'No se pudo reenviar el código. Intenta nuevamente en unos minutos.')
-            return redirect('verificar_correo')
-
-        verification_code = (request.POST.get('verification_code') or '').strip()
-        if not verification_code:
-            messages.error(request, 'Escribe el código de 6 dígitos que recibiste por correo.')
-        elif not verification_code.isdigit() or len(verification_code) != 6:
-            messages.error(request, 'El código debe tener exactamente 6 dígitos.')
-        else:
-            attempts = int(cache.get(attempts_key, 0) or 0)
-            if attempts >= 5:
-                messages.error(request, 'Has superado el límite de intentos. Solicita un nuevo código.')
-            else:
-                stored_code = PasswordResetCode.objects.filter(user=user, used=False).order_by('-created_at', '-id').first()
-                if not stored_code or not stored_code.is_valid():
-                    messages.error(request, 'El código expiró. Solicita uno nuevo.')
-                elif stored_code.code != verification_code:
-                    attempts += 1
-                    cache.set(attempts_key, attempts, 60 * 15)
-                    remaining_attempts = max(0, 5 - attempts)
-                    messages.error(request, f'Código incorrecto. Te quedan {remaining_attempts} intentos.')
-                else:
-                    stored_code.used = True
-                    stored_code.save(update_fields=['used'])
-                    user.is_active = True
-                    user.save(update_fields=['is_active'])
-
-                    request.session.pop('pending_verification_user_id', None)
-                    request.session.pop('pending_verification_email', None)
-                    request.session.pop('pending_verification_username', None)
-                    cache.delete(attempts_key)
-
-                    messages.success(request, 'Correo verificado correctamente. Ya puedes iniciar sesión.')
-                    return redirect('login')
-
-    return render(request, 'core/verificar_correo.html', {
-        'email': email,
-        'username': request.session.get('pending_verification_username', user.username),
-        'cart_count': len(request.session.get('cart', [])),
-    })
+    # El flujo de verificación por código fue removido. Limpiamos cualquier rastro y redirigimos.
+    request.session.pop('pending_verification_user_id', None)
+    request.session.pop('pending_verification_email', None)
+    request.session.pop('pending_verification_username', None)
+    messages.info(request, 'La verificación por código ha sido desactivada. Usa tus credenciales o contacta soporte.')
+    return redirect('login')
 
 
 def confirm_email(request, uidb64, token):
