@@ -108,14 +108,16 @@
     /* Smaller, centered register card for better display */
     .register-wrapper{ min-height: calc(100vh - 40px); display:flex; align-items:flex-start; justify-content:center; padding-top:28px; padding-bottom:28px; }
     .register-card{
-        max-width: 680px;
-        width: 100%;
+        /* Make the card narrower to avoid overflowing the page */
+        max-width: 560px;
+        width: min(560px, 92%);
         margin: 0 auto;
-        padding: 18px 20px;
+        padding: 16px 18px;
         box-shadow: 0 8px 24px rgba(0,0,0,0.12);
         border-radius: 12px;
         background: #ffffff;
         color: #222;
+        overflow: hidden;
     }
     .register-card h2{ text-align:center; margin-bottom:14px; font-size:20px }
     .register-form{ display:block; width:100%; font-size:14px }
