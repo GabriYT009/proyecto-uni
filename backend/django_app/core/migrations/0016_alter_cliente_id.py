@@ -17,33 +17,35 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # 1. AHORA SÍ: Borramos la llave vieja usando el nombre EXACTO del error
-        migrations.RunSQL(
-            sql="ALTER TABLE core_nota_entrega DROP FOREIGN KEY core_nota_entrega_cliente_id_b5d1b37f_fk;"
-        ),
-
-        # 2. Mantenemos esto (es seguro repetirlo)
-        migrations.RunSQL(
-            sql="ALTER TABLE core_nota_entrega MODIFY cliente_id VARCHAR(45);"
-        ),
-
-        # 3. Mantenemos esto (es seguro repetirlo)
+        # 1. Dejamos que Django haga la magia de las columnas automáticamente.
+        # Él se encargará de pasar ambas columnas a VARCHAR y reconectarlas.
         migrations.AlterField(
             model_name='cliente',
             name='id',
             field=models.CharField(max_length=45, primary_key=True, serialize=False),
         ),
 
-        # 4. COMENTADO: Como el intento anterior falló en el paso 5, 
-        # este paso ya se ejecutó y la nueva llave en cascada YA EXISTE en MySQL.
-        # migrations.RunSQL(
-        #    sql="""
-        #    ALTER TABLE core_nota_entrega ADD CONSTRAINT core_nota_entrega_cliente_fk_cascade 
-        #    FOREIGN KEY (cliente_id) REFERENCES core_cliente(id) 
-        #    ON UPDATE CASCADE;
-        #    """
-        # ),
-
-        # 5. Pasamos los datos finalmente
-        migrations.RunPython(pasar_documento_a_id),
+        # 2. Pasamos los datos usando SQL Puro y apagando los chequeos temporalmente.
+        migrations.RunSQL([
+            # Apagamos las alarmas de MySQL
+            "SET FOREIGN_KEY_CHECKS=0;",
+            
+            # Actualizamos a los hijos (las notas de entrega)
+            """
+            UPDATE core_nota_entrega ne
+            INNER JOIN core_cliente c ON ne.cliente_id = c.id
+            SET ne.cliente_id = c.documento
+            WHERE c.documento IS NOT NULL AND c.documento != '';
+            """,
+            
+            # Actualizamos a los padres (los clientes)
+            """
+            UPDATE core_cliente 
+            SET id = documento 
+            WHERE documento IS NOT NULL AND documento != '';
+            """,
+            
+            # Volvemos a encender las alarmas de MySQL
+            "SET FOREIGN_KEY_CHECKS=1;"
+        ])
     ]
