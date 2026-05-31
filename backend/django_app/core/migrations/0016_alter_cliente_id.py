@@ -17,35 +17,60 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # 1. Dejamos que Django haga la magia de las columnas automáticamente.
-        # Él se encargará de pasar ambas columnas a VARCHAR y reconectarlas.
-        migrations.AlterField(
-            model_name='cliente',
-            name='id',
-            field=models.CharField(max_length=45, primary_key=True, serialize=False),
-        ),
+        migrations.RunSQL(
+            # Le pasamos todo como un solo gran bloque de SQL
+            sql="""
+            -- 1. Apagamos la seguridad (Esta vez de verdad)
+            SET FOREIGN_KEY_CHECKS = 0;
 
-        # 2. Pasamos los datos usando SQL Puro y apagando los chequeos temporalmente.
-        migrations.RunSQL([
-            # Apagamos las alarmas de MySQL
-            "SET FOREIGN_KEY_CHECKS=0;",
-            
-            # Actualizamos a los hijos (las notas de entrega)
-            """
+            -- 2. Matamos la llave foránea problemática
+            ALTER TABLE core_nota_entrega 
+            DROP FOREIGN KEY core_nota_entrega_cliente_id_b5d1b37f_fk;
+
+            -- 3. Convertimos la columna hija a VARCHAR
+            ALTER TABLE core_nota_entrega 
+            MODIFY cliente_id VARCHAR(45);
+
+            -- 4. Convertimos la columna padre a VARCHAR
+            ALTER TABLE core_cliente 
+            MODIFY id VARCHAR(45);
+
+            -- 5. Actualizamos los datos de los hijos (usando la cédula del padre)
             UPDATE core_nota_entrega ne
             INNER JOIN core_cliente c ON ne.cliente_id = c.id
             SET ne.cliente_id = c.documento
             WHERE c.documento IS NOT NULL AND c.documento != '';
-            """,
-            
-            # Actualizamos a los padres (los clientes)
-            """
+
+            -- 6. Actualizamos los datos de los padres (la nueva llave primaria)
             UPDATE core_cliente 
             SET id = documento 
             WHERE documento IS NOT NULL AND documento != '';
+
+            -- 7. Volvemos a conectar las tablas (Ahora que los datos cuadran)
+            ALTER TABLE core_nota_entrega 
+            ADD CONSTRAINT core_nota_entrega_cliente_id_b5d1b37f_fk 
+            FOREIGN KEY (cliente_id) REFERENCES core_cliente(id) 
+            ON UPDATE CASCADE;
+
+            -- 8. Encendemos la seguridad de nuevo
+            SET FOREIGN_KEY_CHECKS = 1;
             """,
-            
-            # Volvemos a encender las alarmas de MySQL
-            "SET FOREIGN_KEY_CHECKS=1;"
-        ])
+            # El reverse_sql le dice a Django que no intente deshacer esto si falla,
+            # obligándolo a ir hacia adelante.
+            reverse_sql=migrations.RunSQL.noop
+        ),
+        
+        # Le decimos a Django a nivel de código que la tabla ya cambió 
+        # (Esto actualiza su estado interno, pero no ejecuta comandos en MySQL 
+        # porque state_operations solo afecta a Python).
+        migrations.SeparateDatabaseAndState(
+            database_operations=[],
+            state_operations=[
+                migrations.AlterField(
+                    model_name='cliente',
+                    name='id',
+                    field=models.CharField(max_length=45, primary_key=True, serialize=False),
+                ),
+            ]
+        )
     ]
