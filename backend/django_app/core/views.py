@@ -3067,7 +3067,7 @@ def pago_movil(request):
 
     try:
         # Intentamos acceder al perfil de cliente directamente conectado a este usuario
-        cliente = request.user.cliente 
+        cliente = request.user.cliente.id 
         cedula = getattr(cliente, 'documento', '') or ''
         telefono = getattr(cliente, 'telefono_cliente', None) or getattr(cliente, 'telefono', '') or ''
         
