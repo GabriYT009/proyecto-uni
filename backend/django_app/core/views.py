@@ -2908,8 +2908,9 @@ def comprar_carrito(request):
     try:
         with transaction.atomic():
             # PASO 1: Obtener cliente y crear la cabecera (Nota_Entrega)
+            cliente_obj=Cliente.objects.filter(id=getattr(request.user, 'cliente_id', None))
+            #cliente_obj = getattr(request.user, 'cliente', None)
             
-            cliente_obj = getattr(request.user.cliente.id, 'cliente', None)
             metodo_pago = MetodoPago.objects.filter(nombre_metodo_pago__iexact='Pago Móvil').first() or MetodoPago.objects.filter(nombre_metodo_pago__iexact='PAGO MOVIL').first()
             nota = Nota_Entrega.objects.create(
                 cliente=cliente_obj,
