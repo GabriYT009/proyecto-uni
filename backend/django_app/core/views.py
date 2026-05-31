@@ -2908,7 +2908,7 @@ def comprar_carrito(request):
     try:
         with transaction.atomic():
             # PASO 1: Obtener cliente y crear la cabecera (Nota_Entrega)
-            cliente_obj = getattr(request.user.id, 'cliente', None)
+            cliente_obj = getattr(request.user, 'cliente', None)
             metodo_pago = MetodoPago.objects.filter(nombre_metodo_pago__iexact='Pago Móvil').first() or MetodoPago.objects.filter(nombre_metodo_pago__iexact='PAGO MOVIL').first()
             nota = Nota_Entrega.objects.create(
                 cliente=cliente_obj,
@@ -3041,7 +3041,7 @@ def comprar_carrito(request):
         return redirect('carrito')
     except Exception as e:
         logger.error(f'Error en comprar_carrito para usuario {request.user.username}: {e}', exc_info=True)
-        messages.error(request, f'Error al procesar la compras: {e}')
+        messages.error(request, f'Error al procesar la compra: {e}')
         return redirect('carrito')
 
     return redirect('pago_exitoso', salida_id=nota.pk)
