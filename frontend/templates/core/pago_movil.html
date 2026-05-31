@@ -115,7 +115,7 @@
             {% csrf_token %}
             <div class="field">
                 <label for="documento">Cédula / Documento</label>
-                <input type="text" id="documento" name="documento" required value="{{ cedula }}" maxlength="20" autocomplete="off" />
+                <input type="text" id="documento" name="documento" required value="{{ cedula }}" maxlength="20" autocomplete="on" />
                 <small class="field-error" id="documentoError" style="display:none; color:#b02a37; margin-top:6px;"></small>
             </div>
             <div class="field">
