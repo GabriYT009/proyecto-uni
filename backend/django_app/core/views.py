@@ -1408,7 +1408,7 @@ def crear_usuario(request):
                     'email': email,
                 })
 
-            if cedula and Cliente.objects.filter(documento=cedula).exists():
+            if cedula and Cliente.objects.filter(id=cedula).exists():
                 return render(request, 'core/crear_usuario.html', {
                     'error': 'La cédula ya está registrada.',
                     'security_questions': security_questions,
@@ -1435,7 +1435,7 @@ def crear_usuario(request):
                     # C. Crear el Cliente y ENLAZARLO
                     Cliente.objects.create(
                         user=nuevo_usuario,
-                        documento=cedula,
+                        id=cedula,
                         nombre_cliente=nombre,
                         apellido_cliente=apellido,
                         direccion=direccion,
@@ -1962,9 +1962,9 @@ def caja(request):
     from .models import Cliente
     clientes = list(
         Cliente.objects
-        .exclude(documento__isnull=True)
-        .exclude(documento__exact='')
-        .values('documento', 'nombre_cliente', 'apellido_cliente', 'direccion', 'telefono_cliente')
+        .exclude(id__isnull=True)
+        .exclude(id__exact='')
+        .values('id', 'nombre_cliente', 'apellido_cliente', 'direccion', 'telefono_cliente')
     )
 
 
@@ -2037,7 +2037,7 @@ def cobrar_caja(request):
             cliente_datos = None
             if cliente_doc:
                 # Usamos documento=cliente_doc para buscar coincidencia exacta
-                cliente_datos = Cliente.objects.filter(documento=cliente_doc).first() 
+                cliente_datos = Cliente.objects.filter(id=cliente_doc).first() 
 
             # Crear la Nota de Entrega
             nota_kwargs = {
@@ -2919,7 +2919,7 @@ def comprar_carrito(request):
                 bcv=valor_bcv,
                 tipo_pago='PAGO MOVIL',
                 metodo_pago=metodo_pago,
-                cliente_documento=documento[:45],
+                cliente_id=documento[:45],
                 cliente_telefono=mobile_phone[:15],
                 referencia_pago=referencia,
             )
