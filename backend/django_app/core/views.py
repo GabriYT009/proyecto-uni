@@ -2921,7 +2921,7 @@ def comprar_carrito(request):
                 bcv=valor_bcv,
                 tipo_pago='PAGO MOVIL',
                 metodo_pago=metodo_pago,
-                cliente_id=documento[:45],
+                #cliente_id=documento[:45],
                 cliente_telefono=mobile_phone[:15],
                 referencia_pago=referencia,
             )
