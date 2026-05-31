@@ -17,14 +17,14 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # 1. Rompemos la relación actual usando el nombre exacto de tu SQL
+        # 1. Rompemos la relación actual usando EL NOMBRE EXACTO de tu Railway
         migrations.RunSQL(
-            sql="ALTER TABLE nota_entrega DROP FOREIGN KEY nota_entrega_cliente_id_b5d1b37f_fk_cliente_id;"
+            sql="ALTER TABLE core_nota_entrega DROP FOREIGN KEY core_nota_entrega_cliente_id_b5d1b37f_fk_core_cliente_id;"
         ),
 
         # 2. Preparamos la columna hija para recibir texto
         migrations.RunSQL(
-            sql="ALTER TABLE nota_entrega MODIFY cliente_id VARCHAR(45);"
+            sql="ALTER TABLE core_nota_entrega MODIFY cliente_id VARCHAR(45);"
         ),
 
         # 3. La operación de Django para cambiar la tabla cliente
@@ -34,15 +34,15 @@ class Migration(migrations.Migration):
             field=models.CharField(max_length=45, primary_key=True, serialize=False),
         ),
 
-        # 4. Reconectamos las tablas con CASCADE (La magia sucede aquí)
+        # 4. Reconectamos las tablas con CASCADE apuntando a core_cliente
         migrations.RunSQL(
             sql="""
-            ALTER TABLE nota_entrega ADD CONSTRAINT nota_entrega_cliente_fk_cascade 
-            FOREIGN KEY (cliente_id) REFERENCES cliente(id) 
+            ALTER TABLE core_nota_entrega ADD CONSTRAINT core_nota_entrega_cliente_fk_cascade 
+            FOREIGN KEY (cliente_id) REFERENCES core_cliente(id) 
             ON UPDATE CASCADE;
             """
         ),
 
-        # 5. Pasamos los datos. Al actualizarse en cliente, MySQL actualizará nota_entrega automáticamente.
+        # 5. Pasamos los datos
         migrations.RunPython(pasar_documento_a_id),
     ]
