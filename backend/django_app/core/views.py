@@ -3041,7 +3041,7 @@ def comprar_carrito(request):
         return redirect('carrito')
     except Exception as e:
         logger.error(f'Error en comprar_carrito para usuario {request.user.username}: {e}', exc_info=True)
-        messages.error(request, f'Error al procesar la compra: {e}')
+        messages.error(request, f'Error al procesar la compras: {e}')
         return redirect('carrito')
 
     return redirect('pago_exitoso', salida_id=nota.pk)
