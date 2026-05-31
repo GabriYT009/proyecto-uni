@@ -18,9 +18,9 @@ class Migration(migrations.Migration):
 
     operations = [
         # 1. Rompemos la relación actual usando EL NOMBRE EXACTO de tu Railway
-        migrations.RunSQL(
-            sql="ALTER TABLE core_nota_entrega DROP FOREIGN KEY core_nota_entrega_cliente_id_b5d1b37f_fk_core_cliente_id;"
-        ),
+        #migrations.RunSQL(
+            #sql="ALTER TABLE core_nota_entrega DROP FOREIGN KEY core_nota_entrega_cliente_id_b5d1b37f_fk_core_cliente_id;"
+        #),
 
         # 2. Preparamos la columna hija para recibir texto
         migrations.RunSQL(
