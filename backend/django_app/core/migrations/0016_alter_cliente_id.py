@@ -17,32 +17,33 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # 1. Rompemos la relación actual usando EL NOMBRE EXACTO de tu Railway
-        #migrations.RunSQL(
-            #sql="ALTER TABLE core_nota_entrega DROP FOREIGN KEY core_nota_entrega_cliente_id_b5d1b37f_fk_core_cliente_id;"
-        #),
+        # 1. AHORA SÍ: Borramos la llave vieja usando el nombre EXACTO del error
+        migrations.RunSQL(
+            sql="ALTER TABLE core_nota_entrega DROP FOREIGN KEY core_nota_entrega_cliente_id_b5d1b37f_fk;"
+        ),
 
-        # 2. Preparamos la columna hija para recibir texto
+        # 2. Mantenemos esto (es seguro repetirlo)
         migrations.RunSQL(
             sql="ALTER TABLE core_nota_entrega MODIFY cliente_id VARCHAR(45);"
         ),
 
-        # 3. La operación de Django para cambiar la tabla cliente
+        # 3. Mantenemos esto (es seguro repetirlo)
         migrations.AlterField(
             model_name='cliente',
             name='id',
             field=models.CharField(max_length=45, primary_key=True, serialize=False),
         ),
 
-        # 4. Reconectamos las tablas con CASCADE apuntando a core_cliente
-        migrations.RunSQL(
-            sql="""
-            ALTER TABLE core_nota_entrega ADD CONSTRAINT core_nota_entrega_cliente_fk_cascade 
-            FOREIGN KEY (cliente_id) REFERENCES core_cliente(id) 
-            ON UPDATE CASCADE;
-            """
-        ),
+        # 4. COMENTADO: Como el intento anterior falló en el paso 5, 
+        # este paso ya se ejecutó y la nueva llave en cascada YA EXISTE en MySQL.
+        # migrations.RunSQL(
+        #    sql="""
+        #    ALTER TABLE core_nota_entrega ADD CONSTRAINT core_nota_entrega_cliente_fk_cascade 
+        #    FOREIGN KEY (cliente_id) REFERENCES core_cliente(id) 
+        #    ON UPDATE CASCADE;
+        #    """
+        # ),
 
-        # 5. Pasamos los datos
+        # 5. Pasamos los datos finalmente
         migrations.RunPython(pasar_documento_a_id),
     ]
