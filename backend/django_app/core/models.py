@@ -63,7 +63,7 @@ class Categoria(models.Model):
     
     # Campos nuevos según SQL
     # rif_proveedor = models.CharField(max_length=45, blank=True, null=True)
-    # telefono_proveedor = models.CharField(max_length=45, blank=True, null=True)
+    #  telefono_proveedor = models.CharField(max_length=45, blank=True, null=True)
     # direccion_proveedor = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
