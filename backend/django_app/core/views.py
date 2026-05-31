@@ -3537,7 +3537,7 @@ def todos_clientes(request):
         clientes_qs = clientes_qs.filter(apellido_cliente__icontains=apellido)
     if documento:
         clientes_qs = clientes_qs.filter(
-            Q(documento__icontains=documento) | Q(rif_empresarial__icontains=documento)
+            Q(id__icontains=documento) | Q(rif_empresarial__icontains=documento)
         )
     if telefono:
         clientes_qs = clientes_qs.filter(telefono_cliente__icontains=telefono)
