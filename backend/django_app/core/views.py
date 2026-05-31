@@ -3527,7 +3527,7 @@ def todos_clientes(request):
     email = request.GET.get('email', '').strip()
 
     clientes_qs = Cliente.objects.only(
-        'id', 'nombre_cliente', 'apellido_cliente', 'rif_empresarial', 'telefono_cliente', 'email'
+        'id', 'nombre_cliente', 'apellido_cliente', 'telefono_cliente', 'email'
     )
 
     # Aplicar filtros
@@ -3536,9 +3536,7 @@ def todos_clientes(request):
     if apellido:
         clientes_qs = clientes_qs.filter(apellido_cliente__icontains=apellido)
     if documento:
-        clientes_qs = clientes_qs.filter(
-            Q(id__icontains=documento) | Q(rif_empresarial__icontains=documento)
-        )
+        clientes_qs = clientes_qs.filter(id__icontains=documento)
     if telefono:
         clientes_qs = clientes_qs.filter(telefono_cliente__icontains=telefono)
     if email:
