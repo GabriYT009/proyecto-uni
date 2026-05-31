@@ -553,8 +553,8 @@
             var clientPhoneInput = document.getElementById('client-phone-input');
 
             function refreshClientPreview(){
-                var doc = clientDocInput.value.trim();
-                var match = clientes.find(function(c){ return (c.id || '').trim() === doc; });
+                var doc = clientDocInput.value.trim().toUpperCase();
+                var match = clientes.find(function(c){ return (c.id || '').trim().toUpperCase() === doc; });
 
                 if(match){
                     var nombreMatch = ((match.nombre_cliente || '') + ' ' + (match.apellido_cliente || '')).trim() || 'Consumidor Final';
