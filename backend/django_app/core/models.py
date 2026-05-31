@@ -62,7 +62,7 @@ class Categoria(models.Model):
     descripcion_categoria = models.CharField('Descripción', max_length=45, blank=True, null=True)
     
     # Campos nuevos según SQL
-    rif_proveedor = models.CharField(max_length=45, blank=True, null=True)
+    # rif_proveedor = models.CharField(max_length=45, blank=True, null=True)
     telefono_proveedor = models.CharField(max_length=45, blank=True, null=True)
     direccion_proveedor = models.CharField(max_length=100, blank=True, null=True)
 
