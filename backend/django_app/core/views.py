@@ -3527,7 +3527,7 @@ def todos_clientes(request):
     email = request.GET.get('email', '').strip()
 
     clientes_qs = Cliente.objects.only(
-        'id', 'nombre_cliente', 'apellido_cliente', 'documento', 'rif_empresarial', 'telefono_cliente', 'email'
+        'id', 'nombre_cliente', 'apellido_cliente', 'rif_empresarial', 'telefono_cliente', 'email'
     )
 
     # Aplicar filtros
