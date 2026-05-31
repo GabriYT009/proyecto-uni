@@ -205,7 +205,7 @@
                             <div>Documento: <input name="client-doc" type="text"  id="client-doc" list="clients-list" placeholder="Cédula" style="width:120px;padding:2px;" /></div>
                             <datalist id="clients-list">
                                 {% for c in clientes %}
-                                    <option value="{{ c.documento }}">{{ c.nombre_cliente }} {{ c.apellido_cliente }}</option>
+                                    <option value="{{ c.id }}">{{ c.nombre_cliente }} {{ c.apellido_cliente }}</option>
                                 {% endfor %}
                             </datalist>
                             <div>Cliente: <strong id="client-name">Consumidor Final</strong></div>
@@ -554,12 +554,12 @@
 
             function refreshClientPreview(){
                 var doc = clientDocInput.value.trim();
-                var match = clientes.find(function(c){ return (c.documento || '').trim() === doc; });
+                var match = clientes.find(function(c){ return (c.id || '').trim() === doc; });
 
                 if(match){
                     var nombreMatch = ((match.nombre_cliente || '') + ' ' + (match.apellido_cliente || '')).trim() || 'Consumidor Final';
                     document.getElementById('client-name').textContent = nombreMatch;
-                    document.getElementById('client-rif').textContent = match.documento || '-';
+                    document.getElementById('client-rif').textContent = match.id || '-';
                     document.getElementById('client-dir').textContent = match.direccion || '-';
                     document.getElementById('client-phone').textContent = match.telefono_cliente || '-';
 
