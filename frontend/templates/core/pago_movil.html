@@ -107,8 +107,7 @@
         <div style="background: #f0f8ff; border: 1px solid #b0d4ff; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
             <h3 style="color: #9932CC; margin-top: 0; margin-bottom: 12px;">Datos para realizar el pago:</h3>
             <p style="margin: 8px 0;"><strong>Bancos:</strong> Banco Venezuela (0102) / Banamiga (0172)</p>
-            <p style="margin: 8px 0;"><strong>Número de cuenta:</strong> 04245797170</p>
-            <p style="margin: 8px 0;"><strong>Referencia:</strong> 15350483</p>
+            <p style="margin: 8px 0;"><strong>Número de Teléfono:</strong> 04245797170</p>
             <p style="font-size: 0.9rem; color: #555; margin: 12px 0 0 0;">Realice el pago móvil a estos datos y luego suba el comprobante.</p>
         </div>
 
@@ -116,7 +115,7 @@
             {% csrf_token %}
             <div class="field">
                 <label for="documento">Cédula / Documento</label>
-                <input type="text" id="documento" name="documento" required value="{{ cedula }}" maxlength="20" autocomplete="off" />
+                <input type="text" id="documento" name="documento" required value="{{ cedula }}" maxlength="20" autocomplete="on" />
                 <small class="field-error" id="documentoError" style="display:none; color:#b02a37; margin-top:6px;"></small>
             </div>
             <div class="field">

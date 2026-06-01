@@ -62,9 +62,9 @@ class Categoria(models.Model):
     descripcion_categoria = models.CharField('Descripción', max_length=45, blank=True, null=True)
     
     # Campos nuevos según SQL
-    rif_proveedor = models.CharField(max_length=45, blank=True, null=True)
-    telefono_proveedor = models.CharField(max_length=45, blank=True, null=True)
-    direccion_proveedor = models.CharField(max_length=100, blank=True, null=True)
+    # rif_proveedor = models.CharField(max_length=45, blank=True, null=True)
+    #  telefono_proveedor = models.CharField(max_length=45, blank=True, null=True)
+    # direccion_proveedor = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
         verbose_name = 'Categoría'
@@ -100,10 +100,11 @@ class Servicio(models.Model):
 
 class Cliente(models.Model):
     # En el SQL, 'tipo_cliente' es una FK, no un Choice estático
+    id = models.CharField(max_length=45, primary_key=True)
     tipo_cliente = models.ForeignKey(TipoCliente, on_delete=models.SET_NULL, null=True, blank=True)
     
-    documento = models.CharField(max_length=45, blank=True, null=True)
-    rif_empresarial = models.CharField(max_length=45, blank=True, null=True)
+    # documento = models.CharField(max_length=45, blank=True, null=True)
+    # rif_empresarial = models.CharField(max_length=45, blank=True, null=True)
     nombre_cliente = models.CharField(max_length=45, blank=True, null=True)
     apellido_cliente = models.CharField(max_length=45, blank=True, null=True)
     direccion = models.CharField(max_length=100, blank=True, null=True)

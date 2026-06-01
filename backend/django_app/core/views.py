@@ -1088,7 +1088,6 @@ def recuperar_contrasena(request):
 
 @login_required
 @shared_access
-
 def crear_cliente(request):
     if request.method == 'POST':
         data = request.POST
@@ -1124,9 +1123,11 @@ def crear_cliente(request):
                 errors['apellido_cliente'] = 'El apellido no puede contener números.'
             elif not re.match(r'^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$', apellido):
                 errors['apellido_cliente'] = 'El apellido contiene caracteres inválidos.'
+                
         telefono, telefono_error = _validate_phone_value(telefono, required=False)
         if telefono_error:
             errors['telefono_cliente'] = telefono_error
+            
         if not email:
             errors['email'] = 'El correo electrónico es obligatorio.'
         else:
@@ -1135,7 +1136,7 @@ def crear_cliente(request):
             except ValidationError:
                 errors['email'] = 'El correo electrónico no tiene un formato válido.'
 
-        # Validaciones por tipo de cliente
+        # Validaciones por tipo de cliente (¡Tal como lo tenías!)
         if tipo == '1':
             cedula = data.get('cedula_dni', '').strip()
             if not cedula:
@@ -1179,10 +1180,11 @@ def crear_cliente(request):
         if tipo == '1' and tipo_documento in ('V', 'E'):
             documento_nuevo = f'{tipo_documento}{data.get("cedula_dni", "").strip()}'
         elif tipo == '2':
-            documento_nuevo = data.get('cedula_dni_representante', '').strip()
+            # NOTA: Cambié esto para que valide el RIF como ID primario, no la cédula del representante.
+            documento_nuevo = form_data.get('rif_empresa', '').strip()
 
-        if documento_nuevo and Cliente.objects.filter(documento=documento_nuevo).exists():
-            errors['cedula_dni'] = 'La cédula ya está registrada.'
+        if documento_nuevo and Cliente.objects.filter(id=documento_nuevo).exists():
+            errors['non_field'] = 'El documento o RIF ya está registrado.'
 
         # Si hay errores, re-renderizar la plantilla con los mensajes y datos previos
         if errors:
@@ -1211,42 +1213,30 @@ def crear_cliente(request):
                 'direccion': data.get('direccion','').strip(),
                 'telefono_cliente': telefono,
                 'email': email,
-                
             }
 
             # Mapear campos según tipo de cliente a los campos reales del modelo
             if tipo == '1':
-                # Persona natural: guardar cédula en `documento`
+                # Persona natural: guardar cédula en `id` (Antes era `documento`)
                 if tipo_documento == 'V':
-                    cliente_kwargs['documento'] = 'V' + data.get('cedula_dni','').strip()
+                    cliente_kwargs['id'] = 'V' + data.get('cedula_dni','').strip()
                 elif tipo_documento == 'E':
-                    cliente_kwargs['documento'] = 'E' + data.get('cedula_dni','').strip()
+                    cliente_kwargs['id'] = 'E' + data.get('cedula_dni','').strip()
                     
             elif tipo == '2':
-                # Persona jurídica: guardar RIF en `rif_empresarial` y nombre de empresa en `nombre_cliente`
+                # Persona jurídica: guardar RIF en `id` (Antes era `rif_empresarial`)
                 rif_val = form_data.get('rif_empresa', '').strip()
                 nombre_emp = data.get('nombre_empresa','').strip()
                 if rif_val:
-                    cliente_kwargs['rif_empresarial'] = rif_val
+                    cliente_kwargs['id'] = rif_val
                 if nombre_emp:
                     cliente_kwargs['nombre_cliente'] = nombre_emp
-                # si existe cédula representante la guardamos en `documento` opcionalmente
-                ced_rep = data.get('cedula_dni_representante','').strip()
-                if ced_rep:
-                    cliente_kwargs['documento'] = ced_rep
-
-            documento_guardado = (cliente_kwargs.get('documento') or '').strip()
-            if documento_guardado and Cliente.objects.filter(documento=documento_guardado).exists():
-                errors['non_field'] = 'La cédula ya está registrada.'
-                context = {
-                    'errors': errors,
-                    'form': form_data,
-                    'cart_count': len(request.session.get('cart', [])),
-                    'user_groups': list(request.user.groups.values_list('name', flat=True))
-                }
-                return render(request, 'core/crear_cliente.html', context)
+                    
+                # NOTA: La cédula del representante no se asigna al modelo porque ya no 
+                # existe la columna `documento` para almacenarla secundariamente.
 
             cliente = Cliente.objects.create(**cliente_kwargs)
+            
         except Exception as ex:
             # Si por alguna razón no se puede guardar, retornar con error genérico y loggable
             errors['non_field'] = 'No fue posible guardar el cliente. Intenta nuevamente.'
@@ -1272,7 +1262,6 @@ def crear_cliente(request):
         'user_groups': list(request.user.groups.values_list('name', flat=True)),
         'cart_count': len(request.session.get('cart', []))
     })
-
 
 
 def crear_usuario(request):
@@ -1419,7 +1408,7 @@ def crear_usuario(request):
                     'email': email,
                 })
 
-            if cedula and Cliente.objects.filter(documento=cedula).exists():
+            if cedula and Cliente.objects.filter(id=cedula).exists():
                 return render(request, 'core/crear_usuario.html', {
                     'error': 'La cédula ya está registrada.',
                     'security_questions': security_questions,
@@ -1446,7 +1435,7 @@ def crear_usuario(request):
                     # C. Crear el Cliente y ENLAZARLO
                     Cliente.objects.create(
                         user=nuevo_usuario,
-                        documento=cedula,
+                        id=cedula,
                         nombre_cliente=nombre,
                         apellido_cliente=apellido,
                         direccion=direccion,
@@ -1973,9 +1962,9 @@ def caja(request):
     from .models import Cliente
     clientes = list(
         Cliente.objects
-        .exclude(documento__isnull=True)
-        .exclude(documento__exact='')
-        .values('documento', 'nombre_cliente', 'apellido_cliente', 'direccion', 'telefono_cliente')
+        .exclude(id__isnull=True)
+        .exclude(id__exact='')
+        .values('id', 'nombre_cliente', 'apellido_cliente', 'direccion', 'telefono_cliente')
     )
 
 
@@ -2048,7 +2037,7 @@ def cobrar_caja(request):
             cliente_datos = None
             if cliente_doc:
                 # Usamos documento=cliente_doc para buscar coincidencia exacta
-                cliente_datos = Cliente.objects.filter(documento=cliente_doc).first() 
+                cliente_datos = Cliente.objects.filter(id=cliente_doc).first() 
 
             # Crear la Nota de Entrega
             nota_kwargs = {
@@ -2920,6 +2909,8 @@ def comprar_carrito(request):
         with transaction.atomic():
             # PASO 1: Obtener cliente y crear la cabecera (Nota_Entrega)
             cliente_obj = getattr(request.user, 'cliente', None)
+            #cliente_obj = getattr(request.user, 'cliente', None)
+            
             metodo_pago = MetodoPago.objects.filter(nombre_metodo_pago__iexact='Pago Móvil').first() or MetodoPago.objects.filter(nombre_metodo_pago__iexact='PAGO MOVIL').first()
             nota = Nota_Entrega.objects.create(
                 cliente=cliente_obj,
@@ -2930,7 +2921,7 @@ def comprar_carrito(request):
                 bcv=valor_bcv,
                 tipo_pago='PAGO MOVIL',
                 metodo_pago=metodo_pago,
-                cliente_documento=documento[:45],
+                #cliente_id=documento[:45],
                 cliente_telefono=mobile_phone[:15],
                 referencia_pago=referencia,
             )
@@ -3078,7 +3069,7 @@ def pago_movil(request):
 
     try:
         # Intentamos acceder al perfil de cliente directamente conectado a este usuario
-        cliente = request.user.cliente 
+        cliente = request.user.cliente
         cedula = getattr(cliente, 'documento', '') or ''
         telefono = getattr(cliente, 'telefono_cliente', None) or getattr(cliente, 'telefono', '') or ''
         
@@ -3527,7 +3518,7 @@ def todos_clientes(request):
     email = request.GET.get('email', '').strip()
 
     clientes_qs = Cliente.objects.only(
-        'id', 'nombre_cliente', 'apellido_cliente', 'documento', 'rif_empresarial', 'telefono_cliente', 'email'
+        'id', 'nombre_cliente', 'apellido_cliente', 'telefono_cliente', 'email'
     )
 
     # Aplicar filtros
@@ -3536,9 +3527,7 @@ def todos_clientes(request):
     if apellido:
         clientes_qs = clientes_qs.filter(apellido_cliente__icontains=apellido)
     if documento:
-        clientes_qs = clientes_qs.filter(
-            Q(documento__icontains=documento) | Q(rif_empresarial__icontains=documento)
-        )
+        clientes_qs = clientes_qs.filter(id__icontains=documento)
     if telefono:
         clientes_qs = clientes_qs.filter(telefono_cliente__icontains=telefono)
     if email:

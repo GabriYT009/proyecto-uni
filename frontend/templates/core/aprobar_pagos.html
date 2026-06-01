@@ -489,7 +489,7 @@
     <dt>Cédula / RIF</dt>
     <dd>
         {% if salida.cliente %}
-            {% firstof salida.cliente.documento salida.cliente.rif_empresarial "No disponible" %}
+            {% firstof salida.cliente.id "No disponible" %}
         {% else %}
             No disponible
         {% endif %}
