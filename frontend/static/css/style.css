@@ -556,10 +556,11 @@ body.login-page .register-form select {
     min-height: auto;
     padding: 10px 12px;
     border-radius: 10px;
-    border: 1px solid rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.12); /* más visible que antes */
     background: #fff;
     color: #222;
-    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.02) inset;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04) inset;
+    transition: border-color .12s ease, box-shadow .12s ease, background .12s ease;
 }
 
 body.login-page .register-form input[type="text"]:focus,
@@ -569,7 +570,13 @@ body.login-page .register-form input[type="password"]:focus,
 body.login-page .register-form select:focus {
     outline: none;
     border-color: var(--secondary-color);
-    box-shadow: none;
+    box-shadow: 0 0 0 5px rgba(124, 100, 143, 0.06); /* halo sutil con color secundario */
+}
+
+/* Asegurar que los placeholders no parezcan difuminados */
+body.login-page .register-form input::placeholder,
+body.login-page .register-form textarea::placeholder {
+    color: rgba(34, 34, 34, 0.38);
 }
 
 body.login-page .register-form select {
