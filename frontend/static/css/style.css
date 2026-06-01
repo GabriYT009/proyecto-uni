@@ -148,10 +148,14 @@ body.login-page {
     isolation: isolate;
     overflow-x: hidden;
     overflow-y: auto;
+    background-color: #1a0b2d !important;
     background:
         radial-gradient(1200px 760px at -6% -15%, rgba(133, 46, 195, 0.30), transparent 60%),
         radial-gradient(980px 640px at 104% 4%, rgba(165, 67, 220, 0.22), transparent 58%),
         linear-gradient(180deg, #12081d 0%, #1a0b2d 45%, #1a0b2d 100%) !important;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
     color: #efe7ff;
     display: flex !important;
     justify-content: center !important;
