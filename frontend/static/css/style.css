@@ -462,9 +462,299 @@ body.login-page button[type="submit"]:active {
 
 body.login-page button[type="submit"]:active { transform: translateY(1px); box-shadow: 0 8px 16px rgba(109, 31, 154, 0.22); }
 
+/* Registro de usuario: card más ancho, mejor jerarquía y mejor uso del espacio */
+body.login-page .register-wrapper {
+    width: 100%;
+    min-height: calc(100vh - 40px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 28px 12px 40px;
+}
+
+body.login-page .register-card {
+    position: relative;
+    width: min(1080px, calc(100vw - 32px)) !important;
+    max-width: 1080px;
+    padding: clamp(24px, 3vw, 36px) !important;
+    border-radius: 26px !important;
+    background: rgba(255, 255, 255, 0.94) !important;
+    color: #241634 !important;
+    border: 1px solid rgba(255, 255, 255, 0.54) !important;
+    border-top: 4px solid rgba(156, 39, 176, 0.30) !important;
+    box-shadow: 0 30px 70px rgba(24, 8, 54, 0.28) !important;
+    overflow: hidden;
+}
+
+body.login-page .register-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(900px 380px at 0% 0%, rgba(156, 39, 176, 0.08), transparent 60%),
+        radial-gradient(760px 320px at 100% 0%, rgba(125, 13, 136, 0.05), transparent 55%);
+    pointer-events: none;
+}
+
+body.login-page .register-card > * {
+    position: relative;
+    z-index: 1;
+}
+
+body.login-page .register-card h2 {
+    color: #7f2fa6;
+    font-size: clamp(1.65rem, 2.1vw, 2.25rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+body.login-page .register-lead {
+    margin: 0 auto 20px;
+    max-width: 720px;
+    color: #594b69;
+    text-align: center;
+    line-height: 1.5;
+    font-size: 0.98rem;
+}
+
+body.login-page .register-form {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px 18px;
+    align-items: start;
+}
+
+body.login-page .register-form .full,
+body.login-page .register-form .span-2,
+body.login-page .register-form button[type="submit"] {
+    grid-column: 1 / -1;
+    margin-bottom: 0;
+}
+
+body.login-page .register-form .fila-cedula {
+    display: grid !important;
+    grid-template-columns: 132px minmax(0, 1fr);
+    gap: 14px;
+    align-items: end;
+}
+
+body.login-page .register-form .campo-corto,
+body.login-page .register-form .campo-largo {
+    min-width: 0;
+}
+
+body.login-page .register-form label {
+    color: #35244b;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+body.login-page .register-form input[type="text"],
+body.login-page .register-form input[type="email"],
+body.login-page .register-form input[type="tel"],
+body.login-page .register-form input[type="password"],
+body.login-page .register-form select {
+    min-height: 50px;
+    padding: 12px 14px;
+    border-radius: 16px;
+    border: 1px solid rgba(131, 83, 172, 0.24);
+    background: rgba(255, 255, 255, 0.98);
+    color: #241634;
+    box-shadow: inset 0 1px 2px rgba(17, 24, 39, 0.04);
+}
+
+body.login-page .register-form input[type="text"]:focus,
+body.login-page .register-form input[type="email"]:focus,
+body.login-page .register-form input[type="tel"]:focus,
+body.login-page .register-form input[type="password"]:focus,
+body.login-page .register-form select:focus {
+    outline: none;
+    border-color: #9c27b0;
+    box-shadow: 0 0 0 4px rgba(156, 39, 176, 0.12);
+}
+
+body.login-page .register-form select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, #7c648f 50%), linear-gradient(135deg, #7c648f 50%, transparent 50%);
+    background-position: calc(100% - 18px) calc(1em + 2px), calc(100% - 13px) calc(1em + 2px);
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+    padding-right: 40px;
+}
+
+body.login-page .register-form .password-field {
+    position: relative !important;
+    width: 100%;
+}
+
+body.login-page .register-form .password-field input {
+    width: 100%;
+    padding-right: 46px !important;
+}
+
+body.login-page .register-form .password-field .password-toggle {
+    position: absolute !important;
+    right: 10px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 999px !important;
+    border: 0 !important;
+    background: rgba(255, 255, 255, 0.92) !important;
+    color: #7d0d88 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    cursor: pointer !important;
+    z-index: 2;
+    box-shadow: 0 2px 8px rgba(125, 13, 136, 0.12);
+}
+
+body.login-page .register-form .password-field .password-toggle svg {
+    width: 16px;
+    height: 16px;
+    display: block;
+}
+
+body.login-page .form-section {
+    grid-column: 1 / -1;
+    padding-top: 4px;
+    margin-top: 4px;
+    border-top: 1px solid rgba(156, 39, 176, 0.12);
+}
+
+body.login-page .form-section h2 {
+    color: #7f2fa6;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    text-align: left;
+    margin: 0 0 4px;
+}
+
+body.login-page .form-section p {
+    margin: 0;
+    color: #594b69;
+    font-size: 0.95rem;
+    line-height: 1.45;
+}
+
+body.login-page .security-grid {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+
+body.login-page .security-card {
+    background: rgba(248, 243, 255, 0.84);
+    border: 1px solid rgba(156, 39, 176, 0.12);
+    border-radius: 18px;
+    padding: 16px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+body.login-page .field-note {
+    grid-column: 1 / -1;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: rgba(156, 39, 176, 0.08);
+    border: 1px solid rgba(156, 39, 176, 0.12);
+    color: #4b3d66;
+}
+
+body.login-page .privacidad-tooltip-container {
+    grid-column: 1 / -1;
+    position: relative;
+    margin: 6px 0 2px;
+}
+
+body.login-page .privacidad-icono {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: rgba(111, 33, 150, 0.08);
+    color: #5d3579;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background-color 0.16s ease, color 0.16s ease, transform 0.16s ease;
+}
+
+body.login-page .privacidad-icono:hover {
+    color: #7f2fa6;
+    background: rgba(111, 33, 150, 0.12);
+    transform: translateY(-1px);
+}
+
+body.login-page .privacidad-mensaje {
+    width: min(420px, calc(100vw - 40px));
+    background-color: #251634;
+    color: #f7f1ff;
+    text-align: left;
+    border-radius: 16px;
+    padding: 16px 18px;
+    position: absolute;
+    z-index: 10;
+    bottom: 130%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    font-size: 13px;
+    line-height: 1.5;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18);
+    visibility: hidden;
+}
+
+body.login-page .privacidad-mensaje p {
+    margin: 0 0 10px;
+}
+
+body.login-page .privacidad-mensaje ul {
+    margin: 0 0 10px 18px;
+    padding: 0;
+}
+
+body.login-page .privacidad-mensaje::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: #251634 transparent transparent transparent;
+}
+
+body.login-page .privacidad-tooltip-container:hover .privacidad-mensaje {
+    visibility: visible;
+    opacity: 1;
+}
+
+body.login-page .register-form button[type="submit"] {
+    width: min(320px, 100%);
+    justify-self: center;
+    margin-top: 8px;
+    padding: 14px 22px;
+    border-radius: 999px;
+    font-size: 1rem;
+}
+
 @media (max-width: 980px) {
     body.login-page .register-card {
-        width: min(760px, calc(100vw - 34px));
+        width: min(860px, calc(100vw - 24px)) !important;
+    }
+
+    body.login-page .security-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
@@ -472,24 +762,63 @@ body.login-page button[type="submit"]:active { transform: translateY(1px); box-s
     body.login-page {
         padding: 24px 14px !important;
     }
-    body.login-page .register-form {
+
+    body.login-page .register-wrapper {
+        align-items: flex-start;
+        padding-top: 16px;
+        padding-bottom: 24px;
+    }
+
+    body.login-page .register-form,
+    body.login-page .security-grid {
         grid-template-columns: 1fr;
     }
+
+    body.login-page .register-form {
+        gap: 14px;
+    }
+
     body.login-page .register-form .span-2,
     body.login-page .register-form .fila-cedula,
     body.login-page .register-form > button[type="submit"] {
         grid-column: auto;
     }
-}
 
-@media (max-width: 580px) {
     body.login-page .register-form .fila-cedula {
         grid-template-columns: 1fr;
         gap: 12px;
     }
-    body.login-page .container {
-        padding: 24px 18px;
+}
+
+@media (max-width: 580px) {
+    body.login-page .register-wrapper {
+        padding: 12px 10px 22px;
     }
+
+    body.login-page .register-card {
+        width: min(100%, calc(100vw - 20px)) !important;
+        border-radius: 22px !important;
+        padding: 20px 16px !important;
+    }
+
+    body.login-page .register-card h2 {
+        font-size: 1.55rem;
+    }
+
+    body.login-page .register-lead {
+        font-size: 0.94rem;
+        margin-bottom: 16px;
+    }
+
+    body.login-page .register-form .fila-cedula {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    body.login-page .register-form button[type="submit"] {
+        width: 100%;
+    }
+
     body.login-page .login-card {
         width: min(100%, calc(100vw - 28px));
         padding: 30px 18px 22px;

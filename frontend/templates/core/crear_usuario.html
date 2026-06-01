@@ -166,6 +166,7 @@
     <div class="register-wrapper">
     <div class="container auth-card register-card">
         <h2>Crear credenciales</h2>     
+        <p class="register-lead">Completa tus datos para activar la cuenta. El formulario se adapta mejor a pantalla grande y móvil.</p>
 
         {% if error %}
             <div class="auth-error">{{ error }}</div>
@@ -177,6 +178,11 @@
             
             <!-- El email no se muestra en esta pantalla; se toma de la sesión y se envía oculto -->
             <input type="hidden" name="email" value="{{ email }}">
+
+            <div class="form-section span-2">
+                <h2>Datos personales</h2>
+                <p>Usamos esta información para identificar tu cuenta y mantener tus datos organizados.</p>
+            </div>
 
             <div class="full">
                 <label for="nombre_cliente">Nombre:</label>
@@ -213,7 +219,7 @@
             </div>
 
             <div class="full">
-                <label for="telefono_cliente">Telefono:</label>
+                <label for="telefono_cliente">Teléfono:</label>
                 <input id="telefono_cliente" name="telefono_cliente" type="tel" minlength="10" maxlength="11" pattern="[0-9]{10,11}" inputmode="numeric" autocomplete="tel" placeholder="Teléfono" required>
             </div>
 
@@ -222,8 +228,13 @@
                 <input id="username" name="username" type="text" placeholder="Nombre de usuario" required minlength="2">
             </div>
             <div class="full span-2">
-                <label for="email">correo electrónico</label>
+                <label for="email">Correo electrónico</label>
                 <input id="email" name="email" type="email" placeholder="Correo electrónico" required>
+            </div>
+
+            <div class="form-section span-2">
+                <h2>Seguridad</h2>
+                <p>Define tres preguntas y respuestas para recuperar el acceso de forma segura.</p>
             </div>
 
             {% if security_feature_enabled %}
@@ -254,6 +265,11 @@
                     Las preguntas de seguridad estaran disponibles despues de aplicar migraciones en el servidor.
                 </div>
             {% endif %}
+            <div class="form-section span-2">
+                <h2>Contraseña</h2>
+                <p>Usa una clave segura y confírmala exactamente igual para evitar errores.</p>
+            </div>
+
             <div class="full">
                 <label for="password">Crear contraseña</label>
                 <div class="password-field">
