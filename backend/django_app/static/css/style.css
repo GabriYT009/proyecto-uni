@@ -24,6 +24,10 @@ html {
     background-size: cover;
 }
 
+html:has(body.login-page) {
+    background: #1a0b2d !important;
+}
+
 body {
     margin: 0;
     padding: 24px;
@@ -226,11 +230,11 @@ body.login-page::before {
 
 body.login-page::after {
     background:
-        linear-gradient(112deg, rgba(0, 0, 0, 0) 14%, rgba(170, 83, 230, 0.20) 36%, rgba(0, 0, 0, 0) 54%),
-        linear-gradient(286deg, rgba(0, 0, 0, 0) 20%, rgba(129, 43, 195, 0.18) 47%, rgba(0, 0, 0, 0) 70%),
-        radial-gradient(740px 420px at 54% 84%, rgba(93, 21, 142, 0.26), transparent 72%);
+        linear-gradient(112deg, rgba(0, 0, 0, 0) 14%, rgba(170, 83, 230, 0.14) 36%, rgba(0, 0, 0, 0) 54%),
+        linear-gradient(286deg, rgba(0, 0, 0, 0) 20%, rgba(129, 43, 195, 0.12) 47%, rgba(0, 0, 0, 0) 70%),
+        radial-gradient(740px 420px at 54% 84%, rgba(93, 21, 142, 0.14), transparent 72%);
     filter: blur(20px);
-    opacity: 0.92;
+    opacity: 0.62;
     mix-blend-mode: screen;
     animation: authVeilFlowB 30s cubic-bezier(.4,.08,.6,.92) infinite alternate;
 }
