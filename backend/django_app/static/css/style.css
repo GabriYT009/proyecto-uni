@@ -297,16 +297,27 @@ body.login-page .login-card input[type="password"],
 body.login-page .login-card input[type="tel"] {
     min-height: 48px;
     border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    background: #ece9f1;
-    color: #2b163f;
+    border: 1px solid rgba(61, 22, 85, 0.34);
+    background: rgba(255, 255, 255, 0.96);
+    color: #241534;
     box-shadow: none;
 }
 
 body.login-page .login-card input[type="text"]:focus,
 body.login-page .login-card input[type="password"]:focus {
-    border-color: #d85cff;
-    box-shadow: 0 0 0 4px rgba(216, 92, 255, 0.14);
+    border-color: rgba(93, 30, 132, 0.72);
+    box-shadow: 0 0 0 4px rgba(93, 30, 132, 0.18);
+}
+
+body.login-page .login-card select {
+    border: 1px solid rgba(61, 22, 85, 0.34);
+    background: rgba(255, 255, 255, 0.96);
+    color: #241534;
+}
+
+body.login-page .login-card select:focus {
+    border-color: rgba(93, 30, 132, 0.72);
+    box-shadow: 0 0 0 4px rgba(93, 30, 132, 0.18);
 }
 
 body.login-page .login-card .hint,
