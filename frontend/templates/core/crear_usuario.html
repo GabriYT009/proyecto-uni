@@ -165,8 +165,7 @@
     {% endif %}
     <div class="register-wrapper">
     <div class="container auth-card register-card">
-        <h2>Crear credenciales</h2>     
-        <p class="register-lead">Completa tus datos para activar la cuenta. El formulario se adapta mejor a pantalla grande y móvil.</p>
+        <h2>Crear credenciales</h2>
 
         {% if error %}
             <div class="auth-error">{{ error }}</div>
@@ -178,11 +177,6 @@
             
             <!-- El email no se muestra en esta pantalla; se toma de la sesión y se envía oculto -->
             <input type="hidden" name="email" value="{{ email }}">
-
-            <div class="form-section span-2">
-                <h2>Datos personales</h2>
-                <p>Usamos esta información para identificar tu cuenta y mantener tus datos organizados.</p>
-            </div>
 
             <div class="full">
                 <label for="nombre_cliente">Nombre:</label>
@@ -232,11 +226,6 @@
                 <input id="email" name="email" type="email" placeholder="Correo electrónico" required>
             </div>
 
-            <div class="form-section span-2">
-                <h2>Seguridad</h2>
-                <p>Define tres preguntas y respuestas para recuperar el acceso de forma segura.</p>
-            </div>
-
             {% if security_feature_enabled %}
                 {% for i in "123" %}
                 <div class="full">
@@ -265,11 +254,6 @@
                     Las preguntas de seguridad estaran disponibles despues de aplicar migraciones en el servidor.
                 </div>
             {% endif %}
-            <div class="form-section span-2">
-                <h2>Contraseña</h2>
-                <p>Usa una clave segura y confírmala exactamente igual para evitar errores.</p>
-            </div>
-
             <div class="full">
                 <label for="password">Crear contraseña</label>
                 <div class="password-field">
