@@ -31,7 +31,10 @@ body {
     /* Forzar transparencia para que se vea el degradado del html (sobrescribe estilos inline) */
     background: transparent !important;
     display: flex;
-        background: linear-gradient(180deg, #1a0b2d 0%, #1a0b2d 100%) !important;
+    /* Alinear contenido arriba en páginas largas en lugar de centrar verticalmente */
+    align-items: flex-start;
+    justify-content: center;
+}
 
 /* Refuerzo del topbar móvil en todos los templates */
 @media (max-width: 768px) {
@@ -48,15 +51,27 @@ body {
 
     .top-bar.collapsed .bar-inner {
         display: flex !important;
-        background: none !important;
     }
 
     .top-bar .bar-toggle {
-        opacity: 0;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
         background: rgba(255, 255, 255, 0.12);
     }
 
-        opacity: 0;
+    .top-bar .bar-toggle .hamburger span {
+        background: #fff !important;
+    }
+
+    .top-bar .nav-menu {
+        left: 10px !important;
+        right: 10px !important;
+        top: 72px !important;
         width: auto !important;
         min-width: 0 !important;
         border-radius: 12px !important;
@@ -172,14 +187,16 @@ button[type="submit"]:hover, .btn.primary:hover { background: rgba(255,255,255,0
 body.login-page {
     position: relative;
     isolation: isolate;
-    overflow-x: hidden;
-    overflow-y: auto;
-    background: linear-gradient(180deg, #1a0b2d 0%, #1a0b2d 100%) !important;
+    overflow: hidden;
+    background:
+        radial-gradient(1200px 760px at -6% -15%, rgba(133, 46, 195, 0.38), transparent 60%),
+        radial-gradient(980px 640px at 104% 4%, rgba(165, 67, 220, 0.28), transparent 58%),
+        linear-gradient(165deg, #09050f 0%, #140a22 34%, #1b0b2f 62%, #0c0616 100%) !important;
     color: #efe7ff;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: flex-start !important;
-    padding: 28px 18px 40px !important;
+    display: grid !important;
+    place-items: center !important;
+    align-content: center !important;
+    padding: 28px !important;
     min-height: 100vh !important;
 }
 
@@ -191,15 +208,27 @@ body.login-page::after {
     pointer-events: none;
     z-index: -1;
     will-change: transform, filter;
-    background: none !important;
 }
 
 body.login-page::before {
-    opacity: 0;
+    background:
+        radial-gradient(760px 420px at 16% 26%, rgba(122, 42, 188, 0.46), transparent 72%),
+        radial-gradient(840px 520px at 86% 18%, rgba(148, 60, 214, 0.40), transparent 74%),
+        conic-gradient(from 210deg at 52% 50%, rgba(0,0,0,0) 0deg, rgba(173, 92, 232, 0.18) 110deg, rgba(0,0,0,0) 250deg);
+    filter: blur(12px) saturate(112%);
+    mix-blend-mode: screen;
+    animation: authVeilFlowA 24s cubic-bezier(.45,.05,.55,.95) infinite alternate;
 }
 
 body.login-page::after {
-    opacity: 0;
+    background:
+        linear-gradient(112deg, rgba(0, 0, 0, 0) 14%, rgba(170, 83, 230, 0.20) 36%, rgba(0, 0, 0, 0) 54%),
+        linear-gradient(286deg, rgba(0, 0, 0, 0) 20%, rgba(129, 43, 195, 0.18) 47%, rgba(0, 0, 0, 0) 70%),
+        radial-gradient(740px 420px at 54% 84%, rgba(93, 21, 142, 0.26), transparent 72%);
+    filter: blur(20px);
+    opacity: 0.92;
+    mix-blend-mode: screen;
+    animation: authVeilFlowB 30s cubic-bezier(.4,.08,.6,.92) infinite alternate;
 }
 
 @keyframes authVeilFlowA {
