@@ -42,7 +42,6 @@
                 </div>
                 <div class="order-meta small-label">
                     <div>Orden ID: <strong>#{{ salida.pk }}</strong></div>
-                    {% if salida.tipo_pago %}<div>Tipo: <strong>{{ salida.get_tipo_pago_display|default:salida.tipo_pago }}</strong></div>{% endif %}
                     {% if salida.cliente_documento or salida.cliente_telefono %}
                         <div>Documento: {{ salida.cliente_documento|default:'-' }} | Tel: {{ salida.cliente_telefono|default:'-' }}</div>
                     {% endif %}
