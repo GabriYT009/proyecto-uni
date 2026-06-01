@@ -5,7 +5,7 @@
     Incluye layout moderno por contenedor y reglas heredadas .formulario por compatibilidad */
 
 :root {
-    --primary-color: #6A1B9A;
+    --primary-color: #2d0a43;
     --secondary-color: #9C27B0;
     --background-gradient: linear-gradient(180deg, #ffffff 0%, var(--secondary-color) 100%);
     --background-color: #EFEFEF;
@@ -150,9 +150,9 @@ body.login-page {
     overflow-y: auto;
     background-color: #1a0b2d !important;
     background:
-        radial-gradient(1200px 760px at -6% -15%, rgba(133, 46, 195, 0.30), transparent 60%),
-        radial-gradient(980px 640px at 104% 4%, rgba(165, 67, 220, 0.22), transparent 58%),
-        linear-gradient(180deg, #12081d 0%, #1a0b2d 45%, #1a0b2d 100%) !important;
+        radial-gradient(1200px 760px at -6% -15%, rgba(133, 46, 195, 0.38), transparent 60%),
+        radial-gradient(980px 640px at 104% 4%, rgba(165, 67, 220, 0.28), transparent 58%),
+        linear-gradient(165deg, #09050f 0%, #140a22 34%, #1b0b2f 62%, #0c0616 100%) !important;
     background-attachment: fixed;
     background-repeat: no-repeat;
     background-size: cover;
