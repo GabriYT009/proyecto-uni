@@ -1552,19 +1552,18 @@ def crear_Productoo(request):
         marcas= Marca_producto.objects.all()
         if request.method == 'POST':
             post_data = request.POST.copy()
-            categoria_custom = post_data.get('categoria_custom')
+            categoria_seleccion = post_data.get('categoria')
             otra_categoria = post_data.get('otra_categoria')
-            
-            
-            # Si seleccionó 'otros', crear la categoría si no existe y usarla
-            if categoria_custom == 'otros' and otra_categoria:
-                cat_obj, _ = Categoria.objects.get_or_create(
-                    nombre_categoria=otra_categoria.strip(),
-                    defaults={'descripcion_categoria': f'Categoría personalizada: {otra_categoria.strip()}'},
+
+            # Si seleccionó 'otros', usar la categoría 'Otros' existente o crearla.
+            if categoria_seleccion == 'otros':
+                otros_cat, _ = Categoria.objects.get_or_create(
+                    nombre_categoria='Otros',
+                    defaults={'descripcion_categoria': 'Productos que no encajan en otras categorías'},
                 )
-                post_data['categoria'] = cat_obj.pk
-            elif categoria_custom and categoria_custom != 'otros':
-                post_data['categoria'] = categoria_custom
+                post_data['categoria'] = otros_cat.pk
+            elif categoria_seleccion and categoria_seleccion != 'otros':
+                post_data['categoria'] = categoria_seleccion
             # Si no seleccionó nada, dejarlo vacío
             form = ProductForm(post_data, request.FILES)
             if form.is_valid():

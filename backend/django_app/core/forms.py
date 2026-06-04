@@ -41,6 +41,10 @@ class ProductForm(forms.ModelForm):
         self.fields['categoria'].choices = [
             (cat.pk, cat.nombre_categoria) for cat in categorias
         ] + [('otros', 'Otros')]
+        self.fields['categoria'].error_messages = {
+            'invalid_choice': 'Selecciona una categoría válida.',
+            'required': 'La categoría es obligatoria.',
+        }
 
         self.fields['marca_producto'] = forms.ModelChoiceField(
             queryset=Marca_producto.objects.all(),
