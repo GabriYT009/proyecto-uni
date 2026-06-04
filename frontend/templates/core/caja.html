@@ -587,7 +587,13 @@
             }
 
             clientDocInput.addEventListener('input', refreshClientPreview);
-            clientNameInput.addEventListener('input', refreshClientPreview);
+            clientNameInput.addEventListener('input', function(){
+                var cleanValue = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
+                if (cleanValue !== this.value) {
+                    this.value = cleanValue;
+                }
+                refreshClientPreview();
+            });
             clientDirInput.addEventListener('input', refreshClientPreview);
             clientPhoneInput.addEventListener('input', refreshClientPreview);
             refreshClientPreview();
