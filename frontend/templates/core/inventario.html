@@ -1571,5 +1571,20 @@
     </script>
 
     <script src="{% static 'core/page-loader.js' %}"></script>
+    <script>
+        (function(){
+            const qty = document.getElementById('cantidadEditar');
+            if (!qty) return;
+            qty.setAttribute('max','500');
+            qty.addEventListener('input', function(){
+                try{
+                    const v = Number(this.value);
+                    if (!isFinite(v)) return;
+                    if (v > 500) this.value = 500;
+                    if (v < 0) this.value = 0;
+                }catch(e){ }
+            });
+        })();
+    </script>
 </body>
 </html>
