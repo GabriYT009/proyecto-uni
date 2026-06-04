@@ -96,7 +96,8 @@ class ProductForm(forms.ModelForm):
             'cantidad_disponible': forms.NumberInput(attrs={
                 'placeholder': 'Cantidad inicial', 
                 'class': 'form-control',
-                'min': '0'
+                'min': '0',
+                'max': '500'
             }),
         }
 
@@ -119,6 +120,18 @@ class ProductForm(forms.ModelForm):
     def save(self, commit=True):
         # Respetar la categoria seleccionada en el formulario.
         return super().save(commit=commit)
+
+    def clean_cantidad_disponible(self):
+        cantidad = self.cleaned_data.get('cantidad_disponible')
+        # Aplicar límite máximo solo al crear un producto nuevo (cantidad inicial)
+        if not self.instance or not getattr(self.instance, 'pk', None):
+            if cantidad is not None:
+                try:
+                    if int(cantidad) > 500:
+                        raise forms.ValidationError('La cantidad inicial no puede ser mayor a 500.')
+                except (TypeError, ValueError):
+                    raise forms.ValidationError('Cantidad inválida.')
+        return cantidad
 
 
 class PasswordRecoveryForm(forms.Form):
