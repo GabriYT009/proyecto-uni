@@ -212,9 +212,9 @@
                             <div >R.I.F: <span id="client-rif" >-</span></div>
                             <div>Dirección: <span id="client-dir">-</span></div>
                             <div>Teléfono: <span id="client-phone">-</span></div>
-                            <div class="guest-field">Nombre (no registrado): <input type="text" id="client-name-input" placeholder="Nombre cliente"></div>
+                            <div class="guest-field">Nombre (no registrado): <input type="text" id="client-name-input" maxlength="45" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+" placeholder="Nombre cliente" title="Solo letras y espacios"></div>
                             <div class="guest-field">Dirección (no registrado): <input type="text" id="client-dir-input" placeholder="Direccion cliente"></div>
-                            <div class="guest-field">Teléfono (no registrado): <input type="text" id="client-phone-input" placeholder="Telefono cliente"></div>
+                            <div class="guest-field">Teléfono (no registrado): <input type="tel" id="client-phone-input" maxlength="11" minlength="10" pattern="[0-9]{10,11}" inputmode="numeric" autocomplete="tel" placeholder="Telefono cliente" title="Solo dígitos, 10 u 11 caracteres"></div>
                         </div>
                         {{ clientes|json_script:"clientes-data" }}
                         <div class="factura-info" style="text-align:right; font-size:14px;">
@@ -623,6 +623,18 @@ document.getElementById('checkout').addEventListener('click', async function(){
                 var clienteNombre = document.getElementById('client-name-input').value.trim();
                 var clienteDireccion = document.getElementById('client-dir-input').value.trim();
                 var clienteTelefono = document.getElementById('client-phone-input').value.trim();
+
+                var nombreValido = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+                var telefonoValido = /^[0-9]{10,11}$/;
+
+                if (clienteNombre && !nombreValido.test(clienteNombre)) {
+                    showJsAlert('El nombre no puede contener números ni caracteres especiales.', 'warning');
+                    return;
+                }
+                if (clienteTelefono && !telefonoValido.test(clienteTelefono)) {
+                    showJsAlert('Teléfono inválido. Debe tener 10 u 11 dígitos numéricos.', 'warning');
+                    return;
+                }
 
                 try {
                     const res = await fetch('/caja/cobrar/', {
