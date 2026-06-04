@@ -98,7 +98,6 @@
 	}
 
 	/* Mantener todos los alternadores del desplegable con el mismo patrón visual. */
-	.top-bar .clients-toggle,
 	.top-bar .product-toggle,
 	.top-bar .inventario-toggle,
 	.top-bar .pagos-toggle {
@@ -108,7 +107,6 @@
 		color: transparent;
 	}
 
-	.top-bar .clients-toggle::before,
 	.top-bar .product-toggle::before,
 	.top-bar .inventario-toggle::before,
 	.top-bar .pagos-toggle::before {
@@ -118,7 +116,6 @@
 		color: #333;
 	}
 
-	.top-bar .clients-toggle::before { content: "Clientes"; }
 	.top-bar .product-toggle::before { content: "Producto"; }
 	.top-bar .inventario-toggle::before { content: "Inventario"; }
 	.top-bar .pagos-toggle::before { content: "Pagos"; }
@@ -449,14 +446,15 @@
 				<a href="{% url 'catalog' %}" class="nav-link">Catálogo</a>
 
 				{% if 'admin' in user_groups or 'cajero' in user_groups %}
-					<div class="clients-menu" style="position:relative;">
-						<button id="clientsToggle" class="nav-link clients-toggle" aria-haspopup="true" aria-expanded="false">Clientes ▾</button>
-						<div id="clientsDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
-							<a href="{% url 'todos_clientes' %}" class="dropdown-item">Ver clientes</a>
+					{% if user.username != 'Cristian1' %}
+						<div class="clients-menu" style="position:relative;">
+							<button id="clientsToggle" class="nav-link clients-toggle" aria-haspopup="true" aria-expanded="false">Clientes ▾</button>
+							<div id="clientsDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
+								<a href="{% url 'todos_clientes' %}" class="dropdown-item">Ver clientes</a>
+							</div>
 						</div>
-					</div>
+					{% endif %}
 				{% endif %}
-				
 
 				{% if 'admin' in user_groups %}
 					<div class="producto-menu" style="position:relative;">
@@ -537,13 +535,15 @@
 	<div id="barNavMenu" class="nav-menu" role="menu" aria-hidden="true">
 		<a class="nav-item" href="{% url 'catalog' %}">Ver catálogo</a>
 		{% if 'admin' in user_groups or 'cajero' in user_groups %}
-			<div class="nav-item-group">
-				<button class="nav-item nav-subtoggle" type="button" data-target="topbarClientsSubMenu" aria-expanded="false">Clientes <span class="submenu-arrow">›</span></button>
-				<div id="topbarClientsSubMenu" class="nav-submenu" aria-hidden="true">
-					<button class="nav-item nav-back" type="button" data-close-submenu="topbarClientsSubMenu">← Menu</button>
-					<a class="nav-item" href="{% url 'todos_clientes' %}">Ver clientes</a>
+			{% if user.username != 'Cristian1' %}
+				<div class="nav-item-group">
+					<button class="nav-item nav-subtoggle" type="button" data-target="topbarClientsSubMenu" aria-expanded="false">Clientes <span class="submenu-arrow">›</span></button>
+					<div id="topbarClientsSubMenu" class="nav-submenu" aria-hidden="true">
+						<button class="nav-item nav-back" type="button" data-close-submenu="topbarClientsSubMenu">← Menu</button>
+						<a class="nav-item" href="{% url 'todos_clientes' %}">Ver clientes</a>
+					</div>
 				</div>
-			</div>
+			{% endif %}
 		{% endif %}
 		{% if 'cliente' in user_groups or not user.is_authenticated %}
 			<a class="nav-item" href="{% url 'catalog' %}?Categoria=Sublimación">Sublimación</a>
