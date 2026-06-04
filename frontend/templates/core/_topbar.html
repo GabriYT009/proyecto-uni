@@ -240,7 +240,7 @@
 	.nav-item-group{ position:relative; }
 	.nav-subtoggle{ width:100%; border:none; background:#fff; text-align:left; cursor:pointer; display:flex; align-items:center; justify-content:space-between; }
 	.submenu-arrow{ font-weight:900; color:#7a2ea5; }
-	.nav-submenu{ position:absolute; top:0; right:-8px; width:220px; background:#fff; border:1px solid rgba(0,0,0,0.08); border-radius:10px; box-shadow:0 14px 34px rgba(0,0,0,0.16); display:none; z-index:10007; overflow:hidden; }
+	.nav-submenu{ position:absolute; top:0; right:-8px; width:220px; background:#fff; border:1px solid rgba(0,0,0,0.08); border-radius:10px; box-shadow:0 14px 34px rgba(0,0,0,0.16); display:none; z-index:10007; max-height: calc(100vh - 120px); overflow-y: auto; overflow-x: hidden; }
 	.nav-submenu.show{ display:block; }
 	.nav-submenu .nav-item{ border-bottom:1px solid #efefef; }
 	.nav-submenu .nav-item:last-child{ border-bottom:none; }
@@ -591,6 +591,7 @@
 				<div id="topbarInventorySubMenu" class="nav-submenu" aria-hidden="true">
 					<button class="nav-item nav-back" type="button" data-close-submenu="topbarInventorySubMenu">← Menu</button>
 					<a class="nav-item" href="{% url 'inventario' %}">Ver inventario</a>
+					<a class="nav-item" href="{% url 'historial_inventario' %}">Historial de inventario</a>
 					<a class="nav-item" href="{% url 'ajustar_inventario_masivo' %}">Ajustar inventario</a>
 				</div>
 			</div>

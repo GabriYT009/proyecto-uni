@@ -56,7 +56,7 @@ import string
 import datetime
 import unicodedata
 import secrets
-# Password reset codes flow disabled for registration verification
+# Flujo de códigos de restablecimiento de contraseña deshabilitado para verificación de registro
 from django.contrib.auth.forms import AuthenticationForm
 from .bcv import obtener_tasa_cambio
 from .NotaE import Generar_NE
@@ -365,17 +365,17 @@ def _verification_attempts_cache_key(user_id):
 
 
 def _generate_verification_code():
-    # Verification-by-code flow disabled. Return empty string.
+    # Flujo de verificación por código deshabilitado. Retorna cadena vacía.
     return ''
 
 
 def _issue_email_verification_code(user):
-    # Disabled: do not issue any verification codes.
+    # Deshabilitado: no emitir códigos de verificación.
     return None
 
 
 def _send_email_verification_code(user, code):
-    # Disabled: do not send verification codes by email.
+    # Deshabilitado: no enviar códigos de verificación por correo.
     return False
 
 HOME_PRODUCTS_LIMIT = 24

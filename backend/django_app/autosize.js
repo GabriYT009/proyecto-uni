@@ -15,7 +15,7 @@ function findPython(){
     try{
       const r = spawnSync(c, ['--version'], { encoding: 'utf8' });
       if (!r.error && r.status === 0 && r.stdout) return c;
-      if (!r.error && r.status === 0 && r.stderr) return c; // some pythons print to stderr
+      if (!r.error && r.status === 0 && r.stderr) return c; // algunos Python imprimen en stderr
     }catch(e){}
   }
   return null;
@@ -41,7 +41,7 @@ function main(){
   }
   console.log('Found Python command:', pythonCmd);
 
-  // create venv if missing
+  // crear el entorno virtual si falta
   if (!existsSync(path.join(__dirname, '.venv'))){
     console.log('Creating virtual environment (.venv) ...');
     runSync(pythonCmd, ['-m','venv','.venv']);
@@ -58,7 +58,7 @@ function main(){
     try{ runSync(pythonExe, ['-m','ensurepip','--upgrade']); }catch(e){ console.warn('ensurepip failed:', e.message); }
   }
 
-  // install requirements
+  // instalar dependencias
   if (existsSync(path.join(__dirname,'requirements.txt'))){
     console.log('Installing requirements from requirements.txt ...');
     const pipToUse = pipExe || pythonExe;
@@ -68,7 +68,7 @@ function main(){
     console.log('requirements.txt not found, skipping pip install');
   }
 
-  // import SQL dump if present
+  // importar volcado SQL si está presente
   const importScript = path.join(__dirname,'scripts','import_sql.py');
   if (existsSync(importScript)){
     console.log('Importing SQL dump using', importScript);
