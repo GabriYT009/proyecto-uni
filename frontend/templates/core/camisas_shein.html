@@ -558,7 +558,7 @@
     </div>
 
     <script>
-        // Toggle del menú hamburguesa + clic fuera para cerrar
+        // Alternador del menú hamburguesa + clic fuera para cerrar
         (function(){
             const navToggle = document.getElementById('barToggle');
             const navMenu = document.getElementById('barNavMenu');
@@ -619,7 +619,7 @@
     </script>
 
     <script>
-        // Profile dropdown
+        // Desplegable de perfil
         (function(){
             const toggle = document.getElementById('profileToggle');
             const dropdown = document.getElementById('profileDropdown');
@@ -647,7 +647,7 @@
     </script>
 
     <script>
-        // Top nav dropdowns
+        // Desplegables de navegación superior
         (function(){
             const pairs = [
                 ['productToggle', 'productDropdown']
@@ -681,7 +681,7 @@
     </script>
 
     <script>
-        // Search behavior
+        // Comportamiento de búsqueda
         (function(){
             const input = document.getElementById('searchInput');
             const button = document.querySelector('.search-btn');
@@ -712,7 +712,7 @@
             const defaultTalla = '{{ default_talla|escapejs }}';
             const stockPorTallaEl = document.getElementById('stock-por-talla');
             const stockPorTalla = stockPorTallaEl ? JSON.parse(stockPorTallaEl.textContent || '{}') : {};
-            const sizeButtons = document.querySelectorAll('.size-pill');
+            const sizeBotones = document.querySelectorAll('.size-pill');
             const tallaInput = document.getElementById('tallaInput');
             const modalTallaInput = document.getElementById('modalTallaInput');
             const modalTallaLabel = document.getElementById('modalTallaLabel');
@@ -789,7 +789,7 @@
                 if (addCartBtn) addCartBtn.disabled = !hasStock;
                 if (modalSubmitBtn) modalSubmitBtn.disabled = !hasStock;
 
-                sizeButtons.forEach(function(button){
+                sizeBotones.forEach(function(button){
                     const soldOut = getStock(button.dataset.size) <= 0;
                     button.classList.toggle('is-soldout', soldOut);
                     button.disabled = soldOut;
@@ -807,13 +807,13 @@
                 tallaInput.value = value;
                 modalTallaInput.value = value;
                 modalTallaLabel.value = value;
-                sizeButtons.forEach(function(button){
+                sizeBotones.forEach(function(button){
                     button.classList.toggle('active', button.dataset.size === value);
                 });
                 syncQuantity(value);
             }
 
-            sizeButtons.forEach(function(button){
+            sizeBotones.forEach(function(button){
                 button.addEventListener('click', function(){
                     setTalla(button.dataset.size);
                 });

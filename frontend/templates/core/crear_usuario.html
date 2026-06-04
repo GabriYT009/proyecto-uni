@@ -108,7 +108,7 @@
     /* Smaller, centered register card for better display */
     .register-wrapper{ min-height: calc(100vh - 40px); display:flex; align-items:flex-start; justify-content:center; padding-top:28px; padding-bottom:28px; }
     .register-card{
-        /* Make the card narrower to avoid overflowing the page */
+        /* Hacer la tarjeta más estrecha para evitar que desborde la página */
         max-width: 560px;
         width: min(560px, 92%);
         margin: 0 auto;
@@ -141,7 +141,7 @@
     }
     .register-form select:focus{ outline: 2px solid rgba(125,13,136,0.12); z-index:9999; position:relative; }
     .register-form select option{ background: #fff; color: #222; }
-    /* Ensure dropdowns appear above other elements */
+    /* Asegurar que los desplegables aparezcan por encima de otros elementos */
     .register-form .full{ position: relative; }
     .register-form .password-field { position:relative }
     .register-form button[type="submit"]{ width:100%; padding:10px 14px; border-radius:10px; }
@@ -471,7 +471,7 @@
                     e.preventDefault();
                     var txt = (e.clipboardData || window.clipboardData).getData('text') || '';
                     var only = txt.replace(/\D/g,'').slice(0,8);
-                    // insert sanitized digits at cursor
+                    // insertar dígitos sanitizados en el cursor
                     var start = elc.selectionStart || 0;
                     var end = elc.selectionEnd || 0;
                     var newVal = (elc.value.slice(0,start) + only + elc.value.slice(end)).replace(/\D/g,'').slice(0,8);

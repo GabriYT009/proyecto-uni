@@ -145,7 +145,7 @@
         #checkout:hover{ transform:translateY(-2px); box-shadow:0 12px 28px rgba(178,59,214,0.22) }
         #clear-invoice{ background:#f3eef9; color:#5b2b80; border:1px solid rgba(155,50,204,0.08); padding:10px 14px; border-radius:10px }
 
-        /* Sticky actions on small screens */
+        /* Acciones fijas en pantallas pequeñas */
         @media (max-width:768px){
             .summary-card{ position:sticky; bottom:12px; z-index:20; }
             .summary-card .totals{ order:1 }
@@ -341,7 +341,7 @@
             document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeNav(); });
         })();
 
-        // Product dropdown toggle (caja page)
+        // Alternador de desplegable de producto (página caja)
         (function(){
             const toggle = document.getElementById('productToggle');
             const dropdown = document.getElementById('productDropdown');
@@ -366,7 +366,7 @@
             document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeProduct(); });
         })();
 
-        // Profile dropdown toggle (caja page)
+        // Alternador del desplegable de perfil (página caja)
         (function(){
             const profileToggle = document.getElementById('profileToggle');
             const profileDropdown = document.getElementById('profileDropdown');
@@ -391,7 +391,7 @@
             document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeProfile(); });
         })();
 
-// Quick POS behavior: click inventory item to add to invoice
+// Comportamiento rápido de TPV: clic en artículo de inventario para añadir a la factura
         (function(){
             // 1. Traemos la tasa del backend
             var tasaBackend = parseFloat("{{ valor_dolar|default:0 }}") || 0;
@@ -482,7 +482,7 @@
                         recalc();
                     });
 
-                    // Handler para eliminar el item
+                    // Manejador para eliminar el ítem
                     var rem = tr.querySelector('.remove-item');
                     if(rem){
                         rem.addEventListener('click', function(e){
@@ -545,7 +545,7 @@
                 }
             });
 
-            // client autocomplete when typing document number
+            // autocompletado de cliente al escribir el número de documento
             var clientes = JSON.parse(document.getElementById('clientes-data').textContent || '[]');
             var clientDocInput = document.getElementById('client-doc');
             var clientNameInput = document.getElementById('client-name-input');

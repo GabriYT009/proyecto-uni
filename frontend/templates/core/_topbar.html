@@ -97,7 +97,7 @@
 		-webkit-appearance: none;
 	}
 
-	/* Mantener todos los toggles del dropdown con el mismo patrón visual. */
+	/* Mantener todos los alternadores del desplegable con el mismo patrón visual. */
 	.top-bar .clients-toggle,
 	.top-bar .product-toggle,
 	.top-bar .inventario-toggle,
@@ -206,7 +206,7 @@
 		min-width: 180px;
 	}
 
-	/* Evitar que etiquetas largas (por ejemplo, "Ordenes de sublimacion") se salgan del dropdown. */
+	/* Evitar que etiquetas largas (por ejemplo, "Ordenes de sublimacion") se salgan del desplegable. */
 	.top-bar .pagos-menu > .profile-dropdown {
 		min-width: 230px;
 	}
@@ -590,7 +590,7 @@
 
 <script>
 	(function(){
-		// Mobile nav toggle + submenu handlers
+		// Alternador de navegación móvil + controladores de submenú
 		(function(){
 			const barToggle = document.getElementById('barToggle');
 			const barNav = document.getElementById('barNavMenu');
@@ -747,7 +747,7 @@
 					try { e.preventDefault && e.preventDefault(); } catch(_) {}
 					window.location.href = url;
 				}
-			}, true); // useCapture = true para priorizar este flujo sobre otros handlers
+			}, true); // useCapture = true para priorizar este flujo sobre otros manejadores
 		} catch(err) { console.warn('search enforce handler failed', err); }
 	})();
 </script>
@@ -790,7 +790,7 @@
 							}
 
 							// Cargar y mostrar el modal. Esto mantiene el mismo comportamiento
-							// que ya usamos en home y catálogo.
+							// que ya usamos en inicio y catálogo.
 							const titleEl = document.getElementById('m-title');
 							const imgEl = document.getElementById('m-img');
 							const descEl = document.getElementById('m-desc');
@@ -810,17 +810,17 @@
 						}
 					}
 				} catch (err) {
-					// Si algo falla aquí, dejamos que continúe el fallback de navegación.
+					// Si algo falla aquí, dejamos que continúe el plan B de navegación.
 					console.warn('search result modal open failed:', err);
 				}
 
-				// Fallback: usar dataset.cat o dataset.category si existe.
+				// Plan B: usar dataset.cat o dataset.category si existe.
 				const rawCat = item.dataset.cat || item.dataset.category || '';
 				const category = (rawCat || '').toString().normalize ? rawCat.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase() : rawCat.toLowerCase();
 				if (category === 'camisas' || category === 'tazas' || category === 'sublimacion') {
 					window.location.href = '/producto/' + id + '/camisas/';
 				} else {
-					// Fallback final: abrir la ruta canónica del detalle del producto.
+					// Plan B final: abrir la ruta canónica del detalle del producto.
 					window.location.href = '/producto/' + id + '/';
 				}
 			});

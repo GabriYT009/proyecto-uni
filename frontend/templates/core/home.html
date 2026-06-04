@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Inicio</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <!-- Estilos vendor y principales de catálogo para mantener la apariencia del modal -->
+    <!-- Estilos del proveedor y principales de catálogo para mantener la apariencia del modal -->
     <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
     <link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
     <meta name="csrf-token" content="{{ csrf_token }}">
@@ -14,7 +14,7 @@
         window.alert = function(msg){ try{ console.log('alert suppressed:', msg); }catch(e){} };
     </script>
     <script>
-    // Modal de detalle de producto en home (igual que catalog.js)
+    // Modal de detalle de producto en la página de inicio (igual que catalog.js)
     (function(){
         function openDetailFromButton(button){
             const modal = document.getElementById('detailModal');
@@ -56,7 +56,7 @@
                 openDetailFromButton(btn);
             }
         }, true);
-        // Cerrar modal al hacer click fuera del dialog
+        // Cerrar modal al hacer clic fuera del diálogo
         document.addEventListener('click', function(ev){
             const modal = document.getElementById('detailModal');
             if (!modal || !modal.classList.contains('show')) return;
@@ -87,7 +87,7 @@
             margin:0;
             color:#000;
             min-height:100vh;
-            padding-top:80px; /* dejar espacio para el top bar */
+            padding-top:80px; /* dejar espacio para la barra superior */
             display: flex;
             flex-direction: column;
             overflow-x: hidden;
@@ -99,7 +99,7 @@
         #__next, #root, .main-bg, .main-background, .giant-frame, .wrap, .categories, .category-section {
             background: #fff !important;
         }
-        /* Giant frame around everything */
+        /* Marco gigante alrededor de todo */
         .giant-frame {
             border-radius: 25px;
             margin: 30px;
@@ -121,7 +121,7 @@
             text-align:center;
             margin:0 auto 24px;
         }
-        /* top full-width bar */
+        /* barra superior de ancho completo */
         .top-bar{ position: fixed; top:0; left:0; right:0; height:70px; background:#fff; border-bottom:1px solid rgba(0,0,0,0.06); z-index:10000; transition: all 240ms cubic-bezier(.2,.9,.2,1); box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .top-bar .bar-inner{ max-width:1400px; margin:0 auto; height:70px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; position:relative; }
         .top-bar .btn{ background:transparent; color:#9932CC; border:1px solid rgba(153,50,204,0.12); padding:8px 14px; border-radius:8px; }
@@ -132,11 +132,11 @@
         .bar-logo-link{ display:flex; align-items:center; font-size:24px; font-weight:700; color:#9932CC; text-decoration:none; }
         .bar-logo-text{ font-size:24px; font-weight:700; color:#9932CC; }
 
-        /* Search container */
+        /* Contenedor de búsqueda */
         .search-container{ display:flex; align-items:center; background:#f5f5f5; border-radius:25px; padding:5px; width:400px; }
         .search-input{ flex:1; border:none; background:transparent; padding:8px 15px; font-size:16px; outline:none; }
         .search-btn{ background:#fff; color:#9932CC; border:none; border-radius:20px; width:35px; height:35px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; margin-right:5px; }
-        /* Search results dropdown */
+        /* Desplegable de resultados de búsqueda */
         .search-results {
             position: absolute;
             top: 100%;
@@ -206,16 +206,16 @@
         .cart-link-inline .cart-icon{ width:24px; height:24px; object-fit:contain; display:block; }
         .cart-count{ position:absolute; top:-5px; right:-5px; background:#9932CC; color:#fff; border-radius:50%; padding:2px 6px; font-size:12px; font-weight:600; }
 
-        /* Main navigation */
+        /* Navegación principal */
         .main-nav{ display:flex; gap:30px; margin-right:30px; }
         .nav-link{ color:#333; text-decoration:none; font-weight:600; font-size:16px; padding:8px 12px; border-radius:6px; transition: all 0.3s ease; }
         .nav-link:hover{ background:#f0f0f0; color:#9932CC; }
 
-        .bar-toggle{ display:none; /* hide on desktop */ }
+        .bar-toggle{ display:none; /* ocultar en escritorio */ }
         /* cuando la barra está colapsada mostrar logo dentro del contenedor pequeño */
         .top-bar.collapsed .bar-logo-link{ left:8px; top:8px; z-index:10003; }
         .top-bar.collapsed .bar-logo-link img.bar-logo{ width:28px; height:28px; border-radius:6px; }
-        /* colocar el toggle a la derecha dentro del contenedor colapsado para poder expandir de nuevo */
+        /* colocar el alternador a la derecha dentro del contenedor colapsado para poder expandir de nuevo */
         .top-bar.collapsed .bar-toggle{ left:auto; right:8px; top:8px; z-index:10004; }
         .bar-toggle .hamburger{ width:20px; height:14px; position:relative; display:inline-block; }
         .bar-toggle .hamburger span{ position:absolute; left:0; right:0; height:2px; background:#9932CC; border-radius:2px; }
@@ -224,9 +224,9 @@
         .bar-toggle .hamburger span:nth-child(3){ top:12px; }
         .top-bar.collapsed .bar-toggle{ display:flex; }
 
-        /* username display: keep positioning only so logout-button styles apply */
+        /* visualización de usuario: conservar posicionamiento solo para aplicar estilos al botón de cerrar sesión */
         .user-name{ position:relative; z-index:10002; }
-        /* profile dropdown */
+        /* desplegable de perfil */
         .profile-menu{ position:relative; display:inline-block; }
         .profile-btn{ background: #ffffff; color: #9932CC; padding: 8px 12px; border-radius: 20px; border: none; font-weight:600; display:flex; align-items:center; gap:8px; cursor:pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
         .profile-btn:focus{ outline:2px solid rgba(153,50,204,0.12); }
@@ -240,7 +240,7 @@
         .nav-menu.show{ display:block; }
         .nav-menu .nav-item{ display:block; padding:10px 12px; color:#333; text-decoration:none; font-weight:700; }
         .nav-menu .nav-item:hover{ background:#f7f7f7; }
-        /* groups inside bar-inner */
+        /* grupos dentro de bar-inner */
         .bar-inner .group{ display:flex; align-items:center; gap:15px; }
         .bar-inner .bar-left{ flex:0 0 auto; }
         .bar-inner .bar-center{ flex:1 1 auto; display:flex; justify-content:center; }
@@ -256,7 +256,7 @@
             font-weight: 600;
             box-shadow: 0 2px 6px rgba(0,0,0,0.12);
         }
-        /* avatar next to username */
+        /* avatar junto al nombre de usuario */
         .avatar{ width:24px; height:24px; border-radius:50%; object-fit:cover; vertical-align:middle; margin-right:8px; }
         a.logout-button:hover{ box-shadow: 0 4px 10px rgba(0,0,0,0.16); }
 
@@ -279,11 +279,11 @@
         .card .row{ display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:12px; }
         .btn{ background:#9932CC; color:#fff; padding:8px 12px; border-radius:8px; text-decoration:none; border:none; cursor:pointer; }
 
-        /* category sections */
+        /* secciones de categoría */
         .category-section{ margin:40px 0; }
         .category-section h2{ text-align:center; color:#9932CC; margin-bottom:20px; font-size:24px; }
 
-        /* modal detalle (match catalog) */
+        /* modal detalle (igual que catálogo) */
         #detailModal{ position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.45); z-index: 9999; }
         #detailModal.show{ display: flex; }
         /* estado inicial del diálogo interno para permitir animación de entrada */
@@ -400,7 +400,7 @@
             font-weight: 600;
         }
 
-        /* Footer */
+        /* Pie de página */
         .hero {
             position: relative;
             overflow: hidden;
@@ -747,7 +747,7 @@
         </section>
 
     <script>
-        // Category bar scrolling controls (home)
+        // Controles de desplazamiento de barra de categorías (inicio)
         (function(){
             const left = document.querySelector('.cat-scroll-left');
             const right = document.querySelector('.cat-scroll-right');
@@ -789,7 +789,7 @@
             function step(){
                 idx += 1;
                 if (idx < cards.length) { center(idx); return; }
-                // wrap to start: show last briefly, then jump to 0
+                // envolver al inicio: mostrar el último brevemente, luego saltar a 0
                 setTimeout(function(){ try{ bar.scrollTo({ left: 0, behavior: 'auto' }); } catch(e){ bar.scrollLeft = 0; } idx = 0; }, 250);
             }
 
@@ -801,12 +801,12 @@
                 resumeTimeoutId = setTimeout(function(){ userInteracting = false; resumeTimeoutId = null; start(); }, delay || 1800);
             }
 
-            // Helper to immediately cancel any ongoing smooth scroll (so user drag isn't overridden)
+            // Ayudante para cancelar inmediatamente cualquier desplazamiento suave en curso (para que el arrastre del usuario no se sobrescriba)
             function cancelSmoothScroll(){
-                try{ // jump to current position instantly
+                try{ // saltar a la posición actual instantáneamente
                     const cur = bar.scrollLeft;
                     bar.scrollTo({ left: cur, behavior: 'auto' });
-                }catch(e){ /* ignore */ }
+                }catch(e){ /* ignorar */ }
             }
 
             // Pausar cuando el usuario empieza a interactuar con la barra (puntero o touch) o usa rueda
@@ -820,7 +820,7 @@
             }, { passive: true });
 
             bar.addEventListener('pointermove', function(e){
-                // while pointer is down, maintain interacting state; no-op otherwise
+                // mientras el puntero esté presionado, mantener el estado de interacción; no-op de lo contrario
                 if (!isPointerDown) return;
                 // asegurar que el intervalo siga detenido mientras arrastra
                 if (!userInteracting) { userInteracting = true; stop(); }
@@ -844,14 +844,14 @@
             document.addEventListener('touchend', function(){ if (userInteracting) scheduleResume(); }, { passive: true });
             document.addEventListener('mouseup', function(){ if (userInteracting) scheduleResume(); }, { passive: true });
 
-            // Also detect manual scroll (e.g., dragging scrollbar) to pause/resume
+            // También detectar desplazamiento manual (por ejemplo, arrastrar la barra de desplazamiento) para pausar/reanudar
             bar.addEventListener('scroll', function(){
                 // si hay temporizador activo, asumir scroll del usuario y pausar
                 if (!userInteracting) {
                     userInteracting = true;
                     stop();
                 }
-                // schedule resume after a short inactivity period
+                // programar reanudación después de un breve período de inactividad
                 scheduleResume(1200);
             }, { passive: true });
 
@@ -865,7 +865,7 @@
         })();
     </script>
 
-        <!-- Footer -->
+        <!-- Pie de página -->
         <footer class="footer" style="margin-top:auto; font-family: 'Montserrat', sans-serif;">
             <div class="footer-content" style="justify-content: center; align-items: flex-start;">
                 <div class="footer-section" style="min-width: 220px;">
@@ -893,7 +893,7 @@
     </div>
     </div>
 
-    <!-- Detail modal (same structure as catalog) -->
+    <!-- Modal de detalle (misma estructura que catálogo) -->
     <div id="detailModal" role="dialog" aria-hidden="true" style="display:none;">
         <div class="detail-modal" style="max-width:520px;margin:40px auto;padding:16px;background:#fff;border-radius:8px;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -918,7 +918,7 @@
         console.log('Products loaded (home):', products && products.length);
     </script>
     <script>
-        // Handler robusto de apertura de producto en Home: abrir modal, fallback a detalle.
+        // Manejador robusto de apertura de producto en inicio: abrir modal, plan B a detalle.
         (function(){
             function findProduct(id){
                 const list = window.products || products || [];
@@ -1044,7 +1044,7 @@
                     // también prevenir default en elementos enfocables que podrían causar salto
                     try{ e.preventDefault(); } catch(e){}
                 }
-            }catch(err){/* ignore */}
+            }catch(err){/* ignorar */}
         }, true);
     </script>
     <script>
@@ -1117,7 +1117,7 @@
         })();
     </script>
     <script>
-        // Profile dropdown
+        // Desplegable de perfil
         (function(){
             const toggle = document.getElementById('profileToggle');
             const dropdown = document.getElementById('profileDropdown');
@@ -1146,7 +1146,7 @@
         })();
     </script>
         <script>
-            // Category dropdown (home)
+            // Desplegable de categoría (inicio)
             (function(){
                 const catToggle = document.getElementById('categoryToggle');
                 const catDropdown = document.getElementById('categoryDropdown');
@@ -1158,14 +1158,14 @@
             })();
         </script>
     <script>
-        // Carrito functionality
+        // Funcionalidad de carrito
         function updateCartCount(count) {
             document.getElementById('cart-count').textContent = count;
         }
 
         // Modal y carrito gestionados por core/catalog.js (incluido abajo)
 
-        // Live search functionality
+        // Funcionalidad de búsqueda en vivo
         const searchInput = document.getElementById('searchInput');
         const searchResults = document.getElementById('searchResults');
 
@@ -1181,7 +1181,7 @@
             const filteredProducts = products.filter(product =>
                 product.title.toLowerCase().includes(query.toLowerCase()) ||
                 product.desc.toLowerCase().includes(query.toLowerCase())
-            ).slice(0, 5); // Limit to 5 results
+            ).slice(0, 5); // Limitar a 5 resultados
 
             if (filteredProducts.length > 0) {
                 const resultsHtml = filteredProducts.map(product => {
@@ -1208,7 +1208,7 @@
         searchInput.addEventListener('input', function(e) {
             const query = e.target.value.trim();
             clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => performSearch(query), 300); // Debounce search
+            searchTimeout = setTimeout(() => performSearch(query), 300); // Búsqueda con retardo
         });
 
         // Manejar tecla Enter para redirigir al catálogo
@@ -1221,14 +1221,14 @@
             }
         });
 
-        // Hide search results when clicking outside
+        // Ocultar resultados de búsqueda al hacer clic fuera
         document.addEventListener('click', function(e) {
             if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
                 searchResults.classList.remove('show');
             }
         });
 
-        // Handle search result clicks
+        // Manejar clics en resultados de búsqueda
         searchResults.addEventListener('click', function(e) {
             const resultItem = e.target.closest('.search-result-item');
             if (!resultItem) return;
@@ -1356,7 +1356,7 @@
         })();
     </script>
     <script>
-        // Asegurar que el botón "Comprar" del modal redirija a la página de compra (home)
+        // Asegurar que el botón "Comprar" del modal redirija a la página de compra (inicio)
         (function(){
             const buyBtn = document.getElementById('m-buy');
             if (!buyBtn) return;
@@ -1370,7 +1370,7 @@
         })();
     </script>
     <script>
-        // Delegate clicks on in-card add buttons to addToCart
+        // Delegar clics en botones de agregar dentro de tarjeta a addToCart
         document.addEventListener('click', function(e){
             const btn = e.target.closest && e.target.closest('.add-cart');
             if (!btn) return;

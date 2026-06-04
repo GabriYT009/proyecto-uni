@@ -6,18 +6,18 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Clientes</title>
 
-    <!-- Fonts -->
+    <!-- Fuentes -->
     <link href="https://fonts.googleapis.com" rel="preconnect">
     <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900&display=swap" rel="stylesheet">
-    <!-- Vendor CSS Files -->
+    <!-- Archivos CSS de proveedores -->
     <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
     <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
     <link href="{% static 'vendor/aos/aos.css' %}" rel="stylesheet">
     <link href="{% static 'vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
     <link href="{% static 'vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
 
-    <!-- Main CSS File -->
+    <!-- Archivo CSS principal -->
     <link href="{% static 'css/main.css' %}" rel="stylesheet">
 
     <meta name="csrf-token" content="{{ csrf_token }}">
@@ -271,7 +271,7 @@
                 document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeNav(); });
             })();
 
-            // Product dropdown toggle (clientes page)
+            // Alternador de desplegable de producto (página clientes)
             (function(){
                 const toggle = document.getElementById('productToggle');
                 const dropdown = document.getElementById('productDropdown');
@@ -296,7 +296,7 @@
                 document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeProduct(); });
             })();
 
-            // Profile dropdown toggle (clientes page)
+            // Alternador del desplegable de perfil (página clientes)
             (function(){
                 const profileToggle = document.getElementById('profileToggle');
                 const profileDropdown = document.getElementById('profileDropdown');
@@ -321,7 +321,7 @@
                 document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeProfile(); });
             })();
 
-            // Category dropdown (clientes page)
+            // Desplegable de categoría (página clientes)
             (function(){
                 const catToggle = document.getElementById('categoryToggle');
                 const catDropdown = document.getElementById('categoryDropdown');

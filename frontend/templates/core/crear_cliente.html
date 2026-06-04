@@ -8,7 +8,7 @@
     <title>Registro de Cliente</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <style>
-        /* Giant frame around everything */
+        /* Marco gigante alrededor de todo */
         .giant-frame {
             border-radius: 25px;
             margin: 40px auto;
@@ -26,10 +26,10 @@
             margin:0;
             color:#000;
             min-height:100vh;
-            padding-top:100px; /* dejar espacio para el top bar */
+            padding-top:100px; /* dejar espacio para la barra superior */
         }
 
-        /* top full-width bar */
+        /* barra superior de ancho completo */
     .top-bar{ position: fixed; top:0; left:0; right:0; height:70px; background:rgb(72 13 102); border-bottom:1px solid rgba(153,50,204,0.12); z-index:10000; transition: all 240ms cubic-bezier(.2,.9,.2,1); box-shadow: 0 16px 36px rgba(102,32,128,0.12); }
         .top-bar .bar-inner{ max-width:1400px; margin:0 auto; height:70px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; position:relative; }
     .top-bar .btn{ background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.24); padding:8px 14px; border-radius:8px; }
@@ -40,7 +40,7 @@
         .bar-logo-link{ display:flex; align-items:center; font-size:24px; font-weight:700; color:#fff; text-decoration:none; }
         .bar-logo-text{ font-size:24px; font-weight:700; color:#fff; }
 
-        /* Search container */
+        /* Contenedor de búsqueda */
         .search-container{ display:flex; align-items:center; background:#f5f5f5; border-radius:25px; padding:5px; width:400px; }
         .search-input{ flex:1; border:none; background:transparent; padding:8px 15px; font-size:16px; outline:none; }
         .search-btn{ background:#fff; color:#9932CC; border:none; border-radius:20px; width:35px; height:35px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; margin-right:5px; }
@@ -49,16 +49,16 @@
         .cart-link-inline .cart-icon{ width:24px; height:24px; object-fit:contain; display:block; }
         .cart-count{ position:absolute; top:-5px; right:-5px; background:#9932CC; color:#fff; border-radius:50%; padding:2px 6px; font-size:12px; font-weight:600; }
 
-        /* Main navigation */
+        /* Navegación principal */
         .main-nav{ display:flex; gap:30px; margin-right:30px; }
         .nav-link{ color:#333; text-decoration:none; font-weight:600; font-size:16px; padding:8px 12px; border-radius:6px; transition: all 0.3s ease; }
         .nav-link:hover{ background:#f0f0f0; color:#9932CC; }
 
-        .bar-toggle{ display:none; /* hide on desktop */ }
+        .bar-toggle{ display:none; /* ocultar en escritorio */ }
         /* cuando la barra está colapsada mostrar logo dentro del contenedor pequeño */
         .top-bar.collapsed .bar-logo-link{ left:8px; top:8px; z-index:10003; }
         .top-bar.collapsed .bar-logo-link img.bar-logo{ width:28px; height:28px; border-radius:6px; }
-        /* colocar el toggle a la derecha dentro del contenedor colapsado para poder expandir de nuevo */
+        /* colocar el alternador a la derecha dentro del contenedor colapsado para poder expandir de nuevo */
         .top-bar.collapsed .bar-toggle{ left:auto; right:8px; top:8px; z-index:10004; }
         .bar-toggle .hamburger{ width:20px; height:14px; position:relative; display:inline-block; }
         .bar-toggle .hamburger span{ position:absolute; left:0; right:0; height:2px; background:#9932CC; border-radius:2px; }
@@ -67,9 +67,9 @@
         .bar-toggle .hamburger span:nth-child(3){ top:12px; }
         .top-bar.collapsed .bar-toggle{ display:flex; }
 
-        /* username display: keep positioning only so logout-button styles apply */
+        /* visualización de usuario: conservar posicionamiento solo para aplicar estilos al botón de cerrar sesión */
         .user-name{ position:relative; z-index:10002; }
-        /* profile dropdown */
+        /* desplegable de perfil */
         .profile-menu{ position:relative; display:inline-block; }
         .profile-btn{ background: #ffffff; color: #9932CC; padding: 8px 12px; border-radius: 20px; border: none; font-weight:600; display:flex; align-items:center; gap:8px; cursor:pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
         .profile-btn:focus{ outline:2px solid rgba(153,50,204,0.12); }
@@ -92,7 +92,7 @@
         .nav-submenu .nav-item{ border-bottom:1px solid #efefef; }
         .nav-submenu .nav-item:last-child{ border-bottom:none; }
         .nav-submenu .nav-back{ background:#f7f2fb; color:#5b2b80; }
-        /* groups inside bar-inner */
+        /* grupos dentro de bar-inner */
         .bar-inner .group{ display:flex; align-items:center; gap:15px; }
         .bar-inner .bar-left{ flex:0 0 auto; }
         .bar-inner .bar-center{ flex:1 1 auto; display:flex; justify-content:center; }
@@ -108,11 +108,11 @@
             font-weight: 600;
             box-shadow: 0 2px 6px rgba(0,0,0,0.12);
         }
-        /* avatar next to username */
+        /* avatar junto al nombre de usuario */
         .avatar{ width:24px; height:24px; border-radius:50%; object-fit:cover; vertical-align:middle; margin-right:8px; }
         a.logout-button:hover{ box-shadow: 0 4px 10px rgba(0,0,0,0.16); }
 
-        /* Cart page specific styles */
+        /* Estilos específicos de la página de carrito */
         .card-body h2 {
             text-align: center;
             color: #9932CC;
@@ -126,7 +126,7 @@
             margin: 0 auto;
         }
 
-        /* Form styles */
+        /* Estilos de formulario */
         form label {
             display: block;
             margin-bottom: 5px;
@@ -233,12 +233,12 @@
         })();
     </script>
     <script>
-    // Client-side final validation on submit
+    // Validación final del lado del cliente al enviar
     (function(){
         function findField(name){ return document.querySelector('[name="'+name+'"]'); }
         function showErrorForField(fieldEl, msg){
             if(!fieldEl) return;
-            // try to find existing .field-error sibling
+            // intentar encontrar un hermano .field-error existente
             var next = fieldEl.nextElementSibling;
             while(next){ if(next.classList && next.classList.contains('field-error')) break; next = next.nextElementSibling; }
             if(!next){
@@ -309,13 +309,13 @@
                 else if (cedrep.length > 8) errors.cedula_dni_representante = 'La cédula del representante no puede tener más de 8 dígitos.';
             }
 
-            // display errors if any
+            // mostrar errores si los hay
             var firstField = null;
             Object.keys(errors).forEach(function(k){
                 var fieldName = k;
                 var el = findField(fieldName);
                 if (!el){
-                    // map some keys to different names
+                    // mapear algunas teclas a nombres diferentes
                     if (fieldName === 'id_tipo_cliente') el = document.getElementById('tipo');
                     else if (fieldName === 'nombre_empresa') el = findField('nombre_empresa');
                 }
@@ -392,7 +392,7 @@
         })();
     </script>
     <script>
-        // Profile dropdown
+        // Desplegable de perfil
         (function(){
             const toggle = document.getElementById('profileToggle');
             const dropdown = document.getElementById('profileDropdown');
@@ -421,7 +421,7 @@
         })();
     </script>
     <script>
-        // Toggle top-bar
+        // Alternar barra superior
         (function(){
             try{ localStorage.removeItem('topBarCollapsed'); }catch(e){}
             const topBar = document.getElementById('topBar');
@@ -677,7 +677,7 @@
                     e.preventDefault();
                     var txt = (e.clipboardData || window.clipboardData).getData('text') || '';
                     var only = txt.replace(/\D/g,'').slice(0,8);
-                    // insert sanitized digits at cursor
+                    // insertar dígitos sanitizados en el cursor
                     var start = elc.selectionStart || 0;
                     var end = elc.selectionEnd || 0;
                     var newVal = (elc.value.slice(0,start) + only + elc.value.slice(end)).replace(/\D/g,'').slice(0,8);
@@ -695,7 +695,7 @@
             var errCedRep = document.getElementById('cedula_rep_error_client');
 
             if (rif){
-                // Prefer explicit prefix select if available
+                // Preferir selectores de prefijo explícitos si están disponibles
                 var rifPrefixSelect = document.getElementById('rif_prefix');
                 // Normalizar entrada: mantener prefijo seleccionado y dígitos
                 function normalizeRif(){
@@ -772,7 +772,7 @@
         // Limpiar el buscador al cargar la página (para navegación)
         document.getElementById('searchInput').value = '';
 
-        // Handle Enter key to search
+        // Manejar tecla Enter para buscar
         document.getElementById('searchInput').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 const query = e.target.value.trim();

@@ -216,7 +216,7 @@
         }
     });
 
-    // Modal handlers
+    // Manejadores del modal
     function closeAjusteModal(){
         const modal = document.getElementById('ajusteMotivoModal');
         if(modal){ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); }
@@ -341,7 +341,7 @@
     </div>
 
     <style>
-        /* Estilo simple del overlay modal para ajustar_inventario */
+        /* Estilo simple de la superposición modal para ajustar_inventario */
         #ajusteMotivoModal { display:none; }
         #ajusteMotivoModal.open { display:flex; position:fixed; inset:0; background:rgba(42, 19, 61, 0.58); backdrop-filter: blur(2px); z-index:40000; align-items:center; justify-content:center; padding:24px; }
         #ajusteMotivoModal .modal-content { width:min(100%, 520px); display:flex; align-items:center; }

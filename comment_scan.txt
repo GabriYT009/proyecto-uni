@@ -1,0 +1,149 @@
+frontend\templates\core\_topbar.html:209:Evitar que etiquetas largas (por ejemplo, "Ordenes de sublimacion") se salgan del dropdown.
+frontend\templates\core\_topbar.html:593:Mobile nav toggle + submenu handlers
+frontend\templates\core\_topbar.html:792:Cargar y mostrar el modal. Esto mantiene el mismo comportamiento
+frontend\templates\core\agregar_marca.html:16:Vendor CSS Files
+frontend\templates\core\agregar_marca.html:23:Main CSS File
+frontend\templates\core\agregar_marca.html:452:Main Content
+frontend\templates\core\agregar_marca.html:523:Bootstrap JS
+frontend\templates\core\ajustar_inventario.html:219:Modal handlers
+frontend\templates\core\ajustar_inventario.html:303:Modal para motivo de ajuste
+frontend\templates\core\ajustar_inventario.html:344:Estilo simple del overlay modal para ajustar_inventario
+frontend\templates\core\caja.html:344:Product dropdown toggle (caja page)
+frontend\templates\core\caja.html:369:Profile dropdown toggle (caja page)
+frontend\templates\core\caja.html:394:Quick POS behavior: click inventory item to add to invoice
+frontend\templates\core\camisas_shein.html:622:Profile dropdown
+frontend\templates\core\camisas_shein.html:684:Search behavior
+frontend\templates\core\carrito.html:38:Search container
+frontend\templates\core\carrito.html:47:Main navigation
+frontend\templates\core\carrito.html:56:colocar el toggle a la derecha dentro del contenedor colapsado para poder expandir de nuevo
+frontend\templates\core\carrito.html:65:username display: keep positioning only so logout-button styles apply
+frontend\templates\core\carrito.html:67:profile dropdown
+frontend\templates\core\carrito.html:110:Cart page specific styles
+frontend\templates\core\carrito.html:222:Modal confirm styles
+frontend\templates\core\carrito.html:308:Profile dropdown
+frontend\templates\core\carrito.html:337:Category dropdown
+frontend\templates\core\carrito.html:363:Carrito functionality
+frontend\templates\core\carrito.html:375:Handle Enter key to search
+frontend\templates\core\carrito.html:389:Product dropdown toggle
+frontend\templates\core\carrito.html:468:Purchase confirmation modal
+frontend\templates\core\carrito.html:625:Actualizar totales en el modal
+frontend\templates\core\catalog.html:15:Vendor CSS Files
+frontend\templates\core\catalog.html:22:Main CSS File
+frontend\templates\core\catalog.html:36:Search container
+frontend\templates\core\catalog.html:38:Search results dropdown (live search)
+frontend\templates\core\catalog.html:89:Main navigation
+frontend\templates\core\catalog.html:179:Click / focus feedback: make selection visually prominent
+frontend\templates\core\catalog.html:190:Modal backdrop + animation
+frontend\templates\core\catalog.html:211:Pagination buttons (match inventario style)
+frontend\templates\core\catalog.html:364:Detail modal
+frontend\templates\core\catalog.html:385:Close product detail modal on backdrop click or Escape
+frontend\templates\core\catalog.html:511:show-only behavior.
+frontend\templates\core\catalog.html:527:safety timeout
+frontend\templates\core\catalog.html:721:Delegate click on in-card add buttons to addToCart
+frontend\templates\core\catalog.html:883:Profile dropdown toggle + click-outside to close
+frontend\templates\core\catalog.html:912:Category dropdown (shared)
+frontend\templates\core\catalog.html:938:Search functionality
+frontend\templates\core\catalog.html:943:Handle Enter key to search
+frontend\templates\core\catalog.html:1053:Vendor JS Files
+frontend\templates\core\catalog.html:1062:Main JS File
+frontend\templates\core\clientes.html:13:Vendor CSS Files
+frontend\templates\core\clientes.html:20:Main CSS File
+frontend\templates\core\clientes.html:274:Product dropdown toggle (clientes page)
+frontend\templates\core\clientes.html:299:Profile dropdown toggle (clientes page)
+frontend\templates\core\clientes.html:324:Category dropdown (clientes page)
+frontend\templates\core\crear_cliente.html:43:Search container
+frontend\templates\core\crear_cliente.html:52:Main navigation
+frontend\templates\core\crear_cliente.html:57:hide on desktop
+frontend\templates\core\crear_cliente.html:61:colocar el toggle a la derecha dentro del contenedor colapsado para poder expandir de nuevo
+frontend\templates\core\crear_cliente.html:70:username display: keep positioning only so logout-button styles apply
+frontend\templates\core\crear_cliente.html:72:profile dropdown
+frontend\templates\core\crear_cliente.html:115:Cart page specific styles
+frontend\templates\core\crear_cliente.html:395:Profile dropdown
+frontend\templates\core\crear_cliente.html:775:Handle Enter key to search
+frontend\templates\core\crear_productoo.html:39:Search container
+frontend\templates\core\crear_productoo.html:48:Main navigation
+frontend\templates\core\crear_productoo.html:53:hide on desktop
+frontend\templates\core\crear_productoo.html:57:colocar el toggle a la derecha dentro del contenedor colapsado para poder expandir de nuevo
+frontend\templates\core\crear_productoo.html:66:username display: keep positioning only so logout-button styles apply
+frontend\templates\core\crear_productoo.html:68:profile dropdown
+frontend\templates\core\crear_productoo.html:111:Cart page specific styles
+frontend\templates\core\crear_productoo.html:342:Profile dropdown
+frontend\templates\core\crear_productoo.html:370:Category dropdown
+frontend\templates\core\crear_productoo.html:503:Handle Enter key to search
+frontend\templates\core\crear_productoo.html:517:Product dropdown toggle (crear_productoo page)
+frontend\templates\core\crear_usuario.html:111:Make the card narrower to avoid overflowing the page
+frontend\templates\core\home.html:17:Modal de detalle de producto en home (igual que catalog.js)
+frontend\templates\core\home.html:59:Cerrar modal al hacer click fuera del dialog
+frontend\templates\core\home.html:135:Search container
+frontend\templates\core\home.html:139:Search results dropdown
+frontend\templates\core\home.html:209:Main navigation
+frontend\templates\core\home.html:214:hide on desktop
+frontend\templates\core\home.html:218:colocar el toggle a la derecha dentro del contenedor colapsado para poder expandir de nuevo
+frontend\templates\core\home.html:227:username display: keep positioning only so logout-button styles apply
+frontend\templates\core\home.html:229:profile dropdown
+frontend\templates\core\home.html:286:modal detalle (match catalog)
+frontend\templates\core\home.html:792:wrap to start: show last briefly, then jump to 0
+frontend\templates\core\home.html:804:Helper to immediately cancel any ongoing smooth scroll (so user drag isn't overridden)
+frontend\templates\core\home.html:896:Detail modal (same structure as catalog)
+frontend\templates\core\home.html:921:Handler robusto de apertura de producto en Home: abrir modal, fallback a detalle.
+frontend\templates\core\home.html:1120:Profile dropdown
+frontend\templates\core\home.html:1149:Category dropdown (home)
+frontend\templates\core\home.html:1161:Carrito functionality
+frontend\templates\core\home.html:1166:Modal y carrito gestionados por core/catalog.js (incluido abajo)
+frontend\templates\core\home.html:1168:Live search functionality
+frontend\templates\core\home.html:1184:Limit to 5 results
+frontend\templates\core\home.html:1211:Debounce search
+frontend\templates\core\home.html:1224:Hide search results when clicking outside
+frontend\templates\core\home.html:1231:Handle search result clicks
+frontend\templates\core\home.html:1373:Delegate clicks on in-card add buttons to addToCart
+frontend\templates\core\inventario.html:14:Vendor CSS Files
+frontend\templates\core\inventario.html:21:Main CSS File
+frontend\templates\core\inventario.html:50:Search container
+frontend\templates\core\inventario.html:58:Main navigation
+frontend\templates\core\inventario.html:69:profile dropdown
+frontend\templates\core\inventario.html:362:Product image in table
+frontend\templates\core\inventario.html:522:Modal styles
+frontend\templates\core\inventario.html:686:Inventory filter/search styles
+frontend\templates\core\inventario.html:815:Search & Filters (moved inside frame)
+frontend\templates\core\inventario.html:833:Search & Filters
+frontend\templates\core\inventario.html:979:Dropdown toggles (inventario page) - attach when DOM ready
+frontend\templates\core\inventario.html:982:Product dropdown
+frontend\templates\core\inventario.html:1040:inventario page: dropdown script removed
+frontend\templates\core\inventario.html:1100:Profile dropdown toggle + click-outside to close
+frontend\templates\core\inventario.html:1148:Close other dropdowns
+frontend\templates\core\inventario.html:1151:Toggle current dropdown
+frontend\templates\core\inventario.html:1156:Close dropdowns when clicking outside
+frontend\templates\core\inventario.html:1163:Close dropdowns on Escape key
+frontend\templates\core\inventario.html:1239:Funciones para el modal de editar producto
+frontend\templates\core\inventario.html:1263:Safely access modal-related elements
+frontend\templates\core\inventario.html:1283:Inicializar motivo si existe el campo en el modal
+frontend\templates\core\inventario.html:1357:Cerrar modal al hacer clic fuera (si existe)
+frontend\templates\core\inventario.html:1377:Cerrar modal con tecla Escape
+frontend\templates\core\inventario.html:1398:Client-side validation: require motivo when cantidad cambiado in edit modal
+frontend\templates\core\inventario.html:1436:Vendor JS Files
+frontend\templates\core\inventario.html:1448:Main JS File
+frontend\templates\core\inventario.html:1452:Modal para ajustar inventario
+frontend\templates\core\inventario.html:1476:Modal para editar producto
+frontend\templates\core\inventario.html:1540:Auto-hide messages after 2 seconds
+frontend\templates\core\inventario.html:1559:Handle Enter key to search
+frontend\templates\core\perfil.html:15:Vendor CSS Files
+frontend\templates\core\perfil.html:22:Main CSS File
+frontend\templates\core\perfil.html:35:Search container
+frontend\templates\core\perfil.html:43:Main navigation
+frontend\templates\core\perfil.html:171:Profile dropdown toggle + click-outside to close
+frontend\templates\core\perfil.html:202:Vendor JS Files
+frontend\templates\core\perfil.html:211:Main JS File
+frontend\templates\core\perfil.html:265:Handle Enter key to search
+frontend\templates\core\perfil.html:278:Product dropdown toggle (perfil page)
+frontend\templates\core\producto_detalle.html:14:Vendor CSS Files
+frontend\templates\core\producto_detalle.html:21:Main CSS File
+frontend\templates\core\producto_detalle.html:38:Search container
+frontend\templates\core\producto_detalle.html:46:Main navigation
+frontend\templates\core\producto_detalle.html:57:profile dropdown
+frontend\templates\core\producto_detalle.html:99:Product detail styles
+frontend\templates\core\producto_detalle.html:434:Product dropdown toggle (producto_detalle page)
+frontend\templates\core\producto_detalle.html:445:Profile dropdown toggle + click-outside to close
+frontend\templates\core\producto_detalle.html:474:Search functionality
+frontend\templates\core\producto_detalle.html:481:Handle Enter key to search
+frontend\templates\core\producto_detalle.html:495:Vendor JS Files
+frontend\templates\core\producto_detalle.html:507:Main JS File
