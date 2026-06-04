@@ -422,6 +422,8 @@
 			max-height: calc(100vh - 132px);
 			overflow-y: auto;
 			-webkit-overflow-scrolling: touch;
+			touch-action: pan-y;
+			overscroll-behavior: contain;
 		}
 		.top-bar .nav-menu.show {
 			display: block;
@@ -433,6 +435,9 @@
 			top: 100%;
 			margin-top: 8px;
 			width: auto;
+			-webkit-overflow-scrolling: touch;
+			touch-action: pan-y;
+			overscroll-behavior: contain;
 		}
 	}
 
@@ -632,8 +637,9 @@
 				closeAllSubmenus();
 			}
 
-			let lastTouchToggle = false;
+		let lastTouchToggle = false;
 		let lastTouchSubmenuToggle = false;
+		let touchStartInfo = null;
 		function toggleBarMenu(e){
 			e.stopPropagation();
 			const opened = barNav.classList.toggle('show');
@@ -670,6 +676,34 @@
 			}
 		}
 
+		barNav.addEventListener('touchstart', function(e){
+			const btn = e.target.closest('.nav-subtoggle');
+			if (!btn) {
+				touchStartInfo = null;
+				return;
+			}
+			const touch = e.touches && e.touches[0];
+			if (!touch) {
+				touchStartInfo = null;
+				return;
+			}
+			touchStartInfo = {
+				btn: btn,
+				x: touch.clientX,
+				y: touch.clientY,
+				moved: false
+			};
+		}, { passive: true });
+
+		barNav.addEventListener('touchmove', function(e){
+			if (!touchStartInfo) return;
+			const touch = e.touches && e.touches[0];
+			if (!touch) return;
+			if (Math.abs(touch.clientX - touchStartInfo.x) > 10 || Math.abs(touch.clientY - touchStartInfo.y) > 10) {
+				touchStartInfo.moved = true;
+			}
+		}, { passive: true });
+
 		barNav.addEventListener('click', function(e) {
 			if (lastTouchSubmenuToggle) {
 				lastTouchSubmenuToggle = false;
@@ -683,10 +717,14 @@
 
 		barNav.addEventListener('touchend', function(e){
 			const btn = e.target.closest('.nav-subtoggle');
-			if (!btn) return;
+			if (!btn || !touchStartInfo || touchStartInfo.btn !== btn || touchStartInfo.moved) {
+				touchStartInfo = null;
+				return;
+			}
 			e.preventDefault();
 			lastTouchSubmenuToggle = true;
 			toggleSubmenu(btn);
+			touchStartInfo = null;
 		}, { passive: false });
 
 		document.querySelectorAll('[data-close-submenu]').forEach(function(btn) {
