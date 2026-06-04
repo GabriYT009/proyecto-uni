@@ -1407,7 +1407,6 @@
                         {el: document.getElementById('nombreProductoEditar')},
                         {el: document.getElementById('descripcionEditar')},
                         {el: document.getElementById('precioEditar')},
-                        {el: document.getElementById('cantidadEditar')},
                         {el: document.getElementById('categoriaEditar')}
                     ];
 
@@ -1502,7 +1501,8 @@
                     
                     <div class="form-group">
                         <label for="cantidadEditar">Cantidad Disponible:</label>
-                        <input type="number" id="cantidadEditar" name="cantidad_disponible" class="form-control" min="0" required>
+                        <input type="number" id="cantidadEditar" name="cantidad_disponible" class="form-control" min="0" required readonly>
+                        <small class="form-text text-muted">Este valor no se puede modificar aquí. Usa Ajustar Inventario para cambiar el stock.</small>
                     </div>
                     
                     <div class="form-group">

@@ -3371,15 +3371,14 @@ def editar_producto(request, producto_id):
         # Capturamos valores propensos a error fuera del bloque de transacción para validarlos
         try:
             cantidad_anterior = producto.cantidad_disponible
-            # Usamos '0' como fallback si viene vacío para evitar crash en int()
-            nueva_cantidad = int(request.POST.get('cantidad_disponible') or 0)
+            nueva_cantidad = cantidad_anterior or 0
 
             # Lo mismo para el precio
             precio_raw = request.POST.get('precio_venta')
             nuevo_precio = float(precio_raw) if precio_raw else producto.precio_venta
 
         except ValueError:
-            messages.error(request, 'Error: La cantidad o el precio deben ser números válidos.')
+            messages.error(request, 'Error: El precio debe ser un número válido.')
             return redirect('inventario')
 
         # Prevalidación: exigir motivo no vacío si cambia cualquier campo editable
@@ -3389,7 +3388,7 @@ def editar_producto(request, producto_id):
         posted_nombre = (request.POST.get('nombre_producto') or '').strip()
         posted_desc = (request.POST.get('descripcion') or '').strip()
         posted_precio = nuevo_precio
-        posted_cantidad = nueva_cantidad
+        posted_cantidad = producto.cantidad_disponible or 0
         categoria_id = request.POST.get('categoria')
         try:
             posted_categoria_id = int(categoria_id) if categoria_id and categoria_id.isdigit() else (producto.categoria_id if getattr(producto, 'categoria_id', None) is not None else None)
@@ -3408,12 +3407,6 @@ def editar_producto(request, producto_id):
         # Comparar numéricos con tolerancia para flotantes
         try:
             if float(posted_precio) != float(producto.precio_venta or 0):
-                changed = True
-                changed_non_image = True
-        except Exception:
-            pass
-        try:
-            if int(posted_cantidad) != int(producto.cantidad_disponible or 0):
                 changed = True
                 changed_non_image = True
         except Exception:
@@ -3438,7 +3431,7 @@ def editar_producto(request, producto_id):
                 producto.descripcion = request.POST.get('descripcion', producto.descripcion)
                 producto.precio_venta = nuevo_precio
 
-                producto.cantidad_disponible = nueva_cantidad
+                # El stock no se modifica aquí. Los cambios de cantidad deben hacerse desde Ajustar Inventario.
 
                 # Lógica de categoría
                 if categoria_id:
