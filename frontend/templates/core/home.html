@@ -519,6 +519,53 @@
                 padding: 10px 0;
                 gap: 6px;
             }
+            .top-bar .bar-toggle {
+                display: flex;
+                position: absolute;
+                right: 12px;
+                top: 12px;
+                z-index: 10010;
+                width: 44px;
+                height: 44px;
+                border-radius: 14px;
+                background: #fff;
+                align-items: center;
+                justify-content: center;
+                border: 1px solid rgba(0, 0, 0, 0.08);
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+                touch-action: manipulation;
+            }
+            .top-bar .bar-toggle .hamburger span {
+                background: #9932CC;
+            }
+            .top-bar .main-nav {
+                display: none;
+            }
+            .top-bar .nav-menu {
+                position: fixed;
+                left: 12px;
+                right: 12px;
+                top: 76px;
+                background: #fff;
+                border-radius: 18px;
+                border: 1px solid rgba(0, 0, 0, 0.08);
+                box-shadow: 0 18px 42px rgba(0, 0, 0, 0.12);
+                display: none;
+                z-index: 10009;
+                min-width: auto;
+                max-height: calc(100vh - 102px);
+                overflow-y: auto;
+                padding: 12px 0;
+            }
+            .top-bar .nav-menu.show {
+                display: block;
+            }
+            .top-bar .nav-menu .nav-item {
+                padding: 14px 18px;
+            }
+            .top-bar .bar-inner {
+                padding-right: 64px;
+            }
             .cat-scroll-btn { width: 34px; height: 34px; padding: 0; font-size: 18px; flex: 0 0 auto; }
             .category-card { width: 118px; padding: 12px 8px; }
             .category-card .category-icon { font-size: 26px; margin-bottom: 4px; }

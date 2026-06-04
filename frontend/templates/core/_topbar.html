@@ -382,6 +382,8 @@
 			border-radius: 12px;
 			border: 1px solid rgba(255,255,255,0.25);
 			background: rgba(255,255,255,0.12);
+			touch-action: manipulation;
+			-webkit-tap-highlight-color: transparent;
 		}
 		.top-bar .bar-toggle .hamburger span { background: #fff; }
 		.top-bar .bar-inner .bar-right { display: flex; margin-left: auto; gap: 8px; padding-right: 52px; }
@@ -403,12 +405,23 @@
 		}
 		.top-bar .avatar { width: 20px; height: 20px; margin-right: 4px; }
 		.top-bar .nav-menu {
-			top: 116px;
+			position: fixed;
 			left: 10px;
 			right: 10px;
+			top: 116px;
+			background: #fff;
+			border: 1px solid rgba(0,0,0,0.06);
+			border-radius: 12px;
+			box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+			display: none;
+			z-index: 10006;
 			min-width: 0;
-			max-height: 72vh;
+			max-height: calc(100vh - 132px);
 			overflow-y: auto;
+			-webkit-overflow-scrolling: touch;
+		}
+		.top-bar .nav-menu.show {
+			display: block;
 		}
 		.top-bar .nav-submenu {
 			left: 8px;
