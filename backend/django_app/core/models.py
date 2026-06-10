@@ -235,7 +235,17 @@ class Producto(models.Model):
                     update_fields.append('status_producto')
                 kwargs['update_fields'] = update_fields
 
-        super().save(*args, **kwargs)
+        codigo_vacio = not self.codigo_producto
+        if codigo_vacio:
+            super().save(*args, **kwargs)
+            self.codigo_producto = str(self.pk)
+            try:
+                super().save(update_fields=['codigo_producto'])
+            except Exception:
+                super().save()
+        else:
+            super().save(*args, **kwargs)
+
         # Copiar la imagen a static/product-images/ si existe
         if self.imagen_producto and self.imagen_producto.name:
             import shutil, os
