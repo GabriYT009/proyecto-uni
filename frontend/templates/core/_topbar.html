@@ -3,10 +3,10 @@
 <style>
 	/* Base compartida del topbar (misma línea visual que crear_producto) */
 	.top-bar{ position: fixed; top:0; left:0; right:0; height:70px; background:rgb(72 13 102); border-bottom:1px solid rgba(153,50,204,0.12); z-index:10000; transition: all 240ms cubic-bezier(.2,.9,.2,1); box-shadow: 0 16px 36px rgba(102,32,128,0.12); }
-	.top-bar .bar-inner{ max-width:1400px; margin:0 auto; height:70px; display:flex; align-items:center; justify-content:space-between; padding:8px 24px; position:relative; }
+	.top-bar .bar-inner{ max-width:1400px; margin:0 auto; height:70px; display:flex; align-items:center; justify-content:space-between; padding:18px 24px 18px 16px; position:relative; }
+	.top-bar .bar-left { padding-left: 8px; }
+	.top-bar .bar-logo-link { padding-top: 6px; padding-bottom: 6px; margin-left: 0; }
 	.top-bar .btn{ background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.24); padding:8px 14px; border-radius:8px; }
-
-	.top-bar .bar-logo-link { padding-top: 4px; padding-bottom: 4px; margin-left: 4px; }
 
 	.top-bar.collapsed{ left:12px; right:auto; width:56px; height:56px; border-radius:10px; padding:6px; border-bottom:none; box-shadow:0 6px 18px rgba(0,0,0,0.08); }
 	.top-bar.collapsed .bar-inner{ display:none; }

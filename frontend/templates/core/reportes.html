@@ -11,7 +11,8 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <meta name="csrf-token" content="{{ csrf_token }}">
     <style>
-        body { padding-top: 80px; background: #fff; font-family: 'Poppins', sans-serif; }
+        html, body { min-height: 100%; background: #fff !important; color: #111; }
+        body { padding-top: 80px; background: #fff !important; font-family: 'Poppins', sans-serif; }
         .report-header { margin: 20px auto 0; max-width: 1180px; padding: 24px; background: #fff; border-radius: 18px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
         .report-summary { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); margin-top: 20px; }
         .report-card { background: #fff; border: 1px solid #e6e6e6; border-radius: 14px; padding: 18px 22px; }
