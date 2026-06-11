@@ -1163,35 +1163,7 @@
             document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeNav(); });
         })();
     </script>
-    <script>
-        // Desplegable de perfil
-        (function(){
-            const toggle = document.getElementById('profileToggle');
-            const dropdown = document.getElementById('profileDropdown');
-            if(!toggle || !dropdown) return;
-
-            function closeMenu(){
-                dropdown.classList.remove('show');
-                toggle.setAttribute('aria-expanded','false');
-                dropdown.setAttribute('aria-hidden','true');
-            }
-
-            toggle.addEventListener('click', function(e){
-                e.stopPropagation();
-                const opened = dropdown.classList.toggle('show');
-                toggle.setAttribute('aria-expanded', opened ? 'true' : 'false');
-                dropdown.setAttribute('aria-hidden', opened ? 'false' : 'true');
-            });
-
-            document.addEventListener('click', function(e){
-                if(!toggle.contains(e.target) && !dropdown.contains(e.target)){
-                    closeMenu();
-                }
-            });
-
-            document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeMenu(); });
-        })();
-    </script>
+    
         <script>
             // Desplegable de categoría (inicio)
             (function(){

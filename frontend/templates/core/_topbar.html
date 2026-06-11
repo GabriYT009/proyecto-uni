@@ -840,7 +840,7 @@
 		const profileToggle = document.getElementById('profileToggle');
 		const profileDropdown = document.getElementById('profileDropdown');
 		if (profileToggle && profileDropdown) {
-			profileToggle.addEventListener('click', function(e){
+			function toggleProfileMenu(e) {
 				e.stopPropagation();
 				const opened = !profileDropdown.classList.contains('show');
 				if (opened) {
@@ -852,6 +852,17 @@
 					profileDropdown.classList.remove('show');
 					profileToggle.setAttribute('aria-expanded', 'false');
 					profileDropdown.setAttribute('aria-hidden', 'true');
+				}
+			}
+
+			// Captura primero para que este manejador se ejecute antes que otros
+			// scripts de la página que puedan interferir con el dropdown.
+			profileToggle.addEventListener('click', toggleProfileMenu, true);
+
+			profileToggle.addEventListener('keydown', function(e){
+				if (e.key === 'Enter' || e.key === ' ') {
+					e.preventDefault();
+					toggleProfileMenu(e);
 				}
 			});
 		}
