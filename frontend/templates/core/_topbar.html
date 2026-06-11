@@ -2,13 +2,13 @@
 
 <style>
 	/* Base compartida del topbar (misma línea visual que crear_producto) */
-	.top-bar{ position: fixed; top:0; left:0; right:0; height:70px; background:rgb(72 13 102); border-bottom:1px solid rgba(153,50,204,0.12); z-index:10000; transition: all 240ms cubic-bezier(.2,.9,.2,1); box-shadow: 0 16px 36px rgba(102,32,128,0.12); }
-	.top-bar .bar-inner{ max-width:1400px; margin:0 auto; height:70px; display:flex; align-items:center; justify-content:space-between; padding:16px 20px 16px 32px; position:relative; }
+	.top-bar{ position: fixed; top:0; left:0; right:0; height:60px; background:rgb(72 13 102); border-bottom:1px solid rgba(153,50,204,0.12); z-index:10000; transition: all 240ms cubic-bezier(.2,.9,.2,1); box-shadow: 0 12px 26px rgba(102,32,128,0.12); }
+	.top-bar .bar-inner{ max-width:1400px; margin:0 auto; height:60px; display:flex; align-items:center; justify-content:space-between; padding:10px 18px 10px 28px; position:relative; }
 	.top-bar .bar-left { padding-left: 10px; }
-	.top-bar .bar-logo-link { padding-top: 8px; padding-bottom: 8px; margin-left: 8px; }
-	.top-bar .btn{ background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.24); padding:8px 14px; border-radius:8px; }
+	.top-bar .bar-logo-link { padding-top: 4px; padding-bottom: 4px; margin-left: 10px; }
+	.top-bar .btn{ background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.24); padding:6px 10px; border-radius:8px; font-size:14px; }
 
-	.top-bar.collapsed{ left:12px; right:auto; width:56px; height:56px; border-radius:10px; padding:6px; border-bottom:none; box-shadow:0 6px 18px rgba(0,0,0,0.08); }
+	.top-bar.collapsed{ left:12px; right:auto; width:50px; height:50px; border-radius:10px; padding:5px; border-bottom:none; box-shadow:0 6px 18px rgba(0,0,0,0.08); }
 	.top-bar.collapsed .bar-inner{ display:none; }
 
 	.top-bar .bar-inner {
@@ -66,8 +66,8 @@
 		}
 	}
 
-	.search-container{ display:flex; align-items:center; background:#f5f5f5; border-radius:25px; padding:5px; width:400px; }
-	.search-input{ flex:1; border:none; background:transparent; padding:8px 15px; font-size:16px; outline:none; }
+	.search-container{ display:flex; align-items:center; background:#f5f5f5; border-radius:22px; padding:4px 8px; width:360px; }
+	.search-input{ flex:1; border:none; background:transparent; padding:6px 12px; font-size:14px; outline:none; }
 	.search-btn{ background:#fff; color:#9932CC; border:none; border-radius:20px; width:35px; height:35px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; margin-right:5px; }
 
 	.top-bar .main-nav {
@@ -91,8 +91,8 @@
 		color: #333;
 		text-decoration: none;
 		font-weight: 600;
-		font-size: 16px;
-		padding: 8px 12px;
+		font-size: 14px;
+		padding: 6px 10px;
 		border-radius: 6px;
 		transition: background 0.3s ease, color 0.3s ease;
 		cursor: pointer;
@@ -838,6 +838,25 @@
 			});
 		});
 
+		const profileToggle = document.getElementById('profileToggle');
+		const profileDropdown = document.getElementById('profileDropdown');
+		if (profileToggle && profileDropdown) {
+			profileToggle.addEventListener('click', function(e){
+				e.stopPropagation();
+				const opened = !profileDropdown.classList.contains('show');
+				if (opened) {
+					closeAllExcept(null);
+					profileDropdown.classList.add('show');
+					profileToggle.setAttribute('aria-expanded', 'true');
+					profileDropdown.setAttribute('aria-hidden', 'false');
+				} else {
+					profileDropdown.classList.remove('show');
+					profileToggle.setAttribute('aria-expanded', 'false');
+					profileDropdown.setAttribute('aria-hidden', 'true');
+				}
+			});
+		}
+
 		document.querySelectorAll('.report-filter-btn').forEach(function(btn){
 			btn.addEventListener('click', function(e){
 				e.preventDefault();
@@ -869,11 +888,21 @@
 					closeMenu(toggle, dropdown);
 				}
 			});
+			if (profileToggle && profileDropdown && !profileToggle.contains(e.target) && !profileDropdown.contains(e.target)) {
+				profileDropdown.classList.remove('show');
+				profileToggle.setAttribute('aria-expanded', 'false');
+				profileDropdown.setAttribute('aria-hidden', 'true');
+			}
 		});
 
 		document.addEventListener('keydown', function(e){
 			if(e.key === 'Escape') {
 				menus.forEach(({ toggle, dropdown }) => closeMenu(toggle, dropdown));
+				if (profileToggle && profileDropdown) {
+					profileDropdown.classList.remove('show');
+					profileToggle.setAttribute('aria-expanded', 'false');
+					profileDropdown.setAttribute('aria-hidden', 'true');
+				}
 			}
 		});
 	})();
