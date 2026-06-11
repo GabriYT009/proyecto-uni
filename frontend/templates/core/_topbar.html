@@ -653,7 +653,7 @@
 					<button class="nav-item report-filter-btn active" type="button" data-report-filter="dia">Día</button>
 					<button class="nav-item report-filter-btn" type="button" data-report-filter="semana">Semana</button>
 					<button class="nav-item report-filter-btn" type="button" data-report-filter="mes">Mes</button>
-					<a class="nav-item" href="#">Ver reporte</a>
+					<a id="reportesLinkMobile" class="nav-item" href="{% url 'reportes' %}?period=dia">Ver reporte</a>
 				</div>
 			</div>
 		{% endif %}
@@ -869,6 +869,11 @@
 							note.textContent = 'Filtro seleccionado: ' + btn.textContent.trim();
 						}
 					}
+					const links = document.querySelectorAll('#reportesLink, #reportesLinkMobile');
+					links.forEach(function(link){
+						const base = link.getAttribute('href').split('?')[0];
+						link.setAttribute('href', base + '?period=' + interval);
+					});
 				}
 			});
 		});

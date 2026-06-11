@@ -19,7 +19,7 @@ from django.core.mail import get_connection
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
-from django.db.models import Q, F, Case, When, IntegerField
+from django.db.models import Q, F, Case, When, IntegerField, FloatField, Sum, Max
 from django.db.models.functions import Lower, Trim
 from django.db.models.deletion import ProtectedError
 from django.core.cache import cache
@@ -870,6 +870,75 @@ def home(request):
         'user_groups': user_groups,
         'valor_dolar':str(tasa),
     })
+
+@login_required
+@admin_only
+def reportes(request):
+    period = (request.GET.get('period') or 'dia').strip().lower()
+    today = timezone.localtime(timezone.now()).date()
+    if period == 'semana':
+        start_date = today - datetime.timedelta(days=6)
+        selected_label = 'Última semana'
+    elif period == 'mes':
+        start_date = today - datetime.timedelta(days=29)
+        selected_label = 'Último mes'
+    else:
+        period = 'dia'
+        start_date = today
+        selected_label = 'Hoy'
+
+    report_items = []
+    try:
+        ventas_qs = (
+            CarritoDeCompras.objects
+            .filter(Nota_Entrega__fecha__date__gte=start_date)
+            .filter(Nota_Entrega__fecha__date__lte=today)
+            .select_related('Producto')
+            .values('Producto_id', 'Producto__nombre_producto')
+            .annotate(
+                total_quantity=Sum('Cantidad'),
+                total_sales=Sum(F('Cantidad') * F('precio_unitario'), output_field=FloatField()),
+                last_sold=Max('Nota_Entrega__fecha'),
+            )
+            .order_by('-total_quantity')
+        )
+        for item in ventas_qs:
+            report_items.append({
+                'producto': item.get('Producto__nombre_producto') or 'Producto desconocido',
+                'cantidad': item.get('total_quantity') or 0,
+                'ventas': item.get('total_sales') or 0.0,
+                'ultima_venta': item.get('last_sold'),
+            })
+    except Exception:
+        logger.exception('Error al generar el reporte de productos')
+        report_items = []
+
+    total_products = sum(item['cantidad'] for item in report_items)
+    total_sales = sum(item['ventas'] for item in report_items)
+    try:
+        categories = _cached_categories()
+    except Exception:
+        categories = []
+    try:
+        cart_count = len(request.session.get('cart', []))
+    except Exception:
+        cart_count = 0
+    try:
+        user_groups = _user_groups(request.user)
+    except Exception:
+        user_groups = []
+
+    return render(request, 'core/reportes.html', {
+        'report_items': report_items,
+        'selected_period': period,
+        'selected_period_label': selected_label,
+        'total_products': total_products,
+        'total_sales': total_sales,
+        'categories': categories,
+        'cart_count': cart_count,
+        'user_groups': user_groups,
+    })
+
 
 def login_post(request):
     if request.method == 'POST':

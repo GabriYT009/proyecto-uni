@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="es">
+<head>
+    <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}?v=2">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Reportes</title>
+    <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <style>
+        body { padding-top: 80px; background: #f8f9fb; font-family: 'Poppins', sans-serif; }
+        .report-header { margin: 20px auto 0; max-width: 1180px; padding: 24px; background: #fff; border-radius: 18px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
+        .report-summary { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); margin-top: 20px; }
+        .report-card { background: #fff; border: 1px solid #e6e6e6; border-radius: 14px; padding: 18px 22px; }
+        .report-card h3 { margin: 0 0 10px; font-size: 16px; color: #5e3cff; }
+        .report-card p { margin: 0; font-size: 28px; font-weight: 700; color: #121212; }
+        .report-section { max-width: 1180px; margin: 24px auto; padding: 24px; background: #fff; border-radius: 18px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
+        .report-table { width: 100%; border-collapse: collapse; }
+        .report-table th, .report-table td { padding: 14px 12px; border-bottom: 1px solid #f0f0f0; text-align: left; }
+        .report-table th { font-weight: 700; background: #fafafa; }
+        .report-empty { text-align: center; padding: 40px 0; color: #666; }
+    </style>
+</head>
+<body>
+    {% include 'core/_topbar.html' %}
+    <main class="container-fluid">
+        <section class="report-header">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div>
+                    <h1 class="mb-1">Reportes de productos</h1>
+                    <p class="text-muted mb-0">Período seleccionado: <strong>{{ selected_period_label }}</strong></p>
+                </div>
+                <div>
+                    <a href="{% url 'reportes' %}?period=dia" class="btn btn-outline-primary btn-sm">Día</a>
+                    <a href="{% url 'reportes' %}?period=semana" class="btn btn-outline-primary btn-sm">Semana</a>
+                    <a href="{% url 'reportes' %}?period=mes" class="btn btn-outline-primary btn-sm">Mes</a>
+                </div>
+            </div>
+            <div class="report-summary">
+                <div class="report-card">
+                    <h3>Total productos vendidos</h3>
+                    <p>{{ total_products }}</p>
+                </div>
+                <div class="report-card">
+                    <h3>Total ventas</h3>
+                    <p>${{ total_sales|floatformat:2 }}</p>
+                </div>
+                <div class="report-card">
+                    <h3>Items en reporte</h3>
+                    <p>{{ report_items|length }}</p>
+                </div>
+            </div>
+        </section>
+        <section class="report-section">
+            <h2 class="h4 mb-3">Productos vendidos</h2>
+            {% if report_items %}
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cantidad vendida</th>
+                            <th>Ventas</th>
+                            <th>Última venta</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in report_items %}
+                        <tr>
+                            <td>{{ item.producto }}</td>
+                            <td>{{ item.cantidad }}</td>
+                            <td>${{ item.ventas|floatformat:2 }}</td>
+                            <td>{{ item.ultima_venta|date:'d/m/Y H:i' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="report-empty">
+                    <p>No hay ventas registradas en este período.</p>
+                </div>
+            {% endif %}
+        </section>
+    </main>
+</body>
+</html>
