@@ -21,6 +21,12 @@
         .muted{color:#6b6b6b}
         .actions{margin-top:22px;display:flex;gap:10px;flex-wrap:wrap}
         .note{margin-top:14px;padding:14px;border-radius:8px;background:#fffaf0;border:1px solid #ffe8a8;color:#6a4b00}
+        .customer-panel{margin-top:20px;padding:18px;border-radius:16px;background:#f8f4ff;border:1px solid rgba(153,50,204,0.15);}
+        .customer-panel h2{margin:0 0 10px;font-size:1.05rem;color:#4b1a6b;}
+        .customer-panel dl{display:grid;grid-template-columns:140px 1fr;gap:10px 18px;margin:0;}
+        .customer-panel dt{font-size:0.95rem;color:#6b6b6b;}
+        .customer-panel dd{margin:0;font-weight:700;color:#212121;}
+        .customer-panel dd span{font-weight:400;color:#333;}
         /* Botones con la paleta del sitio */
         .actions .btn{ background:#9932CC; color:#fff; border:none; padding:8px 14px; border-radius:8px; text-decoration:none; display:inline-block; }
         .actions .btn.btn-outline-secondary, .actions .btn.btn-outline-primary{ background:transparent; color:#9932CC; border:1px solid #9932CC; }
@@ -42,14 +48,71 @@
                 </div>
                 <div class="order-meta small-label">
                     <div>Orden ID: <strong>#{{ salida.pk }}</strong></div>
-                    {% if salida.cliente_documento or salida.cliente_telefono %}
-                        <div>Documento: {{ salida.cliente_documento|default:'-' }} | Tel: {{ salida.cliente_telefono|default:'-' }}</div>
-                    {% endif %}
+                    <div>
+                        Documento: {% if salida.cliente %}{{ salida.cliente.id|default:'-' }}{% else %}{{ salida.cliente_documento|default:'-' }}{% endif %}
+                        | Tel: {% if salida.cliente %}{{ salida.cliente.telefono_cliente|default:salida.cliente_telefono|default:'-' }}{% else %}{{ salida.cliente_telefono|default:'-' }}{% endif %}
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="note">Tu comprobante fue enviado y será revisado por nuestro equipo. La orden se aprobará una vez validado el pago.</div>
+
+        <section class="customer-panel" aria-label="Datos del cliente">
+            <h2>Datos del cliente</h2>
+            <dl>
+                <dt>Nombre</dt>
+                <dd>
+                    {% if salida.cliente %}
+                        {% if salida.cliente.nombre_cliente or salida.cliente.apellido_cliente %}
+                            {{ salida.cliente.nombre_cliente }} {{ salida.cliente.apellido_cliente }}
+                        {% elif salida.cliente.user %}
+                            {% firstof salida.cliente.user.get_full_name salida.cliente.user.username salida.cliente.user.email "Consumidor Final" %}
+                        {% else %}
+                            Consumidor Final
+                        {% endif %}
+                    {% else %}
+                        {% firstof salida.cliente_nombre "Consumidor Final" %}
+                    {% endif %}
+                </dd>
+
+                <dt>Documento / RIF</dt>
+                <dd>
+                    {% if salida.cliente %}
+                        {{ salida.cliente.id|default:'No disponible' }}
+                    {% else %}
+                        {{ salida.cliente_documento|default:'No disponible' }}
+                    {% endif %}
+                </dd>
+
+                <dt>Teléfono</dt>
+                <dd>
+                    {% if salida.cliente %}
+                        {% firstof salida.cliente.telefono_cliente salida.cliente_telefono "No disponible" %}
+                    {% else %}
+                        {{ salida.cliente_telefono|default:'No disponible' }}
+                    {% endif %}
+                </dd>
+
+                <dt>Correo</dt>
+                <dd>
+                    {% if salida.cliente %}
+                        {% firstof salida.cliente.email salida.cliente.user.email "No disponible" %}
+                    {% else %}
+                        No disponible
+                    {% endif %}
+                </dd>
+
+                <dt>Dirección</dt>
+                <dd>
+                    {% if salida.cliente %}
+                        {% firstof salida.cliente.direccion salida.cliente_direccion "No disponible" %}
+                    {% else %}
+                        {{ salida.cliente_direccion|default:'No disponible' }}
+                    {% endif %}
+                </dd>
+            </dl>
+        </section>
 
         <section aria-label="Detalle de la compra">
             <h3 style="margin-top:20px;margin-bottom:12px;color:#222">Detalle de la compra</h3>

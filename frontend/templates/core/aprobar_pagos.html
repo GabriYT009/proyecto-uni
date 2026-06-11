@@ -472,26 +472,26 @@
 
 <dl class="payment-info">
     <dt>Beneficiario</dt>
-    {% if salida.cliente %}
     <dd>
-        {% if salida.cliente.nombre_cliente or salida.cliente.apellido_cliente %}
-            {{ salida.cliente.nombre_cliente }} {{ salida.cliente.apellido_cliente }}
-        {% elif salida.cliente.user %}
-            {% firstof salida.cliente.user.get_full_name salida.cliente.user.username salida.cliente.user.email "No disponible" %}
+        {% if salida.cliente %}
+            {% if salida.cliente.nombre_cliente or salida.cliente.apellido_cliente %}
+                {{ salida.cliente.nombre_cliente }} {{ salida.cliente.apellido_cliente }}
+            {% elif salida.cliente.user %}
+                {% firstof salida.cliente.user.get_full_name salida.cliente.user.username salida.cliente.user.email "No disponible" %}
+            {% else %}
+                No disponible
+            {% endif %}
         {% else %}
-            No disponible
+            {% firstof salida.cliente_nombre "Consumidor Final" %}
         {% endif %}
     </dd>
-    {% else %}
-    <dd>No disponible</dd>
-    {% endif %}
 
     <dt>Cédula / RIF</dt>
     <dd>
         {% if salida.cliente %}
-            {% firstof salida.cliente.id "No disponible" %}
+            {% firstof salida.cliente.id salida.cliente_documento "No disponible" %}
         {% else %}
-            No disponible
+            {% firstof salida.cliente_documento "No disponible" %}
         {% endif %}
     </dd>
 
@@ -507,9 +507,9 @@
     <dt>Teléfono</dt>
     <dd>
         {% if salida.cliente %}
-            {% firstof salida.cliente.telefono_cliente "No disponible" %}
+            {% firstof salida.cliente.telefono_cliente salida.cliente_telefono "No disponible" %}
         {% else %}
-            No disponible
+            {{ salida.cliente_telefono|default:'No disponible' }}
         {% endif %}
     </dd>
 
@@ -519,6 +519,15 @@
             {% firstof salida.cliente.email salida.cliente.user.email "No disponible" %}
         {% else %}
             No disponible
+        {% endif %}
+    </dd>
+
+    <dt>Dirección</dt>
+    <dd>
+        {% if salida.cliente %}
+            {% firstof salida.cliente.direccion salida.cliente_direccion "No disponible" %}
+        {% else %}
+            {{ salida.cliente_direccion|default:'No disponible' }}
         {% endif %}
     </dd>
 
