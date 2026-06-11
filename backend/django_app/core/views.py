@@ -915,6 +915,16 @@ def reportes(request):
 
     total_products = sum(item['cantidad'] for item in report_items)
     total_sales = sum(item['ventas'] for item in report_items)
+    top_products = []
+    if report_items:
+        max_quantity = max(item['cantidad'] for item in report_items) or 1
+        top_products = [
+            {
+                **item,
+                'bar_width': min(100, int((item['cantidad'] / max_quantity) * 100)) if max_quantity else 0
+            }
+            for item in report_items[:10]
+        ]
     try:
         categories = _cached_categories()
     except Exception:
@@ -929,6 +939,7 @@ def reportes(request):
         user_groups = []
 
     return render(request, 'core/reportes.html', {
+        'top_products': top_products,
         'report_items': report_items,
         'selected_period': period,
         'selected_period_label': selected_label,

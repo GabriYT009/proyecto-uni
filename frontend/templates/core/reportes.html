@@ -18,6 +18,12 @@
         .report-card { background: #fff; border: 1px solid #e6e6e6; border-radius: 14px; padding: 18px 22px; }
         .report-card h3 { margin: 0 0 10px; font-size: 16px; color: #5e3cff; }
         .report-card p { margin: 0; font-size: 28px; font-weight: 700; color: #121212; }
+        .report-chart { max-width: 1180px; margin: 24px auto; padding: 24px; background: #fff; border-radius: 18px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
+        .chart-row { display: grid; grid-template-columns: 1fr 120px; align-items: center; gap: 16px; margin-bottom: 14px; }
+        .chart-label { font-weight: 600; color: #2b2b2b; font-size: 14px; }
+        .chart-track { background: #f2f4f8; border-radius: 999px; height: 16px; width: 100%; overflow: hidden; }
+        .chart-bar { background: linear-gradient(90deg, #6d4bff 0%, #9d6bff 100%); height: 100%; border-radius: 999px; }
+        .chart-value { text-align: right; color: #4f4f4f; font-weight: 600; min-width: 60px; }
         .report-section { max-width: 1180px; margin: 24px auto; padding: 24px; background: #fff; border-radius: 18px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
         .report-table { width: 100%; border-collapse: collapse; }
         .report-table th, .report-table td { padding: 14px 12px; border-bottom: 1px solid #f0f0f0; text-align: left; }
@@ -49,11 +55,28 @@
                     <h3>Total ventas</h3>
                     <p>${{ total_sales|floatformat:2 }}</p>
                 </div>
-                <div class="report-card">
-                    <h3>Items en reporte</h3>
-                    <p>{{ report_items|length }}</p>
+            </div>
+        </section>
+        <section class="report-chart">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3">
+                <div>
+                    <h2 class="mb-1">TOP 10 más vendidos</h2>
+                    <p class="text-muted mb-0">Visualiza los productos con mayor cantidad de unidades vendidas.</p>
                 </div>
             </div>
+            {% if top_products %}
+                {% for item in top_products %}
+                <div class="chart-row">
+                    <div>
+                        <div class="chart-label">{{ forloop.counter }}. {{ item.producto }}</div>
+                        <div class="chart-track"><div class="chart-bar" style="width: {{ item.bar_width }}%;"></div></div>
+                    </div>
+                    <div class="chart-value">{{ item.cantidad }}</div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="report-empty"><p>No hay ventas para el período seleccionado.</p></div>
+            {% endif %}
         </section>
         <section class="report-section">
             <h2 class="h4 mb-3">Productos vendidos</h2>
