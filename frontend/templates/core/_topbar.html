@@ -517,6 +517,12 @@
 					{% endif %}
 				{% endif %}
 
+				{% if 'cliente' in user_groups or not user.is_authenticated %}
+					<a href="{% url 'catalog' %}?Categoria=Sublimación" class="nav-link">Sublimación</a>
+					<a href="{% url 'catalog' %}?Categoria=Papelería" class="nav-link">Papelería</a>
+					<a href="{% url 'catalog' %}?Categoria=Otros" class="nav-link">Otros</a>
+				{% endif %}
+
 				{% if 'admin' in user_groups %}
 					<div class="producto-menu" style="position:relative;">
 						<button id="productoToggle" class="nav-link product-toggle" aria-haspopup="true" aria-expanded="false">Producto ▾</button>
