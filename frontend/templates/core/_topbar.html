@@ -79,7 +79,8 @@
 	.top-bar .clients-toggle,
 	.top-bar .product-toggle,
 	.top-bar .inventario-toggle,
-	.top-bar .pagos-toggle {
+	.top-bar .pagos-toggle,
+	.top-bar .reportes-toggle {
 		display: inline-flex;
 		align-items: center;
 		gap: 6px;
@@ -100,7 +101,8 @@
 	/* Mantener todos los alternadores del desplegable con el mismo patrón visual. */
 	.top-bar .product-toggle,
 	.top-bar .inventario-toggle,
-	.top-bar .pagos-toggle {
+	.top-bar .pagos-toggle,
+	.top-bar .reportes-toggle {
 		position: relative;
 		font-size: 0;
 		line-height: 1;
@@ -109,7 +111,8 @@
 
 	.top-bar .product-toggle::before,
 	.top-bar .inventario-toggle::before,
-	.top-bar .pagos-toggle::before {
+	.top-bar .pagos-toggle::before,
+	.top-bar .reportes-toggle::before {
 		font-size: 16px;
 		font-weight: 600;
 		line-height: 1;
@@ -119,6 +122,39 @@
 	.top-bar .product-toggle::before { content: "Producto"; }
 	.top-bar .inventario-toggle::before { content: "Inventario"; }
 	.top-bar .pagos-toggle::before { content: "Pagos"; }
+	.top-bar .reportes-toggle::before { content: "Reportes"; }
+
+	.report-filter-list {
+		display: flex;
+		gap: 8px;
+		flex-wrap: wrap;
+		padding: 10px 8px;
+	}
+
+	.report-filter-btn {
+		border: 1px solid rgba(0,0,0,0.12);
+		background: #fff;
+		color: #333;
+		padding: 8px 12px;
+		border-radius: 999px;
+		font-size: 14px;
+		font-weight: 600;
+		cursor: pointer;
+		transition: all 0.2s ease;
+	}
+
+	.report-filter-btn:hover,
+	.report-filter-btn.active {
+		background: #9932CC;
+		color: #fff;
+		border-color: transparent;
+	}
+
+	.report-dropdown-note {
+		padding: 0 12px 10px;
+		font-size: 13px;
+		color: #555;
+	}
 
 	.top-bar .clients-toggle::after,
 	.top-bar .product-toggle::after,
@@ -508,17 +544,19 @@
 						</div>
 					</div>
 
-				{% else %}
-						
-						<a href="{% url 'catalog' %}?Categoria=Sublimación" class="nav-link">Sublimación</a>
-						<a href="{% url 'catalog' %}?Categoria=Papelería" class="nav-link">Papelería</a>
-						<a href="{% url 'catalog' %}?Categoria=Otros" class="nav-link">Otros</a>
-				{% endif %}
+			<div class="reportes-menu" style="position:relative;">
+				<button id="reportesToggle" class="nav-link reportes-toggle" aria-haspopup="true" aria-expanded="false">Reportes ▾</button>
+				<div id="reportesDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:240px;">
+					<div class="report-dropdown-note">Filtra los datos por periodo y abre tu reporte.</div>
+					<div class="report-filter-list">
+						<button type="button" class="report-filter-btn active" data-report-filter="dia">Día</button>
+						<button type="button" class="report-filter-btn" data-report-filter="semana">Semana</button>
+						<button type="button" class="report-filter-btn" data-report-filter="mes">Mes</button>
+					</div>
+					<a href="#" class="dropdown-item">Ver reporte</a>
+				</div>
+			</div>
 
-				{% if 'admin' in user_groups or 'cajero' in user_groups %}
-					<a href="{% url 'caja' %}" class="nav-link">Caja</a>
-				{% endif %}
-			</nav>
 
 			<div class="search-container">
 				<input type="text" class="search-input" placeholder="Buscar productos..." id="searchInput" value="{{ search_query|default:'' }}">
@@ -606,6 +644,16 @@
 					<button class="nav-item nav-back" type="button" data-close-submenu="topbarPagosSubMenu">← Menu</button>
 					<a class="nav-item" href="{% url 'aprobar_pagos' %}">Aprobar pagos{% if pagos_pendientes_global and pagos_pendientes_global > 0 %}<span class="mobile-pagos-badge">{{ pagos_pendientes_global }}</span>{% endif %}</a>
 					<a class="nav-item" href="{% url 'ordenes_sublimacion' %}">Ordenes de sublimacion</a>
+				</div>
+			</div>
+			<div class="nav-item-group">
+				<button class="nav-item nav-subtoggle" type="button" data-target="topbarReportesSubMenu" aria-expanded="false">Reportes <span class="submenu-arrow">›</span></button>
+				<div id="topbarReportesSubMenu" class="nav-submenu" aria-hidden="true">
+					<button class="nav-item nav-back" type="button" data-close-submenu="topbarReportesSubMenu">← Menu</button>
+					<button class="nav-item report-filter-btn active" type="button" data-report-filter="dia">Día</button>
+					<button class="nav-item report-filter-btn" type="button" data-report-filter="semana">Semana</button>
+					<button class="nav-item report-filter-btn" type="button" data-report-filter="mes">Mes</button>
+					<a class="nav-item" href="#">Ver reporte</a>
 				</div>
 			</div>
 		{% endif %}
@@ -763,6 +811,7 @@
 			{ toggleId: 'clientsToggle', dropdownId: 'clientsDropdown' },
 			{ toggleId: 'inventarioToggle', dropdownId: 'inventarioDropdown' },
 			{ toggleId: 'pagosToggle', dropdownId: 'pagosDropdown' },
+			{ toggleId: 'reportesToggle', dropdownId: 'reportesDropdown' },
 			{ toggleId: 'productoToggle', dropdownId: 'productoDropdown' }
 		].map(function(item) {
 			return {
@@ -800,6 +849,26 @@
 					dropdown.setAttribute('aria-hidden', 'false');
 				} else {
 					closeMenu(toggle, dropdown);
+				}
+			});
+		});
+
+		document.querySelectorAll('.report-filter-btn').forEach(function(btn){
+			btn.addEventListener('click', function(e){
+				e.preventDefault();
+				document.querySelectorAll('.report-filter-btn').forEach(function(other){
+					other.classList.remove('active');
+				});
+				btn.classList.add('active');
+				const interval = btn.dataset.reportFilter;
+				if (interval) {
+					const dropdown = btn.closest('.profile-dropdown');
+					if (dropdown) {
+						const note = dropdown.querySelector('.report-dropdown-note');
+						if (note) {
+							note.textContent = 'Filtro seleccionado: ' + btn.textContent.trim();
+						}
+					}
 				}
 			});
 		});
