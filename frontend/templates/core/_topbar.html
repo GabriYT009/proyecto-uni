@@ -3,16 +3,9 @@
 <style>
 	/* Base compartida del topbar (misma línea visual que crear_producto) */
 	.top-bar{ position: fixed; top:0; left:0; right:0; height:60px; background:rgb(72 13 102); border-bottom:1px solid rgba(153,50,204,0.12); z-index:10000; transition: all 240ms cubic-bezier(.2,.9,.2,1); box-shadow: 0 12px 26px rgba(102,32,128,0.12); }
-	.top-bar .bar-inner{ max-width:1280px; margin:0 auto; height:60px; display:flex; align-items:center; justify-content:center; padding:0 24px; position:relative; }
-	.top-bar .bar-left,
-	.top-bar .bar-right {
-		position: absolute;
-		top: 50%;
-		transform: translateY(-50%);
-	}
-	.top-bar .bar-left { left: 24px; }
-	.top-bar .bar-right { right: 24px; }
-	.top-bar .bar-logo-link { padding-top: 4px; padding-bottom: 4px; margin-left: 0; }
+	.top-bar .bar-inner{ max-width:1400px; margin:0 auto; height:60px; display:flex; align-items:center; justify-content:space-between; padding:10px 18px 10px 28px; position:relative; }
+	.top-bar .bar-left { padding-left: 10px; }
+	.top-bar .bar-logo-link { padding-top: 4px; padding-bottom: 4px; margin-left: 10px; }
 	.top-bar .btn{ background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.24); padding:6px 10px; border-radius:8px; font-size:14px; }
 
 	.top-bar.collapsed{ left:12px; right:auto; width:50px; height:50px; border-radius:10px; padding:5px; border-bottom:none; box-shadow:0 6px 18px rgba(0,0,0,0.08); }
@@ -295,13 +288,6 @@
 	.bar-inner .bar-left{ flex:0 0 auto; }
 	.bar-inner .bar-center{ flex:1 1 auto; display:flex; justify-content:center; }
 	.bar-inner .bar-right{ flex:0 0 auto; }
-
-	@media (max-width: 1024px) {
-		.top-bar .bar-inner { padding: 0 14px; }
-		.top-bar .bar-left,
-		.top-bar .bar-right { left: auto; right: auto; position: static; transform: none; }
-		.top-bar .bar-inner { justify-content: space-between; }
-	}
 
 	a.logout-button{ display:inline-block; background:#ffffff; color:#9932CC; padding:8px 14px; border-radius:20px; text-decoration:none; font-weight:600; box-shadow:0 2px 6px rgba(0,0,0,0.12); }
 	a.logout-button:hover{ box-shadow:0 4px 10px rgba(0,0,0,0.16); }
