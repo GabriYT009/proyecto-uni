@@ -545,16 +545,7 @@
 					</div>
 
 			<div class="reportes-menu" style="position:relative;">
-				<button id="reportesToggle" class="nav-link reportes-toggle" aria-haspopup="true" aria-expanded="false">Reportes ▾</button>
-				<div id="reportesDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:240px;">
-					<div class="report-dropdown-note">Filtra los datos por periodo y abre tu reporte.</div>
-					<div class="report-filter-list">
-						<button type="button" class="report-filter-btn active" data-report-filter="dia">Día</button>
-						<button type="button" class="report-filter-btn" data-report-filter="semana">Semana</button>
-						<button type="button" class="report-filter-btn" data-report-filter="mes">Mes</button>
-					</div>
-					<a href="#" class="dropdown-item">Ver reporte</a>
-				</div>
+				<a href="{% url 'reportes' %}?period=dia" class="nav-link">Reportes</a>
 			</div>
 		{% endif %}
 
@@ -647,14 +638,7 @@
 				</div>
 			</div>
 			<div class="nav-item-group">
-				<button class="nav-item nav-subtoggle" type="button" data-target="topbarReportesSubMenu" aria-expanded="false">Reportes <span class="submenu-arrow">›</span></button>
-				<div id="topbarReportesSubMenu" class="nav-submenu" aria-hidden="true">
-					<button class="nav-item nav-back" type="button" data-close-submenu="topbarReportesSubMenu">← Menu</button>
-					<button class="nav-item report-filter-btn active" type="button" data-report-filter="dia">Día</button>
-					<button class="nav-item report-filter-btn" type="button" data-report-filter="semana">Semana</button>
-					<button class="nav-item report-filter-btn" type="button" data-report-filter="mes">Mes</button>
-					<a id="reportesLinkMobile" class="nav-item" href="{% url 'reportes' %}?period=dia">Ver reporte</a>
-				</div>
+				<a class="nav-item" href="{% url 'reportes' %}?period=dia">Reportes</a>
 			</div>
 		{% endif %}
 	</div>
@@ -811,7 +795,6 @@
 			{ toggleId: 'clientsToggle', dropdownId: 'clientsDropdown' },
 			{ toggleId: 'inventarioToggle', dropdownId: 'inventarioDropdown' },
 			{ toggleId: 'pagosToggle', dropdownId: 'pagosDropdown' },
-			{ toggleId: 'reportesToggle', dropdownId: 'reportesDropdown' },
 			{ toggleId: 'productoToggle', dropdownId: 'productoDropdown' }
 		].map(function(item) {
 			return {
