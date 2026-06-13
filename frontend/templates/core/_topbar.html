@@ -611,11 +611,12 @@
 				</div>
 			</div>
 		{% endif %}
+
 		{% if 'cajero' in user_groups or 'admin' in user_groups %}
-			
-					<a href="{% url 'caja' %}" class="nav-link">caja</a>
+			<a href="{% url 'caja' %}" class="nav-link">caja</a>
 					
-				{% endif %}			
+		{% endif %}	
+
 		{% if 'admin' in user_groups %}
 			<div class="nav-item-group">
 				<button class="nav-item nav-subtoggle" type="button" data-target="topbarInventorySubMenu" aria-expanded="false">Inventario <span class="submenu-arrow">›</span></button>
