@@ -580,7 +580,7 @@
 	<div id="barNavMenu" class="nav-menu" role="menu" aria-hidden="true">
 		<a class="nav-item" href="{% url 'catalog' %}">Ver catálogo</a>
 		{% if 'admin' in user_groups or 'cajero' in user_groups %}
-			{% if user.username != 'Cristian1' %}
+			
 				<div class="nav-item-group">
 					<button class="nav-item nav-subtoggle" type="button" data-target="topbarClientsSubMenu" aria-expanded="false">Clientes <span class="submenu-arrow">›</span></button>
 					<div id="topbarClientsSubMenu" class="nav-submenu" aria-hidden="true">
@@ -588,7 +588,10 @@
 						<a class="nav-item" href="{% url 'todos_clientes' %}">Ver clientes</a>
 					</div>
 				</div>
-			{% endif %}
+				<div>
+					<a class="nav-item" href="{% url 'caja' %}">caja</a>
+
+				</div>
 		{% endif %}
 		{% if 'cliente' in user_groups or not user.is_authenticated %}
 			<a class="nav-item" href="{% url 'catalog' %}?Categoria=Sublimación">Sublimación</a>
@@ -606,16 +609,13 @@
 						<a class="nav-item" href="{% url 'registrar_producto' %}">Crear producto</a>
 						<a class="nav-item" href="{% url 'agregar_marca' %}">Marca</a>
 					{% else %}
-						<a class="nav-item" href="{% url 'catalog' %}">Vear productos</a>
+						<a class="nav-item" href="{% url 'catalog' %}">Ver productos</a>
 					{% endif %}
 				</div>
 			</div>
 		{% endif %}
 
-		{% if 'cajero' in user_groups or 'admin' in user_groups %}
-			<a href="{% url 'caja' %}" class="nav-link">caja</a>
-					
-		{% endif %}	
+		
 
 		{% if 'admin' in user_groups %}
 			<div class="nav-item-group">
