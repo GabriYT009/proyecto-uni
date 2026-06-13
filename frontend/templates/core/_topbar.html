@@ -535,11 +535,7 @@
 							<a href="{% url 'ordenes_sublimacion' %}" class="dropdown-item">Ordenes de sublimacion</a>
 						</div>
 					</div>
-			{% if 'cajero' in user_groups or 'admin' in user_g %}
 			
-					<a href="{% url 'caja' %}" class="nav-link">caja</a>
-					
-				{% endif %}		
 			
 			<div class="reportes-menu" style="position:relative;">
 				<a href="{% url 'reportes' %}?period=dia" class="nav-link">Reportes</a>
@@ -615,7 +611,11 @@
 				</div>
 			</div>
 		{% endif %}
-
+		{% if 'cajero' in user_groups or 'admin' in user_g %}
+			<div class="caja-menu" style="position:relative;">
+					<a href="{% url 'caja' %}" class="nav-link">caja</a>
+					</div>
+				{% endif %}			
 		{% if 'admin' in user_groups %}
 			<div class="nav-item-group">
 				<button class="nav-item nav-subtoggle" type="button" data-target="topbarInventorySubMenu" aria-expanded="false">Inventario <span class="submenu-arrow">›</span></button>
