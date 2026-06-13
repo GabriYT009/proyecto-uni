@@ -489,14 +489,14 @@
 				<a href="{% url 'catalog' %}" class="nav-link">Catálogo</a>
 
 				{% if 'admin' in user_groups or 'cajero' in user_groups %}
-					{% if user.username != 'Cristian1' %}
+					
 						<div class="clients-menu" style="position:relative;">
 							<button id="clientsToggle" class="nav-link clients-toggle" aria-haspopup="true" aria-expanded="false">Clientes ▾</button>
 							<div id="clientsDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
 								<a href="{% url 'todos_clientes' %}" class="dropdown-item">Ver clientes</a>
 							</div>
 						</div>
-					{% endif %}
+					
 				{% endif %}
 
 				{% if 'cliente' in user_groups or not user.is_authenticated %}
