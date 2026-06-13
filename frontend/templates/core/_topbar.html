@@ -576,7 +576,7 @@
 
 	<div id="barNavMenu" class="nav-menu" role="menu" aria-hidden="true">
 		<a class="nav-item" href="{% url 'catalog' %}">Ver catálogo</a>
-		{% if 'admin' in user_groups or 'cajero' in user_groups %}
+		{% if ''cajero' in user_groups %}
 			
 				<div class="nav-item-group">
 					<button class="nav-item nav-subtoggle" type="button" data-target="topbarClientsSubMenu" aria-expanded="false">Clientes <span class="submenu-arrow">›</span></button>
