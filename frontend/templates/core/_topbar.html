@@ -538,8 +538,9 @@
 			{% if 'cajero' in user_groups or 'admin' in user_g %}
 			<div class="caja-menu" style="position:relative;">
 					<a href="{% url 'caja' %}" class="nav-link">caja</a>
+					</div>
 				{% endif %}		
-			</div>
+			
 			<div class="reportes-menu" style="position:relative;">
 				<a href="{% url 'reportes' %}?period=dia" class="nav-link">Reportes</a>
 			</div>
