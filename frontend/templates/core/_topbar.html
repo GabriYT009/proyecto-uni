@@ -612,9 +612,9 @@
 			</div>
 		{% endif %}
 		{% if 'cajero' in user_groups or 'admin' in user_groups %}
-			<div class="caja-menu" style="position:relative;">
+			
 					<a href="{% url 'caja' %}" class="nav-link">caja</a>
-					</div>
+					
 				{% endif %}			
 		{% if 'admin' in user_groups %}
 			<div class="nav-item-group">
