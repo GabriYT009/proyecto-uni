@@ -505,7 +505,7 @@
 					<a href="{% url 'catalog' %}?Categoria=Otros" class="nav-link">Otros</a>
 				{% endif %}
 
-				{% if 'cajero' in user_groups %}
+				{% if 'cajero' in user_groups or 'admin' in user_groups %}
 					<a href="{% url 'caja' %}" class="nav-link">caja</a>
 				{% endif %}
 
