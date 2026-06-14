@@ -164,16 +164,16 @@ class Generar_NE(FPDF):
                 self.set_font('Arial', 'B', 12)
 
         self.cell(150, 10, 'TOTAL USD:', 0, 0, 'R')
-        self.cell(30, 10, f'${total_final_usd:.2f}', 0, 1, 'R')
+        self.cell(30, 10, f'${total_final_usd:.2f}', 0, 1, 'C')
         total_bs = total_final_usd * tasa
         self.cell(150, 10, 'TOTAL BS:', 0, 0, 'R')
-        self.cell(30, 10, f'Bs {total_bs:.2f}', 0, 1, 'R')
+        self.cell(30, 10, f'{total_bs:.2f}', 0, 1, 'C')
         # Payment method if available
         if getattr(self.salida, 'bcv', None):
             try:
                 total_bs = total_final_usd * float(self.salida.bcv)
                 self.set_font('Arial', 'B', 12)
-                self.cell(150, 10, f'Tasa BCV: {self.salida.bcv}', 0, 0, 'R')
+                self.cell(150, 10, f'Tasa BCV: {self.salida.bcv}', 0, 0, 'C')
                 self.cell(30, 10, '', 0, 1, 'R')
     
             except (ValueError, TypeError):
