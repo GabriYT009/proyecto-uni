@@ -20,7 +20,11 @@
         .report-button,
         .period-button { border-radius: 999px; padding: 9px 16px; font-size: 13px; font-weight: 700; transition: all 0.18s ease; border: 1px solid #7b5cff; color: #5b33b5; background: rgba(123, 92, 255, 0.08); text-decoration: none; }
         .report-button:hover,
-        .period-button:hover { background: rgba(123, 92, 255, 0.16); }
+        .period-button:hover,
+        .report-button:focus,
+        .period-button:focus,
+        .report-button:active,
+        .period-button:active { background: rgba(123, 92, 255, 0.16); color: #5b33b5; border-color: #7b5cff; outline: none; }
         .report-button.active,
         .period-button.active { background: #7b5cff; color: #fff; border-color: #7b5cff; box-shadow: 0 16px 30px rgba(123, 92, 255, 0.18); }
         .report-summary { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); margin-top: 20px; }
