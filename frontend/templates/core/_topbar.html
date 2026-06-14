@@ -533,7 +533,7 @@
 							<a href="{% url 'ordenes_sublimacion' %}" class="dropdown-item">Ordenes de sublimacion</a>
 						</div>
 					</div>
-					{% if 'cajero' in user_groups %}
+					{% if 'cajero' in user_groups or 'admin' user_groups %}
 						<div class="clients-menu" style="position:relative;">
 							<a href="{% url 'caja' %}" class="nav-link">caja</a>
 						</div>
