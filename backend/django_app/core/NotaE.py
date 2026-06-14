@@ -173,7 +173,7 @@ class Generar_NE(FPDF):
             try:
                 total_bs = total_final_usd * float(self.salida.bcv)
                 self.set_font('Arial', 'B', 12)
-                self.cell(150, 10, f'TASA BCV:{self.salida.bcv}', 0, 0, 'C')
+                self.cell(150, 10, f'TASA BCV:{self.salida.bcv:.2f}', 0, 0, 'C')
                 self.cell(30, 10, '', 0, 1, 'R')
     
             except (ValueError, TypeError):
