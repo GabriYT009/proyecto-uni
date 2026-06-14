@@ -558,11 +558,50 @@
                 return ok;
             }
 
-            // Clear error on input
-            [guestName, guestDir, guestPhone].forEach(function (el) {
-                if (!el) return;
-                el.addEventListener('input', function () { clearFieldError(el); });
-            });
+            // Clear error and sanitize inputs on input/paste
+            if (guestName) {
+                guestName.addEventListener('input', function () {
+                    // Eliminar cualquier caracter que no sea letra (incluye acentos), Ñ/ñ o espacio
+                    var orig = guestName.value || '';
+                    var sanitized = orig.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
+                    if (sanitized !== orig) {
+                        guestName.value = sanitized;
+                    }
+                    clearFieldError(guestName);
+                });
+                guestName.addEventListener('paste', function (e) {
+                    e.preventDefault();
+                    var text = (e.clipboardData || window.clipboardData).getData('text') || '';
+                    text = text.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
+                    document.execCommand('insertText', false, text);
+                });
+            }
+
+            if (guestDir) {
+                guestDir.addEventListener('input', function () { clearFieldError(guestDir); });
+                guestDir.addEventListener('paste', function (e) {
+                    // Allow paste but trim excessive whitespace
+                    setTimeout(function () { guestDir.value = (guestDir.value || '').trim(); }, 0);
+                });
+            }
+
+            if (guestPhone) {
+                guestPhone.addEventListener('input', function () {
+                    var orig = guestPhone.value || '';
+                    // Mantener solo dígitos y limitar a 11
+                    var digits = orig.replace(/\D/g, '').slice(0, 11);
+                    if (digits !== orig) {
+                        guestPhone.value = digits;
+                    }
+                    clearFieldError(guestPhone);
+                });
+                guestPhone.addEventListener('paste', function (e) {
+                    e.preventDefault();
+                    var text = (e.clipboardData || window.clipboardData).getData('text') || '';
+                    text = text.replace(/\D/g, '').slice(0, 11);
+                    document.execCommand('insertText', false, text);
+                });
+            }
 
             if (clientDoc) {
                 clientDoc.addEventListener('input', syncSelectedClient);
