@@ -876,7 +876,7 @@ def home(request):
 def reportes(request):
     period = (request.GET.get('period') or 'dia').strip().lower()
     report_type = (request.GET.get('type') or 'productos').strip().lower()
-    if report_type not in ('clientes', 'productos'):
+    if report_type not in ('clientes', 'productos', 'carrito'):
         report_type = 'productos'
 
     today = timezone.localtime(timezone.now()).date()
@@ -897,6 +897,9 @@ def reportes(request):
     total_sales = 0.0
     total_descuentos = 0.0
     total_reembolsos = 0.0
+    total_clients = 0
+    total_carts = 0
+    total_monto = 0.0
 
     if report_type == 'clientes':
         try:
@@ -949,6 +952,51 @@ def reportes(request):
                     'cliente': item['cliente'],
                     'descuento': item['descuento'],
                     'bar_width': min(100, int((item['descuento'] / max_descuento) * 100)) if max_descuento else 0,
+                }
+                for item in report_items[:10]
+            ]
+    elif report_type == 'carrito':
+        try:
+            carrito_qs = (
+                Nota_Entrega.objects
+                .filter(detalles__status_carrito=True)
+                .distinct()
+                .values('cliente_id', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
+                .annotate(
+                    pending_carts=Count('id'),
+                    total_monto=Sum('total'),
+                    last_activity=Max('fecha'),
+                )
+                .order_by('-total_monto')
+            )
+            for item in carrito_qs:
+                nombre = (item.get('cliente__nombre_cliente') or '').strip()
+                apellido = (item.get('cliente__apellido_cliente') or '').strip()
+                cliente_label = ' '.join(filter(None, [nombre, apellido])).strip()
+                if not cliente_label:
+                    cliente_label = item.get('cliente_nombre') or 'Cliente desconocido'
+
+                report_items.append({
+                    'cliente': cliente_label,
+                    'carritos': item.get('pending_carts') or 0,
+                    'monto': item.get('total_monto') or 0.0,
+                    'ultima_venta': item.get('last_activity'),
+                })
+        except Exception:
+            logger.exception('Error al generar el reporte de carrito')
+            report_items = []
+
+        total_clients = len(report_items)
+        total_carts = sum(item['carritos'] for item in report_items)
+        total_monto = sum(item['monto'] for item in report_items)
+
+        if report_items:
+            max_monto = max(item['monto'] for item in report_items) or 1
+            top_products = [
+                {
+                    'cliente': item['cliente'],
+                    'monto': item['monto'],
+                    'bar_width': min(100, int((item['monto'] / max_monto) * 100)) if max_monto else 0,
                 }
                 for item in report_items[:10]
             ]
@@ -1013,6 +1061,9 @@ def reportes(request):
         'total_sales': total_sales,
         'total_descuentos': total_descuentos,
         'total_reembolsos': total_reembolsos,
+        'total_clients': total_clients,
+        'total_carts': total_carts,
+        'total_monto': total_monto,
         'categories': categories,
         'cart_count': cart_count,
         'user_groups': user_groups,

@@ -61,8 +61,9 @@
                 </div>
                 <div class="report-actions">
                     <div class="button-group">
-                        <a href="{% url 'reportes' %}?type=productos&period={{ selected_period }}" class="report-button{% if selected_report_type != 'clientes' %} active{% endif %}">Productos</a>
+                        <a href="{% url 'reportes' %}?type=productos&period={{ selected_period }}" class="report-button{% if selected_report_type == 'productos' %} active{% endif %}">Productos</a>
                         <a href="{% url 'reportes' %}?type=clientes&period={{ selected_period }}" class="report-button{% if selected_report_type == 'clientes' %} active{% endif %}">Clientes</a>
+                        <a href="{% url 'reportes' %}?type=carrito&period={{ selected_period }}" class="report-button{% if selected_report_type == 'carrito' %} active{% endif %}">Carrito pendientes</a>
                     </div>
                     <div class="button-group">
                         <a href="{% url 'reportes' %}?type={{ selected_report_type }}&period=dia" class="period-button{% if selected_period == 'dia' %} active{% endif %}">Día</a>
@@ -72,15 +73,28 @@
                 </div>
             </div>
             <div class="report-summary">
+                {% if selected_report_type == 'carrito' %}
                 <div class="report-card">
-                    <h3>{% if selected_report_type == 'clientes' %}Clientes con datos{% else %}Total productos vendidos{% endif %}</h3>
+                    <h3>Clientes con carrito pendiente</h3>
+                    <p>{{ total_clients }}</p>
+                </div>
+                <div class="report-card">
+                    <h3>Carritos pendientes</h3>
+                    <p>{{ total_carts }}</p>
+                </div>
+                <div class="report-card">
+                    <h3>Monto total</h3>
+                    <p>${{ total_monto|floatformat:2 }}</p>
+                </div>
+                {% elif selected_report_type == 'clientes' %}
+                <div class="report-card">
+                    <h3>Clientes con datos</h3>
                     <p>{{ total_products }}</p>
                 </div>
                 <div class="report-card">
-                    <h3>{% if selected_report_type == 'clientes' %}Total ventas{% else %}Total ventas{% endif %}</h3>
+                    <h3>Total ventas</h3>
                     <p>${{ total_sales|floatformat:2 }}</p>
                 </div>
-                {% if selected_report_type == 'clientes' %}
                 <div class="report-card">
                     <h3>Total descuentos</h3>
                     <p>${{ total_descuentos|floatformat:2 }}</p>
@@ -88,6 +102,15 @@
                 <div class="report-card">
                     <h3>Total reembolsos</h3>
                     <p>${{ total_reembolsos|floatformat:2 }}</p>
+                </div>
+                {% else %}
+                <div class="report-card">
+                    <h3>Total productos vendidos</h3>
+                    <p>{{ total_products }}</p>
+                </div>
+                <div class="report-card">
+                    <h3>Total ventas</h3>
+                    <p>${{ total_sales|floatformat:2 }}</p>
                 </div>
                 {% endif %}
             </div>
@@ -98,6 +121,9 @@
                     {% if selected_report_type == 'clientes' %}
                         <h2 class="mb-1">TOP 10 clientes con mayor descuento</h2>
                         <p class="text-muted mb-0">Visualiza los clientes que recibieron más descuentos.</p>
+                    {% elif selected_report_type == 'carrito' %}
+                        <h2 class="mb-1">TOP 10 clientes con mayor monto pendiente</h2>
+                        <p class="text-muted mb-0">Visualiza los clientes con mayor total en carritos pendientes.</p>
                     {% else %}
                         <h2 class="mb-1">TOP 10 más vendidos</h2>
                         <p class="text-muted mb-0">Visualiza los productos con mayor cantidad de unidades vendidas.</p>
@@ -108,17 +134,17 @@
                 {% for item in top_products %}
                 <div class="chart-row">
                     <div>
-                        <div class="chart-label">{{ forloop.counter }}. {% if selected_report_type == 'clientes' %}{{ item.cliente }}{% else %}{{ item.producto }}{% endif %}</div>
+                        <div class="chart-label">{{ forloop.counter }}. {% if selected_report_type == 'clientes' %}{{ item.cliente }}{% elif selected_report_type == 'carrito' %}{{ item.cliente }}{% else %}{{ item.producto }}{% endif %}</div>
                         <div class="chart-track"><div class="chart-bar" style="width: {{ item.bar_width }}%;"></div></div>
                     </div>
-                    <div class="chart-value">{% if selected_report_type == 'clientes' %}${{ item.descuento|floatformat:2 }}{% else %}{{ item.cantidad }}{% endif %}</div>
+                    <div class="chart-value">{% if selected_report_type == 'clientes' %}${{ item.descuento|floatformat:2 }}{% elif selected_report_type == 'carrito' %}${{ item.monto|floatformat:2 }}{% else %}{{ item.cantidad }}{% endif %}</div>
                 </div>
                 {% endfor %}
             {% else %}
                 {% for i in "12345" %}
                 <div class="chart-row">
                     <div>
-                        <div class="chart-label">{% if selected_report_type == 'clientes' %}Cliente {{ forloop.counter }}{% else %}Producto {{ forloop.counter }}{% endif %}</div>
+                        <div class="chart-label">{% if selected_report_type == 'clientes' or selected_report_type == 'carrito' %}Cliente {{ forloop.counter }}{% else %}Producto {{ forloop.counter }}{% endif %}</div>
                         <div class="chart-track"><div class="chart-bar placeholder" style="width: 60%;"></div></div>
                     </div>
                     <div class="chart-value">0</div>
@@ -156,6 +182,34 @@
                 {% else %}
                     <div class="report-empty">
                         <p>No hay clientes con datos en este período.</p>
+                    </div>
+                {% endif %}
+            {% elif selected_report_type == 'carrito' %}
+                <h2 class="h4 mb-3">Carrito pendientes</h2>
+                {% if report_items %}
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Carritos pendientes</th>
+                                <th>Monto total</th>
+                                <th>Última actividad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in report_items %}
+                            <tr>
+                                <td>{{ item.cliente }}</td>
+                                <td>{{ item.carritos }}</td>
+                                <td>${{ item.monto|floatformat:2 }}</td>
+                                <td>{{ item.ultima_venta|date:'d/m/Y H:i' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="report-empty">
+                        <p>No hay carritos pendientes para mostrar en este período.</p>
                     </div>
                 {% endif %}
             {% else %}
