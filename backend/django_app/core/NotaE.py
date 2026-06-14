@@ -166,7 +166,7 @@ class Generar_NE(FPDF):
         self.cell(150, 10, 'TOTAL USD:', 0, 0, 'R')
         self.cell(30, 10, f'${total_final_usd:.2f}', 0, 1, 'R')
         total_bs = total_final_usd * tasa
-        self.cell(150, 10, 'TOTAL Bs:', 0, 0, 'R')
+        self.cell(150, 10, 'TOTAL BS:', 0, 0, 'R')
         self.cell(30, 10, f'Bs {total_bs:.2f}', 0, 1, 'R')
         # Payment method if available
         if getattr(self.salida, 'bcv', None):
