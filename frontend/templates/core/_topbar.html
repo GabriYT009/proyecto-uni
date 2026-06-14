@@ -1,1015 +1,988 @@
 ﻿{% load static %}
 
 <style>
-	/* Topbar mejorado: logo a la izquierda, búsqueda y nav centrados, perfil a la derecha. */
-	.top-bar{ position: fixed; top:0; left:0; right:0; height:60px; background:rgb(72 13 102); border-bottom:1px solid rgba(153,50,204,0.12); z-index:10000; transition: all 240ms cubic-bezier(.2,.9,.2,1); box-shadow: 0 12px 26px rgba(102,32,128,0.12); padding:0 16px; box-sizing:border-box; }
+    .top-bar{ position: fixed; top:0; left:0; right:0; height:60px; background:rgb(72 13 102); border-bottom:1px solid rgba(153,50,204,0.12); z-index:10000; transition: all 240ms cubic-bezier(.2,.9,.2,1); box-shadow: 0 12px 26px rgba(102,32,128,0.12); padding:0 16px; box-sizing:border-box; }
 
-	/* Contenedor interior: centrado horizontalmente y limitado en ancho */
-	.top-bar .bar-inner{ max-width:1000px; margin:0 auto; height:60px; display:flex; align-items:center; justify-content:space-between; padding:0 0; position:relative; gap:16px; flex-wrap:wrap; }
+    .top-bar .bar-inner{ max-width:1000px; margin:0 auto; height:60px; display:flex; align-items:center; justify-content:space-between; padding:0 0; position:relative; gap:16px; flex-wrap:wrap; }
 
-	/* Evitar superposición de los extremos con el contenido central */
-	.top-bar .bar-left,
-	.top-bar .bar-right { position: static; transform: none; flex:0 0 auto; flex-shrink:0; }
-	.top-bar .bar-right { display:flex; align-items:center; justify-content:flex-end; gap:10px; min-width:0; order:3; }
-	.top-bar .bar-logo-link { display:inline-flex; align-items:center; gap:8px; padding:4px 0; white-space:nowrap; flex-shrink:0; order:1; }
+    .top-bar .bar-left,
+    .top-bar .bar-right { position: static; transform: none; flex:0 0 auto; flex-shrink:0; }
+    .top-bar .bar-right { display:flex; align-items:center; justify-content:flex-end; gap:10px; min-width:0; order:3; }
+    .top-bar .bar-logo-link { display:inline-flex; align-items:center; gap:8px; padding:4px 0; white-space:nowrap; flex-shrink:0; order:1; }
 
-	/* Zona central flexible: nav + búsqueda */
-	.top-bar .bar-center{ display:flex; align-items:center; gap:10px; justify-content:center; flex:1 1 0; min-width:0; max-width:100%; padding:0 10px; box-sizing:border-box; flex-wrap: wrap; order:2; }
+    .top-bar .bar-center{ display:flex; align-items:center; gap:10px; justify-content:center; flex:1 1 0; min-width:0; max-width:100%; padding:0 10px; box-sizing:border-box; flex-wrap: wrap; order:2; }
 
-	.top-bar .btn{ background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.24); padding:6px 10px; border-radius:8px; font-size:14px; }
+    .top-bar .btn{ background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.24); padding:6px 10px; border-radius:8px; font-size:14px; }
 
-	.top-bar.collapsed{ left:12px; right:auto; width:50px; height:50px; border-radius:10px; padding:5px; border-bottom:none; box-shadow:0 6px 18px rgba(0,0,0,0.08); }
-	.top-bar.collapsed .bar-inner{ display:none; }
+    .top-bar.collapsed{ left:12px; right:auto; width:50px; height:50px; border-radius:10px; padding:5px; border-bottom:none; box-shadow:0 6px 18px rgba(0,0,0,0.08); }
+    .top-bar.collapsed .bar-inner{ display:none; }
 
-	/* Navegación principal (centrada) */
-	.top-bar .main-nav{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; min-width:0; }
+    .top-bar .main-nav{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; min-width:0; }
 
-	/* Buscar: más prominente, pero responsiva */
-	.search-container{ display:flex; align-items:center; background:#f5f5f5; border-radius:22px; padding:6px 10px; width:360px; max-width:100%; min-width:160px; flex:1 1 280px; box-shadow: inset 0 1px 0 rgba(0,0,0,0.02); }
-	.search-input{ flex:1; min-width:0; border:none; background:transparent; padding:8px 14px; font-size:14px; outline:none; color:#333; }
-	.search-btn{ background:#fff; color:#9932CC; border:none; border-radius:18px; width:38px; height:38px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; margin-left:8px; }
+    .search-container{ display:flex; align-items:center; background:#f5f5f5; border-radius:22px; padding:6px 10px; width:360px; max-width:100%; min-width:160px; flex:1 1 280px; box-shadow: inset 0 1px 0 rgba(0,0,0,0.02); }
+    .search-input{ flex:1; min-width:0; border:none; background:transparent; padding:8px 14px; font-size:14px; outline:none; color:#333; }
+    .search-btn{ background:#fff; color:#9932CC; border:none; border-radius:18px; width:38px; height:38px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; margin-left:8px; }
 
-	/* Enlaces / toggles visual */
-	.top-bar .nav-link, .top-bar .clients-toggle, .top-bar .product-toggle, .top-bar .inventario-toggle, .top-bar .pagos-toggle, .top-bar .reportes-toggle {
-		display:inline-flex; align-items:center; gap:6px; background:transparent; border:none; color:#fff; text-decoration:none; font-weight:600; font-size:14px; padding:6px 8px; border-radius:6px; transition:background .2s, color .2s; }
+    .top-bar .nav-link, .top-bar .clients-toggle, .top-bar .product-toggle, .top-bar .inventario-toggle, .top-bar .pagos-toggle, .top-bar .reportes-toggle {
+        display:inline-flex; align-items:center; gap:6px; background:transparent; border:none; color:#fff; text-decoration:none; font-weight:600; font-size:14px; padding:6px 8px; border-radius:6px; transition:background .2s, color .2s; }
 
-	.top-bar .nav-link:hover { color:#fff; opacity:0.95; }
+    .top-bar .nav-link:hover { color:#fff; opacity:0.95; }
 
-	/* Perfil */
-	.profile-menu{ position:relative; display:inline-block; }
-	.profile-btn{ background:#ffffff; color:#9932CC; padding:8px 12px; border-radius:20px; border:none; font-weight:600; display:flex; align-items:center; gap:8px; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.12); }
+    .profile-menu{ position:relative; display:inline-block; }
+    .profile-btn{ background:#ffffff; color:#9932CC; padding:8px 12px; border-radius:20px; border:none; font-weight:600; display:flex; align-items:center; gap:8px; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.12); }
 
-	/* Responsivo: en pantallas pequeñas los extremos dejan de ser absolutos */
-	@media (max-width: 880px){
-		.top-bar .bar-left, .top-bar .bar-right { position: static; transform: none; }
-		.top-bar .bar-inner{ justify-content:space-between; padding:0 12px; }
-		.top-bar .bar-center{ padding:0 12px; gap:10px; }
-		.search-container{ max-width:55%; width:48%; }
-	}
+    @media (max-width: 880px){
+        .top-bar .bar-left, .top-bar .bar-right { position: static; transform: none; }
+        .top-bar .bar-inner{ justify-content:space-between; padding:0 12px; }
+        .top-bar .bar-center{ padding:0 12px; gap:10px; }
+        .search-container{ max-width:55%; width:48%; }
+    }
 
-	@media (max-width: 540px){
-		.search-container{ width:100%; max-width:100%; }
-		.top-bar .bar-center{ flex-direction:column; gap:8px; align-items:stretch; }
-		.top-bar .main-nav{ order:2; justify-content:center; width:100%; overflow:auto; }
-	}
+    @media (max-width: 540px){
+        .search-container{ width:100%; max-width:100%; }
+        .top-bar .bar-center{ flex-direction:column; gap:8px; align-items:stretch; }
+        .top-bar .main-nav{ order:2; justify-content:center; width:100%; overflow:auto; }
+    }
 
-	.top-bar .main-nav {
-		display: flex;
-		align-items: center;
-		gap: 10px;
-		margin-right: 10px;
-		flex-wrap: wrap;
-		min-width: 0;
-	}
+    .top-bar .main-nav {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-right: 10px;
+        flex-wrap: wrap;
+        min-width: 0;
+    }
 
-	.top-bar .nav-link,
-	.top-bar .clients-toggle,
-	.top-bar .product-toggle,
-	.top-bar .inventario-toggle,
-	.top-bar .pagos-toggle,
-	.top-bar .reportes-toggle {
-		display: inline-flex;
-		align-items: center;
-		gap: 6px;
-		background: transparent;
-		border: none;
-		color: #fff;
-		text-decoration: none;
-		font-weight: 600;
-		font-size: 14px;
-		padding: 6px 10px;
-		border-radius: 6px;
-		transition: background 0.3s ease, color 0.3s ease;
-		cursor: pointer;
-		appearance: none;
-		-webkit-appearance: none;
-	}
+    .top-bar .nav-link,
+    .top-bar .clients-toggle,
+    .top-bar .product-toggle,
+    .top-bar .inventario-toggle,
+    .top-bar .pagos-toggle,
+    .top-bar .reportes-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: transparent;
+        border: none;
+        color: #fff;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        padding: 6px 10px;
+        border-radius: 6px;
+        transition: background 0.3s ease, color 0.3s ease;
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+    }
 
-	/* Mantener todos los alternadores del desplegable con el mismo patrón visual. */
-	.top-bar .product-toggle,
-	.top-bar .inventario-toggle,
-	.top-bar .pagos-toggle,
-	.top-bar .reportes-toggle {
-		position: relative;
-		font-size: 0;
-		line-height: 1;
-		color: transparent;
-	}
+    .top-bar .product-toggle,
+    .top-bar .inventario-toggle,
+    .top-bar .pagos-toggle,
+    .top-bar .reportes-toggle {
+        position: relative;
+        font-size: 0;
+        line-height: 1;
+        color: transparent;
+    }
 
-	.top-bar .product-toggle::before,
-	.top-bar .inventario-toggle::before,
-	.top-bar .pagos-toggle::before,
-	.top-bar .reportes-toggle::before {
-		font-size: 16px;
-		font-weight: 600;
-		line-height: 1;
-		color: #333;
-	}
+    .top-bar .product-toggle::before,
+    .top-bar .inventario-toggle::before,
+    .top-bar .pagos-toggle::before,
+    .top-bar .reportes-toggle::before {
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 1;
+        color: #333;
+    }
 
-	.top-bar .product-toggle::before { content: "Producto"; }
-	.top-bar .inventario-toggle::before { content: "Inventario"; }
-	.top-bar .pagos-toggle::before { content: "Pagos"; }
-	.top-bar .reportes-toggle::before { content: "Reportes"; }
+    .top-bar .product-toggle::before { content: "Producto"; }
+    .top-bar .inventario-toggle::before { content: "Inventario"; }
+    .top-bar .pagos-toggle::before { content: "Pagos"; }
+    .top-bar .reportes-toggle::before { content: "Reportes"; }
 
-	.report-filter-list {
-		display: flex;
-		gap: 8px;
-		flex-wrap: wrap;
-		padding: 10px 8px;
-	}
+    .report-filter-list {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        padding: 10px 8px;
+    }
 
-	.report-filter-btn {
-		border: 1px solid rgba(0,0,0,0.12);
-		background: #fff;
-		color: #333;
-		padding: 8px 12px;
-		border-radius: 999px;
-		font-size: 14px;
-		font-weight: 600;
-		cursor: pointer;
-		transition: all 0.2s ease;
-	}
+    .report-filter-btn {
+        border: 1px solid rgba(0,0,0,0.12);
+        background: #fff;
+        color: #333;
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
 
-	.report-filter-btn:hover,
-	.report-filter-btn.active {
-		background: #9932CC;
-		color: #fff;
-		border-color: transparent;
-	}
+    .report-filter-btn:hover,
+    .report-filter-btn.active {
+        background: #9932CC;
+        color: #fff;
+        border-color: transparent;
+    }
 
-	.report-dropdown-note {
-		padding: 0 12px 10px;
-		font-size: 13px;
-		color: #555;
-	}
+    .report-dropdown-note {
+        padding: 0 12px 10px;
+        font-size: 13px;
+        color: #555;
+    }
 
-	.top-bar .clients-toggle::after,
-	.top-bar .product-toggle::after,
-	.top-bar .inventario-toggle::after,
-	.top-bar .pagos-toggle::after {
-		content: "";
-		width: 0;
-		height: 0;
-		border-left: 4px solid transparent;
-		border-right: 4px solid transparent;
-		border-top: 5px solid #333;
-		margin-left: 6px;
-		transform-origin: center;
-		transition: transform 0.2s ease, border-top-color 0.2s ease;
-	}
+    .top-bar .clients-toggle::after,
+    .top-bar .product-toggle::after,
+    .top-bar .inventario-toggle::after,
+    .top-bar .pagos-toggle::after {
+        content: "";
+        width: 0;
+        height: 0;
+        border-left: 4px solid transparent;
+        border-right: 4px solid transparent;
+        border-top: 5px solid #333;
+        margin-left: 6px;
+        transform-origin: center;
+        transition: transform 0.2s ease, border-top-color 0.2s ease;
+    }
 
-	.top-bar .clients-toggle:hover::before,
-	.top-bar .product-toggle:hover::before,
-	.top-bar .inventario-toggle:hover::before,
-	.top-bar .pagos-toggle:hover::before,
-	.top-bar .clients-toggle[aria-expanded="true"]::before,
-	.top-bar .product-toggle[aria-expanded="true"]::before,
-	.top-bar .inventario-toggle[aria-expanded="true"]::before,
-	.top-bar .pagos-toggle[aria-expanded="true"]::before {
-		color: #9932CC;
-	}
+    .top-bar .clients-toggle:hover::before,
+    .top-bar .product-toggle:hover::before,
+    .top-bar .inventario-toggle:hover::before,
+    .top-bar .pagos-toggle:hover::before,
+    .top-bar .clients-toggle[aria-expanded="true"]::before,
+    .top-bar .product-toggle[aria-expanded="true"]::before,
+    .top-bar .inventario-toggle[aria-expanded="true"]::before,
+    .top-bar .pagos-toggle[aria-expanded="true"]::before {
+        color: #9932CC;
+    }
 
-	.top-bar .clients-toggle:hover::after,
-	.top-bar .product-toggle:hover::after,
-	.top-bar .inventario-toggle:hover::after,
-	.top-bar .pagos-toggle:hover::after,
-	.top-bar .clients-toggle[aria-expanded="true"]::after,
-	.top-bar .product-toggle[aria-expanded="true"]::after,
-	.top-bar .inventario-toggle[aria-expanded="true"]::after,
-	.top-bar .pagos-toggle[aria-expanded="true"]::after {
-		border-top-color: #9932CC;
-	}
+    .top-bar .clients-toggle:hover::after,
+    .top-bar .product-toggle:hover::after,
+    .top-bar .inventario-toggle:hover::after,
+    .top-bar .pagos-toggle:hover::after,
+    .top-bar .clients-toggle[aria-expanded="true"]::after,
+    .top-bar .product-toggle[aria-expanded="true"]::after,
+    .top-bar .inventario-toggle[aria-expanded="true"]::after,
+    .top-bar .pagos-toggle[aria-expanded="true"]::after {
+        border-top-color: #9932CC;
+    }
 
-	.top-bar .clients-toggle[aria-expanded="true"]::after,
-	.top-bar .product-toggle[aria-expanded="true"]::after,
-	.top-bar .inventario-toggle[aria-expanded="true"]::after,
-	.top-bar .pagos-toggle[aria-expanded="true"]::after {
-		transform: rotate(180deg);
-	}
+    .top-bar .clients-toggle[aria-expanded="true"]::after,
+    .top-bar .product-toggle[aria-expanded="true"]::after,
+    .top-bar .inventario-toggle[aria-expanded="true"]::after,
+    .top-bar .pagos-toggle[aria-expanded="true"]::after {
+        transform: rotate(180deg);
+    }
 
-	.top-bar .nav-link:hover,
-	.top-bar .clients-toggle:hover,
-	.top-bar .product-toggle:hover,
-	.top-bar .inventario-toggle:hover,
-	.top-bar .pagos-toggle:hover,
-	.top-bar .clients-toggle[aria-expanded="true"],
-	.top-bar .product-toggle[aria-expanded="true"],
-	.top-bar .inventario-toggle[aria-expanded="true"],
-	.top-bar .pagos-toggle[aria-expanded="true"] {
-		background: #f0f0f0;
-		color: #9932CC;
-	}
+    .top-bar .nav-link:hover,
+    .top-bar .clients-toggle:hover,
+    .top-bar .product-toggle:hover,
+    .top-bar .inventario-toggle:hover,
+    .top-bar .pagos-toggle:hover,
+    .top-bar .clients-toggle[aria-expanded="true"],
+    .top-bar .product-toggle[aria-expanded="true"],
+    .top-bar .inventario-toggle[aria-expanded="true"],
+    .top-bar .pagos-toggle[aria-expanded="true"] {
+        background: #f0f0f0;
+        color: #9932CC;
+    }
 
-	.bar-toggle{ display:none; }
-	.top-bar.collapsed .bar-logo-link{ left:8px; top:8px; z-index:10003; }
-	.top-bar.collapsed .bar-toggle{ left:auto; right:8px; top:8px; z-index:10004; }
-	.bar-toggle .hamburger{ width:20px; height:14px; position:relative; display:inline-block; }
-	.bar-toggle .hamburger span{ position:absolute; left:0; right:0; height:2px; background:#9932CC; border-radius:2px; }
-	.bar-toggle .hamburger span:nth-child(1){ top:0; }
-	.bar-toggle .hamburger span:nth-child(2){ top:6px; }
-	.bar-toggle .hamburger span:nth-child(3){ top:12px; }
-	.top-bar.collapsed .bar-toggle{ display:flex; }
+    .bar-toggle{ display:none; }
+    .top-bar.collapsed .bar-logo-link{ left:8px; top:8px; z-index:10003; }
+    .top-bar.collapsed .bar-toggle{ left:auto; right:8px; top:8px; z-index:10004; }
+    .bar-toggle .hamburger{ width:20px; height:14px; position:relative; display:inline-block; }
+    .bar-toggle .hamburger span{ position:absolute; left:0; right:0; height:2px; background:#9932CC; border-radius:2px; }
+    .bar-toggle .hamburger span:nth-child(1){ top:0; }
+    .bar-toggle .hamburger span:nth-child(2){ top:6px; }
+    .bar-toggle .hamburger span:nth-child(3){ top:12px; }
+    .top-bar.collapsed .bar-toggle{ display:flex; }
 
-	.top-bar .clients-menu,
-	.top-bar .product-menu,
-	.top-bar .inventario-menu,
-	.top-bar .pagos-menu {
-		position: relative;
-	}
+    .top-bar .clients-menu,
+    .top-bar .product-menu,
+    .top-bar .inventario-menu,
+    .top-bar .pagos-menu {
+        position: relative;
+    }
 
-	.top-bar .clients-menu > .profile-dropdown,
-	.top-bar .product-menu > .profile-dropdown,
-	.top-bar .inventario-menu > .profile-dropdown,
-	.top-bar .pagos-menu > .profile-dropdown {
-		left: 0;
-		top: calc(100% + 8px);
-		min-width: 180px;
-	}
+    .top-bar .clients-menu > .profile-dropdown,
+    .top-bar .product-menu > .profile-dropdown,
+    .top-bar .inventario-menu > .profile-dropdown,
+    .top-bar .pagos-menu > .profile-dropdown {
+        left: 0;
+        top: calc(100% + 8px);
+        min-width: 180px;
+    }
 
-	/* Evitar que etiquetas largas (por ejemplo, "Ordenes de sublimacion") se salgan del desplegable. */
-	.top-bar .pagos-menu > .profile-dropdown {
-		min-width: 230px;
-	}
+    .top-bar .pagos-menu > .profile-dropdown {
+        min-width: 230px;
+    }
 
-	.profile-menu{ position:relative; display:inline-block; }
-	.profile-btn{ background:#ffffff; color:#9932CC; padding:8px 12px; border-radius:20px; border:none; font-weight:600; display:flex; align-items:center; gap:8px; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.12); }
-	.profile-btn:focus{ outline:2px solid rgba(153,50,204,0.12); }
-	.profile-dropdown{ position:absolute; right:0; top:calc(100% + 8px); background:#fff; border:1px solid rgba(0,0,0,0.06); border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.08); display:none; min-width:160px; z-index:10005; padding:6px 0; }
-	.profile-dropdown.show{ display:block; }
+    .profile-menu{ position:relative; display:inline-block; }
+    .profile-btn{ background:#ffffff; color:#9932CC; padding:8px 12px; border-radius:20px; border:none; font-weight:600; display:flex; align-items:center; gap:8px; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.12); }
+    .profile-btn:focus{ outline:2px solid rgba(153,50,204,0.12); }
+    .profile-dropdown{ position:absolute; right:0; top:calc(100% + 8px); background:#fff; border:1px solid rgba(0,0,0,0.06); border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.08); display:none; min-width:160px; z-index:10005; padding:6px 0; }
+    .profile-dropdown.show{ display:block; }
 
-	.top-bar .profile-dropdown .dropdown-item {
-		display: block;
-		padding: 8px 12px;
-		color: #333;
-		text-decoration: none;
-		font-weight: 600;
-		font-size: 16px;
-		border-radius: 6px;
-		transition: background 0.3s ease, color 0.3s ease;
-		white-space: normal;
-		overflow-wrap: anywhere;
-		line-height: 1.35;
-	}
+    .top-bar .profile-dropdown .dropdown-item {
+        display: block;
+        padding: 8px 12px;
+        color: #333;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 16px;
+        border-radius: 6px;
+        transition: background 0.3s ease, color 0.3s ease;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        line-height: 1.35;
+    }
 
-	.top-bar .profile-dropdown .dropdown-item:hover {
-		background: #f0f0f0;
-		color: #9932CC;
-	}
+    .top-bar .profile-dropdown .dropdown-item:hover {
+        background: #f0f0f0;
+        color: #9932CC;
+    }
 
-	.nav-menu{ position:absolute; left:12px; top:64px; background:#fff; border:1px solid rgba(0,0,0,0.06); border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.08); display:none; z-index:10006; min-width:180px; overflow:visible; }
-	.nav-menu.show{ display:block; }
-	.nav-menu .nav-item{ display:block; padding:10px 12px; color:#333; text-decoration:none; font-weight:700; border:none; background:transparent; width:100%; text-align:left; white-space:normal; overflow-wrap:anywhere; }
-	.nav-menu .nav-item:hover{ background:#f7f7f7; }
-	.nav-item-group{ position:relative; }
-	.nav-subtoggle{ width:100%; border:none; background:#fff; text-align:left; cursor:pointer; display:flex; align-items:center; justify-content:space-between; }
-	.submenu-arrow{ font-weight:900; color:#7a2ea5; }
-	.nav-submenu{ position:absolute; top:0; right:-8px; width:220px; background:#fff; border:1px solid rgba(0,0,0,0.08); border-radius:10px; box-shadow:0 14px 34px rgba(0,0,0,0.16); display:none; z-index:10007; max-height: calc(100vh - 120px); overflow-y: auto; overflow-x: hidden; }
-	.nav-submenu.show{ display:block; }
-	.nav-submenu .nav-item{ border-bottom:1px solid #efefef; }
-	.nav-submenu .nav-item:last-child{ border-bottom:none; }
-	.nav-submenu .nav-back{ background:#f7f2fb; color:#5b2b80; }
+    .nav-menu{ position:absolute; left:12px; top:64px; background:#fff; border:1px solid rgba(0,0,0,0.06); border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.08); display:none; z-index:10006; min-width:180px; overflow:visible; }
+    .nav-menu.show{ display:block; }
+    .nav-menu .nav-item{ display:block; padding:10px 12px; color:#333; text-decoration:none; font-weight:700; border:none; background:transparent; width:100%; text-align:left; white-space:normal; overflow-wrap:anywhere; }
+    .nav-menu .nav-item:hover{ background:#f7f7f7; }
+    .nav-item-group{ position:relative; }
+    .nav-subtoggle{ width:100%; border:none; background:#fff; text-align:left; cursor:pointer; display:flex; align-items:center; justify-content:space-between; }
+    .submenu-arrow{ font-weight:900; color:#7a2ea5; }
+    .nav-submenu{ position:absolute; top:0; right:-8px; width:220px; background:#fff; border:1px solid rgba(0,0,0,0.08); border-radius:10px; box-shadow:0 14px 34px rgba(0,0,0,0.16); display:none; z-index:10007; max-height: calc(100vh - 120px); overflow-y: auto; overflow-x: hidden; }
+    .nav-submenu.show{ display:block; }
+    .nav-submenu .nav-item{ border-bottom:1px solid #efefef; }
+    .nav-submenu .nav-item:last-child{ border-bottom:none; }
+    .nav-submenu .nav-back{ background:#f7f2fb; color:#5b2b80; }
 
-	.bar-inner .group{ display:flex; align-items:center; gap:15px; }
-	.bar-inner .bar-left{ flex:0 0 auto; }
-	.bar-inner .bar-center{ flex:1 1 auto; display:flex; justify-content:center; }
-	.bar-inner .bar-right{ flex:0 0 auto; }
+    .bar-inner .group{ display:flex; align-items:center; gap:15px; }
+    .bar-inner .bar-left{ flex:0 0 auto; }
+    .bar-inner .bar-center{ flex:1 1 auto; display:flex; justify-content:center; }
+    .bar-inner .bar-right{ flex:0 0 auto; }
 
-	a.logout-button{ display:inline-block; background:#ffffff; color:#9932CC; padding:8px 14px; border-radius:20px; text-decoration:none; font-weight:600; box-shadow:0 2px 6px rgba(0,0,0,0.12); }
-	a.logout-button:hover{ box-shadow:0 4px 10px rgba(0,0,0,0.16); }
-	.avatar{ width:24px; height:24px; border-radius:50%; object-fit:cover; vertical-align:middle; margin-right:8px; }
+    a.logout-button{ display:inline-block; background:#ffffff; color:#9932CC; padding:8px 14px; border-radius:20px; text-decoration:none; font-weight:600; box-shadow:0 2px 6px rgba(0,0,0,0.12); }
+    a.logout-button:hover{ box-shadow:0 4px 10px rgba(0,0,0,0.16); }
+    .avatar{ width:24px; height:24px; border-radius:50%; object-fit:cover; vertical-align:middle; margin-right:8px; }
 
-	.cart-link-inline {
-		margin-left: 5px;
-		position: relative;
-		display: inline-block;
-	}
+    .cart-link-inline {
+        margin-left: 5px;
+        position: relative;
+        display: inline-block;
+    }
 
-	.cart-link-inline .cart-icon {
-		width: 24px;
-		height: 24px;
-		object-fit: contain;
-		display: block;
-	}
+    .cart-link-inline .cart-icon {
+        width: 24px;
+        height: 24px;
+        object-fit: contain;
+        display: block;
+    }
 
-	.cart-count {
-		position: absolute;
-		top: -5px;
-		right: -5px;
-		background: #9932CC;
-		color: #fff;
-		border-radius: 50%;
-		padding: 2px 6px;
-		font-size: 12px;
-		font-weight: 600;
-		line-height: 1;
-		min-width: 18px;
-		text-align: center;
-	}
+    .cart-count {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: #9932CC;
+        color: #fff;
+        border-radius: 50%;
+        padding: 2px 6px;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1;
+        min-width: 18px;
+        text-align: center;
+    }
 
-	.pagos-notif-badge {
-		position: absolute;
-		top: -6px;
-		right: -8px;
-		background: #e11d48;
-		color: #fff;
-		border-radius: 999px;
-		padding: 1px 6px;
-		font-size: 11px;
-		font-weight: 700;
-		line-height: 1.2;
-		min-width: 18px;
-		text-align: center;
-		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
-	}
+    .pagos-notif-badge {
+        position: absolute;
+        top: -6px;
+        right: -8px;
+        background: #e11d48;
+        color: #fff;
+        border-radius: 999px;
+        padding: 1px 6px;
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 1.2;
+        min-width: 18px;
+        text-align: center;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+    }
 
-	.mobile-pagos-badge {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		margin-left: 6px;
-		min-width: 18px;
-		height: 18px;
-		padding: 0 6px;
-		border-radius: 999px;
-		background: #e11d48;
-		color: #fff;
-		font-size: 11px;
-		font-weight: 700;
-		line-height: 1;
-	}
+    .mobile-pagos-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 6px;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 6px;
+        border-radius: 999px;
+        background: #e11d48;
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 1;
+    }
 
-	.search-results {
-		position: absolute;
-		top: 100%;
-		left: 0;
-		right: 0;
-		background: #fff;
-		border-radius: 8px;
-		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-		max-height: 300px;
-		overflow-y: auto;
-		z-index: 1000;
-		display: none;
-		border: 1px solid #e0e0e0;
-		margin-top: 5px;
-	}
+    .search-results {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+        border: 1px solid #e0e0e0;
+        margin-top: 5px;
+    }
 
-	.search-results.show {
-		display: block;
-	}
+    .search-results.show {
+        display: block;
+    }
 
-	@media (max-width: 1024px) {
-		.top-bar .bar-center {
-			gap: 8px;
-		}
+    @media (max-width: 1024px) {
+        .top-bar .bar-center {
+            gap: 8px;
+        }
 
-		.top-bar .search-container {
-			width: 280px;
-		}
-	}
+        .top-bar .search-container {
+            width: 280px;
+        }
+    }
 
-	@media (max-width: 768px) {
-		body { padding-top: 132px !important; }
-		.top-bar,
-		.top-bar.collapsed {
-			left: 0;
-			right: 0;
-			width: 100%;
-			height: 124px;
-			border-radius: 0;
-			padding: 0;
-			border-bottom: 1px solid rgba(153,50,204,0.12);
-			box-shadow: 0 10px 24px rgba(0,0,0,0.12);
-		}
-		.top-bar .bar-inner,
-		.top-bar.collapsed .bar-inner {
-			height: 124px;
-			padding: 8px 10px;
-			align-items: flex-start;
-			flex-wrap: wrap;
-			gap: 8px;
-			display: flex;
-		}
-		.top-bar .bar-logo-link { position: static; transform: none; }
-		.top-bar .bar-logo-text { font-size: 22px; }
-		.top-bar .bar-toggle,
-		.top-bar.collapsed .bar-toggle {
-			display: flex;
-			position: absolute;
-			right: 10px;
-			top: 10px;
-			margin-left: 0;
-			z-index: 10010;
-			width: 46px;
-			height: 46px;
-			min-width: 46px;
-			min-height: 46px;
-			border-radius: 12px;
-			border: 1px solid rgba(255,255,255,0.25);
-			background: rgba(255,255,255,0.12);
-			pointer-events: auto;
-			touch-action: manipulation;
-			-webkit-tap-highlight-color: transparent;
-		}
-		.top-bar .bar-toggle .hamburger span { background: #fff; }
-		.top-bar .bar-inner .bar-right { display: flex; margin-left: auto; gap: 8px; padding-right: 52px; }
-		.top-bar .bar-inner .bar-center {
-			display: flex;
-			width: 100%;
-			order: 3;
-			justify-content: center;
-		}
-		.top-bar .main-nav { display: none; }
-		.top-bar .search-container { width: 100%; max-width: 100%; }
-		.top-bar .profile-btn {
-			padding: 7px 10px;
-			font-size: 13px;
-			max-width: 124px;
-			overflow: hidden;
-			text-overflow: ellipsis;
-			white-space: nowrap;
-		}
-		.top-bar .avatar { width: 20px; height: 20px; margin-right: 4px; }
-		.top-bar .nav-menu {
-			position: fixed;
-			left: 10px;
-			right: 10px;
-			top: 116px;
-			background: #fff;
-			border: 1px solid rgba(0,0,0,0.06);
-			border-radius: 12px;
-			box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-			display: none;
-			z-index: 10006;
-			min-width: 0;
-			max-height: calc(100vh - 132px);
-			overflow-y: auto;
-			-webkit-overflow-scrolling: touch;
-			touch-action: pan-y;
-			overscroll-behavior: contain;
-		}
-		.top-bar .nav-menu.show {
-			display: block;
-		}
-		.top-bar .nav-submenu {
-			position: absolute;
-			left: 8px;
-			right: 8px;
-			top: 100%;
-			margin-top: 8px;
-			width: auto;
-			-webkit-overflow-scrolling: touch;
-			touch-action: pan-y;
-			overscroll-behavior: contain;
-		}
-	}
+    @media (max-width: 768px) {
+        body { padding-top: 132px !important; }
+        .top-bar,
+        .top-bar.collapsed {
+            left: 0;
+            right: 0;
+            width: 100%;
+            height: 124px;
+            border-radius: 0;
+            padding: 0;
+            border-bottom: 1px solid rgba(153,50,204,0.12);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+        }
+        .top-bar .bar-inner,
+        .top-bar.collapsed .bar-inner {
+            height: 124px;
+            padding: 10px;
+            align-items: center;
+            align-content: flex-start;
+            flex-wrap: wrap;
+            gap: 10px;
+            display: flex;
+        }
+        .top-bar .bar-logo-link { position: static; transform: none; }
+        .top-bar .bar-logo-text { font-size: 22px; }
+        .top-bar .bar-toggle,
+        .top-bar.collapsed .bar-toggle {
+            display: flex;
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            margin-left: 0;
+            z-index: 10010;
+            width: 46px;
+            height: 46px;
+            min-width: 46px;
+            min-height: 46px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.25);
+            background: rgba(255,255,255,0.12);
+            pointer-events: auto;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .top-bar .bar-toggle .hamburger span { background: #fff; }
+        .top-bar .bar-inner .bar-left { order: 1; height: 46px; }
+        .top-bar .bar-inner .bar-right { display: flex; margin-left: auto; gap: 8px; padding-right: 52px; order: 2; height: 46px; }
+        .top-bar .bar-inner .bar-center {
+            display: flex;
+            width: 100%;
+            order: 3;
+            justify-content: center;
+        }
+        .top-bar .main-nav { display: none; }
+        .top-bar .search-container { width: 100%; max-width: 100%; }
+        .top-bar .profile-btn {
+            padding: 7px 10px;
+            font-size: 13px;
+            max-width: 124px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .top-bar .avatar { width: 20px; height: 20px; margin-right: 4px; }
+        .top-bar .nav-menu {
+            position: fixed;
+            left: 10px;
+            right: 10px;
+            top: 116px;
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            display: none;
+            z-index: 10006;
+            min-width: 0;
+            max-height: calc(100vh - 132px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y;
+            overscroll-behavior: contain;
+        }
+        .top-bar .nav-menu.show {
+            display: block;
+        }
+        .top-bar .nav-submenu {
+            position: absolute;
+            left: 8px;
+            right: 8px;
+            top: 100%;
+            margin-top: 8px;
+            width: auto;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y;
+            overscroll-behavior: contain;
+        }
+    }
 
-	@media (max-width: 480px) {
-		.top-bar .bar-logo-text { font-size: 20px; }
+    @media (max-width: 480px) {
+        .top-bar .bar-logo-text { font-size: 20px; }
 
-		.top-bar .profile-btn {
-			padding: 6px;
-			font-size: 0;
-			line-height: 0;
-		}
+        .top-bar .profile-btn {
+            padding: 6px;
+            font-size: 0;
+            line-height: 0;
+        }
 
-		.top-bar .avatar {
-			margin-right: 0;
-		}
-	}
+        .top-bar .avatar {
+            margin-right: 0;
+        }
+    }
 </style>
 
 <div class="top-bar{% if 'cliente' in user_groups %} top-bar-client{% endif %}" id="topBar">
-	<div class="bar-inner">
-		<div class="group bar-left">
-			<a href="{% url 'home' %}" class="bar-logo-link" aria-label="Inicio">
-				<span class="bar-logo-text">Solucionarte</span>
-			</a>
-		</div>
+    <div class="bar-inner">
+        <div class="group bar-left">
+            <a href="{% url 'home' %}" class="bar-logo-link" aria-label="Inicio">
+                <span class="bar-logo-text">Solucionarte</span>
+            </a>
+        </div>
 
-		<div class="group bar-center">
-			<nav class="main-nav">
-				<a href="{% url 'catalog' %}" class="nav-link">Catálogo</a>
+        <div class="group bar-center">
+            <nav class="main-nav">
+                <a href="{% url 'catalog' %}" class="nav-link">Catálogo</a>
 
-				{% if 'admin' in user_groups or 'cajero' in user_groups %}
-					{% if user.username != 'Cristian1' %}
-						<div class="clients-menu" style="position:relative;">
-							<button id="clientsToggle" class="nav-link clients-toggle" aria-haspopup="true" aria-expanded="false">Clientes ▾</button>
-							<div id="clientsDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
-								<a href="{% url 'todos_clientes' %}" class="dropdown-item">Ver clientes</a>
-							</div>
-						</div>
-					{% endif %}
-				{% endif %}
+                {% if 'admin' in user_groups or 'cajero' in user_groups %}
+                    {% if user.username != 'Cristian1' %}
+                        <div class="clients-menu" style="position:relative;">
+                            <button id="clientsToggle" class="nav-link clients-toggle" aria-haspopup="true" aria-expanded="false">Clientes ▾</button>
+                            <div id="clientsDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
+                                <a href="{% url 'todos_clientes' %}" class="dropdown-item">Ver clientes</a>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endif %}
 
-				{% if 'cliente' in user_groups or not user.is_authenticated %}
-					<a href="{% url 'catalog' %}?Categoria=Sublimación" class="nav-link">Sublimación</a>
-					<a href="{% url 'catalog' %}?Categoria=Papelería" class="nav-link">Papelería</a>
-					<a href="{% url 'catalog' %}?Categoria=Otros" class="nav-link">Otros</a>
-				{% endif %}
+                {% if 'cliente' in user_groups or not user.is_authenticated %}
+                    <a href="{% url 'catalog' %}?Categoria=Sublimación" class="nav-link">Sublimación</a>
+                    <a href="{% url 'catalog' %}?Categoria=Papelería" class="nav-link">Papelería</a>
+                    <a href="{% url 'catalog' %}?Categoria=Otros" class="nav-link">Otros</a>
+                {% endif %}
 
-				{% if 'admin' in user_groups %}
-					<div class="producto-menu" style="position:relative;">
-						<button id="productoToggle" class="nav-link product-toggle" aria-haspopup="true" aria-expanded="false">Producto ▾</button>
-						<div id="productoDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
-							<a href="{% url 'registrar_producto' %}" class="dropdown-item">Crear producto</a>
-							<a href="{% url 'agregar_marca' %}" class="dropdown-item">Marca</a>
-						</div>
-					</div>
-					<div class="inventario-menu" style="position:relative;">
-						<button id="inventarioToggle" class="nav-link inventario-toggle" aria-haspopup="true" aria-expanded="false">Inventario ▾</button>
-						
-						<div id="inventarioDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
-							<a href="{% url 'inventario' %}" class="dropdown-item">Ver inventario</a>
-							<a href="{% url 'historial_inventario' %}" class="dropdown-item">Historial de inventario</a>
-							<a href="{% url 'ajustar_inventario_masivo' %}" class="dropdown-item">Ajustar inventario</a>
-						</div>
-					</div>
+                {% if 'admin' in user_groups %}
+                    <div class="producto-menu" style="position:relative;">
+                        <button id="productoToggle" class="nav-link product-toggle" aria-haspopup="true" aria-expanded="false">Producto ▾</button>
+                        <div id="productoDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
+                            <a href="{% url 'registrar_producto' %}" class="dropdown-item">Crear producto</a>
+                            <a href="{% url 'agregar_marca' %}" class="dropdown-item">Marca</a>
+                        </div>
+                    </div>
+                    <div class="inventario-menu" style="position:relative;">
+                        <button id="inventarioToggle" class="nav-link inventario-toggle" aria-haspopup="true" aria-expanded="false">Inventario ▾</button>
+                        
+                        <div id="inventarioDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
+                            <a href="{% url 'inventario' %}" class="dropdown-item">Ver inventario</a>
+                            <a href="{% url 'historial_inventario' %}" class="dropdown-item">Historial de inventario</a>
+                            <a href="{% url 'ajustar_inventario_masivo' %}" class="dropdown-item">Ajustar inventario</a>
+                        </div>
+                    </div>
 
-					<div class="pagos-menu" style="position:relative;">
-						<button id="pagosToggle" class="nav-link pagos-toggle" aria-haspopup="true" aria-expanded="false">Pagos ▾</button>
-						{% if pagos_pendientes_global and pagos_pendientes_global > 0 %}
-							<span class="pagos-notif-badge" aria-label="{{ pagos_pendientes_global }} pagos pendientes">{{ pagos_pendientes_global }}</span>
-						{% endif %}
-						<div id="pagosDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
-							<a href="{% url 'aprobar_pagos' %}" class="dropdown-item">Aprobar pagos</a>
-							<a href="{% url 'ordenes_sublimacion' %}" class="dropdown-item">Ordenes de sublimacion</a>
-						</div>
-					</div>
-					{% if 'admin' in user_groups or 'cajero' in user_groups %}
-						<div class="clients-menu" style="position:relative;">
-							<a href="{% url 'caja' %}" class="nav-link">caja</a>
-						</div>
-					{% endif %}
+                    <div class="pagos-menu" style="position:relative;">
+                        <button id="pagosToggle" class="nav-link pagos-toggle" aria-haspopup="true" aria-expanded="false">Pagos ▾</button>
+                        {% if pagos_pendientes_global and pagos_pendientes_global > 0 %}
+                            <span class="pagos-notif-badge" aria-label="{{ pagos_pendientes_global }} pagos pendientes">{{ pagos_pendientes_global }}</span>
+                        {% endif %}
+                        <div id="pagosDropdown" class="profile-dropdown" role="menu" aria-hidden="true" style="left:0; top:calc(100% + 8px); min-width:180px;">
+                            <a href="{% url 'aprobar_pagos' %}" class="dropdown-item">Aprobar pagos</a>
+                            <a href="{% url 'ordenes_sublimacion' %}" class="dropdown-item">Ordenes de sublimacion</a>
+                        </div>
+                    </div>
+                    {% if 'admin' in user_groups or 'cajero' in user_groups %}
+                        <div class="clients-menu" style="position:relative;">
+                            <a href="{% url 'caja' %}" class="nav-link">caja</a>
+                        </div>
+                    {% endif %}
 
-			<div class="reportes-menu" style="position:relative;">
-				<a href="{% url 'reportes' %}?period=dia" class="nav-link">Reportes</a>
-			</div>
-		{% endif %}
+            <div class="reportes-menu" style="position:relative;">
+                <a href="{% url 'reportes' %}?period=dia" class="nav-link">Reportes</a>
+            </div>
+        {% endif %}
 
-			<div class="search-container">
-				<input type="text" class="search-input" placeholder="Buscar productos..." id="searchInput" value="{{ search_query|default:'' }}">
-				<button class="search-btn">🔍</button>
-				<div class="search-results" id="searchResults"></div>
-				<a href="{% url 'carrito' %}" class="cart-link-inline" aria-label="Carrito">
-					<img src="{% static 'core/carrito.png' %}" alt="Carrito" class="cart-icon">
-					<span id="cart-count" class="cart-count">{{ cart_count }}</span>
-				</a>
-			</div>
-		<div class="group bar-right">
-			{% if user.is_authenticated %}
-				<div class="profile-menu">
-					<button id="profileToggle" class="profile-btn" aria-haspopup="true" aria-expanded="false">
-						<img src="{% static 'core/avatar.png' %}" alt="Avatar" class="avatar">{{ user.username }}
-					</button>
-					<div id="profileDropdown" class="profile-dropdown" role="menu" aria-hidden="true">
-						<a href="{% url 'perfil' %}" class="dropdown-item">Mi perfil</a>
-						<a href="{% url 'historial_compras' %}" class="dropdown-item">Historial de compras</a>
-						<a href="{% url 'logout' %}" class="dropdown-item">Cerrar sesion</a>
-					</div>
-				</div>
-			{% else %}
-				<a id="profileBtn" class="logout-button" href="{% url 'perfil' %}">Perfil</a>
-			{% endif %}
-		</div>
-		
-		</div>
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Buscar productos..." id="searchInput" value="{{ search_query|default:'' }}">
+                <button class="search-btn">🔍</button>
+                <div class="search-results" id="searchResults"></div>
+                <a href="{% url 'carrito' %}" class="cart-link-inline" aria-label="Carrito">
+                    <img src="{% static 'core/carrito.png' %}" alt="Carrito" class="cart-icon">
+                    <span id="cart-count" class="cart-count">{{ cart_count }}</span>
+                </a>
+            </div>
+        <div class="group bar-right">
+            {% if user.is_authenticated %}
+                <div class="profile-menu">
+                    <button id="profileToggle" class="profile-btn" aria-haspopup="true" aria-expanded="false">
+                        <img src="{% static 'core/avatar.png' %}" alt="Avatar" class="avatar">{{ user.username }}
+                    </button>
+                    <div id="profileDropdown" class="profile-dropdown" role="menu" aria-hidden="true">
+                        <a href="{% url 'perfil' %}" class="dropdown-item">Mi perfil</a>
+                        <a href="{% url 'historial_compras' %}" class="dropdown-item">Historial de compras</a>
+                        <a href="{% url 'logout' %}" class="dropdown-item">Cerrar sesion</a>
+                    </div>
+                </div>
+            {% else %}
+                <a id="profileBtn" class="logout-button" href="{% url 'perfil' %}">Perfil</a>
+            {% endif %}
+        </div>
+        
+        </div>
 
 
-		
-	</div>
+        
+    </div>
 
-	<button id="barToggle" class="bar-toggle" type="button" aria-expanded="false" aria-label="Abrir menú de navegación">
-		<span class="hamburger">
-			<span></span><span></span><span></span>
-		</span>
-	</button>
+    <button id="barToggle" class="bar-toggle" type="button" aria-expanded="false" aria-label="Abrir menú de navegación">
+        <span class="hamburger">
+            <span></span><span></span><span></span>
+        </span>
+    </button>
 
-	<div id="barNavMenu" class="nav-menu" role="menu" aria-hidden="true">
-		<a class="nav-item" href="{% url 'catalog' %}">Ver catálogo</a>
-		{% if not 'cajero' in user_groups %}
-			
-				<div class="nav-item-group">
-					<button class="nav-item nav-subtoggle" type="button" data-target="topbarClientsSubMenu" aria-expanded="false">Clientes <span class="submenu-arrow">›</span></button>
-					<div id="topbarClientsSubMenu" class="nav-submenu" aria-hidden="true">
-						<button class="nav-item nav-back" type="button" data-close-submenu="topbarClientsSubMenu">← Menu</button>
-						<a class="nav-item" href="{% url 'todos_clientes' %}">Ver clientes</a>
-					</div>
-				</div>
-			
-		{% endif %}
-		{% if 'cliente' in user_groups or not user.is_authenticated %}
-			<a class="nav-item" href="{% url 'catalog' %}?Categoria=Sublimación">Sublimación</a>
-			<a class="nav-item" href="{% url 'catalog' %}?Categoria=Papelería">Papelería</a>
-			<a class="nav-item" href="{% url 'catalog' %}?Categoria=Otros">Otros</a>
-		{% endif %}
-		<a class="nav-item" href="{% url 'carrito' %}">Carrito</a>
+    <div id="barNavMenu" class="nav-menu" role="menu" aria-hidden="true">
+        <a class="nav-item" href="{% url 'catalog' %}">Ver catálogo</a>
+        {% if not 'cajero' in user_groups %}
+            
+                <div class="nav-item-group">
+                    <button class="nav-item nav-subtoggle" type="button" data-target="topbarClientsSubMenu" aria-expanded="false">Clientes <span class="submenu-arrow">›</span></button>
+                    <div id="topbarClientsSubMenu" class="nav-submenu" aria-hidden="true">
+                        <button class="nav-item nav-back" type="button" data-close-submenu="topbarClientsSubMenu">← Menu</button>
+                        <a class="nav-item" href="{% url 'todos_clientes' %}">Ver clientes</a>
+                    </div>
+                </div>
+            
+        {% endif %}
+        {% if 'cliente' in user_groups or not user.is_authenticated %}
+            <a class="nav-item" href="{% url 'catalog' %}?Categoria=Sublimación">Sublimación</a>
+            <a class="nav-item" href="{% url 'catalog' %}?Categoria=Papelería">Papelería</a>
+            <a class="nav-item" href="{% url 'catalog' %}?Categoria=Otros">Otros</a>
+        {% endif %}
+        <a class="nav-item" href="{% url 'carrito' %}">Carrito</a>
 
-		{% if 'cliente' not in user_groups %}
-			<div class="nav-item-group">
-				<button class="nav-item nav-subtoggle" type="button" data-target="topbarProductsSubMenu" aria-expanded="false">Productos <span class="submenu-arrow">›</span></button>
-				<div id="topbarProductsSubMenu" class="nav-submenu" aria-hidden="true">
-					<button class="nav-item nav-back" type="button" data-close-submenu="topbarProductsSubMenu">← Menu</button>
-					{% if 'admin' in user_groups %}
-						<a class="nav-item" href="{% url 'registrar_producto' %}">Crear producto</a>
-						<a class="nav-item" href="{% url 'agregar_marca' %}">Marca</a>
-					{% else %}
-						<a class="nav-item" href="{% url 'catalog' %}">Ver productos</a>
-					{% endif %}
-				</div>
-			</div>
-		{% endif %}
+        {% if 'cliente' not in user_groups %}
+            <div class="nav-item-group">
+                <button class="nav-item nav-subtoggle" type="button" data-target="topbarProductsSubMenu" aria-expanded="false">Productos <span class="submenu-arrow">›</span></button>
+                <div id="topbarProductsSubMenu" class="nav-submenu" aria-hidden="true">
+                    <button class="nav-item nav-back" type="button" data-close-submenu="topbarProductsSubMenu">← Menu</button>
+                    {% if 'admin' in user_groups %}
+                        <a class="nav-item" href="{% url 'registrar_producto' %}">Crear producto</a>
+                        <a class="nav-item" href="{% url 'agregar_marca' %}">Marca</a>
+                    {% else %}
+                        <a class="nav-item" href="{% url 'catalog' %}">Ver productos</a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
 
-		{% if 'admin' in user_groups %}
-			<div class="nav-item-group">
-				<button class="nav-item nav-subtoggle" type="button" data-target="topbarInventorySubMenu" aria-expanded="false">Inventario <span class="submenu-arrow">›</span></button>
-				<div id="topbarInventorySubMenu" class="nav-submenu" aria-hidden="true">
-					<button class="nav-item nav-back" type="button" data-close-submenu="topbarInventorySubMenu">← Menu</button>
-					<a class="nav-item" href="{% url 'inventario' %}">Ver inventario</a>
-					<a class="nav-item" href="{% url 'historial_inventario' %}">Historial de inventario</a>
-					<a class="nav-item" href="{% url 'ajustar_inventario_masivo' %}">Ajustar inventario</a>
-				</div>
-			</div>
-			<div class="nav-item-group">
-				<button class="nav-item nav-subtoggle" type="button" data-target="topbarPagosSubMenu" aria-expanded="false">Pagos <span class="submenu-arrow">›</span></button>
-				<div id="topbarPagosSubMenu" class="nav-submenu" aria-hidden="true">
-					<button class="nav-item nav-back" type="button" data-close-submenu="topbarPagosSubMenu">← Menu</button>
-					<a class="nav-item" href="{% url 'aprobar_pagos' %}">Aprobar pagos{% if pagos_pendientes_global and pagos_pendientes_global > 0 %}<span class="mobile-pagos-badge">{{ pagos_pendientes_global }}</span>{% endif %}</a>
-					<a class="nav-item" href="{% url 'ordenes_sublimacion' %}">Ordenes de sublimacion</a>
-				</div>
-			</div>
-			<div class="nav-item-group">
-				<a class="nav-item" href="{% url 'reportes' %}?period=dia">Reportes</a>
-			</div>
-		{% endif %}
-	</div>
+        {% if 'admin' in user_groups %}
+            <div class="nav-item-group">
+                <button class="nav-item nav-subtoggle" type="button" data-target="topbarInventorySubMenu" aria-expanded="false">Inventario <span class="submenu-arrow">›</span></button>
+                <div id="topbarInventorySubMenu" class="nav-submenu" aria-hidden="true">
+                    <button class="nav-item nav-back" type="button" data-close-submenu="topbarInventorySubMenu">← Menu</button>
+                    <a class="nav-item" href="{% url 'inventario' %}">Ver inventario</a>
+                    <a class="nav-item" href="{% url 'historial_inventario' %}">Historial de inventario</a>
+                    <a class="nav-item" href="{% url 'ajustar_inventario_masivo' %}">Ajustar inventario</a>
+                </div>
+            </div>
+            <div class="nav-item-group">
+                <button class="nav-item nav-subtoggle" type="button" data-target="topbarPagosSubMenu" aria-expanded="false">Pagos <span class="submenu-arrow">›</span></button>
+                <div id="topbarPagosSubMenu" class="nav-submenu" aria-hidden="true">
+                    <button class="nav-item nav-back" type="button" data-close-submenu="topbarPagosSubMenu">← Menu</button>
+                    <a class="nav-item" href="{% url 'aprobar_pagos' %}">Aprobar pagos{% if pagos_pendientes_global and pagos_pendientes_global > 0 %}<span class="mobile-pagos-badge">{{ pagos_pendientes_global }}</span>{% endif %}</a>
+                    <a class="nav-item" href="{% url 'ordenes_sublimacion' %}">Ordenes de sublimacion</a>
+                </div>
+            </div>
+            <div class="nav-item-group">
+                <a class="nav-item" href="{% url 'reportes' %}?period=dia">Reportes</a>
+            </div>
+        {% endif %}
+    </div>
 </div>
 
 <script>
-	(function(){
-		// Alternador de navegación móvil + controladores de submenú
-		(function(){
-			const barToggle = document.getElementById('barToggle');
-			const barNav = document.getElementById('barNavMenu');
-			if (!barToggle || !barNav) return;
+    (function(){
+        (function(){
+            const barToggle = document.getElementById('barToggle');
+            const barNav = document.getElementById('barNavMenu');
+            if (!barToggle || !barNav) return;
 
-			function closeAllSubmenus(){
-				document.querySelectorAll('.nav-submenu.show').forEach(function(s) {
-					s.classList.remove('show');
-					s.setAttribute('aria-hidden','true');
-				});
-				document.querySelectorAll('.nav-subtoggle[aria-expanded="true"]').forEach(function(t) {
-					t.setAttribute('aria-expanded','false');
-				});
-			}
+            function closeAllSubmenus(){
+                document.querySelectorAll('.nav-submenu.show').forEach(function(s) {
+                    s.classList.remove('show');
+                    s.setAttribute('aria-hidden','true');
+                });
+                document.querySelectorAll('.nav-subtoggle[aria-expanded="true"]').forEach(function(t) {
+                    t.setAttribute('aria-expanded','false');
+                });
+            }
 
-			function closeBarNav(){
-				barNav.classList.remove('show');
-				barNav.setAttribute('aria-hidden','true');
-				barToggle.setAttribute('aria-expanded','false');
-				closeAllSubmenus();
-			}
+            function closeBarNav(){
+                barNav.classList.remove('show');
+                barNav.setAttribute('aria-hidden','true');
+                barToggle.setAttribute('aria-expanded','false');
+                closeAllSubmenus();
+            }
 
-		let lastTouchToggle = false;
-		let lastTouchSubmenuToggle = false;
-		let touchStartInfo = null;
-		function toggleBarMenu(e){
-			e.stopPropagation();
-			const opened = barNav.classList.toggle('show');
-			barNav.setAttribute('aria-hidden', opened ? 'false' : 'true');
-			barToggle.setAttribute('aria-expanded', opened ? 'true' : 'false');
-			if (!opened) closeAllSubmenus();
-		}
+        let lastTouchToggle = false;
+        let lastTouchSubmenuToggle = false;
+        let touchStartInfo = null;
+        function toggleBarMenu(e){
+            e.stopPropagation();
+            const opened = barNav.classList.toggle('show');
+            barNav.setAttribute('aria-hidden', opened ? 'false' : 'true');
+            barToggle.setAttribute('aria-expanded', opened ? 'true' : 'false');
+            if (!opened) closeAllSubmenus();
+        }
 
-		barToggle.addEventListener('click', function(e){
-			if (lastTouchToggle) {
-				lastTouchToggle = false;
-				return;
-			}
-			toggleBarMenu(e);
-		});
+        barToggle.addEventListener('click', function(e){
+            if (lastTouchToggle) {
+                lastTouchToggle = false;
+                return;
+            }
+            toggleBarMenu(e);
+        });
 
-		barToggle.addEventListener('touchend', function(e){
-			e.preventDefault();
-			lastTouchToggle = true;
-			toggleBarMenu(e);
-		}, { passive: false });
+        barToggle.addEventListener('touchend', function(e){
+            e.preventDefault();
+            lastTouchToggle = true;
+            toggleBarMenu(e);
+        }, { passive: false });
 
-		function toggleSubmenu(target){
-			const targetId = target.dataset.target;
-			if (!targetId) return;
-			const submenu = document.getElementById(targetId);
-			if (!submenu) return;
-			const opened = submenu.classList.contains('show');
-			closeAllSubmenus();
-			if (!opened) {
-				submenu.classList.add('show');
-				submenu.setAttribute('aria-hidden','false');
-				target.setAttribute('aria-expanded','true');
-			}
-		}
+        function toggleSubmenu(target){
+            const targetId = target.dataset.target;
+            if (!targetId) return;
+            const submenu = document.getElementById(targetId);
+            if (!submenu) return;
+            const opened = submenu.classList.contains('show');
+            closeAllSubmenus();
+            if (!opened) {
+                submenu.classList.add('show');
+                submenu.setAttribute('aria-hidden','false');
+                target.setAttribute('aria-expanded','true');
+            }
+        }
 
-		barNav.addEventListener('touchstart', function(e){
-			const btn = e.target.closest('.nav-subtoggle');
-			if (!btn) {
-				touchStartInfo = null;
-				return;
-			}
-			const touch = e.touches && e.touches[0];
-			if (!touch) {
-				touchStartInfo = null;
-				return;
-			}
-			touchStartInfo = {
-				btn: btn,
-				x: touch.clientX,
-				y: touch.clientY,
-				moved: false
-			};
-		}, { passive: true });
+        barNav.addEventListener('touchstart', function(e){
+            const btn = e.target.closest('.nav-subtoggle');
+            if (!btn) {
+                touchStartInfo = null;
+                return;
+            }
+            const touch = e.touches && e.touches[0];
+            if (!touch) {
+                touchStartInfo = null;
+                return;
+            }
+            touchStartInfo = {
+                btn: btn,
+                x: touch.clientX,
+                y: touch.clientY,
+                moved: false
+            };
+        }, { passive: true });
 
-		barNav.addEventListener('touchmove', function(e){
-			if (!touchStartInfo) return;
-			const touch = e.touches && e.touches[0];
-			if (!touch) return;
-			if (Math.abs(touch.clientX - touchStartInfo.x) > 10 || Math.abs(touch.clientY - touchStartInfo.y) > 10) {
-				touchStartInfo.moved = true;
-			}
-		}, { passive: true });
+        barNav.addEventListener('touchmove', function(e){
+            if (!touchStartInfo) return;
+            const touch = e.touches && e.touches[0];
+            if (!touch) return;
+            if (Math.abs(touch.clientX - touchStartInfo.x) > 10 || Math.abs(touch.clientY - touchStartInfo.y) > 10) {
+                touchStartInfo.moved = true;
+            }
+        }, { passive: true });
 
-		barNav.addEventListener('click', function(e) {
-			if (lastTouchSubmenuToggle) {
-				lastTouchSubmenuToggle = false;
-				return;
-			}
-			const btn = e.target.closest('.nav-subtoggle');
-			if (!btn) return;
-			e.stopPropagation();
-			toggleSubmenu(btn);
-		});
+        barNav.addEventListener('click', function(e) {
+            if (lastTouchSubmenuToggle) {
+                lastTouchSubmenuToggle = false;
+                return;
+            }
+            const btn = e.target.closest('.nav-subtoggle');
+            if (!btn) return;
+            e.stopPropagation();
+            toggleSubmenu(btn);
+        });
 
-		barNav.addEventListener('touchend', function(e){
-			const btn = e.target.closest('.nav-subtoggle');
-			if (!btn || !touchStartInfo || touchStartInfo.btn !== btn || touchStartInfo.moved) {
-				touchStartInfo = null;
-				return;
-			}
-			e.preventDefault();
-			lastTouchSubmenuToggle = true;
-			toggleSubmenu(btn);
-			touchStartInfo = null;
-		}, { passive: false });
+        barNav.addEventListener('touchend', function(e){
+            const btn = e.target.closest('.nav-subtoggle');
+            if (!btn || !touchStartInfo || touchStartInfo.btn !== btn || touchStartInfo.moved) {
+                touchStartInfo = null;
+                return;
+            }
+            e.preventDefault();
+            lastTouchSubmenuToggle = true;
+            toggleSubmenu(btn);
+            touchStartInfo = null;
+        }, { passive: false });
 
-		document.querySelectorAll('[data-close-submenu]').forEach(function(btn) {
-			btn.addEventListener('click', function(e){
-				e.stopPropagation();
-				const id = btn.dataset.closeSubmenu;
-				const submenu = document.getElementById(id);
-				if (submenu) {
-					submenu.classList.remove('show');
-					submenu.setAttribute('aria-hidden','true');
-				}
-			});
-		});
+        document.querySelectorAll('[data-close-submenu]').forEach(function(btn) {
+            btn.addEventListener('click', function(e){
+                e.stopPropagation();
+                const id = btn.dataset.closeSubmenu;
+                const submenu = document.getElementById(id);
+                if (submenu) {
+                    submenu.classList.remove('show');
+                    submenu.setAttribute('aria-hidden','true');
+                }
+            });
+        });
 
-		document.addEventListener('click', function(e){
-			if (!barNav.contains(e.target) && !barToggle.contains(e.target)) {
-				closeBarNav();
-			}
-		});
+        document.addEventListener('click', function(e){
+            if (!barNav.contains(e.target) && !barToggle.contains(e.target)) {
+                closeBarNav();
+            }
+        });
 
-		document.addEventListener('keydown', function(e){
-			if (e.key === 'Escape') closeBarNav();
-		});
+        document.addEventListener('keydown', function(e){
+            if (e.key === 'Escape') closeBarNav();
+        });
 
-		window.addEventListener('resize', function(){
-			if (window.innerWidth > 768) {
-				barNav.classList.remove('show');
-				barNav.setAttribute('aria-hidden','true');
-				barToggle.setAttribute('aria-expanded','false');
-				closeAllSubmenus();
-			}
-		});
-	})();
+        window.addEventListener('resize', function(){
+            if (window.innerWidth > 768) {
+                barNav.classList.remove('show');
+                barNav.setAttribute('aria-hidden','true');
+                barToggle.setAttribute('aria-expanded','false');
+                closeAllSubmenus();
+            }
+        });
+    })();
 
-		const menus = [
-			{ toggleId: 'clientsToggle', dropdownId: 'clientsDropdown' },
-			{ toggleId: 'inventarioToggle', dropdownId: 'inventarioDropdown' },
-			{ toggleId: 'pagosToggle', dropdownId: 'pagosDropdown' },
-			{ toggleId: 'productoToggle', dropdownId: 'productoDropdown' }
-		].map(function(item) {
-			return {
-				toggle: document.getElementById(item.toggleId),
-				dropdown: document.getElementById(item.dropdownId)
-			};
-		}).filter(function(entry) {
-			return entry.toggle && entry.dropdown;
-		});
+        const menus = [
+            { toggleId: 'clientsToggle', dropdownId: 'clientsDropdown' },
+            { toggleId: 'inventarioToggle', dropdownId: 'inventarioDropdown' },
+            { toggleId: 'pagosToggle', dropdownId: 'pagosDropdown' },
+            { toggleId: 'productoToggle', dropdownId: 'productoDropdown' }
+        ].map(function(item) {
+            return {
+                toggle: document.getElementById(item.toggleId),
+                dropdown: document.getElementById(item.dropdownId)
+            };
+        }).filter(function(entry) {
+            return entry.toggle && entry.dropdown;
+        });
 
 
-		function closeMenu(toggle, dropdown) {
-			dropdown.classList.remove('show');
-			toggle.setAttribute('aria-expanded', 'false');
-			dropdown.setAttribute('aria-hidden', 'true');
-		}
+        function closeMenu(toggle, dropdown) {
+            dropdown.classList.remove('show');
+            toggle.setAttribute('aria-expanded', 'false');
+            dropdown.setAttribute('aria-hidden', 'true');
+        }
 
-		function closeAllExcept(activeToggle) {
-			menus.forEach(({ toggle, dropdown }) => {
-				if (toggle !== activeToggle) {
-					closeMenu(toggle, dropdown);
-				}
-			});
-		}
+        function closeAllExcept(activeToggle) {
+            menus.forEach(({ toggle, dropdown }) => {
+                if (toggle !== activeToggle) {
+                    closeMenu(toggle, dropdown);
+                }
+            });
+        }
 
-		menus.forEach(({ toggle, dropdown }) => {
-			toggle.addEventListener('click', function(e){
-				e.stopPropagation();
-				const opened = !dropdown.classList.contains('show');
-				closeAllExcept(toggle);
-				if (opened) {
-					dropdown.classList.add('show');
-					toggle.setAttribute('aria-expanded', 'true');
-					dropdown.setAttribute('aria-hidden', 'false');
-				} else {
-					closeMenu(toggle, dropdown);
-				}
-			});
-		});
+        menus.forEach(({ toggle, dropdown }) => {
+            toggle.addEventListener('click', function(e){
+                e.stopPropagation();
+                const opened = !dropdown.classList.contains('show');
+                closeAllExcept(toggle);
+                if (opened) {
+                    dropdown.classList.add('show');
+                    toggle.setAttribute('aria-expanded', 'true');
+                    dropdown.setAttribute('aria-hidden', 'false');
+                } else {
+                    closeMenu(toggle, dropdown);
+                }
+            });
+        });
 
-		const profileToggle = document.getElementById('profileToggle');
-		const profileDropdown = document.getElementById('profileDropdown');
-		if (profileToggle && profileDropdown) {
-			function toggleProfileMenu(e) {
-				e.stopPropagation();
-				const opened = !profileDropdown.classList.contains('show');
-				if (opened) {
-					closeAllExcept(null);
-					profileDropdown.classList.add('show');
-					profileToggle.setAttribute('aria-expanded', 'true');
-					profileDropdown.setAttribute('aria-hidden', 'false');
-				} else {
-					profileDropdown.classList.remove('show');
-					profileToggle.setAttribute('aria-expanded', 'false');
-					profileDropdown.setAttribute('aria-hidden', 'true');
-				}
-			}
+        const profileToggle = document.getElementById('profileToggle');
+        const profileDropdown = document.getElementById('profileDropdown');
+        if (profileToggle && profileDropdown) {
+            function toggleProfileMenu(e) {
+                e.stopPropagation();
+                const opened = !profileDropdown.classList.contains('show');
+                if (opened) {
+                    closeAllExcept(null);
+                    profileDropdown.classList.add('show');
+                    profileToggle.setAttribute('aria-expanded', 'true');
+                    profileDropdown.setAttribute('aria-hidden', 'false');
+                } else {
+                    profileDropdown.classList.remove('show');
+                    profileToggle.setAttribute('aria-expanded', 'false');
+                    profileDropdown.setAttribute('aria-hidden', 'true');
+                }
+            }
 
-			// Captura primero para que este manejador se ejecute antes que otros
-			// scripts de la página que puedan interferir con el dropdown.
-			profileToggle.addEventListener('click', toggleProfileMenu, true);
+            profileToggle.addEventListener('click', toggleProfileMenu, true);
 
-			profileToggle.addEventListener('keydown', function(e){
-				if (e.key === 'Enter' || e.key === ' ') {
-					e.preventDefault();
-					toggleProfileMenu(e);
-				}
-			});
-		}
+            profileToggle.addEventListener('keydown', function(e){
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleProfileMenu(e);
+                }
+            });
+        }
 
-		document.querySelectorAll('.report-filter-btn').forEach(function(btn){
-			btn.addEventListener('click', function(e){
-				e.preventDefault();
-				document.querySelectorAll('.report-filter-btn').forEach(function(other){
-					other.classList.remove('active');
-				});
-				btn.classList.add('active');
-				const interval = btn.dataset.reportFilter;
-				if (interval) {
-					const dropdown = btn.closest('.profile-dropdown');
-					if (dropdown) {
-						const note = dropdown.querySelector('.report-dropdown-note');
-						if (note) {
-							note.textContent = 'Filtro seleccionado: ' + btn.textContent.trim();
-						}
-					}
-					const links = document.querySelectorAll('#reportesLink, #reportesLinkMobile');
-					links.forEach(function(link){
-						const base = link.getAttribute('href').split('?')[0];
-						link.setAttribute('href', base + '?period=' + interval);
-					});
-				}
-			});
-		});
+        document.querySelectorAll('.report-filter-btn').forEach(function(btn){
+            btn.addEventListener('click', function(e){
+                e.preventDefault();
+                document.querySelectorAll('.report-filter-btn').forEach(function(other){
+                    other.classList.remove('active');
+                });
+                btn.classList.add('active');
+                const interval = btn.dataset.reportFilter;
+                if (interval) {
+                    const dropdown = btn.closest('.profile-dropdown');
+                    if (dropdown) {
+                        const note = dropdown.querySelector('.report-dropdown-note');
+                        if (note) {
+                            note.textContent = 'Filtro seleccionado: ' + btn.textContent.trim();
+                        }
+                    }
+                    const links = document.querySelectorAll('#reportesLink, #reportesLinkMobile');
+                    links.forEach(function(link){
+                        const base = link.getAttribute('href').split('?')[0];
+                        link.setAttribute('href', base + '?period=' + interval);
+                    });
+                }
+            });
+        });
 
-		document.addEventListener('click', function(e){
-			menus.forEach(({ toggle, dropdown }) => {
-				if(!toggle.contains(e.target) && !dropdown.contains(e.target)) {
-					closeMenu(toggle, dropdown);
-				}
-			});
-			if (profileToggle && profileDropdown && !profileToggle.contains(e.target) && !profileDropdown.contains(e.target)) {
-				profileDropdown.classList.remove('show');
-				profileToggle.setAttribute('aria-expanded', 'false');
-				profileDropdown.setAttribute('aria-hidden', 'true');
-			}
-		});
+        document.addEventListener('click', function(e){
+            menus.forEach(({ toggle, dropdown }) => {
+                if(!toggle.contains(e.target) && !dropdown.contains(e.target)) {
+                    closeMenu(toggle, dropdown);
+                }
+            });
+            if (profileToggle && profileDropdown && !profileToggle.contains(e.target) && !profileDropdown.contains(e.target)) {
+                profileDropdown.classList.remove('show');
+                profileToggle.setAttribute('aria-expanded', 'false');
+                profileDropdown.setAttribute('aria-hidden', 'true');
+            }
+        });
 
-		document.addEventListener('keydown', function(e){
-			if(e.key === 'Escape') {
-				menus.forEach(({ toggle, dropdown }) => closeMenu(toggle, dropdown));
-				if (profileToggle && profileDropdown) {
-					profileDropdown.classList.remove('show');
-					profileToggle.setAttribute('aria-expanded', 'false');
-					profileDropdown.setAttribute('aria-hidden', 'true');
-				}
-			}
-		});
-	})();
+        document.addEventListener('keydown', function(e){
+            if(e.key === 'Escape') {
+                menus.forEach(({ toggle, dropdown }) => closeMenu(toggle, dropdown));
+                if (profileToggle && profileDropdown) {
+                    profileDropdown.classList.remove('show');
+                    profileToggle.setAttribute('aria-expanded', 'false');
+                    profileDropdown.setAttribute('aria-hidden', 'true');
+                }
+            }
+        });
+    })();
 </script>
 
 <script>
-	// Manejador global en fase capture: obliga a que los clics en resultados
-	// de búsqueda vayan siempre al catálogo mediante `?open=`. Al ejecutarse
-	// en capture, sobrescribe otros manejadores de la página que podrían abrir modales.
-	(function(){
-		try {
-			document.addEventListener('click', function(e){
-				const item = e.target && e.target.closest ? e.target.closest('.search-result-item') : null;
-				if (!item) return;
-				const searchTerm = item.dataset.search || item.dataset.title || '';
-				const url = item.dataset.url || (searchTerm ? '/catalogo/?search=' + encodeURIComponent(searchTerm) : (item.dataset.id ? '/catalogo/?search=' + encodeURIComponent(item.dataset.id) : null));
-				if (url) {
-					try { e.stopImmediatePropagation(); } catch(_) {}
-					try { e.preventDefault && e.preventDefault(); } catch(_) {}
-					window.location.href = url;
-				}
-			}, true); // useCapture = true para priorizar este flujo sobre otros manejadores
-		} catch(err) { console.warn('search enforce handler failed', err); }
-	})();
+    (function(){
+        try {
+            document.addEventListener('click', function(e){
+                const item = e.target && e.target.closest ? e.target.closest('.search-result-item') : null;
+                if (!item) return;
+                const searchTerm = item.dataset.search || item.dataset.title || '';
+                const url = item.dataset.url || (searchTerm ? '/catalogo/?search=' + encodeURIComponent(searchTerm) : (item.dataset.id ? '/catalogo/?search=' + encodeURIComponent(item.dataset.id) : null));
+                if (url) {
+                    try { e.stopImmediatePropagation(); } catch(_) {}
+                    try { e.preventDefault && e.preventDefault(); } catch(_) {}
+                    window.location.href = url;
+                }
+            }, true);
+        } catch(err) { console.warn('search enforce handler failed', err); }
+    })();
 </script>
 
-	<script>
-		(function(){
-			const searchResults = document.getElementById('searchResults');
-			if (!searchResults) return;
+    <script>
+        (function(){
+            const searchResults = document.getElementById('searchResults');
+            if (!searchResults) return;
 
-			window.handleSearchResultClick = function(productId, category, explicitUrl) {
-				const target = explicitUrl || ('/catalogo/?open=' + encodeURIComponent(productId));
-				window.location.href = target;
-			};
+            window.handleSearchResultClick = function(productId, category, explicitUrl) {
+                const target = explicitUrl || ('/catalogo/?open=' + encodeURIComponent(productId));
+                window.location.href = target;
+            };
 
-			// Delegar los clics en resultados de búsqueda: preferimos abrir el
-			// modal de detalle cuando la página expone `products` + `detailModal`;
-			// si no existe ese contexto, navegamos a la ruta de producto adecuada.
-			searchResults.addEventListener('click', function(e){
-				const item = e.target.closest('.search-result-item');
-				if (!item) return;
+            searchResults.addEventListener('click', function(e){
+                const item = e.target.closest('.search-result-item');
+                if (!item) return;
 
-				const explicit = item.dataset.url;
-				if (explicit) { window.location.href = explicit; return; }
+                const explicit = item.dataset.url;
+                if (explicit) { window.location.href = explicit; return; }
 
-				const id = item.dataset.id;
-				if (!id) return;
+                const id = item.dataset.id;
+                if (!id) return;
 
-				// Si la página expone `products` y un modal de detalle,
-				// reutilizamos ese contexto para mostrar la vista compacta del producto.
-				try {
-					const detailModal = document.getElementById('detailModal');
-					if (window.products && detailModal) {
-						const product = (window.products||[]).find(p => String(p.id) === String(id));
-						if (product) {
-							const category = String(product.category || product.Categoria || '').trim();
-							const normalized = category.normalize ? category.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase() : category.toLowerCase();
-							if (normalized === 'camisas' || normalized === 'tazas' || normalized === 'sublimacion') {
-								window.location.href = '/producto/' + id + '/camisas/';
-								return;
-							}
+                try {
+                    const detailModal = document.getElementById('detailModal');
+                    if (window.products && detailModal) {
+                        const product = (window.products||[]).find(p => String(p.id) === String(id));
+                        if (product) {
+                            const category = String(product.category || product.Categoria || '').trim();
+                            const normalized = category.normalize ? category.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase() : category.toLowerCase();
+                            if (normalized === 'camisas' || normalized === 'tazas' || normalized === 'sublimacion') {
+                                window.location.href = '/producto/' + id + '/camisas/';
+                                return;
+                            }
 
-							// Cargar y mostrar el modal. Esto mantiene el mismo comportamiento
-							// que ya usamos en inicio y catálogo.
-							const titleEl = document.getElementById('m-title');
-							const imgEl = document.getElementById('m-img');
-							const descEl = document.getElementById('m-desc');
-							const priceEl = document.getElementById('m-price');
-							if (titleEl) titleEl.textContent = product.title || '';
-							if (imgEl) imgEl.src = product.img || '';
-							if (descEl) descEl.textContent = product.desc || '';
-							if (priceEl) priceEl.textContent = '$' + (product.price || '0');
-							detailModal.dataset.productId = id;
-							detailModal.classList.add('show');
-							window.currentProductId = id;
-							// Ocultar resultados y limpiar el campo para evitar estados viejos.
-							searchResults.classList.remove('show');
-							const searchInput = document.getElementById('searchInput');
-							if (searchInput) searchInput.value = '';
-							return;
-						}
-					}
-				} catch (err) {
-					// Si algo falla aquí, dejamos que continúe el plan B de navegación.
-					console.warn('search result modal open failed:', err);
-				}
+                            const titleEl = document.getElementById('m-title');
+                            const imgEl = document.getElementById('m-img');
+                            const descEl = document.getElementById('m-desc');
+                            const priceEl = document.getElementById('m-price');
+                            if (titleEl) titleEl.textContent = product.title || '';
+                            if (imgEl) imgEl.src = product.img || '';
+                            if (descEl) descEl.textContent = product.desc || '';
+                            if (priceEl) priceEl.textContent = '$' + (product.price || '0');
+                            detailModal.dataset.productId = id;
+                            detailModal.classList.add('show');
+                            window.currentProductId = id;
+                            searchResults.classList.remove('show');
+                            const searchInput = document.getElementById('searchInput');
+                            if (searchInput) searchInput.value = '';
+                            return;
+                        }
+                    }
+                } catch (err) {
+                    console.warn('search result modal open failed:', err);
+                }
 
-				// Plan B: usar dataset.cat o dataset.category si existe.
-				const rawCat = item.dataset.cat || item.dataset.category || '';
-				const category = (rawCat || '').toString().normalize ? rawCat.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase() : rawCat.toLowerCase();
-				if (category === 'camisas' || category === 'tazas' || category === 'sublimacion') {
-					window.location.href = '/producto/' + id + '/camisas/';
-				} else {
-					// Plan B final: abrir la ruta canónica del detalle del producto.
-					window.location.href = '/producto/' + id + '/';
-				}
-			});
-		})();
-	</script>
-
+                const rawCat = item.dataset.cat || item.dataset.category || '';
+                const category = (rawCat || '').toString().normalize ? rawCat.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase() : rawCat.toLowerCase();
+                if (category === 'camisas' || category === 'tazas' || category === 'sublimacion') {
+                    window.location.href = '/producto/' + id + '/camisas/';
+                } else {
+                    window.location.href = '/producto/' + id + '/';
+                }
+            });
+        })();
+    </script>
