@@ -19,7 +19,7 @@ from django.core.mail import get_connection
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
-from django.db.models import Q, F, Case, When, IntegerField, FloatField, Sum, Max
+from django.db.models import Q, F, Case, When, IntegerField, FloatField, Sum, Max, Count
 from django.db.models.functions import Lower, Trim
 from django.db.models.deletion import ProtectedError
 from django.core.cache import cache
@@ -875,6 +875,10 @@ def home(request):
 @admin_only
 def reportes(request):
     period = (request.GET.get('period') or 'dia').strip().lower()
+    report_type = (request.GET.get('type') or 'productos').strip().lower()
+    if report_type not in ('clientes', 'productos'):
+        report_type = 'productos'
+
     today = timezone.localtime(timezone.now()).date()
     if period == 'semana':
         start_date = today - datetime.timedelta(days=6)
@@ -888,43 +892,104 @@ def reportes(request):
         selected_label = 'Hoy'
 
     report_items = []
-    try:
-        ventas_qs = (
-            CarritoDeCompras.objects
-            .filter(Nota_Entrega__fecha__date__gte=start_date)
-            .filter(Nota_Entrega__fecha__date__lte=today)
-            .select_related('Producto')
-            .values('Producto_id', 'Producto__nombre_producto')
-            .annotate(
-                total_quantity=Sum('Cantidad'),
-                total_sales=Sum(F('Cantidad') * F('precio_unitario'), output_field=FloatField()),
-                last_sold=Max('Nota_Entrega__fecha'),
-            )
-            .order_by('-total_quantity')
-        )
-        for item in ventas_qs:
-            report_items.append({
-                'producto': item.get('Producto__nombre_producto') or 'Producto desconocido',
-                'cantidad': item.get('total_quantity') or 0,
-                'ventas': item.get('total_sales') or 0.0,
-                'ultima_venta': item.get('last_sold'),
-            })
-    except Exception:
-        logger.exception('Error al generar el reporte de productos')
-        report_items = []
-
-    total_products = sum(item['cantidad'] for item in report_items)
-    total_sales = sum(item['ventas'] for item in report_items)
     top_products = []
-    if report_items:
-        max_quantity = max(item['cantidad'] for item in report_items) or 1
-        top_products = [
-            {
-                **item,
-                'bar_width': min(100, int((item['cantidad'] / max_quantity) * 100)) if max_quantity else 0
-            }
-            for item in report_items[:10]
-        ]
+    total_products = 0
+    total_sales = 0.0
+    total_descuentos = 0.0
+    total_reembolsos = 0.0
+
+    if report_type == 'clientes':
+        try:
+            clientes_qs = (
+                Nota_Entrega.objects
+                .filter(comprobante_pago__isnull=False, fecha__date__gte=start_date)
+                .filter(fecha__date__lte=today)
+                .values('cliente_id', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
+                .annotate(
+                    total_descuento=Sum('descuento_monto'),
+                    total_reembolsos=Sum(
+                        Case(
+                            When(estado_pago='RECHAZADO', then=F('total')),
+                            default=0.0,
+                            output_field=FloatField(),
+                        )
+                    ),
+                    total_ventas=Sum('total'),
+                    ultima_venta=Max('fecha'),
+                )
+                .order_by('-total_descuento')
+            )
+            for item in clientes_qs:
+                nombre = (item.get('cliente__nombre_cliente') or '').strip()
+                apellido = (item.get('cliente__apellido_cliente') or '').strip()
+                cliente_label = ' '.join(filter(None, [nombre, apellido])).strip()
+                if not cliente_label:
+                    cliente_label = item.get('cliente_nombre') or 'Cliente desconocido'
+
+                report_items.append({
+                    'cliente': cliente_label,
+                    'descuento': item.get('total_descuento') or 0.0,
+                    'reembolsos': item.get('total_reembolsos') or 0.0,
+                    'ventas': item.get('total_ventas') or 0.0,
+                    'ultima_venta': item.get('ultima_venta'),
+                })
+        except Exception:
+            logger.exception('Error al generar el reporte de clientes')
+            report_items = []
+
+        total_descuentos = sum(item['descuento'] for item in report_items)
+        total_reembolsos = sum(item['reembolsos'] for item in report_items)
+        total_products = len(report_items)
+        total_sales = sum(item['ventas'] for item in report_items)
+
+        if report_items:
+            max_descuento = max(item['descuento'] for item in report_items) or 1
+            top_products = [
+                {
+                    'cliente': item['cliente'],
+                    'descuento': item['descuento'],
+                    'bar_width': min(100, int((item['descuento'] / max_descuento) * 100)) if max_descuento else 0,
+                }
+                for item in report_items[:10]
+            ]
+    else:
+        try:
+            ventas_qs = (
+                CarritoDeCompras.objects
+                .filter(Nota_Entrega__fecha__date__gte=start_date)
+                .filter(Nota_Entrega__fecha__date__lte=today)
+                .select_related('Producto')
+                .values('Producto_id', 'Producto__nombre_producto')
+                .annotate(
+                    total_quantity=Sum('Cantidad'),
+                    total_sales=Sum(F('Cantidad') * F('precio_unitario'), output_field=FloatField()),
+                    last_sold=Max('Nota_Entrega__fecha'),
+                )
+                .order_by('-total_quantity')
+            )
+            for item in ventas_qs:
+                report_items.append({
+                    'producto': item.get('Producto__nombre_producto') or 'Producto desconocido',
+                    'cantidad': item.get('total_quantity') or 0,
+                    'ventas': item.get('total_sales') or 0.0,
+                    'ultima_venta': item.get('last_sold'),
+                })
+        except Exception:
+            logger.exception('Error al generar el reporte de productos')
+            report_items = []
+
+        total_products = sum(item['cantidad'] for item in report_items)
+        total_sales = sum(item['ventas'] for item in report_items)
+
+        if report_items:
+            max_quantity = max(item['cantidad'] for item in report_items) or 1
+            top_products = [
+                {
+                    **item,
+                    'bar_width': min(100, int((item['cantidad'] / max_quantity) * 100)) if max_quantity else 0
+                }
+                for item in report_items[:10]
+            ]
     try:
         categories = _cached_categories()
     except Exception:
@@ -943,8 +1008,11 @@ def reportes(request):
         'report_items': report_items,
         'selected_period': period,
         'selected_period_label': selected_label,
+        'selected_report_type': report_type,
         'total_products': total_products,
         'total_sales': total_sales,
+        'total_descuentos': total_descuentos,
+        'total_reembolsos': total_reembolsos,
         'categories': categories,
         'cart_count': cart_count,
         'user_groups': user_groups,
