@@ -13,12 +13,12 @@ class Generar_NE(FPDF):
         self.items = CarritoDeCompras.objects.filter(Nota_Entrega=nota_obj).select_related('Producto')
 
     def header(self):
-        logo_path = os.path.join(settings.FRONTEND_DIR, 'static', 'core', 'logo nuevo.png')
-        if os.path.exists(logo_path):
-            try:
-                self.image(logo_path, x=10, y=8, w=34)
-            except Exception:
-                pass
+        # logo_path = os.path.join(settings.FRONTEND_DIR, 'static', 'core', 'logo nuevo.png')
+        # if os.path.exists(logo_path):
+        #     try:
+        #         self.image(logo_path, x=10, y=8, w=34)
+        #     except Exception:
+        #         pass
 
         company_phone = (os.environ.get('COMPANY_PHONE') or '04245684179').strip()
 
@@ -37,7 +37,7 @@ class Generar_NE(FPDF):
         self.cell(0, 7, f'N° Nota: {self.salida.pk}', 0, 1, 'R')
 
         self.set_font('Arial', '', 10)
-        self.cell(110, 6, 'Dirección: Guanare-Portuguesa', 0, 0, 'L')
+        self.cell(110, 6, 'Barrio "Las Américas", Av 5 de mayo entre calle 3 y 4', 0, 0, 'L')
         self.cell(0, 6, f'Estado: {self.salida.estado_pago}', 0, 1, 'R')
         if company_phone:
             self.cell(110, 6, f'Teléfono: {company_phone}', 0, 0, 'L')
@@ -175,9 +175,7 @@ class Generar_NE(FPDF):
                 self.set_font('Arial', 'B', 10)
                 self.cell(130, 8, f'Tasa BCV: {self.salida.bcv}', 0, 0, 'R')
                 self.cell(30, 8, '', 0, 1, 'R')
-                self.set_font('Arial', 'B', 12)
-                self.cell(130, 10, 'TOTAL Bs:', 0, 0, 'R')
-                self.cell(30, 10, f'{total_bs:.2f}', 0, 1, 'R')
+    
             except (ValueError, TypeError):
                 pass # Evita que colapse si bcv viene nulo o con texto extraño
 
