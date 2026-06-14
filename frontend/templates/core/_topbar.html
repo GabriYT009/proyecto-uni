@@ -486,7 +486,7 @@
 
 		<div class="group bar-center">
 			<nav class="main-nav">
-				<a href="{% url 'catalog' %}" class="nav-link">Catálogoaaa</a>
+				<a href="{% url 'catalog' %}" class="nav-link">Catálogo</a>
 
 				{% if 'admin' in user_groups or 'cajero' in user_groups %}
 					{% if user.username != 'Cristian1' %}
@@ -533,6 +533,11 @@
 							<a href="{% url 'ordenes_sublimacion' %}" class="dropdown-item">Ordenes de sublimacion</a>
 						</div>
 					</div>
+					{% if 'cajero' in user_groups %}
+						<div class="clients-menu" style="position:relative;">
+							<a href="{% url 'caja' %}" class="nav-link">caja</a>
+						</div>
+					{% endif %}
 
 			<div class="reportes-menu" style="position:relative;">
 				<a href="{% url 'reportes' %}?period=dia" class="nav-link">Reportes</a>
