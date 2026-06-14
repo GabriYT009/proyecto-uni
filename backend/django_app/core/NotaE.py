@@ -13,38 +13,41 @@ class Generar_NE(FPDF):
         self.items = CarritoDeCompras.objects.filter(Nota_Entrega=nota_obj).select_related('Producto')
 
     def header(self):
-        logo_path = os.path.join(settings.FRONTEND_DIR, 'static', 'core', 'logo nuevo.png')
-        if os.path.exists(logo_path):
-            try:
-                self.image(logo_path, x=10, y=8, w=34)
-            except Exception:
-                pass
+        # logo_path = os.path.join(settings.FRONTEND_DIR, 'static', 'core', 'logo nuevo.png')
+        # if os.path.exists(logo_path):
+        #     try:
+        #         self.image(logo_path, x=10, y=8, w=34)
+        #     except Exception:
+        #         pass
 
         company_phone = (os.environ.get('COMPANY_PHONE') or '04245684179').strip()
 
-        # Logo o información de la empresa
+        # Título principal y línea divisoria
         self.set_font('Arial', 'B', 16)
-        self.cell(0, 10, 'Nota de Entrega', 0, 1, 'C')
-        self.ln(5)
+        self.cell(0, 10, 'NOTA DE ENTREGA', 0, 1, 'C')
+        self.ln(2)
+        self.set_draw_color(0, 0, 0)
+        self.set_line_width(0.4)
+        self.line(10, self.get_y(), 200, self.get_y())
+        self.ln(6)
 
-        # Información de la empresa
-        self.set_font('Arial', '', 12)
-        self.cell(0, 8, 'SolucionArte - Tienda de Productos Personalizados', 0, 1, 'C')
-        self.cell(0, 8, 'Dirección: Guanare-Portuguesa', 0, 1, 'C')
-        if company_phone:
-            self.cell(0, 8, f'Teléfono: {company_phone}', 0, 1, 'C')
-        self.ln(10)
-
-        # Detalles de la factura
+        # Información de la empresa y datos de la nota
         self.set_font('Arial', 'B', 12)
-        self.cell(0, 8, f'N° Nota: {self.salida.pk}', 0, 1, 'L')
-        self.cell(0, 8, f'Estado del Pedido: {self.salida.estado_pago}', 0, 1, 'L')
-        # Validación de fecha
+        self.cell(110, 7, 'SolucionArte - Tienda de Productos Personalizados', 0, 0, 'L')
+        self.cell(0, 7, f'N° Nota: {self.salida.pk}', 0, 1, 'R')
+
+        self.set_font('Arial', '', 10)
+        self.cell(110, 6, 'Barrio "Las Américas", Av 5 de mayo entre calle 3 y 4', 0, 0, 'L')
+        self.cell(0, 6, f'Estado: {self.salida.estado_pago}', 0, 1, 'R')
+        if company_phone:
+            self.cell(110, 6, f'Teléfono: {company_phone}', 0, 0, 'L')
         if self.salida.fecha:
             fecha_local = timezone.localtime(self.salida.fecha)
-            self.cell(0, 8, f'Fecha: {fecha_local.strftime("%d/%m/%Y %H:%M:%S")}', 0, 1, 'L')
+            self.cell(0, 6, f'Fecha: {fecha_local.strftime("%d/%m/%Y %H:%M:%S")}', 0, 1, 'R')
 
-        
+        self.ln(4)
+        self.line(10, self.get_y(), 200, self.get_y())
+        self.ln(6)
 
         # Información del cliente (conectado directamente a Nota_Entrega)
         if self.salida.cliente:
@@ -79,22 +82,27 @@ class Generar_NE(FPDF):
         self.set_font('Arial', 'I', 8)
         self.cell(0, 10, f'Página {self.page_no()}/{{nb}}', 0, 0, 'C')
         self.ln(5)
-        self.cell(0, 10, 'Gracias por su compra - SolucionArte', 0, 0, 'C')
+        self.cell(0, 10, 'Gracias por su preferencia - SolucionArte', 0, 0, 'C')
 
     def generate_invoice(self):
         self.add_page()
 
+        self.set_font('Arial', 'B', 11)
+        self.cell(0, 8, 'Detalle de entrega', 0, 1, 'L')
+        self.ln(2)
+
         # Encabezado de tabla
+        self.set_fill_color(240, 240, 240)
         self.set_font('Arial', 'B', 10)
-        self.cell(60, 10, 'Producto', 1, 0, 'L')
-        self.cell(17, 10, 'Cant.', 1, 0, 'C')
-        self.cell(25, 10, 'Precio Unit.', 1, 0, 'c')
-        self.cell(28, 10, 'Precio Unit Bs.', 1, 0, 'c')
-        self.cell(20, 10, 'Subtotal', 1, 0, 'c')
-        self.cell(25, 10, 'Subtotal BS', 1, 1, 'c')
-        
+        self.cell(60, 10, 'Producto', 1, 0, 'L', 1)
+        self.cell(17, 10, 'Cant.', 1, 0, 'C', 1)
+        self.cell(25, 10, 'Precio Unit.', 1, 0, 'C', 1)
+        self.cell(28, 10, 'Precio Unit Bs.', 1, 0, 'C', 1)
+        self.cell(20, 10, 'Subtotal', 1, 0, 'C', 1)
+        self.cell(25, 10, 'Subtotal BS', 1, 1, 'C', 1)
 
         # Contenido de tabla
+        self.set_fill_color(255, 255, 255)
         self.set_font('Arial', '', 10)
         
 
@@ -108,13 +116,13 @@ class Generar_NE(FPDF):
         for item in self.items:
             producto = item.Producto
             
-            # 1. Usamos el nombre exacto de  modelo 
+            
             cantidad = item.Cantidad
             
-            # 2. Tomamos el precio que guardaste en el carrito (o del producto si falla)
+        
             precio_unit = item.precio_unitario or producto.precio_venta or 0
             precio_unit_bs = float(precio_unit) * tasa
-            # 3. Como no tienes un campo 'sub_total_item', lo calculamos aquí mismo:
+            
             subtotal = float(cantidad) * float(precio_unit)
             subtotal_bs = subtotal * tasa
             # Ahora suma correctamente
@@ -130,14 +138,6 @@ class Generar_NE(FPDF):
             self.cell(20, 8, f'${subtotal:.2f}', 1, 0, 'C')
             self.cell(25, 8, f'{subtotal_bs:.2f}', 1, 1, 'C')
 
-
-            # Si la descripción es larga, agregarla en la siguiente fila
-            if len(nombre_prod) > 35:
-                self.cell(80, 6, nombre_prod[35:70], 1, 0, 'L')
-                self.cell(20, 6, '', 1, 0, 'C')
-                self.cell(30, 6, '', 1, 0, 'R')
-                self.cell(30, 6, '', 1, 1, 'R')
-
         base_total_usd = float(getattr(self.salida, 'total_bruto', None) or total_usd)
         descuento_monto = float(getattr(self.salida, 'descuento_monto', 0) or 0)
         descuento_motivo = (getattr(self.salida, 'descuento_motivo', '') or '').strip()[:100]
@@ -145,8 +145,12 @@ class Generar_NE(FPDF):
 
         # Totales con conversión a Bolívares
         self.ln(5)
+        self.set_draw_color(0, 0, 0)
+        self.set_line_width(0.3)
+        self.line(10, self.get_y(), 200, self.get_y())
+        self.ln(4)
         self.set_font('Arial', 'B', 12)
-        
+
         if descuento_monto > 0:
             self.cell(150, 10, 'SUBTOTAL USD:', 0, 0, 'R')
             self.cell(30, 10, f'${base_total_usd:.2f}', 0, 1, 'R')
@@ -160,20 +164,20 @@ class Generar_NE(FPDF):
                 self.set_font('Arial', 'B', 12)
 
         self.cell(150, 10, 'TOTAL USD:', 0, 0, 'R')
-        self.cell(30, 10, f'${total_final_usd:.2f}', 0, 1, 'R')
+        self.cell(30, 10, f'{total_final_usd:.2f}', 0, 1, 'C')
         total_bs = total_final_usd * tasa
-        self.cell(150, 10, 'TOTAL Bs:', 0, 0, 'R')
-        self.cell(30, 10, f'Bs {total_bs:.2f}', 0, 1, 'R')
+        self.cell(150, 10, 'TOTAL BS:', 0, 0, 'R')
+        self.cell(30, 10, f'{total_bs:.2f}', 0, 1, 'C')
+
+
         # Payment method if available
         if getattr(self.salida, 'bcv', None):
             try:
                 total_bs = total_final_usd * float(self.salida.bcv)
-                self.set_font('Arial', 'B', 10)
-                self.cell(130, 8, f'Tasa BCV: {self.salida.bcv}', 0, 0, 'R')
-                self.cell(30, 8, '', 0, 1, 'R')
-                self.set_font('Arial', 'B', 12)
-                self.cell(130, 10, 'TOTAL Bs:', 0, 0, 'R')
-                self.cell(30, 10, f'{total_bs:.2f}', 0, 1, 'R')
+                
+                self.cell(150, 10, f'TASA BCV:{self.salida.bcv:.2f}', 0, 0, 'C')
+                self.cell(30, 10, '', 0, 1, 'C')
+    
             except (ValueError, TypeError):
                 pass # Evita que colapse si bcv viene nulo o con texto extraño
 
