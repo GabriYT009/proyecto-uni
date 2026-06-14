@@ -1221,5 +1221,88 @@
             });
         })();
     </script>
+
+    <script>
+        (function(){
+            const modal = document.getElementById('modalEditar');
+            const form = document.getElementById('formEditar');
+            const nombre = document.getElementById('nombreProductoEditar');
+            const descripcion = document.getElementById('descripcionEditar');
+            const precio = document.getElementById('precioEditar');
+            const cantidad = document.getElementById('cantidadEditar');
+            const categoria = document.getElementById('categoriaEditar');
+            const imagenInput = document.getElementById('imagenEditar');
+            const previewImg = document.getElementById('previewImg');
+
+            if (!modal || !form) return;
+
+            window.cerrarModalEditar = function(){
+                modal.style.display = 'none';
+            };
+
+            function abrirModalEditar(data){
+                if (!modal || !form) return;
+                if (nombre) nombre.value = data.name || '';
+                if (descripcion) descripcion.value = data.desc || '';
+                if (precio) precio.value = data.price || '';
+                if (cantidad) cantidad.value = data.qty || '0';
+                if (categoria && data.categoryId) categoria.value = data.categoryId;
+                if (previewImg) {
+                    if (data.img) {
+                        previewImg.src = data.img;
+                        previewImg.style.display = 'block';
+                    } else {
+                        previewImg.style.display = 'none';
+                    }
+                }
+                form.action = data.editUrl || form.action;
+                modal.style.display = 'flex';
+            }
+
+            document.querySelectorAll('.js-open-edit').forEach(button => {
+                button.addEventListener('click', function(event){
+                    event.preventDefault();
+                    const productId = this.dataset.productId;
+                    abrirModalEditar({
+                        name: this.dataset.productName,
+                        desc: this.dataset.productDesc,
+                        price: this.dataset.productPrice,
+                        qty: this.dataset.productQty,
+                        categoryId: this.dataset.productCategoryId,
+                        img: this.dataset.productImg,
+                        editUrl: `/producto/${productId}/editar/`
+                    });
+                });
+            });
+
+            document.addEventListener('keydown', function(event){
+                if (event.key === 'Escape') {
+                    window.cerrarModalEditar();
+                }
+            });
+
+            if (imagenInput && previewImg) {
+                imagenInput.addEventListener('change', function(){
+                    const file = this.files && this.files[0];
+                    if (!file) {
+                        previewImg.style.display = 'none';
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = function(e){
+                        previewImg.src = e.target.result;
+                        previewImg.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            document.addEventListener('click', function(event){
+                if (modal.style.display === 'flex' && !modal.contains(event.target) && !event.target.closest('.js-open-edit')) {
+                    window.cerrarModalEditar();
+                }
+            });
+        })();
+    </script>
 </body>
 </html>
