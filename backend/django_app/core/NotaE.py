@@ -176,7 +176,7 @@ class Generar_NE(FPDF):
                 total_bs = total_final_usd * float(self.salida.bcv)
                 
                 self.cell(150, 10, f'TASA BCV:{self.salida.bcv:.2f}', 0, 0, 'C')
-                self.cell(30, 10, '', 0, 1, 'R')
+                self.cell(30, 10, '', 0, 1, 'C')
     
             except (ValueError, TypeError):
                 pass # Evita que colapse si bcv viene nulo o con texto extraño
