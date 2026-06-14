@@ -10,10 +10,11 @@
 	/* Evitar superposición de los extremos con el contenido central */
 	.top-bar .bar-left,
 	.top-bar .bar-right { position: static; transform: none; flex:0 0 auto; flex-shrink:0; }
-	.top-bar .bar-logo-link { display:inline-flex; align-items:center; gap:8px; padding:4px 0; white-space:nowrap; flex-shrink:0; }
+	.top-bar .bar-right { display:flex; align-items:center; justify-content:flex-end; gap:10px; min-width:0; order:3; }
+	.top-bar .bar-logo-link { display:inline-flex; align-items:center; gap:8px; padding:4px 0; white-space:nowrap; flex-shrink:0; order:1; }
 
 	/* Zona central flexible: nav + búsqueda */
-	.top-bar .bar-center{ display:flex; align-items:center; gap:10px; justify-content:center; flex:1 1 0; min-width:0; max-width:100%; padding:0 10px; box-sizing:border-box; flex-wrap: wrap; }
+	.top-bar .bar-center{ display:flex; align-items:center; gap:10px; justify-content:center; flex:1 1 0; min-width:0; max-width:100%; padding:0 10px; box-sizing:border-box; flex-wrap: wrap; order:2; }
 
 	.top-bar .btn{ background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.24); padding:6px 10px; border-radius:8px; font-size:14px; }
 
