@@ -556,8 +556,6 @@
 					<span id="cart-count" class="cart-count">{{ cart_count }}</span>
 				</a>
 			</div>
-		</div>
-
 		<div class="group bar-right">
 			{% if user.is_authenticated %}
 				<div class="profile-menu">
@@ -574,6 +572,11 @@
 				<a id="profileBtn" class="logout-button" href="{% url 'perfil' %}">Perfil</a>
 			{% endif %}
 		</div>
+		
+		</div>
+
+
+		
 	</div>
 
 	<button id="barToggle" class="bar-toggle" type="button" aria-expanded="false" aria-label="Abrir menú de navegación">
