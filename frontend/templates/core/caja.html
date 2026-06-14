@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Caja</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <style>
         body{ margin:0; padding:0; font-family: "Urbanist", "Segoe UI", Roboto, Arial, sans-serif; background: #fff !important; min-height: 100vh; }
         html { background: #fff !important; }
@@ -283,83 +284,299 @@
 
     
     <script src="{% static 'core/page-loader.js' %}"></script>
+    <script>
+        (function () {
+            var clientDoc = document.getElementById('client-doc');
+            var clientNameDisplay = document.getElementById('client-name');
+            var clientRifDisplay = document.getElementById('client-rif');
+            var clientDirDisplay = document.getElementById('client-dir');
+            var clientPhoneDisplay = document.getElementById('client-phone');
+            var guestName = document.getElementById('client-name-input');
+            var guestDir = document.getElementById('client-dir-input');
+            var guestPhone = document.getElementById('client-phone-input');
+            var invoiceItemsTbody = document.getElementById('invoice-items');
+            var totalUsd = document.getElementById('total');
+            var totalBs = document.getElementById('total-bs');
+            var checkoutBtn = document.getElementById('checkout');
+            var clearInvoiceBtn = document.getElementById('clear-invoice');
+            var productSearch = document.getElementById('product-search');
+            var productsGrid = document.getElementById('quick-products');
+            var rate = parseFloat("{{ valor_dolar|default:0 }}") || 0;
+            var clientsData = [];
+            var storedItems = {};
 
-                    <script>
+            function parseClients() {
+                var script = document.getElementById('clientes-data');
+                if (!script) {
+                    return [];
+                }
+                try {
+                    return JSON.parse(script.textContent || '[]');
+                } catch (e) {
+                    return [];
+                }
+            }
 
-                        (function(){
-                            // 1. Capturamos el valor del backend. 
-                            // Usamos el filtro |default:0 para evitar errores si la variable llega vacía
-                            var tasaBackend = parseFloat("{{ valor_dolar|default:0 }}") || 0;
+            function formatAmount(value, locale, options) {
+                try {
+                    return value.toLocaleString(locale, options);
+                } catch (e) {
+                    return value.toFixed(2);
+                }
+            }
 
-                            function recalcularTotal() {
-                                // 2. Usamos la tasa que viene del backend en lugar del input
-                                var tasa = tasaBackend; 
-                                
-                                var inputs = document.querySelectorAll('input[name^="cantidad_"]');
-                                var granTotalUsd = 0;
-                                var granTotalBs = 0;
+            function syncSelectedClient() {
+                var doc = clientDoc.value.trim();
+                var client = clientsData.find(function (c) { return (c.id || '').toString() === doc; });
+                if (client) {
+                    var fullName = ((client.nombre_cliente || '') + ' ' + (client.apellido_cliente || '')).trim() || 'Consumidor Final';
+                    clientNameDisplay.textContent = fullName;
+                    clientRifDisplay.textContent = doc || '-';
+                    clientDirDisplay.textContent = client.direccion || '-';
+                    clientPhoneDisplay.textContent = client.telefono_cliente || '-';
+                } else {
+                    clientNameDisplay.textContent = 'Consumidor Final';
+                    clientRifDisplay.textContent = '-';
+                    clientDirDisplay.textContent = '-';
+                    clientPhoneDisplay.textContent = '-';
+                }
+            }
 
-                                inputs.forEach(function(inp){
-                                    var cantidad = parseInt(inp.value,10) || 0;
-                                    var pid = inp.id.replace('cantidad_','');
-                                    var row = document.getElementById('cantidad_' + pid).closest('.product-row');
-                                    
-                                    if(row) {
-                                        var priceText = '0';
-                                        try {
-                                            
-                                            priceText = row.querySelector('.price-usd').textContent.replace('Precio:','').replace('$','').trim();
-                                        } catch(err) {
-                                            try { priceText = row.querySelector('.price').textContent.replace('Precio:','').replace('$','').trim(); } catch(e){}
-                                        }
-                                        
-                                        var precioUsd = parseFloat(priceText) || 0;
-                                        var subtotalUsd = precioUsd * cantidad;
-                                        var subtotalBs = subtotalUsd * tasa;
+            function getCartItems() {
+                return Object.keys(storedItems).map(function (id) {
+                    var item = storedItems[id];
+                    return { id: parseInt(item.id, 10), qty: item.quantity };
+                });
+            }
 
-                                        granTotalUsd += subtotalUsd;
-                                        granTotalBs += subtotalBs;
+            function setTotals() {
+                var totalUsdValue = 0;
+                var totalBsValue = 0;
+                Object.keys(storedItems).forEach(function (id) {
+                    var item = storedItems[id];
+                    var subtotalUsd = item.quantity * item.price;
+                    var subtotalBs = subtotalUsd * rate;
+                    totalUsdValue += subtotalUsd;
+                    totalBsValue += subtotalBs;
+                });
+                if (totalUsd) {
+                    totalUsd.textContent = formatAmount(totalUsdValue, 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                }
+                if (totalBs) {
+                    totalBs.textContent = formatAmount(totalBsValue, 'es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                }
+            }
 
-                                        var bsNode = row.querySelector('.price-bs-value');
-                                        if (bsNode) {
-                                            bsNode.textContent = subtotalBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                                        }
-                                    }
-                                });
+            function renderInvoice() {
+                invoiceItemsTbody.innerHTML = '';
+                var ids = Object.keys(storedItems);
+                if (!ids.length) {
+                    var emptyRow = document.createElement('tr');
+                    emptyRow.innerHTML = '<td colspan="8" style="text-align:center; padding: 12px;">No hay productos en la factura.</td>';
+                    invoiceItemsTbody.appendChild(emptyRow);
+                    setTotals();
+                    return;
+                }
 
-                                var divTotalUsd = document.getElementById('total');
-                                if (divTotalUsd) {
-                                    divTotalUsd.textContent = granTotalUsd.toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
-                                }
+                ids.forEach(function (id) {
+                    var item = storedItems[id];
+                    var row = document.createElement('tr');
+                    var subtotalUsd = item.price * item.quantity;
+                    var subtotalBs = subtotalUsd * rate;
+                    row.innerHTML =
+                        '<td style="padding:8px; border:1px solid #ddd;">' + item.code + '</td>' +
+                        '<td style="padding:8px; border:1px solid #ddd;">' + item.name + '</td>' +
+                        '<td style="padding:8px; border:1px solid #ddd; text-align:center;">' +
+                        '<button type="button" data-action="dec" data-id="' + id + '" class="row-qty-btn" style="margin-right:4px;">-</button>' +
+                        '<input type="number" min="1" max="' + item.stock + '" value="' + item.quantity + '" data-id="' + id + '" class="row-qty-input" style="width:52px; text-align:center;" />' +
+                        '<button type="button" data-action="inc" data-id="' + id + '" class="row-qty-btn" style="margin-left:4px;">+</button>' +
+                        '</td>' +
+                        '<td style="padding:8px; border:1px solid #ddd; text-align:right;">$ ' + formatAmount(item.price, 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</td>' +
+                        '<td style="padding:8px; border:1px solid #ddd; text-align:right;">Bs ' + formatAmount(item.price * rate, 'es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</td>' +
+                        '<td style="padding:8px; border:1px solid #ddd; text-align:right;">$ ' + formatAmount(subtotalUsd, 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</td>' +
+                        '<td style="padding:8px; border:1px solid #ddd; text-align:right;">Bs ' + formatAmount(subtotalBs, 'es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</td>' +
+                        '<td style="padding:8px; border:1px solid #ddd; text-align:center;"><button type="button" data-action="remove" data-id="' + id + '" class="btn" style="background:#ca2d4d;">Eliminar</button></td>';
+                    invoiceItemsTbody.appendChild(row);
+                });
+                setTotals();
+            }
 
-                                var divTotalBs = document.getElementById('total-bs');
-                                if (divTotalBs) {
-                                    divTotalBs.textContent = granTotalBs.toLocaleString('es-VE', { minimumFractionDigits:2, maximumFractionDigits:2 });
-                                }
+            function addProductToInvoice(product) {
+                if (!product || !product.id) {
+                    return;
+                }
+                var id = product.id.toString();
+                var existing = storedItems[id];
+                if (existing) {
+                    if (existing.quantity < product.stock) {
+                        existing.quantity += 1;
+                    }
+                } else {
+                    storedItems[id] = {
+                        id: id,
+                        code: product.code || id,
+                        name: product.name || 'Producto',
+                        price: parseFloat(product.price) || 0,
+                        stock: parseInt(product.stock, 10) || 0,
+                        quantity: 1,
+                    };
+                }
+                renderInvoice();
+            }
+
+            function changeItemQuantity(id, newQty) {
+                if (!storedItems[id]) {
+                    return;
+                }
+                var quantity = parseInt(newQty, 10) || 0;
+                if (quantity <= 0) {
+                    delete storedItems[id];
+                } else if (quantity > storedItems[id].stock) {
+                    storedItems[id].quantity = storedItems[id].stock;
+                } else {
+                    storedItems[id].quantity = quantity;
+                }
+                renderInvoice();
+            }
+
+            function removeInvoiceItem(id) {
+                delete storedItems[id];
+                renderInvoice();
+            }
+
+            function clearInvoice() {
+                storedItems = {};
+                renderInvoice();
+            }
+
+            function getCsrfToken() {
+                var meta = document.querySelector('meta[name="csrf-token"]');
+                return meta ? meta.content : '';
+            }
+
+            function buildPayload() {
+                return {
+                    cliente_doc: clientDoc.value.trim(),
+                    cliente_nombre: guestName.value.trim(),
+                    cliente_direccion: guestDir.value.trim(),
+                    cliente_telefono: guestPhone.value.trim(),
+                    items: getCartItems(),
+                };
+            }
+
+            function showAlert(message) {
+                window.alert(message);
+            }
+
+            if (clientDoc) {
+                clientDoc.addEventListener('input', syncSelectedClient);
+                clientDoc.addEventListener('change', syncSelectedClient);
+            }
+
+            if (productsGrid) {
+                productsGrid.addEventListener('click', function (event) {
+                    var card = event.target.closest('.card[data-id]');
+                    if (!card) {
+                        return;
+                    }
+                    var product = {
+                        id: card.getAttribute('data-id'),
+                        code: card.getAttribute('data-code') || card.getAttribute('data-id'),
+                        name: card.getAttribute('data-name') || card.getAttribute('data-title') || 'Producto',
+                        price: card.getAttribute('data-price') || '0',
+                        stock: card.getAttribute('data-stock') || '0',
+                    };
+                    addProductToInvoice(product);
+                });
+            }
+
+            if (productSearch) {
+                productSearch.addEventListener('input', function () {
+                    var query = (this.value || '').toLowerCase().trim();
+                    var cards = productsGrid ? productsGrid.querySelectorAll('.card') : [];
+                    cards.forEach(function (card) {
+                        var text = (card.getAttribute('data-name') || card.getAttribute('data-code') || '').toLowerCase();
+                        card.style.display = text.indexOf(query) !== -1 ? '' : 'none';
+                    });
+                });
+            }
+
+            invoiceItemsTbody.addEventListener('click', function (event) {
+                var button = event.target.closest('button[data-action]');
+                if (!button) {
+                    return;
+                }
+                var action = button.getAttribute('data-action');
+                var id = button.getAttribute('data-id');
+                if (action === 'remove') {
+                    removeInvoiceItem(id);
+                } else if (action === 'inc') {
+                    changeItemQuantity(id, (storedItems[id].quantity || 0) + 1);
+                } else if (action === 'dec') {
+                    changeItemQuantity(id, (storedItems[id].quantity || 0) - 1);
+                }
+            });
+
+            invoiceItemsTbody.addEventListener('change', function (event) {
+                var input = event.target.closest('input.row-qty-input');
+                if (!input) {
+                    return;
+                }
+                var id = input.getAttribute('data-id');
+                changeItemQuantity(id, input.value);
+            });
+
+            if (clearInvoiceBtn) {
+                clearInvoiceBtn.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    clearInvoice();
+                });
+            }
+
+            if (checkoutBtn) {
+                checkoutBtn.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    var items = getCartItems();
+                    if (!items.length) {
+                        showAlert('Añade al menos un producto antes de procesar el pago.');
+                        return;
+                    }
+                    var payload = buildPayload();
+                    var csrfToken = getCsrfToken();
+                    fetch('{% url "cobrar_caja" %}', {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfToken,
+                        },
+                        body: JSON.stringify(payload),
+                    })
+                    .then(function (response) {
+                        return response.json().then(function (data) {
+                            if (!response.ok) {
+                                throw new Error(data.error || 'Error al procesar el pago.');
                             }
+                            return data;
+                        });
+                    })
+                    .then(function (data) {
+                        if (data.success) {
+                            window.location.href = data.redirect_url || window.location.href;
+                        } else {
+                            throw new Error(data.error || 'Error al procesar el pago.');
+                        }
+                    })
+                    .catch(function (error) {
+                        showAlert(error.message || 'Error al procesar el pago.');
+                    });
+                });
+            }
 
-                        
-                        // Escuchar los clics en los botones + y -
-                                document.querySelectorAll('.btn-qty').forEach(function(b){
-                                    b.addEventListener('click', function(){
-                                        var id = this.dataset.id;
-                                        var action = this.dataset.action;
-                                        var inp = document.getElementById('cantidad_' + id);
-                                        if (!inp) return;
-                                        var v = parseInt(inp.value,10) || 0;
-                                        var max = parseInt(inp.max,10) || 0;
-                                        if (action === 'inc' && (max === 0 || v < max)) inp.value = v + 1;
-                                        if (action === 'dec' && v > 1) inp.value = v - 1;
-                                        
-                                        // Recalcular inmediatamente después del clic
-                                        recalcularTotal();
-                                    });
-                                });
-
-                            
-                        recalcularTotal();})();
-                    </script>
-
-
+            clientsData = parseClients();
+            syncSelectedClient();
+            renderInvoice();
+        })();
+    </script>
 </body>
 </html>
