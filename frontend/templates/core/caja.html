@@ -468,6 +468,102 @@
                 window.alert(message);
             }
 
+            // --- Validación de campos de cliente (nombre, dirección, teléfono) ---
+            function setFieldError(el, msg) {
+                if (!el) return;
+                el.style.borderColor = '#ca2d4d';
+                var container = el.parentNode || el.closest('div');
+                if (!container) return;
+                var exists = container.querySelector('.field-error');
+                if (!exists) {
+                    var span = document.createElement('div');
+                    span.className = 'field-error';
+                    span.style.color = '#ca2d4d';
+                    span.style.fontSize = '12px';
+                    span.style.marginTop = '4px';
+                    container.appendChild(span);
+                    exists = span;
+                }
+                exists.textContent = msg || '';
+            }
+
+            function clearFieldError(el) {
+                if (!el) return;
+                el.style.borderColor = '';
+                var container = el.parentNode || el.closest('div');
+                if (!container) return;
+                var exists = container.querySelector('.field-error');
+                if (exists) exists.remove();
+            }
+
+            function validateNameValue(name) {
+                if (!name) return false;
+                var trimmed = name.trim();
+                if (trimmed.length < 2) return false;
+                return /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(trimmed);
+            }
+
+            function validatePhoneValue(phone) {
+                if (!phone) return false;
+                var onlyDigits = (phone || '').replace(/\s|\+|\-/g, '');
+                return /^[0-9]{10,11}$/.test(onlyDigits);
+            }
+
+            function validateAddressValue(addr) {
+                if (!addr) return false;
+                return addr.trim().length >= 3;
+            }
+
+            function validateClientFields() {
+                var doc = clientDoc ? clientDoc.value.trim() : '';
+                var client = clientsData.find(function (c) { return (c.id || '').toString() === doc; });
+                // Si seleccionó cliente registrado, no validamos campos guest
+                if (client) {
+                    clearFieldError(guestName); clearFieldError(guestDir); clearFieldError(guestPhone);
+                    return true;
+                }
+
+                var ok = true;
+
+                if (!validateNameValue(guestName ? guestName.value : '')) {
+                    setFieldError(guestName, 'Nombre inválido. Solo letras y espacios, mínimo 2 caracteres.');
+                    ok = false;
+                } else {
+                    clearFieldError(guestName);
+                }
+
+                if (!validateAddressValue(guestDir ? guestDir.value : '')) {
+                    setFieldError(guestDir, 'Dirección inválida. Mínimo 3 caracteres.');
+                    ok = false;
+                } else {
+                    clearFieldError(guestDir);
+                }
+
+                if (!validatePhoneValue(guestPhone ? guestPhone.value : '')) {
+                    setFieldError(guestPhone, 'Teléfono inválido. Debe tener 10 u 11 dígitos.');
+                    ok = false;
+                } else {
+                    clearFieldError(guestPhone);
+                }
+
+                if (!ok) {
+                    var firstErr = document.querySelector('.field-error');
+                    if (firstErr) {
+                        var input = firstErr.previousElementSibling;
+                        try { input && input.focus(); } catch (e) {}
+                    }
+                    showAlert('Corrige los campos en rojo antes de continuar.');
+                }
+
+                return ok;
+            }
+
+            // Clear error on input
+            [guestName, guestDir, guestPhone].forEach(function (el) {
+                if (!el) return;
+                el.addEventListener('input', function () { clearFieldError(el); });
+            });
+
             if (clientDoc) {
                 clientDoc.addEventListener('input', syncSelectedClient);
                 clientDoc.addEventListener('change', syncSelectedClient);
@@ -536,6 +632,10 @@
             if (checkoutBtn) {
                 checkoutBtn.addEventListener('click', function (event) {
                     event.preventDefault();
+                    // Validar campos de cliente antes de continuar
+                    if (!validateClientFields()) {
+                        return;
+                    }
                     var items = getCartItems();
                     if (!items.length) {
                         showAlert('Añade al menos un producto antes de procesar el pago.');
