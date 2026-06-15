@@ -1038,6 +1038,19 @@ def reportes(request):
                 }
                 for item in report_items[:10]
             ]
+
+    page_number = request.GET.get('page') or 1
+    paginator = None
+    page_obj = None
+    try:
+        paginator = Paginator(report_items, 10)
+        page_obj = paginator.get_page(page_number)
+        report_items = page_obj.object_list
+    except Exception:
+        logger.exception('Error paginando reporte')
+        paginator = None
+        page_obj = None
+
     try:
         categories = _cached_categories()
     except Exception:
@@ -1067,6 +1080,7 @@ def reportes(request):
         'categories': categories,
         'cart_count': cart_count,
         'user_groups': user_groups,
+        'page_obj': page_obj,
     })
 
 

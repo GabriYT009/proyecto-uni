@@ -179,6 +179,33 @@
                             {% endfor %}
                         </tbody>
                     </table>
+                    {% if page_obj and page_obj.has_other_pages %}
+                    <nav aria-label="Paginación de reportes" class="mt-4">
+                        <ul class="pagination justify-content-center flex-wrap">
+                            <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+                                {% if page_obj.has_previous %}
+                                <a class="page-link" href="?type={{ selected_report_type }}&amp;period={{ selected_period }}&amp;page={{ page_obj.previous_page_number }}">Anterior</a>
+                                {% else %}
+                                <span class="page-link">Anterior</span>
+                                {% endif %}
+                            </li>
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if num == page_obj.number %}
+                                    <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
+                                {% else %}
+                                    <li class="page-item"><a class="page-link" href="?type={{ selected_report_type }}&amp;period={{ selected_period }}&amp;page={{ num }}">{{ num }}</a></li>
+                                {% endif %}
+                            {% endfor %}
+                            <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+                                {% if page_obj.has_next %}
+                                <a class="page-link" href="?type={{ selected_report_type }}&amp;period={{ selected_period }}&amp;page={{ page_obj.next_page_number }}">Siguiente</a>
+                                {% else %}
+                                <span class="page-link">Siguiente</span>
+                                {% endif %}
+                            </li>
+                        </ul>
+                    </nav>
+                    {% endif %}
                 {% else %}
                     <div class="report-empty">
                         <p>No hay clientes con datos en este período.</p>
@@ -207,6 +234,33 @@
                             {% endfor %}
                         </tbody>
                     </table>
+                    {% if page_obj and page_obj.has_other_pages %}
+                    <nav aria-label="Paginación de reportes" class="mt-4">
+                        <ul class="pagination justify-content-center flex-wrap">
+                            <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+                                {% if page_obj.has_previous %}
+                                <a class="page-link" href="?type={{ selected_report_type }}&amp;period={{ selected_period }}&amp;page={{ page_obj.previous_page_number }}">Anterior</a>
+                                {% else %}
+                                <span class="page-link">Anterior</span>
+                                {% endif %}
+                            </li>
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if num == page_obj.number %}
+                                    <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
+                                {% else %}
+                                    <li class="page-item"><a class="page-link" href="?type={{ selected_report_type }}&amp;period={{ selected_period }}&amp;page={{ num }}">{{ num }}</a></li>
+                                {% endif %}
+                            {% endfor %}
+                            <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+                                {% if page_obj.has_next %}
+                                <a class="page-link" href="?type={{ selected_report_type }}&amp;period={{ selected_period }}&amp;page={{ page_obj.next_page_number }}">Siguiente</a>
+                                {% else %}
+                                <span class="page-link">Siguiente</span>
+                                {% endif %}
+                            </li>
+                        </ul>
+                    </nav>
+                    {% endif %}
                 {% else %}
                     <div class="report-empty">
                         <p>No hay carritos pendientes para mostrar en este período.</p>
@@ -235,6 +289,33 @@
                             {% endfor %}
                         </tbody>
                     </table>
+                    {% if page_obj and page_obj.has_other_pages %}
+                    <nav aria-label="Paginación de reportes" class="mt-4">
+                        <ul class="pagination justify-content-center flex-wrap">
+                            <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+                                {% if page_obj.has_previous %}
+                                <a class="page-link" href="?type={{ selected_report_type }}&amp;period={{ selected_period }}&amp;page={{ page_obj.previous_page_number }}">Anterior</a>
+                                {% else %}
+                                <span class="page-link">Anterior</span>
+                                {% endif %}
+                            </li>
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if num == page_obj.number %}
+                                    <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
+                                {% else %}
+                                    <li class="page-item"><a class="page-link" href="?type={{ selected_report_type }}&amp;period={{ selected_period }}&amp;page={{ num }}">{{ num }}</a></li>
+                                {% endif %}
+                            {% endfor %}
+                            <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+                                {% if page_obj.has_next %}
+                                <a class="page-link" href="?type={{ selected_report_type }}&amp;period={{ selected_period }}&amp;page={{ page_obj.next_page_number }}">Siguiente</a>
+                                {% else %}
+                                <span class="page-link">Siguiente</span>
+                                {% endif %}
+                            </li>
+                        </ul>
+                    </nav>
+                    {% endif %}
                 {% else %}
                     <div class="report-empty">
                         <p>No hay ventas registradas en este período.</p>
