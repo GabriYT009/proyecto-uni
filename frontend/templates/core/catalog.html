@@ -322,6 +322,9 @@
                         <div class="stock-badge">Sin stock / No disponible</div>
                     {% else %}
                         <div class="stock-badge in-stock">Disponible</div>
+                        {% if product.cantidad_disponible and product.cantidad_disponible < 10 %}
+                            <div class="stock-badge" style="background:#fff3cd;color:#8a5a00;border-color:#ffe69c;">Quedan {{ product.cantidad_disponible }} unidad{{ product.cantidad_disponible|pluralize }}</div>
+                        {% endif %}
                     {% endif %}
                     <p>{{ product.descripcion }}</p>
                     <div class="row">
