@@ -1044,7 +1044,7 @@ def reportes(request):
                 }
                 for item in report_items[:10]
             ]
-    else:
+    elif report_type == 'productos':
         try:
             ventas_filter = (
                 Q(Nota_Entrega__fecha__date__gte=start_date) &
