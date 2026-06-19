@@ -783,7 +783,7 @@
 
                             <h4 class="view" data-id="{{ product.pk }}" role="button" tabindex="0" style="cursor:pointer;">{{ product.nombre_producto }}</h4>
                         {% if product.cantidad_disponible and product.cantidad_disponible < 10 %}
-                            <div class="stock-badge" style="background:#fff3cd;color:#8a5a00;border-color:#ffe69c;">Quedan {{ product.cantidad_disponible }} unidad{{ product.cantidad_disponible|pluralize }}</div>
+                            <div class="stock-badge" style="background:#fff3cd;color:#8a5a00;border-color:#ffe69c;">Quedan {{ product.cantidad_disponible }} unidad{{ product.cantidad_disponible|pluralize:"es" }}</div>
                         {% endif %}
                             <p>{{ product.descripcion }}</p>
                             <div class="ul align-items-center">
