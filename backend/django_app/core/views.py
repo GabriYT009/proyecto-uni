@@ -825,7 +825,9 @@ def home(request):
                 'price': p.precio_venta,
                 'img': img_url,
                 'desc': p.descripcion,
-                'Categoria': p.categoria.nombre_categoria if p.categoria else ''
+                'Categoria': p.categoria.nombre_categoria if p.categoria else '',
+                'stock': p.cantidad_disponible or 0,
+                'status': bool(p.status_producto)
             })
         try:
             Productos_json = json.dumps(lista_productos_json)

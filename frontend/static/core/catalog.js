@@ -135,8 +135,18 @@
                         addBtn.style.cursor = outOfStock ? 'not-allowed' : 'pointer';
                     }
                     if (stockNote) {
-                        stockNote.style.display = outOfStock ? 'block' : 'none';
-                        stockNote.textContent = outOfStock ? 'Este producto no se encuentra en stock actualmente. Puedes verlo, pero no agregarlo al carrito.' : '';
+                        const lowStock = !outOfStock && Number(window.currentProductStock || 0) > 0 && Number(window.currentProductStock || 0) <= 10;
+                        if (outOfStock) {
+                            stockNote.style.display = 'block';
+                            stockNote.textContent = 'Este producto no se encuentra en stock actualmente. Puedes verlo, pero no agregarlo al carrito.';
+                        } else if (lowStock) {
+                            const units = Number(window.currentProductStock) === 1 ? 'unidad' : 'unidades';
+                            stockNote.style.display = 'block';
+                            stockNote.textContent = `Quedan solo ${window.currentProductStock} ${units} en stock. ¡Apresúrate!`;
+                        } else {
+                            stockNote.style.display = 'none';
+                            stockNote.textContent = '';
+                        }
                     }
                 } catch(e){}
 

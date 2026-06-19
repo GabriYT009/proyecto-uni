@@ -773,7 +773,7 @@
             <div id="grid" class="grid">
                 {% for product in Productos %}
                     {% if product.status_producto %}
-                        <div class="card" data-id="{{ product.pk }}" data-title="{{ product.nombre_producto }}" data-img="{{ product.img_url }}" data-desc="{{ product.descripcion }}" data-price="$ {{ product.precio_venta }}" role="button" tabindex="0" style="cursor:pointer;">
+                        <div class="card" data-id="{{ product.pk }}" data-title="{{ product.nombre_producto }}" data-img="{{ product.img_url }}" data-desc="{{ product.descripcion }}" data-price="$ {{ product.precio_venta }}" data-stock="{{ product.cantidad_disponible|default:'0' }}" role="button" tabindex="0" style="cursor:pointer;">
                             {% if product.img_url %}
                                 <img src="{{ product.img_url }}" alt="{{ product.nombre_producto }}" class="view" data-id="{{ product.pk }}" data-title="{{ product.nombre_producto }}" data-img="{{ product.img_url }}" data-desc="{{ product.descripcion }}" data-price="$ {{ product.precio_venta }}" role="button" tabindex="0" style="cursor:pointer;" onerror="this.onerror=null;this.src='{% static 'assets/img/no-image-placeholder.svg' %}';">
                             {% else %}
@@ -781,6 +781,9 @@
                             {% endif %}
 
                             <h4 class="view" data-id="{{ product.pk }}" role="button" tabindex="0" style="cursor:pointer;">{{ product.nombre_producto }}</h4>
+                        {% if product.cantidad_disponible and product.cantidad_disponible < 10 %}
+                            <div class="stock-badge" style="background:#fff3cd;color:#8a5a00;border-color:#ffe69c;">Quedan {{ product.cantidad_disponible }} unidad{{ product.cantidad_disponible|pluralize }}</div>
+                        {% endif %}
                             <p>{{ product.descripcion }}</p>
                             <div class="ul align-items-center">
                         <strong class="price-usd" data-price="{{ product.precio_venta }}">$ {{ product.precio_venta }}</strong>
@@ -948,6 +951,7 @@
             <hr/>
             <img id="m-img" src="" alt="" style="width:100%; height:auto; object-fit:contain; border-radius:6px; margin-bottom:8px; max-height:70vh;">
             <p id="m-desc"></p>
+            <div id="m-stock-note" class="modal-stock-note" style="display:none;"></div>
             <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
                 <strong id="m-price"></strong>
                 <div style="display:flex; gap:10px;">
@@ -992,6 +996,10 @@
                 const img = (product && product.img) || (trigger && trigger.dataset && trigger.dataset.img) || (card && card.dataset && card.dataset.img) || '';
                 const desc = (product && product.desc) || (trigger && trigger.dataset && trigger.dataset.desc) || (card && card.dataset && card.dataset.desc) || '';
                 const price = (product && product.price) || (trigger && trigger.dataset && trigger.dataset.price) || (card && card.dataset && card.dataset.price) || '';
+                const stock = Number(product && typeof product.stock !== 'undefined' ? product.stock : (trigger && trigger.dataset && trigger.dataset.stock ? trigger.dataset.stock : (card && card.dataset && card.dataset.stock ? card.dataset.stock : 0))) || 0;
+                const status = product && typeof product.status !== 'undefined' ? Boolean(product.status) : true;
+                const stockNote = document.getElementById('m-stock-note');
+                const addBtn = document.getElementById('m-add-cart');
 
                 if (!modal || !titleEl || !imgEl || !descEl || !priceEl) {
                     window.location.href = '/producto/' + id + '/';
@@ -999,13 +1007,38 @@
                 }
 
                 titleEl.textContent = title;
-                imgEl.src = img || '{% static 'assets/img/no-image-placeholder.svg' %}';
-                imgEl.onerror = function(){ this.onerror = null; this.src = '{% static 'assets/img/no-image-placeholder.svg' %}'; };
+                imgEl.src = img || "{% static 'assets/img/no-image-placeholder.svg' %}";
+                imgEl.onerror = function(){ this.onerror = null; this.src = "{% static 'assets/img/no-image-placeholder.svg' %}"; };
                 descEl.textContent = desc;
                 priceEl.textContent = String(price).indexOf('$') === 0 ? String(price) : ('$ ' + price);
 
                 modal.dataset.productId = String(id);
                 window.currentProductId = String(id);
+                window.currentProductStock = stock;
+                window.currentProductStatus = status;
+                if (addBtn) {
+                    const outOfStock = stock <= 0;
+                    addBtn.disabled = outOfStock;
+                    addBtn.textContent = outOfStock ? 'No disponible' : 'Añadir al carrito';
+                    addBtn.style.opacity = outOfStock ? '0.65' : '1';
+                    addBtn.style.cursor = outOfStock ? 'not-allowed' : 'pointer';
+                }
+                if (stockNote) {
+                    const outOfStock = stock <= 0;
+                    const lowStock = stock > 0 && stock <= 10;
+                    if (outOfStock) {
+                        stockNote.style.display = 'block';
+                        stockNote.textContent = 'Este producto no se encuentra en stock actualmente. Puedes verlo, pero no agregarlo al carrito.';
+                    } else if (lowStock) {
+                        const units = stock === 1 ? 'unidad' : 'unidades';
+                        stockNote.style.display = 'block';
+                        stockNote.textContent = `Quedan solo ${stock} ${units} en stock. ¡Apresúrate!`;
+                    } else {
+                        stockNote.style.display = 'none';
+                        stockNote.textContent = '';
+                    }
+                }
+
                 modal.classList.add('show');
                 modal.setAttribute('aria-hidden', 'false');
                 modal.style.display = 'flex';
