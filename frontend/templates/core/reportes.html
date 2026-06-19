@@ -104,6 +104,15 @@
                     <h3>Total reembolsos</h3>
                     <p>${{ total_reembolsos|floatformat:2 }}</p>
                 </div>
+                {% elif selected_report_type == 'reembolsos' %}
+                <div class="report-card">
+                    <h3>Total notas rechazadas</h3>
+                    <p>{{ total_products }}</p>
+                </div>
+                <div class="report-card">
+                    <h3>Total reembolsos</h3>
+                    <p>${{ total_reembolsos|floatformat:2 }}</p>
+                </div>
                 {% else %}
                 <div class="report-card">
                     <h3>Total productos vendidos</h3>
@@ -303,6 +312,63 @@
                 {% else %}
                     <div class="report-empty">
                         <p>No hay carritos pendientes para mostrar en este período.</p>
+                    </div>
+                {% endif %}
+            {% elif selected_report_type == 'reembolsos' %}
+                <h2 class="h4 mb-3">Reembolsos (Notas rechazadas)</h2>
+                {% if report_items %}
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th>N° nota</th>
+                                <th>Fecha</th>
+                                <th>Cliente</th>
+                                <th>Monto</th>
+                                <th>Motivo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in report_items %}
+                            <tr>
+                                <td>{{ item.nota }}</td>
+                                <td>{{ item.fecha|date:'d/m/Y H:i' }}</td>
+                                <td>{{ item.cliente }}</td>
+                                <td>${{ item.monto|floatformat:2 }}</td>
+                                <td>{{ item.motivo }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% if page_obj and page_obj.has_other_pages %}
+                    <nav aria-label="Paginación de reportes" class="mt-4">
+                        <ul class="pagination justify-content-center flex-wrap">
+                            <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+                                {% if page_obj.has_previous %}
+                                <a class="page-link" href="?type={{ selected_report_type }}&amp;period={{ selected_period }}&amp;page={{ page_obj.previous_page_number }}{% if cliente_nombre %}&amp;cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}">Anterior</a>
+                                {% else %}
+                                <span class="page-link">Anterior</span>
+                                {% endif %}
+                            </li>
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if num == page_obj.number %}
+                                    <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
+                                {% else %}
+                                    <li class="page-item"><a class="page-link" href="?type={{ selected_report_type }}&amp;period={{ selected_period }}&amp;page={{ num }}{% if cliente_nombre %}&amp;cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}">{{ num }}</a></li>
+                                {% endif %}
+                            {% endfor %}
+                            <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+                                {% if page_obj.has_next %}
+                                <a class="page-link" href="?type={{ selected_report_type }}&amp;period={{ selected_period }}&amp;page={{ page_obj.next_page_number }}{% if cliente_nombre %}&amp;cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}">Siguiente</a>
+                                {% else %}
+                                <span class="page-link">Siguiente</span>
+                                {% endif %}
+                            </li>
+                        </ul>
+                    </nav>
+                    {% endif %}
+                {% else %}
+                    <div class="report-empty">
+                        <p>No hay reembolsos en este período.</p>
                     </div>
                 {% endif %}
             {% else %}
