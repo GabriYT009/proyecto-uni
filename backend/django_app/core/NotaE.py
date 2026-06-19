@@ -195,13 +195,15 @@ class Generar_NE(FPDF):
 
 
 class Generar_ReporteProducto(FPDF):
-    def __init__(self, producto, detalles, period_label, total_quantity, total_sales, total_replaces=None, *args, **kwargs):
+    def __init__(self, producto, detalles, period_label, total_quantity, total_sales, last_sold=None, total_replaces=None, *args, **kwargs):
+        # Don't forward domain-specific kwargs (like last_sold) to FPDF.__init__
         super().__init__(*args, **kwargs)
         self.producto = producto
         self.detalles = detalles
         self.period_label = period_label
         self.total_quantity = total_quantity
         self.total_sales = total_sales
+        self.last_sold = last_sold
         self.set_auto_page_break(auto=True, margin=15)
 
     def header(self):
