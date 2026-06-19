@@ -61,14 +61,14 @@
                 </div>
                 <div class="report-actions">
                     <div class="button-group">
-                        <a href="{% url 'reportes' %}?type=productos&period={{ selected_period }}{% if search_query %}&amp;search={{ search_query|urlencode }}{% endif %}" class="report-button{% if selected_report_type == 'productos' %} active{% endif %}">Productos</a>
-                        <a href="{% url 'reportes' %}?type=clientes&period={{ selected_period }}{% if search_query %}&amp;search={{ search_query|urlencode }}{% endif %}" class="report-button{% if selected_report_type == 'clientes' %} active{% endif %}">Clientes</a>
-                        <a href="{% url 'reportes' %}?type=carrito&period={{ selected_period }}{% if search_query %}&amp;search={{ search_query|urlencode }}{% endif %}" class="report-button{% if selected_report_type == 'carrito' %} active{% endif %}">Carrito pendientes</a>
+                        <a href="{% url 'reportes' %}?type=productos&period={{ selected_period }}{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}{% if nota_numero %}&amp;nota={{ nota_numero|urlencode }}{% endif %}" class="report-button{% if selected_report_type == 'productos' %} active{% endif %}">Productos</a>
+                        <a href="{% url 'reportes' %}?type=clientes&period={{ selected_period }}{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}{% if nota_numero %}&amp;nota={{ nota_numero|urlencode }}{% endif %}" class="report-button{% if selected_report_type == 'clientes' %} active{% endif %}">Clientes</a>
+                        <a href="{% url 'reportes' %}?type=carrito&period={{ selected_period }}{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}{% if nota_numero %}&amp;nota={{ nota_numero|urlencode }}{% endif %}" class="report-button{% if selected_report_type == 'carrito' %} active{% endif %}">Carrito pendientes</a>
                     </div>
                     <div class="button-group">
-                        <a href="{% url 'reportes' %}?type={{ selected_report_type }}&period=dia{% if search_query %}&amp;search={{ search_query|urlencode }}{% endif %}" class="period-button{% if selected_period == 'dia' %} active{% endif %}">Día</a>
-                        <a href="{% url 'reportes' %}?type={{ selected_report_type }}&period=semana{% if search_query %}&amp;search={{ search_query|urlencode }}{% endif %}" class="period-button{% if selected_period == 'semana' %} active{% endif %}">Semana</a>
-                        <a href="{% url 'reportes' %}?type={{ selected_report_type }}&period=mes{% if search_query %}&amp;search={{ search_query|urlencode }}{% endif %}" class="period-button{% if selected_period == 'mes' %} active{% endif %}">Mes</a>
+                        <a href="{% url 'reportes' %}?type={{ selected_report_type }}&period=dia{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}{% if nota_numero %}&amp;nota={{ nota_numero|urlencode }}{% endif %}" class="period-button{% if selected_period == 'dia' %} active{% endif %}">Día</a>
+                        <a href="{% url 'reportes' %}?type={{ selected_report_type }}&period=semana{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}{% if nota_numero %}&amp;nota={{ nota_numero|urlencode }}{% endif %}" class="period-button{% if selected_period == 'semana' %} active{% endif %}">Semana</a>
+                        <a href="{% url 'reportes' %}?type={{ selected_report_type }}&period=mes{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}{% if nota_numero %}&amp;nota={{ nota_numero|urlencode }}{% endif %}" class="period-button{% if selected_period == 'mes' %} active{% endif %}">Mes</a>
                     </div>
                 </div>
             </div>
@@ -158,12 +158,32 @@
             <form method="get" action="{% url 'reportes' %}" class="report-search-form">
                 <input type="hidden" name="type" value="productos">
                 <input type="hidden" name="period" value="{{ selected_period }}">
-                <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
-                    <input type="text" name="search" class="form-control" placeholder="Buscar producto, fecha, estado, N° nota" value="{{ search_query }}" style="min-width:260px; padding:10px 14px; border:1px solid #ddd; border-radius:10px;">
-                    <button type="submit" class="report-button">Buscar</button>
-                    {% if search_query %}
-                    <a href="{% url 'reportes' %}?type=productos&period={{ selected_period }}" class="report-button" style="background:#f3eef9; color:#5b2b80; border-color:#d3c2f8;">Limpiar</a>
-                    {% endif %}
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:16px; align-items:end;">
+                    <div>
+                        <label style="display:block; margin-bottom:6px; font-size:0.9rem; color:#444;">Nombre del producto</label>
+                        <input type="text" name="producto" class="form-control" placeholder="Buscar por nombre" value="{{ producto_nombre }}" style="width:100%; padding:10px 14px; border:1px solid #ddd; border-radius:10px;">
+                    </div>
+                    <div>
+                        <label style="display:block; margin-bottom:6px; font-size:0.9rem; color:#444;">Fecha</label>
+                        <input type="date" name="fecha" class="form-control" value="{{ fecha }}" style="width:100%; padding:10px 14px; border:1px solid #ddd; border-radius:10px;">
+                    </div>
+                    <div>
+                        <label style="display:block; margin-bottom:6px; font-size:0.9rem; color:#444;">Estado</label>
+                        <select name="estado" class="form-control" style="width:100%; padding:10px 14px; border:1px solid #ddd; border-radius:10px; background:#fff;">
+                            <option value="">Todos</option>
+                            <option value="PENDIENTE" {% if estado == 'PENDIENTE' %}selected{% endif %}>Pendiente</option>
+                            <option value="APROBADO" {% if estado == 'APROBADO' %}selected{% endif %}>Aprobado</option>
+                            <option value="RECHAZADO" {% if estado == 'RECHAZADO' %}selected{% endif %}>Rechazado</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display:block; margin-bottom:6px; font-size:0.9rem; color:#444;">N° nota</label>
+                        <input type="text" name="nota" class="form-control" placeholder="Buscar por número" value="{{ nota_numero }}" style="width:100%; padding:10px 14px; border:1px solid #ddd; border-radius:10px;">
+                    </div>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-start;">
+                        <button type="submit" class="report-button" style="margin-top: 26px;">Filtrar</button>
+                        <a href="{% url 'reportes' %}?type=productos&period={{ selected_period }}" class="report-button" style="margin-top: 26px; background:#f3eef9; color:#5b2b80; border-color:#d3c2f8;">Limpiar</a>
+                    </div>
                 </div>
             </form>
         </section>
@@ -301,7 +321,7 @@
                                 <td>{{ item.cantidad }}</td>
                                 <td>${{ item.ventas|floatformat:2 }}</td>
                                 <td>{{ item.ultima_venta|date:'d/m/Y H:i' }}</td>
-                                <td><a class="report-button" href="{% url 'descargar_reporte_producto' item.producto_id %}?period={{ selected_period }}{% if search_query %}&amp;search={{ search_query|urlencode }}{% endif %}">Descargar PDF</a></td>
+                                <td><a class="report-button" href="{% url 'descargar_reporte_producto' item.producto_id %}?period={{ selected_period }}{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}{% if nota_numero %}&amp;nota={{ nota_numero|urlencode }}{% endif %}">Descargar PDF</a></td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -311,7 +331,7 @@
                         <ul class="pagination justify-content-center flex-wrap">
                             <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
                                 {% if page_obj.has_previous %}
-                                <a class="page-link" href="?type={{ selected_report_type }}&amp;period={{ selected_period }}&amp;page={{ page_obj.previous_page_number }}{% if search_query %}&amp;search={{ search_query|urlencode }}{% endif %}">Anterior</a>
+                                <a class="page-link" href="?type={{ selected_report_type }}&amp;period={{ selected_period }}&amp;page={{ page_obj.previous_page_number }}{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}{% if nota_numero %}&amp;nota={{ nota_numero|urlencode }}{% endif %}">Anterior</a>
                                 {% else %}
                                 <span class="page-link">Anterior</span>
                                 {% endif %}
@@ -320,12 +340,12 @@
                                 {% if num == page_obj.number %}
                                     <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
                                 {% else %}
-                                    <li class="page-item"><a class="page-link" href="?type={{ selected_report_type }}&amp;period={{ selected_period }}&amp;page={{ num }}{% if search_query %}&amp;search={{ search_query|urlencode }}{% endif %}">{{ num }}</a></li>
+                                    <li class="page-item"><a class="page-link" href="?type={{ selected_report_type }}&amp;period={{ selected_period }}&amp;page={{ num }}{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}{% if nota_numero %}&amp;nota={{ nota_numero|urlencode }}{% endif %}">{{ num }}</a></li>
                                 {% endif %}
                             {% endfor %}
                             <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
                                 {% if page_obj.has_next %}
-                                <a class="page-link" href="?type={{ selected_report_type }}&amp;period={{ selected_period }}&amp;page={{ page_obj.next_page_number }}{% if search_query %}&amp;search={{ search_query|urlencode }}{% endif %}">Siguiente</a>
+                                <a class="page-link" href="?type={{ selected_report_type }}&amp;period={{ selected_period }}&amp;page={{ page_obj.next_page_number }}{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}{% if nota_numero %}&amp;nota={{ nota_numero|urlencode }}{% endif %}">Siguiente</a>
                                 {% else %}
                                 <span class="page-link">Siguiente</span>
                                 {% endif %}

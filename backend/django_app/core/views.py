@@ -903,7 +903,10 @@ def reportes(request):
     total_carts = 0
     total_monto = 0.0
 
-    search_query = (request.GET.get('search') or '').strip()
+    producto_nombre = (request.GET.get('producto') or '').strip()
+    fecha = (request.GET.get('fecha') or '').strip()
+    estado = (request.GET.get('estado') or '').strip()
+    nota_numero = (request.GET.get('nota') or '').strip()
 
     if report_type == 'clientes':
         try:
@@ -1010,22 +1013,22 @@ def reportes(request):
                 Q(Nota_Entrega__fecha__date__gte=start_date) &
                 Q(Nota_Entrega__fecha__date__lte=today)
             )
-            if search_query:
-                parsed_date = None
-                for fmt in ('%d/%m/%Y', '%Y-%m-%d'):
-                    try:
-                        parsed_date = datetime.datetime.strptime(search_query, fmt).date()
-                        break
-                    except (ValueError, TypeError):
-                        parsed_date = None
-                search_filter = (
-                    Q(Producto__nombre_producto__icontains=search_query) |
-                    Q(Nota_Entrega__estado_pago__icontains=search_query) |
-                    Q(Nota_Entrega__pk__iexact=search_query)
-                )
-                if parsed_date:
-                    search_filter |= Q(Nota_Entrega__fecha__date=parsed_date)
-                ventas_filter &= search_filter
+
+            if producto_nombre:
+                ventas_filter &= Q(Producto__nombre_producto__icontains=producto_nombre)
+
+            if estado:
+                ventas_filter &= Q(Nota_Entrega__estado_pago__iexact=estado)
+
+            if nota_numero:
+                ventas_filter &= Q(Nota_Entrega__pk__iexact=nota_numero)
+
+            if fecha:
+                try:
+                    fecha_date = datetime.datetime.strptime(fecha, '%Y-%m-%d').date()
+                    ventas_filter &= Q(Nota_Entrega__fecha__date=fecha_date)
+                except (ValueError, TypeError):
+                    pass
 
             ventas_qs = (
                 CarritoDeCompras.objects
@@ -1095,7 +1098,10 @@ def reportes(request):
         'selected_period': period,
         'selected_period_label': selected_label,
         'selected_report_type': report_type,
-        'search_query': search_query,
+        'producto_nombre': producto_nombre,
+        'fecha': fecha,
+        'estado': estado,
+        'nota_numero': nota_numero,
         'total_products': total_products,
         'total_sales': total_sales,
         'total_descuentos': total_descuentos,
