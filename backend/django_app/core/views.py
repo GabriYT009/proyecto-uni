@@ -1144,6 +1144,18 @@ def reportes(request):
         total_reembolsos = sum(item['monto'] for item in report_items)
         total_products = len(report_items)
 
+        if report_items:
+            max_monto = max(item['monto'] for item in report_items) or 1
+            top_products = [
+                {
+                    'nota': item['nota'],
+                    'cliente': item['cliente'],
+                    'monto': item['monto'],
+                    'bar_width': min(100, int((item['monto'] / max_monto) * 100)) if max_monto else 0,
+                }
+                for item in report_items[:10]
+            ]
+
     page_number = request.GET.get('page') or 1
     paginator = None
     page_obj = None

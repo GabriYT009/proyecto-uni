@@ -56,7 +56,7 @@
         <section class="report-header">
             <div class="report-header-top">
                 <div>
-                    <h1 class="mb-1">Reportes de {% if selected_report_type == 'clientes' %}clientes{% elif selected_report_type == 'carrito' %}carrito pendientes{% else %}productos{% endif %}</h1>
+                    <h1 class="mb-1">Reportes de {% if selected_report_type == 'clientes' %}clientes{% elif selected_report_type == 'carrito' %}carrito pendientes{% elif selected_report_type == 'reembolsos' %}reembolsos{% else %}productos{% endif %}</h1>
                     <p class="text-muted mb-0">Período seleccionado: <strong>{{ selected_period_label }}</strong></p>
                 </div>
                 <div class="report-actions">
@@ -134,6 +134,9 @@
                     {% elif selected_report_type == 'carrito' %}
                         <h2 class="mb-1">TOP 10 clientes con mayor monto pendiente</h2>
                         <p class="text-muted mb-0">Visualiza los clientes con mayor total en carritos pendientes.</p>
+                    {% elif selected_report_type == 'reembolsos' %}
+                        <h2 class="mb-1">TOP 10 notas rechazadas</h2>
+                        <p class="text-muted mb-0">Visualiza las notas con mayor monto de reembolso.</p>
                     {% else %}
                         <h2 class="mb-1">TOP 10 más vendidos</h2>
                         <p class="text-muted mb-0">Visualiza los productos con mayor cantidad de unidades vendidas.</p>
@@ -144,17 +147,17 @@
                 {% for item in top_products %}
                 <div class="chart-row">
                     <div>
-                        <div class="chart-label">{{ forloop.counter }}. {% if selected_report_type == 'clientes' %}{{ item.cliente }}{% elif selected_report_type == 'carrito' %}{{ item.cliente }}{% else %}{{ item.producto }}{% endif %}</div>
+                        <div class="chart-label">{{ forloop.counter }}. {% if selected_report_type == 'clientes' or selected_report_type == 'carrito' %}{{ item.cliente }}{% elif selected_report_type == 'reembolsos' %}Nota {{ item.nota }} - {{ item.cliente }}{% else %}{{ item.producto }}{% endif %}</div>
                         <div class="chart-track"><div class="chart-bar" style="width: {{ item.bar_width }}%;"></div></div>
                     </div>
-                    <div class="chart-value">{% if selected_report_type == 'clientes' %}${{ item.descuento|floatformat:2 }}{% elif selected_report_type == 'carrito' %}${{ item.monto|floatformat:2 }}{% else %}{{ item.cantidad }}{% endif %}</div>
+                    <div class="chart-value">{% if selected_report_type == 'clientes' %}${{ item.descuento|floatformat:2 }}{% elif selected_report_type == 'carrito' or selected_report_type == 'reembolsos' %}${{ item.monto|floatformat:2 }}{% else %}{{ item.cantidad }}{% endif %}</div>
                 </div>
                 {% endfor %}
             {% else %}
                 {% for i in "12345" %}
                 <div class="chart-row">
                     <div>
-                        <div class="chart-label">{% if selected_report_type == 'clientes' or selected_report_type == 'carrito' %}Cliente {{ forloop.counter }}{% else %}Producto {{ forloop.counter }}{% endif %}</div>
+                        <div class="chart-label">{% if selected_report_type == 'clientes' or selected_report_type == 'carrito' %}Cliente {{ forloop.counter }}{% elif selected_report_type == 'reembolsos' %}Nota {{ forloop.counter }}{% else %}Producto {{ forloop.counter }}{% endif %}</div>
                         <div class="chart-track"><div class="chart-bar placeholder" style="width: 60%;"></div></div>
                     </div>
                     <div class="chart-value">0</div>
@@ -177,6 +180,12 @@
                         <label style="display:block; margin-bottom:6px; font-size:0.9rem; color:#444;">Fecha</label>
                         <input type="date" name="fecha" class="form-control" value="{{ fecha }}" style="width:100%; padding:10px 14px; border:1px solid #ddd; border-radius:10px;">
                     </div>
+                    {% if selected_report_type == 'reembolsos' %}
+                    <div>
+                        <label style="display:block; margin-bottom:6px; font-size:0.9rem; color:#444;">Número de nota</label>
+                        <input type="text" name="nota" class="form-control" placeholder="Buscar por número de nota" value="{{ nota_numero }}" style="width:100%; padding:10px 14px; border:1px solid #ddd; border-radius:10px;">
+                    </div>
+                    {% else %}
                     <div>
                         <label style="display:block; margin-bottom:6px; font-size:0.9rem; color:#444;">Estado</label>
                         <select name="estado" class="form-control" style="width:100%; padding:10px 14px; border:1px solid #ddd; border-radius:10px; background:#fff;">
@@ -186,6 +195,7 @@
                             <option value="RECHAZADO" {% if estado == 'RECHAZADO' %}selected{% endif %}>Rechazado</option>
                         </select>
                     </div>
+                    {% endif %}
                     <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-start;">
                         <button type="submit" class="report-button" style="margin-top: 26px;">Filtrar</button>
                         <a href="{% url 'reportes' %}?type={{ selected_report_type }}&period={{ selected_period }}" class="report-button" style="margin-top: 26px; background:#f3eef9; color:#5b2b80; border-color:#d3c2f8;">Limpiar</a>
@@ -430,37 +440,6 @@
                 {% endif %}
             {% endif %}
         </section>
-        {% if selected_report_type == 'reembolsos' %}
-        <section class="report-section">
-            <h2 class="h4 mb-3">Reembolsos (Notas rechazadas)</h2>
-            {% if report_items %}
-                <table class="report-table">
-                    <thead>
-                        <tr>
-                            <th>N° nota</th>
-                            <th>Fecha</th>
-                            <th>Cliente</th>
-                            <th>Monto</th>
-                            <th>Motivo</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in report_items %}
-                        <tr>
-                            <td>{{ item.nota }}</td>
-                            <td>{{ item.fecha|date:'d/m/Y H:i' }}</td>
-                            <td>{{ item.cliente }}</td>
-                            <td>${{ item.monto|floatformat:2 }}</td>
-                            <td>{{ item.motivo }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}
-                <div class="report-empty"><p>No hay reembolsos en este período.</p></div>
-            {% endif %}
-        </section>
-        {% endif %}
     </main>
 </body>
 </html>
