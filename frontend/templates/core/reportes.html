@@ -56,19 +56,19 @@
         <section class="report-header">
             <div class="report-header-top">
                 <div>
-                    <h1 class="mb-1">Reportes de {% if selected_report_type == 'clientes' %}clientes{% else %}productos{% endif %}</h1>
+                    <h1 class="mb-1">Reportes de {% if selected_report_type == 'clientes' %}clientes{% elif selected_report_type == 'carrito' %}carrito pendientes{% else %}productos{% endif %}</h1>
                     <p class="text-muted mb-0">Período seleccionado: <strong>{{ selected_period_label }}</strong></p>
                 </div>
                 <div class="report-actions">
                     <div class="button-group">
-                        <a href="{% url 'reportes' %}?type=productos&period={{ selected_period }}{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}" class="report-button{% if selected_report_type == 'productos' %} active{% endif %}">Productos</a>
-                        <a href="{% url 'reportes' %}?type=clientes&period={{ selected_period }}{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}" class="report-button{% if selected_report_type == 'clientes' %} active{% endif %}">Clientes</a>
-                        <a href="{% url 'reportes' %}?type=carrito&period={{ selected_period }}{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}" class="report-button{% if selected_report_type == 'carrito' %} active{% endif %}">Carrito pendientes</a>
+                        <a href="{% url 'reportes' %}?type=productos&period={{ selected_period }}{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if cliente_nombre %}&amp;cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}" class="report-button{% if selected_report_type == 'productos' %} active{% endif %}">Productos</a>
+                        <a href="{% url 'reportes' %}?type=clientes&period={{ selected_period }}{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if cliente_nombre %}&amp;cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}" class="report-button{% if selected_report_type == 'clientes' %} active{% endif %}">Clientes</a>
+                        <a href="{% url 'reportes' %}?type=carrito&period={{ selected_period }}{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if cliente_nombre %}&amp;cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}" class="report-button{% if selected_report_type == 'carrito' %} active{% endif %}">Carrito pendientes</a>
                     </div>
                     <div class="button-group">
-                        <a href="{% url 'reportes' %}?type={{ selected_report_type }}&period=dia{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}" class="period-button{% if selected_period == 'dia' %} active{% endif %}">Día</a>
-                        <a href="{% url 'reportes' %}?type={{ selected_report_type }}&period=semana{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}" class="period-button{% if selected_period == 'semana' %} active{% endif %}">Semana</a>
-                        <a href="{% url 'reportes' %}?type={{ selected_report_type }}&period=mes{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}" class="period-button{% if selected_period == 'mes' %} active{% endif %}">Mes</a>
+                        <a href="{% url 'reportes' %}?type={{ selected_report_type }}&period=dia{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if cliente_nombre %}&amp;cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}" class="period-button{% if selected_period == 'dia' %} active{% endif %}">Día</a>
+                        <a href="{% url 'reportes' %}?type={{ selected_report_type }}&period=semana{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if cliente_nombre %}&amp;cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}" class="period-button{% if selected_period == 'semana' %} active{% endif %}">Semana</a>
+                        <a href="{% url 'reportes' %}?type={{ selected_report_type }}&period=mes{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if cliente_nombre %}&amp;cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}" class="period-button{% if selected_period == 'mes' %} active{% endif %}">Mes</a>
                     </div>
                 </div>
             </div>
@@ -153,15 +153,15 @@
                 <div class="report-empty"><p>Aún no hay datos para mostrar. El gráfico aparecerá cuando se registren datos en este período.</p></div>
             {% endif %}
         </section>
-        {% if selected_report_type == 'productos' %}
+        {% if selected_report_type == 'productos' or selected_report_type == 'clientes' or selected_report_type == 'carrito' %}
         <section class="report-section report-search-section" style="padding-top: 0;">
             <form method="get" action="{% url 'reportes' %}" class="report-search-form">
-                <input type="hidden" name="type" value="productos">
+                <input type="hidden" name="type" value="{{ selected_report_type }}">
                 <input type="hidden" name="period" value="{{ selected_period }}">
                 <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:16px; align-items:end;">
                     <div>
-                        <label style="display:block; margin-bottom:6px; font-size:0.9rem; color:#444;">Nombre del producto</label>
-                        <input type="text" name="producto" class="form-control" placeholder="Buscar por nombre" value="{{ producto_nombre }}" style="width:100%; padding:10px 14px; border:1px solid #ddd; border-radius:10px;">
+                        <label style="display:block; margin-bottom:6px; font-size:0.9rem; color:#444;">{% if selected_report_type == 'productos' %}Nombre del producto{% else %}Cliente{% endif %}</label>
+                        <input type="text" name="{% if selected_report_type == 'productos' %}producto{% else %}cliente{% endif %}" class="form-control" placeholder="{% if selected_report_type == 'productos' %}Buscar por nombre{% else %}Buscar por cliente{% endif %}" value="{% if selected_report_type == 'productos' %}{{ producto_nombre }}{% else %}{{ cliente_nombre }}{% endif %}" style="width:100%; padding:10px 14px; border:1px solid #ddd; border-radius:10px;">
                     </div>
                     <div>
                         <label style="display:block; margin-bottom:6px; font-size:0.9rem; color:#444;">Fecha</label>
@@ -178,7 +178,12 @@
                     </div>
                     <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-start;">
                         <button type="submit" class="report-button" style="margin-top: 26px;">Filtrar</button>
-                        <a href="{% url 'reportes' %}?type=productos&period={{ selected_period }}" class="report-button" style="margin-top: 26px; background:#f3eef9; color:#5b2b80; border-color:#d3c2f8;">Limpiar</a>
+                        <a href="{% url 'reportes' %}?type={{ selected_report_type }}&period={{ selected_period }}" class="report-button" style="margin-top: 26px; background:#f3eef9; color:#5b2b80; border-color:#d3c2f8;">Limpiar</a>
+                        {% if selected_report_type == 'clientes' %}
+                        <a href="{% url 'descargar_reporte_clientes' %}?period={{ selected_period }}{% if cliente_nombre %}&cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&estado={{ estado|urlencode }}{% endif %}" class="report-button" style="margin-top: 26px; background:#5b2b80; color:#fff;">Descargar PDF</a>
+                        {% elif selected_report_type == 'carrito' %}
+                        <a href="{% url 'descargar_reporte_carrito' %}?period={{ selected_period }}{% if cliente_nombre %}&cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&estado={{ estado|urlencode }}{% endif %}" class="report-button" style="margin-top: 26px; background:#5b2b80; color:#fff;">Descargar PDF</a>
+                        {% endif %}
                     </div>
                 </div>
             </form>
@@ -215,7 +220,7 @@
                         <ul class="pagination justify-content-center flex-wrap">
                             <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
                                 {% if page_obj.has_previous %}
-                                <a class="page-link" href="?type={{ selected_report_type }}&amp;period={{ selected_period }}&amp;page={{ page_obj.previous_page_number }}">Anterior</a>
+                                <a class="page-link" href="?type={{ selected_report_type }}&amp;period={{ selected_period }}&amp;page={{ page_obj.previous_page_number }}{% if cliente_nombre %}&amp;cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}">Anterior</a>
                                 {% else %}
                                 <span class="page-link">Anterior</span>
                                 {% endif %}
@@ -224,12 +229,12 @@
                                 {% if num == page_obj.number %}
                                     <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
                                 {% else %}
-                                    <li class="page-item"><a class="page-link" href="?type={{ selected_report_type }}&amp;period={{ selected_period }}&amp;page={{ num }}">{{ num }}</a></li>
+                                    <li class="page-item"><a class="page-link" href="?type={{ selected_report_type }}&amp;period={{ selected_period }}&amp;page={{ num }}{% if cliente_nombre %}&amp;cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}">{{ num }}</a></li>
                                 {% endif %}
                             {% endfor %}
                             <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
                                 {% if page_obj.has_next %}
-                                <a class="page-link" href="?type={{ selected_report_type }}&amp;period={{ selected_period }}&amp;page={{ page_obj.next_page_number }}">Siguiente</a>
+                                <a class="page-link" href="?type={{ selected_report_type }}&amp;period={{ selected_period }}&amp;page={{ page_obj.next_page_number }}{% if cliente_nombre %}&amp;cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}">Siguiente</a>
                                 {% else %}
                                 <span class="page-link">Siguiente</span>
                                 {% endif %}
@@ -270,7 +275,7 @@
                         <ul class="pagination justify-content-center flex-wrap">
                             <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
                                 {% if page_obj.has_previous %}
-                                <a class="page-link" href="?type={{ selected_report_type }}&amp;period={{ selected_period }}&amp;page={{ page_obj.previous_page_number }}">Anterior</a>
+                                <a class="page-link" href="?type={{ selected_report_type }}&amp;period={{ selected_period }}&amp;page={{ page_obj.previous_page_number }}{% if cliente_nombre %}&amp;cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}">Anterior</a>
                                 {% else %}
                                 <span class="page-link">Anterior</span>
                                 {% endif %}
@@ -279,12 +284,12 @@
                                 {% if num == page_obj.number %}
                                     <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
                                 {% else %}
-                                    <li class="page-item"><a class="page-link" href="?type={{ selected_report_type }}&amp;period={{ selected_period }}&amp;page={{ num }}">{{ num }}</a></li>
+                                    <li class="page-item"><a class="page-link" href="?type={{ selected_report_type }}&amp;period={{ selected_period }}&amp;page={{ num }}{% if cliente_nombre %}&amp;cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}">{{ num }}</a></li>
                                 {% endif %}
                             {% endfor %}
                             <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
                                 {% if page_obj.has_next %}
-                                <a class="page-link" href="?type={{ selected_report_type }}&amp;period={{ selected_period }}&amp;page={{ page_obj.next_page_number }}">Siguiente</a>
+                                <a class="page-link" href="?type={{ selected_report_type }}&amp;period={{ selected_period }}&amp;page={{ page_obj.next_page_number }}{% if cliente_nombre %}&amp;cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}">Siguiente</a>
                                 {% else %}
                                 <span class="page-link">Siguiente</span>
                                 {% endif %}
@@ -317,7 +322,7 @@
                                 <td>{{ item.cantidad }}</td>
                                 <td>${{ item.ventas|floatformat:2 }}</td>
                                 <td>{{ item.ultima_venta|date:'d/m/Y H:i' }}</td>
-                                <td><a class="report-button" href="{% url 'descargar_reporte_producto' item.producto_id %}?period={{ selected_period }}{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}">Descargar PDF</a></td>
+                                <td><a class="report-button" href="{% url 'descargar_reporte_producto' item.producto_id %}?period={{ selected_period }}{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if cliente_nombre %}&amp;cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}">Descargar PDF</a></td>
                             </tr>
                             {% endfor %}
                         </tbody>

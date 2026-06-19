@@ -269,3 +269,131 @@ class Generar_ReporteProducto(FPDF):
         filename = f'Reporte_Producto_{self.producto.pk}.pdf'
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
         return response
+
+
+class Generar_ReporteCliente(FPDF):
+    def __init__(self, report_items, period_label, total_descuentos, total_reembolsos, total_ventas, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.report_items = report_items
+        self.period_label = period_label
+        self.total_descuentos = total_descuentos
+        self.total_reembolsos = total_reembolsos
+        self.total_ventas = total_ventas
+        self.set_auto_page_break(auto=True, margin=15)
+
+    def header(self):
+        self.set_font('Arial', 'B', 16)
+        self.cell(0, 10, 'REPORTE DE CLIENTES', 0, 1, 'C')
+        self.ln(2)
+        self.set_font('Arial', '', 10)
+        self.cell(0, 6, f'Período: {self.period_label}', 0, 1, 'L')
+        self.ln(4)
+        self.line(10, self.get_y(), 200, self.get_y())
+        self.ln(6)
+
+    def footer(self):
+        self.set_y(-20)
+        self.set_font('Arial', 'I', 8)
+        self.cell(0, 10, f'Página {self.page_no()}/{{nb}}', 0, 0, 'C')
+
+    def generate_pdf(self):
+        self.alias_nb_pages()
+        self.add_page()
+
+        self.set_font('Arial', 'B', 11)
+        self.cell(0, 8, 'Resumen de clientes', 0, 1, 'L')
+        self.ln(2)
+        self.set_font('Arial', '', 10)
+        self.cell(0, 7, f'Total descuento: ${self.total_descuentos:.2f}', 0, 1, 'L')
+        self.cell(0, 7, f'Total reembolsos: ${self.total_reembolsos:.2f}', 0, 1, 'L')
+        self.cell(0, 7, f'Total ventas: ${self.total_ventas:.2f}', 0, 1, 'L')
+        self.ln(6)
+
+        self.set_font('Arial', 'B', 10)
+        self.set_fill_color(240, 240, 240)
+        self.cell(70, 10, 'Cliente', 1, 0, 'L', 1)
+        self.cell(30, 10, 'Descuentos', 1, 0, 'C', 1)
+        self.cell(30, 10, 'Reembolsos', 1, 0, 'C', 1)
+        self.cell(30, 10, 'Ventas', 1, 0, 'C', 1)
+        self.cell(30, 10, 'Última venta', 1, 1, 'C', 1)
+
+        self.set_font('Arial', '', 9)
+        self.set_fill_color(255, 255, 255)
+        for item in self.report_items:
+            self.cell(70, 8, item.get('cliente', '-')[:40], 1, 0, 'L', 1)
+            self.cell(30, 8, f'${item.get("descuento", 0.0):.2f}', 1, 0, 'R', 1)
+            self.cell(30, 8, f'${item.get("reembolsos", 0.0):.2f}', 1, 0, 'R', 1)
+            self.cell(30, 8, f'${item.get("ventas", 0.0):.2f}', 1, 0, 'R', 1)
+            ultima = item.get('ultima_venta')
+            self.cell(30, 8, ultima.strftime('%d/%m/%Y') if ultima else '-', 1, 1, 'C', 1)
+
+        try:
+            pdf_bytes = bytes(self.output())
+        except TypeError:
+            pdf_bytes = self.output(dest='S').encode('latin1')
+
+        response = HttpResponse(pdf_bytes, content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="Reporte_Clientes.pdf"'
+        return response
+
+
+class Generar_ReporteCarrito(FPDF):
+    def __init__(self, report_items, period_label, total_carts, total_monto, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.report_items = report_items
+        self.period_label = period_label
+        self.total_carts = total_carts
+        self.total_monto = total_monto
+        self.set_auto_page_break(auto=True, margin=15)
+
+    def header(self):
+        self.set_font('Arial', 'B', 16)
+        self.cell(0, 10, 'REPORTE DE CARRITO', 0, 1, 'C')
+        self.ln(2)
+        self.set_font('Arial', '', 10)
+        self.cell(0, 6, f'Período: {self.period_label}', 0, 1, 'L')
+        self.ln(4)
+        self.line(10, self.get_y(), 200, self.get_y())
+        self.ln(6)
+
+    def footer(self):
+        self.set_y(-20)
+        self.set_font('Arial', 'I', 8)
+        self.cell(0, 10, f'Página {self.page_no()}/{{nb}}', 0, 0, 'C')
+
+    def generate_pdf(self):
+        self.alias_nb_pages()
+        self.add_page()
+
+        self.set_font('Arial', 'B', 11)
+        self.cell(0, 8, 'Resumen de carritos pendientes', 0, 1, 'L')
+        self.ln(2)
+        self.set_font('Arial', '', 10)
+        self.cell(0, 7, f'Total carritos: {self.total_carts}', 0, 1, 'L')
+        self.cell(0, 7, f'Monto total: ${self.total_monto:.2f}', 0, 1, 'L')
+        self.ln(6)
+
+        self.set_font('Arial', 'B', 10)
+        self.set_fill_color(240, 240, 240)
+        self.cell(70, 10, 'Cliente', 1, 0, 'L', 1)
+        self.cell(30, 10, 'Pendientes', 1, 0, 'C', 1)
+        self.cell(40, 10, 'Monto total', 1, 0, 'C', 1)
+        self.cell(50, 10, 'Última actividad', 1, 1, 'C', 1)
+
+        self.set_font('Arial', '', 9)
+        self.set_fill_color(255, 255, 255)
+        for item in self.report_items:
+            self.cell(70, 8, item.get('cliente', '-')[:40], 1, 0, 'L', 1)
+            self.cell(30, 8, str(item.get('carritos', 0)), 1, 0, 'C', 1)
+            self.cell(40, 8, f'${item.get("monto", 0.0):.2f}', 1, 0, 'R', 1)
+            ultima = item.get('ultima_venta')
+            self.cell(50, 8, ultima.strftime('%d/%m/%Y') if ultima else '-', 1, 1, 'C', 1)
+
+        try:
+            pdf_bytes = bytes(self.output())
+        except TypeError:
+            pdf_bytes = self.output(dest='S').encode('latin1')
+
+        response = HttpResponse(pdf_bytes, content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="Reporte_Carrito.pdf"'
+        return response

@@ -904,6 +904,7 @@ def reportes(request):
     total_monto = 0.0
 
     producto_nombre = (request.GET.get('producto') or '').strip()
+    cliente_nombre = (request.GET.get('cliente') or '').strip()
     fecha = (request.GET.get('fecha') or '').strip()
     estado = (request.GET.get('estado') or '').strip()
     nota_numero = (request.GET.get('nota') or '').strip()
@@ -914,6 +915,24 @@ def reportes(request):
                 Nota_Entrega.objects
                 .filter(comprobante_pago__isnull=False, fecha__date__gte=start_date)
                 .filter(fecha__date__lte=today)
+            )
+            if cliente_nombre:
+                clientes_qs = clientes_qs.filter(
+                    Q(cliente__nombre_cliente__icontains=cliente_nombre)
+                    | Q(cliente__apellido_cliente__icontains=cliente_nombre)
+                    | Q(cliente_nombre__icontains=cliente_nombre)
+                )
+            if estado:
+                clientes_qs = clientes_qs.filter(estado_pago__iexact=estado)
+            if fecha:
+                try:
+                    fecha_date = datetime.datetime.strptime(fecha, '%Y-%m-%d').date()
+                    clientes_qs = clientes_qs.filter(fecha__date=fecha_date)
+                except (ValueError, TypeError):
+                    pass
+
+            clientes_qs = (
+                clientes_qs
                 .values('cliente_id', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
                 .annotate(
                     total_descuento=Sum('descuento_monto'),
@@ -968,6 +987,24 @@ def reportes(request):
                 Nota_Entrega.objects
                 .filter(detalles__status_carrito=True)
                 .distinct()
+            )
+            if cliente_nombre:
+                carrito_qs = carrito_qs.filter(
+                    Q(cliente__nombre_cliente__icontains=cliente_nombre)
+                    | Q(cliente__apellido_cliente__icontains=cliente_nombre)
+                    | Q(cliente_nombre__icontains=cliente_nombre)
+                )
+            if estado:
+                carrito_qs = carrito_qs.filter(estado_pago__iexact=estado)
+            if fecha:
+                try:
+                    fecha_date = datetime.datetime.strptime(fecha, '%Y-%m-%d').date()
+                    carrito_qs = carrito_qs.filter(fecha__date=fecha_date)
+                except (ValueError, TypeError):
+                    pass
+
+            carrito_qs = (
+                carrito_qs
                 .values('cliente_id', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
                 .annotate(
                     pending_carts=Count('id'),
@@ -1099,6 +1136,7 @@ def reportes(request):
         'selected_period_label': selected_label,
         'selected_report_type': report_type,
         'producto_nombre': producto_nombre,
+        'cliente_nombre': cliente_nombre,
         'fecha': fecha,
         'estado': estado,
         'nota_numero': nota_numero,
@@ -1159,6 +1197,174 @@ def descargar_reporte_producto(request, producto_id):
         total_quantity=total_quantity,
         total_sales=total_sales,
         last_sold=last_sold,
+    )
+    return pdf.generate_pdf()
+
+
+@login_required
+@admin_only
+def descargar_reporte_clientes(request):
+    period = (request.GET.get('period') or 'dia').strip().lower()
+    today = timezone.localtime(timezone.now()).date()
+    if period == 'semana':
+        start_date = today - datetime.timedelta(days=6)
+        period_label = 'Última semana'
+    elif period == 'mes':
+        start_date = today - datetime.timedelta(days=29)
+        period_label = 'Último mes'
+    else:
+        period = 'dia'
+        start_date = today
+        period_label = 'Hoy'
+
+    cliente_nombre = (request.GET.get('cliente') or '').strip()
+    fecha = (request.GET.get('fecha') or '').strip()
+    estado = (request.GET.get('estado') or '').strip()
+
+    clientes_qs = (
+        Nota_Entrega.objects
+        .filter(comprobante_pago__isnull=False, fecha__date__gte=start_date)
+        .filter(fecha__date__lte=today)
+    )
+    if cliente_nombre:
+        clientes_qs = clientes_qs.filter(
+            Q(cliente__nombre_cliente__icontains=cliente_nombre)
+            | Q(cliente__apellido_cliente__icontains=cliente_nombre)
+            | Q(cliente_nombre__icontains=cliente_nombre)
+        )
+    if estado:
+        clientes_qs = clientes_qs.filter(estado_pago__iexact=estado)
+    if fecha:
+        try:
+            fecha_date = datetime.datetime.strptime(fecha, '%Y-%m-%d').date()
+            clientes_qs = clientes_qs.filter(fecha__date=fecha_date)
+        except (ValueError, TypeError):
+            pass
+
+    clientes_qs = (
+        clientes_qs
+        .values('cliente_id', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
+        .annotate(
+            total_descuento=Sum('descuento_monto'),
+            total_reembolsos=Sum(
+                Case(
+                    When(estado_pago='RECHAZADO', then=F('total')),
+                    default=0.0,
+                    output_field=FloatField(),
+                )
+            ),
+            total_ventas=Sum('total'),
+            ultima_venta=Max('fecha'),
+        )
+        .order_by('-total_descuento')
+    )
+
+    report_items = []
+    for item in clientes_qs:
+        nombre = (item.get('cliente__nombre_cliente') or '').strip()
+        apellido = (item.get('cliente__apellido_cliente') or '').strip()
+        cliente_label = ' '.join(filter(None, [nombre, apellido])).strip()
+        if not cliente_label:
+            cliente_label = item.get('cliente_nombre') or 'Cliente desconocido'
+
+        report_items.append({
+            'cliente': cliente_label,
+            'descuento': item.get('total_descuento') or 0.0,
+            'reembolsos': item.get('total_reembolsos') or 0.0,
+            'ventas': item.get('total_ventas') or 0.0,
+            'ultima_venta': item.get('ultima_venta'),
+        })
+
+    total_descuentos = sum(item['descuento'] for item in report_items)
+    total_reembolsos = sum(item['reembolsos'] for item in report_items)
+    total_ventas = sum(item['ventas'] for item in report_items)
+
+    from .NotaE import Generar_ReporteCliente
+    pdf = Generar_ReporteCliente(
+        report_items=report_items,
+        period_label=period_label,
+        total_descuentos=total_descuentos,
+        total_reembolsos=total_reembolsos,
+        total_ventas=total_ventas,
+    )
+    return pdf.generate_pdf()
+
+
+@login_required
+@admin_only
+def descargar_reporte_carrito(request):
+    period = (request.GET.get('period') or 'dia').strip().lower()
+    today = timezone.localtime(timezone.now()).date()
+    if period == 'semana':
+        start_date = today - datetime.timedelta(days=6)
+        period_label = 'Última semana'
+    elif period == 'mes':
+        start_date = today - datetime.timedelta(days=29)
+        period_label = 'Último mes'
+    else:
+        period = 'dia'
+        start_date = today
+        period_label = 'Hoy'
+
+    cliente_nombre = (request.GET.get('cliente') or '').strip()
+    fecha = (request.GET.get('fecha') or '').strip()
+    estado = (request.GET.get('estado') or '').strip()
+
+    carrito_qs = (
+        Nota_Entrega.objects
+        .filter(detalles__status_carrito=True)
+        .distinct()
+    )
+    if cliente_nombre:
+        carrito_qs = carrito_qs.filter(
+            Q(cliente__nombre_cliente__icontains=cliente_nombre)
+            | Q(cliente__apellido_cliente__icontains=cliente_nombre)
+            | Q(cliente_nombre__icontains=cliente_nombre)
+        )
+    if estado:
+        carrito_qs = carrito_qs.filter(estado_pago__iexact=estado)
+    if fecha:
+        try:
+            fecha_date = datetime.datetime.strptime(fecha, '%Y-%m-%d').date()
+            carrito_qs = carrito_qs.filter(fecha__date=fecha_date)
+        except (ValueError, TypeError):
+            pass
+
+    carrito_qs = (
+        carrito_qs
+        .values('cliente_id', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
+        .annotate(
+            pending_carts=Count('id'),
+            total_monto=Sum('total'),
+            last_activity=Max('fecha'),
+        )
+        .order_by('-total_monto')
+    )
+
+    report_items = []
+    for item in carrito_qs:
+        nombre = (item.get('cliente__nombre_cliente') or '').strip()
+        apellido = (item.get('cliente__apellido_cliente') or '').strip()
+        cliente_label = ' '.join(filter(None, [nombre, apellido])).strip()
+        if not cliente_label:
+            cliente_label = item.get('cliente_nombre') or 'Cliente desconocido'
+
+        report_items.append({
+            'cliente': cliente_label,
+            'carritos': item.get('pending_carts') or 0,
+            'monto': item.get('total_monto') or 0.0,
+            'ultima_venta': item.get('last_activity'),
+        })
+
+    total_carts = sum(item['carritos'] for item in report_items)
+    total_monto = sum(item['monto'] for item in report_items)
+
+    from .NotaE import Generar_ReporteCarrito
+    pdf = Generar_ReporteCarrito(
+        report_items=report_items,
+        period_label=period_label,
+        total_carts=total_carts,
+        total_monto=total_monto,
     )
     return pdf.generate_pdf()
 
