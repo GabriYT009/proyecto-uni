@@ -239,7 +239,7 @@ class Generar_ReporteProducto(FPDF):
 
         self.set_font('Arial', 'B', 10)
         self.set_fill_color(240, 240, 240)
-        self.cell(25, 10, 'Nota', 1, 0, 'C', 1)
+        self.cell(25, 10, 'N° nota', 1, 0, 'C', 1)
         self.cell(35, 10, 'Fecha', 1, 0, 'C', 1)
         self.cell(20, 10, 'Cantidad', 1, 0, 'C', 1)
         self.cell(30, 10, 'Precio U.', 1, 0, 'C', 1)

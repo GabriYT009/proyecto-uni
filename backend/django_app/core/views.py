@@ -903,6 +903,8 @@ def reportes(request):
     total_carts = 0
     total_monto = 0.0
 
+    search_query = (request.GET.get('search') or '').strip()
+
     if report_type == 'clientes':
         try:
             clientes_qs = (
@@ -1004,10 +1006,30 @@ def reportes(request):
             ]
     else:
         try:
+            ventas_filter = (
+                Q(Nota_Entrega__fecha__date__gte=start_date) &
+                Q(Nota_Entrega__fecha__date__lte=today)
+            )
+            if search_query:
+                parsed_date = None
+                for fmt in ('%d/%m/%Y', '%Y-%m-%d'):
+                    try:
+                        parsed_date = datetime.datetime.strptime(search_query, fmt).date()
+                        break
+                    except (ValueError, TypeError):
+                        parsed_date = None
+                search_filter = (
+                    Q(Producto__nombre_producto__icontains=search_query) |
+                    Q(Nota_Entrega__estado_pago__icontains=search_query) |
+                    Q(Nota_Entrega__pk__iexact=search_query)
+                )
+                if parsed_date:
+                    search_filter |= Q(Nota_Entrega__fecha__date=parsed_date)
+                ventas_filter &= search_filter
+
             ventas_qs = (
                 CarritoDeCompras.objects
-                .filter(Nota_Entrega__fecha__date__gte=start_date)
-                .filter(Nota_Entrega__fecha__date__lte=today)
+                .filter(ventas_filter)
                 .select_related('Producto')
                 .values('Producto_id', 'Producto__nombre_producto')
                 .annotate(
@@ -1073,6 +1095,7 @@ def reportes(request):
         'selected_period': period,
         'selected_period_label': selected_label,
         'selected_report_type': report_type,
+        'search_query': search_query,
         'total_products': total_products,
         'total_sales': total_sales,
         'total_descuentos': total_descuentos,
