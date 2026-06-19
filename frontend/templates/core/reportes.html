@@ -276,6 +276,7 @@
                                 <th>Cantidad vendida</th>
                                 <th>Ventas</th>
                                 <th>Última venta</th>
+                                <th>Acción</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -285,6 +286,7 @@
                                 <td>{{ item.cantidad }}</td>
                                 <td>${{ item.ventas|floatformat:2 }}</td>
                                 <td>{{ item.ultima_venta|date:'d/m/Y H:i' }}</td>
+                                <td><a class="report-button" href="{% url 'descargar_reporte_producto' item.producto_id %}?period={{ selected_period }}">Descargar PDF</a></td>
                             </tr>
                             {% endfor %}
                         </tbody>

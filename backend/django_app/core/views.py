@@ -1019,6 +1019,7 @@ def reportes(request):
             )
             for item in ventas_qs:
                 report_items.append({
+                    'producto_id': item.get('Producto_id'),
                     'producto': item.get('Producto__nombre_producto') or 'Producto desconocido',
                     'cantidad': item.get('total_quantity') or 0,
                     'ventas': item.get('total_sales') or 0.0,
@@ -1084,6 +1085,53 @@ def reportes(request):
         'user_groups': user_groups,
         'page_obj': page_obj,
     })
+
+
+@login_required
+@admin_only
+def descargar_reporte_producto(request, producto_id):
+    period = (request.GET.get('period') or 'dia').strip().lower()
+    today = timezone.localtime(timezone.now()).date()
+    if period == 'semana':
+        start_date = today - datetime.timedelta(days=6)
+        period_label = 'Última semana'
+    elif period == 'mes':
+        start_date = today - datetime.timedelta(days=29)
+        period_label = 'Último mes'
+    else:
+        period = 'dia'
+        start_date = today
+        period_label = 'Hoy'
+
+    producto = get_object_or_404(Producto, pk=producto_id)
+    detalles = (
+        CarritoDeCompras.objects
+        .filter(Producto_id=producto_id)
+        .filter(Nota_Entrega__fecha__date__gte=start_date)
+        .filter(Nota_Entrega__fecha__date__lte=today)
+        .select_related('Nota_Entrega')
+        .order_by('-Nota_Entrega__fecha')
+    )
+
+    totals = detalles.aggregate(
+        total_quantity=Sum('Cantidad'),
+        total_sales=Sum(F('Cantidad') * F('precio_unitario'), output_field=FloatField()),
+        last_sold=Max('Nota_Entrega__fecha'),
+    )
+    total_quantity = totals.get('total_quantity') or 0
+    total_sales = totals.get('total_sales') or 0.0
+    last_sold = totals.get('last_sold')
+
+    from .NotaE import Generar_ReporteProducto
+    pdf = Generar_ReporteProducto(
+        producto=producto,
+        detalles=detalles,
+        period_label=period_label,
+        total_quantity=total_quantity,
+        total_sales=total_sales,
+        last_sold=last_sold,
+    )
+    return pdf.generate_pdf()
 
 
 def login_post(request):

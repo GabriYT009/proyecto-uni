@@ -192,3 +192,78 @@ class Generar_NE(FPDF):
         response = HttpResponse(pdf_bytes, content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="Nota_Entrega_{self.salida.pk}.pdf"'
         return response
+
+
+class Generar_ReporteProducto(FPDF):
+    def __init__(self, producto, detalles, period_label, total_quantity, total_sales, total_replaces=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.producto = producto
+        self.detalles = detalles
+        self.period_label = period_label
+        self.total_quantity = total_quantity
+        self.total_sales = total_sales
+        self.set_auto_page_break(auto=True, margin=15)
+
+    def header(self):
+        self.set_font('Arial', 'B', 16)
+        self.cell(0, 10, 'REPORTE DE PRODUCTO', 0, 1, 'C')
+        self.ln(2)
+        self.set_font('Arial', '', 10)
+        self.cell(0, 6, f'Producto: {self.producto.nombre_producto or "-"}', 0, 1, 'L')
+        self.cell(0, 6, f'Período: {self.period_label}', 0, 1, 'L')
+        self.ln(2)
+        self.line(10, self.get_y(), 200, self.get_y())
+        self.ln(6)
+
+    def footer(self):
+        self.set_y(-20)
+        self.set_font('Arial', 'I', 8)
+        self.cell(0, 10, f'Página {self.page_no()}/{{nb}}', 0, 0, 'C')
+
+    def generate_pdf(self):
+        self.alias_nb_pages()
+        self.add_page()
+
+        self.set_font('Arial', 'B', 12)
+        self.cell(0, 8, 'Resumen de ventas', 0, 1, 'L')
+        self.ln(2)
+        self.set_font('Arial', '', 10)
+        self.cell(0, 7, f'Total unidades vendidas: {self.total_quantity}', 0, 1, 'L')
+        self.cell(0, 7, f'Total ventas: ${self.total_sales:.2f}', 0, 1, 'L')
+        if self.detalles.exists():
+            ultima_venta = self.detalles.first().Nota_Entrega.fecha
+            self.cell(0, 7, f'Última venta: {ultima_venta.strftime("%d/%m/%Y %H:%M")}', 0, 1, 'L')
+        self.ln(6)
+
+        self.set_font('Arial', 'B', 10)
+        self.set_fill_color(240, 240, 240)
+        self.cell(25, 10, 'Nota', 1, 0, 'C', 1)
+        self.cell(35, 10, 'Fecha', 1, 0, 'C', 1)
+        self.cell(20, 10, 'Cantidad', 1, 0, 'C', 1)
+        self.cell(30, 10, 'Precio U.', 1, 0, 'C', 1)
+        self.cell(30, 10, 'Subtotal', 1, 0, 'C', 1)
+        self.cell(50, 10, 'Estado', 1, 1, 'C', 1)
+
+        self.set_font('Arial', '', 10)
+        self.set_fill_color(255, 255, 255)
+        for detalle in self.detalles:
+            nota = detalle.Nota_Entrega
+            fecha = timezone.localtime(nota.fecha).strftime('%d/%m/%Y %H:%M') if nota.fecha else '-'
+            precio_unit = float(detalle.precio_unitario or 0)
+            subtotal = precio_unit * float(detalle.Cantidad or 0)
+            self.cell(25, 8, str(nota.pk), 1, 0, 'C')
+            self.cell(35, 8, fecha, 1, 0, 'C')
+            self.cell(20, 8, str(detalle.Cantidad), 1, 0, 'C')
+            self.cell(30, 8, f'${precio_unit:.2f}', 1, 0, 'C')
+            self.cell(30, 8, f'${subtotal:.2f}', 1, 0, 'C')
+            self.cell(50, 8, nota.get_estado_pago_display() if hasattr(nota, 'get_estado_pago_display') else (nota.estado_pago or '-'), 1, 1, 'C')
+
+        try:
+            pdf_bytes = bytes(self.output())
+        except TypeError:
+            pdf_bytes = self.output(dest='S').encode('latin1')
+
+        response = HttpResponse(pdf_bytes, content_type='application/pdf')
+        filename = f'Reporte_Producto_{self.producto.pk}.pdf'
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
