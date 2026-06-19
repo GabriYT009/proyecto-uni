@@ -46,6 +46,7 @@ urlpatterns = [
     path('reportes/', views.reportes, name='reportes'),
     path('reportes/producto/<int:producto_id>/pdf/', views.descargar_reporte_producto, name='descargar_reporte_producto'),
     path('reportes/clientes/pdf/', views.descargar_reporte_clientes, name='descargar_reporte_clientes'),
+    path('reportes/reembolsos/pdf/', views.descargar_reporte_reembolsos, name='descargar_reporte_reembolsos'),
     path('reportes/carrito/pdf/', views.descargar_reporte_carrito, name='descargar_reporte_carrito'),
     # Solicitudes legacy/static que algunos templates/scripts aún utilizan
     path('home.html', RedirectView.as_view(pattern_name='home', permanent=False)),

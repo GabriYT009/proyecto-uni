@@ -878,7 +878,7 @@ def home(request):
 def reportes(request):
     period = (request.GET.get('period') or 'dia').strip().lower()
     report_type = (request.GET.get('type') or 'productos').strip().lower()
-    if report_type not in ('clientes', 'productos', 'carrito'):
+    if report_type not in ('clientes', 'productos', 'carrito', 'reembolsos'):
         report_type = 'productos'
 
     today = timezone.localtime(timezone.now()).date()
@@ -1104,6 +1104,46 @@ def reportes(request):
                 for item in report_items[:10]
             ]
 
+    # Nuevo: soporte para reporte de reembolsos listado (notas rechazadas)
+    if report_type == 'reembolsos':
+        try:
+            reemb_qs = (
+                Nota_Entrega.objects
+                .filter(estado_pago='RECHAZADO')
+                .filter(fecha__date__gte=start_date)
+                .filter(fecha__date__lte=today)
+            )
+            if cliente_nombre:
+                reemb_qs = reemb_qs.filter(
+                    Q(cliente__nombre_cliente__icontains=cliente_nombre)
+                    | Q(cliente__apellido_cliente__icontains=cliente_nombre)
+                    | Q(cliente_nombre__icontains=cliente_nombre)
+                )
+            if fecha:
+                try:
+                    fecha_date = datetime.datetime.strptime(fecha, '%Y-%m-%d').date()
+                    reemb_qs = reemb_qs.filter(fecha__date=fecha_date)
+                except (ValueError, TypeError):
+                    pass
+
+            for nota in reemb_qs.order_by('-fecha'):
+                nombre = (nota.cliente.nombre_cliente if nota.cliente else '') or nota.cliente_nombre or ''
+                apellido = (nota.cliente.apellido_cliente if nota.cliente else '') or ''
+                cliente_label = ' '.join(filter(None, [nombre, apellido])).strip() or 'Cliente ocasional'
+                report_items.append({
+                    'nota': nota.pk,
+                    'fecha': nota.fecha,
+                    'cliente': cliente_label,
+                    'monto': float(nota.total or 0.0),
+                    'motivo': nota.motivo_rechazo or '',
+                })
+        except Exception:
+            logger.exception('Error generando listado de reembolsos')
+            report_items = []
+
+        total_reembolsos = sum(item['monto'] for item in report_items)
+        total_products = len(report_items)
+
     page_number = request.GET.get('page') or 1
     paginator = None
     page_obj = None
@@ -1286,6 +1326,76 @@ def descargar_reporte_clientes(request):
         total_descuentos=total_descuentos,
         total_reembolsos=total_reembolsos,
         total_ventas=total_ventas,
+    )
+    return pdf.generate_pdf()
+
+
+@login_required
+@admin_only
+def descargar_reporte_reembolsos(request):
+    period = (request.GET.get('period') or 'dia').strip().lower()
+    today = timezone.localtime(timezone.now()).date()
+    if period == 'semana':
+        start_date = today - datetime.timedelta(days=6)
+        period_label = 'Última semana'
+    elif period == 'mes':
+        start_date = today - datetime.timedelta(days=29)
+        period_label = 'Último mes'
+    else:
+        period = 'dia'
+        start_date = today
+        period_label = 'Hoy'
+
+    cliente_nombre = (request.GET.get('cliente') or '').strip()
+    fecha = (request.GET.get('fecha') or '').strip()
+    nota_numero = (request.GET.get('nota') or '').strip()
+
+    reembolsos_qs = (
+        Nota_Entrega.objects
+        .filter(estado_pago='RECHAZADO')
+        .filter(fecha__date__gte=start_date)
+        .filter(fecha__date__lte=today)
+    )
+    if cliente_nombre:
+        reembolsos_qs = reembolsos_qs.filter(
+            Q(cliente__nombre_cliente__icontains=cliente_nombre)
+            | Q(cliente__apellido_cliente__icontains=cliente_nombre)
+            | Q(cliente_nombre__icontains=cliente_nombre)
+        )
+    if nota_numero:
+        try:
+            reembolsos_qs = reembolsos_qs.filter(pk=int(nota_numero))
+        except Exception:
+            pass
+    if fecha:
+        try:
+            fecha_date = datetime.datetime.strptime(fecha, '%Y-%m-%d').date()
+            reembolsos_qs = reembolsos_qs.filter(fecha__date=fecha_date)
+        except (ValueError, TypeError):
+            pass
+
+    report_items = []
+    total_reembolsos = 0.0
+    for nota in reembolsos_qs.order_by('-fecha'):
+        nombre = (getattr(nota.cliente, 'nombre_cliente', '') or '').strip() if nota.cliente else (nota.cliente_nombre or '')
+        apellido = (getattr(nota.cliente, 'apellido_cliente', '') or '').strip() if nota.cliente else ''
+        cliente_label = ' '.join(filter(None, [nombre, apellido])).strip() or (nota.cliente_nombre or 'Cliente ocasional')
+        monto = float(nota.total or 0.0)
+        motivo = (nota.motivo_rechazo or '')
+        report_items.append({
+            'nota': nota.pk,
+            'fecha': nota.fecha,
+            'cliente': cliente_label,
+            'monto': monto,
+            'motivo': motivo,
+        })
+        total_reembolsos += monto
+
+    from .NotaE import Generar_ReporteReembolsos
+    pdf = Generar_ReporteReembolsos(
+        report_items=report_items,
+        period_label=period_label,
+        total_reembolsos=total_reembolsos,
     )
     return pdf.generate_pdf()
 

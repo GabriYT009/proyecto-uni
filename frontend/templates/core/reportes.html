@@ -64,6 +64,7 @@
                         <a href="{% url 'reportes' %}?type=productos&period={{ selected_period }}{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if cliente_nombre %}&amp;cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}" class="report-button{% if selected_report_type == 'productos' %} active{% endif %}">Productos</a>
                         <a href="{% url 'reportes' %}?type=clientes&period={{ selected_period }}{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if cliente_nombre %}&amp;cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}" class="report-button{% if selected_report_type == 'clientes' %} active{% endif %}">Clientes</a>
                         <a href="{% url 'reportes' %}?type=carrito&period={{ selected_period }}{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if cliente_nombre %}&amp;cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}" class="report-button{% if selected_report_type == 'carrito' %} active{% endif %}">Carrito pendientes</a>
+                        <a href="{% url 'reportes' %}?type=reembolsos&period={{ selected_period }}{% if cliente_nombre %}&amp;cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}" class="report-button{% if selected_report_type == 'reembolsos' %} active{% endif %}">Reembolsos</a>
                     </div>
                     <div class="button-group">
                         <a href="{% url 'reportes' %}?type={{ selected_report_type }}&period=dia{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if cliente_nombre %}&amp;cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}" class="period-button{% if selected_period == 'dia' %} active{% endif %}">Día</a>
@@ -153,15 +154,15 @@
                 <div class="report-empty"><p>Aún no hay datos para mostrar. El gráfico aparecerá cuando se registren datos en este período.</p></div>
             {% endif %}
         </section>
-        {% if selected_report_type == 'productos' or selected_report_type == 'clientes' or selected_report_type == 'carrito' %}
+            {% if selected_report_type == 'productos' or selected_report_type == 'clientes' or selected_report_type == 'carrito' or selected_report_type == 'reembolsos' %}
         <section class="report-section report-search-section" style="padding-top: 0;">
             <form method="get" action="{% url 'reportes' %}" class="report-search-form">
                 <input type="hidden" name="type" value="{{ selected_report_type }}">
                 <input type="hidden" name="period" value="{{ selected_period }}">
                 <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:16px; align-items:end;">
                     <div>
-                        <label style="display:block; margin-bottom:6px; font-size:0.9rem; color:#444;">{% if selected_report_type == 'productos' %}Nombre del producto{% else %}Cliente{% endif %}</label>
-                        <input type="text" name="{% if selected_report_type == 'productos' %}producto{% else %}cliente{% endif %}" class="form-control" placeholder="{% if selected_report_type == 'productos' %}Buscar por nombre{% else %}Buscar por cliente{% endif %}" value="{% if selected_report_type == 'productos' %}{{ producto_nombre }}{% else %}{{ cliente_nombre }}{% endif %}" style="width:100%; padding:10px 14px; border:1px solid #ddd; border-radius:10px;">
+                            <label style="display:block; margin-bottom:6px; font-size:0.9rem; color:#444;">{% if selected_report_type == 'productos' %}Nombre del producto{% elif selected_report_type == 'reembolsos' %}Cliente / Nota{% else %}Cliente{% endif %}</label>
+                            <input type="text" name="{% if selected_report_type == 'productos' %}producto{% else %}cliente{% endif %}" class="form-control" placeholder="{% if selected_report_type == 'productos' %}Buscar por nombre{% elif selected_report_type == 'reembolsos' %}Buscar por cliente o número de nota{% else %}Buscar por cliente{% endif %}" value="{% if selected_report_type == 'productos' %}{{ producto_nombre }}{% else %}{{ cliente_nombre }}{% endif %}" style="width:100%; padding:10px 14px; border:1px solid #ddd; border-radius:10px;">
                     </div>
                     <div>
                         <label style="display:block; margin-bottom:6px; font-size:0.9rem; color:#444;">Fecha</label>
@@ -183,6 +184,8 @@
                         <a href="{% url 'descargar_reporte_clientes' %}?period={{ selected_period }}{% if cliente_nombre %}&cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&estado={{ estado|urlencode }}{% endif %}" class="report-button" style="margin-top: 26px; background:#5b2b80; color:#fff;">Descargar PDF</a>
                         {% elif selected_report_type == 'carrito' %}
                         <a href="{% url 'descargar_reporte_carrito' %}?period={{ selected_period }}{% if cliente_nombre %}&cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&estado={{ estado|urlencode }}{% endif %}" class="report-button" style="margin-top: 26px; background:#5b2b80; color:#fff;">Descargar PDF</a>
+                        {% elif selected_report_type == 'reembolsos' %}
+                        <a href="{% url 'descargar_reporte_reembolsos' %}?period={{ selected_period }}{% if cliente_nombre %}&cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&fecha={{ fecha|urlencode }}{% endif %}" class="report-button" style="margin-top: 26px; background:#5b2b80; color:#fff;">Descargar PDF</a>
                         {% endif %}
                     </div>
                 </div>
@@ -361,6 +364,37 @@
                 {% endif %}
             {% endif %}
         </section>
+        {% if selected_report_type == 'reembolsos' %}
+        <section class="report-section">
+            <h2 class="h4 mb-3">Reembolsos (Notas rechazadas)</h2>
+            {% if report_items %}
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>N° nota</th>
+                            <th>Fecha</th>
+                            <th>Cliente</th>
+                            <th>Monto</th>
+                            <th>Motivo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in report_items %}
+                        <tr>
+                            <td>{{ item.nota }}</td>
+                            <td>{{ item.fecha|date:'d/m/Y H:i' }}</td>
+                            <td>{{ item.cliente }}</td>
+                            <td>${{ item.monto|floatformat:2 }}</td>
+                            <td>{{ item.motivo }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="report-empty"><p>No hay reembolsos en este período.</p></div>
+            {% endif %}
+        </section>
+        {% endif %}
     </main>
 </body>
 </html>
