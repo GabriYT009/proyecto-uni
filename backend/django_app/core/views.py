@@ -933,7 +933,7 @@ def reportes(request):
 
             clientes_qs = (
                 clientes_qs
-                .values('cliente_id', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
+                .values('cedula', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
                 .annotate(
                     total_descuento=Sum('descuento_monto'),
                     total_reembolsos=Sum(
@@ -1005,7 +1005,7 @@ def reportes(request):
 
             carrito_qs = (
                 carrito_qs
-                .values('cliente_id', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
+                .values('cedula', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
                 .annotate(
                     pending_carts=Count('id'),
                     total_monto=Sum('total'),
@@ -1295,7 +1295,7 @@ def descargar_reporte_clientes(request):
 
     clientes_qs = (
         clientes_qs
-        .values('cliente_id', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
+        .values('cedula', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
         .annotate(
             total_descuento=Sum('descuento_monto'),
             total_reembolsos=Sum(
@@ -1454,7 +1454,7 @@ def descargar_reporte_carrito(request):
 
     carrito_qs = (
         carrito_qs
-        .values('cliente_id', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
+        .values('cedula', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
         .annotate(
             pending_carts=Count('id'),
             total_monto=Sum('total'),
@@ -3540,7 +3540,7 @@ def comprar_carrito(request):
                 bcv=valor_bcv,
                 tipo_pago='PAGO MOVIL',
                 metodo_pago=metodo_pago,
-                #cliente_id=documento[:45],
+                #cedula=documento[:45],
                 cliente_telefono=mobile_phone[:15],
                 referencia_pago=referencia,
             )
@@ -4177,8 +4177,8 @@ def todos_clientes(request):
 @login_required
 @admin_only
 @require_POST
-def eliminar_cliente(request, cliente_id):
-    cliente = get_object_or_404(Cliente, pk=cliente_id)
+def eliminar_cliente(request, cedula):
+    cliente = get_object_or_404(Cliente, pk=cedula)
     nombre_cliente = str(cliente)
     cliente.delete()
     messages.success(request, f'Cliente "{nombre_cliente}" eliminado correctamente.')

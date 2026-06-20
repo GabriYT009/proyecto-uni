@@ -100,7 +100,7 @@ class Servicio(models.Model):
 
 class Cliente(models.Model):
     # En el SQL, 'tipo_cliente' es una FK, no un Choice estático
-    id = models.CharField(max_length=45, primary_key=True)
+    cedula = models.CharField(max_length=45, primary_key=True)
     tipo_cliente = models.ForeignKey(TipoCliente, on_delete=models.SET_NULL, null=True, blank=True)
     
     # documento = models.CharField(max_length=45, blank=True, null=True)
