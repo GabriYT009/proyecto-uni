@@ -461,3 +461,66 @@ class Generar_ReporteReembolsos(FPDF):
         response = HttpResponse(pdf_bytes, content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename="Reporte_Reembolsos.pdf"'
         return response
+
+
+class Generar_ReporteProductos(FPDF):
+    def __init__(self, report_items, period_label, total_products, total_sales, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.report_items = report_items
+        self.period_label = period_label
+        self.total_products = total_products
+        self.total_sales = total_sales
+        self.set_auto_page_break(auto=True, margin=15)
+
+    def header(self):
+        self.set_font('Arial', 'B', 16)
+        self.cell(0, 10, 'REPORTE DE PRODUCTOS VENDIDOS', 0, 1, 'C')
+        self.ln(2)
+        self.set_font('Arial', '', 10)
+        self.cell(0, 6, f'Período: {self.period_label}', 0, 1, 'L')
+        self.ln(4)
+        self.line(10, self.get_y(), 200, self.get_y())
+        self.ln(6)
+
+    def footer(self):
+        self.set_y(-20)
+        self.set_font('Arial', 'I', 8)
+        self.cell(0, 10, f'Página {self.page_no()}/{{nb}}', 0, 0, 'C')
+
+    def generate_pdf(self):
+        self.alias_nb_pages()
+        self.add_page()
+
+        self.set_font('Arial', 'B', 11)
+        self.cell(0, 8, f'Total unidades vendidas: {self.total_products}', 0, 1, 'L')
+        self.cell(0, 8, f'Total ventas: ${self.total_sales:.2f}', 0, 1, 'L')
+        self.ln(6)
+
+        self.set_font('Arial', 'B', 10)
+        self.set_fill_color(240, 240, 240)
+        self.cell(80, 10, 'Producto', 1, 0, 'L', 1)
+        self.cell(30, 10, 'Cantidad', 1, 0, 'C', 1)
+        self.cell(40, 10, 'Ventas', 1, 0, 'C', 1)
+        self.cell(40, 10, 'Última venta', 1, 1, 'C', 1)
+
+        self.set_font('Arial', '', 9)
+        self.set_fill_color(255, 255, 255)
+        for item in self.report_items:
+            producto = (item.get('producto') or '-')[:40]
+            cantidad = str(item.get('cantidad') or 0)
+            ventas = f'${(item.get("ventas") or 0.0):.2f}'
+            ultima = item.get('ultima_venta')
+            ultima_str = ultima.strftime('%d/%m/%Y %H:%M') if ultima else '-'
+            self.cell(80, 8, producto, 1, 0, 'L', 1)
+            self.cell(30, 8, cantidad, 1, 0, 'C', 1)
+            self.cell(40, 8, ventas, 1, 0, 'R', 1)
+            self.cell(40, 8, ultima_str, 1, 1, 'C', 1)
+
+        try:
+            pdf_bytes = bytes(self.output())
+        except TypeError:
+            pdf_bytes = self.output(dest='S').encode('latin1')
+
+        response = HttpResponse(pdf_bytes, content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="Reporte_Productos.pdf"'
+        return response

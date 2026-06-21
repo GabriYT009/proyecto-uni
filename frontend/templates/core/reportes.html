@@ -199,16 +199,22 @@
                     <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-start;">
                         <button type="submit" class="report-button" style="margin-top: 26px;">Filtrar</button>
                         <a href="{% url 'reportes' %}?type={{ selected_report_type }}&period={{ selected_period }}" class="report-button" style="margin-top: 26px; background:#f3eef9; color:#5b2b80; border-color:#d3c2f8;">Limpiar</a>
-                        {% if selected_report_type == 'clientes' %}
-                        <a href="{% url 'descargar_reporte_clientes' %}?period={{ selected_period }}{% if cliente_nombre %}&cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&estado={{ estado|urlencode }}{% endif %}" class="report-button" style="margin-top: 26px; background:#5b2b80; color:#fff;">Descargar PDF</a>
-                        {% elif selected_report_type == 'carrito' %}
-                        <a href="{% url 'descargar_reporte_carrito' %}?period={{ selected_period }}{% if cliente_nombre %}&cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&estado={{ estado|urlencode }}{% endif %}" class="report-button" style="margin-top: 26px; background:#5b2b80; color:#fff;">Descargar PDF</a>
-                        {% elif selected_report_type == 'reembolsos' %}
-                        <a href="{% url 'descargar_reporte_reembolsos' %}?period={{ selected_period }}{% if cliente_nombre %}&cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&fecha={{ fecha|urlencode }}{% endif %}" class="report-button" style="margin-top: 26px; background:#5b2b80; color:#fff;">Descargar PDF</a>
-                        {% elif selected_report_type == 'productos' %}
-                        <a href="{% url 'descargar_reporte_productos' %}?period={{ selected_period }}{% if producto_nombre %}&producto={{ producto_nombre|urlencode }}{% endif %}{% if cliente_nombre %}&cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&estado={{ estado|urlencode }}{% endif %}" class="report-button" style="margin-top: 26px; background:#5b2b80; color:#fff;">Descargar CSV</a>
-                        {% endif %}
                     </div>
+                </div>
+            </form>
+            <div style="display:flex; justify-content:flex-end; margin-top:12px;">
+                {% if selected_report_type == 'clientes' %}
+                <a href="{% url 'descargar_reporte_clientes' %}?period={{ selected_period }}{% if cliente_nombre %}&cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&estado={{ estado|urlencode }}{% endif %}" class="report-button" style="background:#5b2b80; color:#fff;">Descargar PDF</a>
+                {% elif selected_report_type == 'carrito' %}
+                <a href="{% url 'descargar_reporte_carrito' %}?period={{ selected_period }}{% if cliente_nombre %}&cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&estado={{ estado|urlencode }}{% endif %}" class="report-button" style="background:#5b2b80; color:#fff;">Descargar PDF</a>
+                {% elif selected_report_type == 'reembolsos' %}
+                <a href="{% url 'descargar_reporte_reembolsos' %}?period={{ selected_period }}{% if cliente_nombre %}&cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&fecha={{ fecha|urlencode }}{% endif %}" class="report-button" style="background:#5b2b80; color:#fff;">Descargar PDF</a>
+                {% elif selected_report_type == 'productos' %}
+                <a href="{% url 'descargar_reporte_productos' %}?period={{ selected_period }}{% if producto_nombre %}&producto={{ producto_nombre|urlencode }}{% endif %}{% if cliente_nombre %}&cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&estado={{ estado|urlencode }}{% endif %}" class="report-button" style="background:#5b2b80; color:#fff;">Descargar PDF</a>
+                {% endif %}
+            </div>
+        </section>
+        {% endif %}
                 </div>
             </form>
         </section>
