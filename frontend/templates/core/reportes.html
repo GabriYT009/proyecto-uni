@@ -205,8 +205,6 @@
                         <a href="{% url 'descargar_reporte_carrito' %}?period={{ selected_period }}{% if cliente_nombre %}&cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&estado={{ estado|urlencode }}{% endif %}" class="report-button" style="margin-top: 26px; background:#5b2b80; color:#fff;">Descargar PDF</a>
                         {% elif selected_report_type == 'reembolsos' %}
                         <a href="{% url 'descargar_reporte_reembolsos' %}?period={{ selected_period }}{% if cliente_nombre %}&cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&fecha={{ fecha|urlencode }}{% endif %}" class="report-button" style="margin-top: 26px; background:#5b2b80; color:#fff;">Descargar PDF</a>
-                        {% elif selected_report_type == 'productos' %}
-                        <a href="{% url 'descargar_reporte_productos' %}?period={{ selected_period }}{% if producto_nombre %}&producto={{ producto_nombre|urlencode }}{% endif %}{% if cliente_nombre %}&cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&estado={{ estado|urlencode }}{% endif %}" class="report-button" style="margin-top: 26px; background:#5b2b80; color:#fff;">Descarga general</a>
                         {% endif %}
                     </div>
                 </div>
@@ -384,7 +382,10 @@
                     </div>
                 {% endif %}
             {% else %}
-                <h2 class="h4 mb-3">Productos vendidos</h2>
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:16px;">
+                    <h2 class="h4 mb-0">Productos vendidos</h2>
+                    <a href="{% url 'descargar_reporte_productos' %}?period={{ selected_period }}{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if cliente_nombre %}&amp;cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}" class="report-button" style="margin-top: 0;">Descarga general</a>
+                </div>
                 {% if report_items %}
                     <table class="report-table">
                         <thead>
