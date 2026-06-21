@@ -299,6 +299,7 @@ class CarritoDeCompras(models.Model):
         return f"{self.Cantidad} x {self.Producto.nombre} (Nota de Entrega {self.Nota_Entrega.id})"
 
 #paso 1
+
 class Nota_Entrega(models.Model):
 
     ESTADO_PAGO = [
