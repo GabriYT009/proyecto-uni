@@ -2656,7 +2656,7 @@ def cobrar_caja(request):
             cliente_datos = None
             if cliente_doc:
                 # Usamos documento=cliente_doc para buscar coincidencia exacta
-                cliente_datos = Cliente.objects.filter(id=cliente_doc).first() 
+                cliente_datos = Cliente.objects.filter(cedula=cliente_doc).first() 
 
             # Crear la Nota de Entrega
             nota_kwargs = {
