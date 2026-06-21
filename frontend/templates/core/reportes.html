@@ -56,14 +56,14 @@
         <section class="report-header">
             <div class="report-header-top">
                 <div>
-                    <h1 class="mb-1">Reportes de {% if selected_report_type == 'clientes' %}clientes{% elif selected_report_type == 'carrito' %}carrito pendientes{% elif selected_report_type == 'reembolsos' %}reembolsos{% else %}productos{% endif %}</h1>
+                    <h1 class="mb-1">Reportes de {% if selected_report_type == 'clientes' %}clientes{% elif selected_report_type == 'carrito' %}clientes con mas compras{% elif selected_report_type == 'reembolsos' %}reembolsos{% else %}productos{% endif %}</h1>
                     <p class="text-muted mb-0">Período seleccionado: <strong>{{ selected_period_label }}</strong></p>
                 </div>
                 <div class="report-actions">
                     <div class="button-group">
                         <a href="{% url 'reportes' %}?type=productos&period={{ selected_period }}{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if cliente_nombre %}&amp;cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}" class="report-button{% if selected_report_type == 'productos' %} active{% endif %}">Productos</a>
                         <a href="{% url 'reportes' %}?type=clientes&period={{ selected_period }}{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if cliente_nombre %}&amp;cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}" class="report-button{% if selected_report_type == 'clientes' %} active{% endif %}">Clientes</a>
-                        <a href="{% url 'reportes' %}?type=carrito&period={{ selected_period }}{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if cliente_nombre %}&amp;cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}" class="report-button{% if selected_report_type == 'carrito' %} active{% endif %}">Carrito pendientes</a>
+                        <a href="{% url 'reportes' %}?type=carrito&period={{ selected_period }}{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if cliente_nombre %}&amp;cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}" class="report-button{% if selected_report_type == 'carrito' %} active{% endif %}">Clientes con mas compras</a>
                         <a href="{% url 'reportes' %}?type=reembolsos&period={{ selected_period }}{% if cliente_nombre %}&amp;cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}" class="report-button{% if selected_report_type == 'reembolsos' %} active{% endif %}">Reembolsos</a>
                     </div>
                     <div class="button-group">
@@ -76,11 +76,11 @@
             <div class="report-summary">
                 {% if selected_report_type == 'carrito' %}
                 <div class="report-card">
-                    <h3>Clientes con carrito pendiente</h3>
+                    <h3>Clientes con mas compras</h3>
                     <p>{{ total_clients }}</p>
                 </div>
                 <div class="report-card">
-                    <h3>Carritos pendientes</h3>
+                    <h3>Clientes con mas compras</h3>
                     <p>{{ total_carts }}</p>
                 </div>
                 <div class="report-card">
@@ -131,9 +131,9 @@
                     {% if selected_report_type == 'clientes' %}
                         <h2 class="mb-1">TOP 10 clientes con mayor descuento</h2>
                         <p class="text-muted mb-0">Visualiza los clientes que recibieron más descuentos.</p>
-                    {% elif selected_report_type == 'carrito' %}
+                        {% elif selected_report_type == 'carrito' %}
                         <h2 class="mb-1">TOP 10 clientes con mayor monto pendiente</h2>
-                        <p class="text-muted mb-0">Visualiza los clientes con mayor total en carritos pendientes.</p>
+                        <p class="text-muted mb-0">Visualiza los clientes con mayor total en compras.</p>
                     {% elif selected_report_type == 'reembolsos' %}
                         <h2 class="mb-1">TOP 10 notas rechazadas</h2>
                         <p class="text-muted mb-0">Visualiza las notas con mayor monto de reembolso.</p>
@@ -270,13 +270,13 @@
                     </div>
                 {% endif %}
             {% elif selected_report_type == 'carrito' %}
-                <h2 class="h4 mb-3">Carrito pendientes</h2>
+                <h2 class="h4 mb-3">Clientes con mas compras</h2>
                 {% if report_items %}
                     <table class="report-table">
                         <thead>
                             <tr>
                                 <th>Cliente</th>
-                                <th>Carritos pendientes</th>
+                                <th>Clientes con mas compras</th>
                                 <th>Monto total</th>
                                 <th>Última actividad</th>
                             </tr>
@@ -321,7 +321,7 @@
                     {% endif %}
                 {% else %}
                     <div class="report-empty">
-                        <p>No hay carritos pendientes para mostrar en este período.</p>
+                        <p>No hay clientes con mas compras para mostrar en este período.</p>
                     </div>
                 {% endif %}
             {% elif selected_report_type == 'reembolsos' %}
