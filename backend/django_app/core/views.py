@@ -3382,7 +3382,9 @@ def aprobar_pagos(request):
 
         salida.revisado_por = request.user
         salida.fecha_revision = timezone.now()
-        salida.save(update_fields=['estado_pago', 'motivo_rechazo', 'descuento_monto', 'descuento_motivo', 'total_bruto', 'total', 'revisado_por', 'fecha_revision'])
+        # Guardar todos los campos para asegurar que el comprobante de pago
+        # no se pierde al actualizar el estado de revisión.
+        salida.save()
         return redirect('aprobar_pagos')
 
     try:
