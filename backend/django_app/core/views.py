@@ -1422,7 +1422,7 @@ def descargar_reporte_cliente(request, cliente_id):
     notas_qs = (
         Nota_Entrega.objects
         .filter(fecha__date__gte=start_date, fecha__date__lte=today)
-        .filter(Q(cliente__pk=cliente_id) | Q(cliente__cedula=getattr(cliente, 'cedula', None)))
+        .filter(Q(cliente__pk=cliente.pk) | Q(cliente__cedula=getattr(cliente, 'cedula', None)))
     )
     if estado:
         notas_qs = notas_qs.filter(estado_pago__iexact=estado)
