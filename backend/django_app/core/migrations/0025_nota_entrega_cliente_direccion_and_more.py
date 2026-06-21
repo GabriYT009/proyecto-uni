@@ -13,11 +13,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='nota_entrega',
-            name='cliente_direccion',
-            field=models.CharField(blank=True, max_length=100, null=True),
-        ),
-        migrations.AddField(
-            model_name='nota_entrega',
             name='cliente_documento',
             field=models.CharField(blank=True, max_length=45, null=True),
         ),
@@ -26,9 +21,11 @@ class Migration(migrations.Migration):
             name='cliente_nombre',
             field=models.CharField(blank=True, max_length=90, null=True),
         ),
-        migrations.AlterField(
+        migrations.AddField(
             model_name='nota_entrega',
-            name='cliente',
-            field=models.ForeignKey(blank=True, db_column='cliente_cedula', null=True, on_delete=django.db.models.deletion.PROTECT, to='core.cliente'),
+            name='cliente_direccion',
+            field=models.CharField(blank=True, max_length=100, null=True),
         ),
+        
+       
     ]
