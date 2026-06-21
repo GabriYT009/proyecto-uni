@@ -83,11 +83,12 @@
 
     document.addEventListener('click', function (e) {
       if (isModifiedClick(e)) return;
+      skipBeforeUnload = false;
       var link = e.target && e.target.closest ? e.target.closest('a[href]') : null;
       if (link && isPdfLink(link)) {
         skipBeforeUnload = true;
-      } else {
-        skipBeforeUnload = false;
+        hideLoader();
+        return;
       }
       if (shouldSkipLink(link)) return;
       showLoader();

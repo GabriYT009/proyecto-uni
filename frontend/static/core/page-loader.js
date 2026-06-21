@@ -47,8 +47,8 @@
 
   function isPdfLink(link) {
     if (!link) return false;
-    var href = link.getAttribute('href') || '';
-    return href.indexOf('/pdf/') !== -1 || href.toLowerCase().endsWith('.pdf');
+    var href = (link.getAttribute('href') || '').split('?')[0].split('#')[0].trim().toLowerCase();
+    return href.indexOf('/pdf/') !== -1 || href.endsWith('.pdf');
   }
 
   function shouldSkipLink(link) {
@@ -57,8 +57,10 @@
     if (link.classList && (link.classList.contains('view') || link.classList.contains('add-cart'))) return true;
     if (link.closest && link.closest('.view, .add-cart')) return true;
     var href = link.getAttribute('href') || '';
-    if (!href || href === '#' || href.startsWith('javascript:')) return true;
+    if (!href || href === '#' || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('data:')) return true;
     if (href.indexOf('/add_to_cart/') !== -1) return true;
+    if (link.hasAttribute('download')) return true;
+    if (link.target && link.target.toLowerCase() !== '_self') return true;
     if (isPdfLink(link)) return true;
     return false;
   }
@@ -75,11 +77,12 @@
 
     document.addEventListener('click', function (e) {
       if (isModifiedClick(e)) return;
+      skipBeforeUnload = false;
       var link = e.target && e.target.closest ? e.target.closest('a[href]') : null;
       if (link && isPdfLink(link)) {
         skipBeforeUnload = true;
-      } else {
-        skipBeforeUnload = false;
+        hideLoader();
+        return;
       }
       if (shouldSkipLink(link)) return;
       showLoader();
