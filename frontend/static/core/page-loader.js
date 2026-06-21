@@ -29,6 +29,8 @@
   }
 
   var loaderEl;
+  var skipBeforeUnload = false;
+
   function showLoader() {
     loaderEl = loaderEl || ensureLoader();
     loaderEl.classList.add('is-visible');
@@ -43,6 +45,12 @@
     return e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0;
   }
 
+  function isPdfLink(link) {
+    if (!link) return false;
+    var href = link.getAttribute('href') || '';
+    return href.indexOf('/pdf/') !== -1 || href.toLowerCase().endsWith('.pdf');
+  }
+
   function shouldSkipLink(link) {
     if (!link) return true;
     // Omitir enlaces gestionados por JS (abrir modal / agregar al carrito por AJAX).
@@ -51,7 +59,7 @@
     var href = link.getAttribute('href') || '';
     if (!href || href === '#' || href.startsWith('javascript:')) return true;
     if (href.indexOf('/add_to_cart/') !== -1) return true;
-    if (href.indexOf('/pdf/') !== -1 || href.toLowerCase().endsWith('.pdf')) return true;
+    if (isPdfLink(link)) return true;
     return false;
   }
 
@@ -68,25 +76,34 @@
     document.addEventListener('click', function (e) {
       if (isModifiedClick(e)) return;
       var link = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+      if (link && isPdfLink(link)) {
+        skipBeforeUnload = true;
+      } else {
+        skipBeforeUnload = false;
+      }
       if (shouldSkipLink(link)) return;
       showLoader();
     }, true);
 
     document.addEventListener('submit', function (e) {
+      skipBeforeUnload = false;
       var form = e.target;
       if (shouldSkipForm(form)) return;
       showLoader();
     }, true);
 
     window.addEventListener('beforeunload', function () {
+      if (skipBeforeUnload) return;
       showLoader();
     });
 
     window.addEventListener('pageshow', function () {
+      skipBeforeUnload = false;
       hideLoader();
     });
 
     window.addEventListener('load', function () {
+      skipBeforeUnload = false;
       hideLoader();
     });
 
