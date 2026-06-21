@@ -3385,11 +3385,6 @@ def aprobar_pagos(request):
         salida.save(update_fields=['estado_pago', 'motivo_rechazo', 'descuento_monto', 'descuento_motivo', 'total_bruto', 'total', 'revisado_por', 'fecha_revision'])
         return redirect('aprobar_pagos')
 
-        salida.revisado_por = request.user
-        salida.fecha_revision = timezone.now()
-        salida.save(update_fields=['estado_pago', 'motivo_rechazo', 'descuento_monto', 'descuento_motivo', 'total_bruto', 'total', 'revisado_por', 'fecha_revision'])
-        return redirect('aprobar_pagos')
-
     try:
         status_filter = request.GET.get('status', '').strip()
         queryset = (
