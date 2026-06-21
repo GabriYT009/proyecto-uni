@@ -314,7 +314,7 @@ class Nota_Entrega(models.Model):
     bcv = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
     carrito_de_compras = models.ForeignKey(CarritoDeCompras, on_delete=models.SET_NULL, null=True, blank=True)
     
-    cliente = models.ForeignKey(Cliente, on_delete=models.PROTECT, null=True, blank=True)
+    cliente = models.ForeignKey(Cliente, on_delete=models.PROTECT, null=True, blank=True,db_column='cliente_cedula')
     # Snapshot de cliente para ventas en caja cuando no existe registro en Cliente.
     
     
