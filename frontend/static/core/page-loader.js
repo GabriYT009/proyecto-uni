@@ -51,14 +51,7 @@
     var href = link.getAttribute('href') || '';
     if (!href || href === '#' || href.startsWith('javascript:')) return true;
     if (href.indexOf('/add_to_cart/') !== -1) return true;
-    if (href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('data:')) return true;
-    if (link.hasAttribute('download')) return true;
-    if (link.target && link.target !== '_self') return true;
-
-    var url;
-    try { url = new URL(link.href, window.location.origin); } catch (_) { return true; }
-    if (url.origin !== window.location.origin) return true;
-    if (url.pathname === window.location.pathname && url.search === window.location.search && url.hash) return true;
+    if (href.indexOf('/pdf/') !== -1 || href.toLowerCase().endsWith('.pdf')) return true;
     return false;
   }
 
