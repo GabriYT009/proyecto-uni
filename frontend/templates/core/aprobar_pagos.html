@@ -1,4 +1,5 @@
 ﻿{% load static %}
+{% load currency_filters %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -535,7 +536,7 @@
     <dd>{{ salida.fecha|default:salida.fecha_revision }}</dd>
 
     <dt class="total-label">Monto Total</dt>
-    <dd class="total-amount">$ {{ salida.total|floatformat:2|replace:'.',',' }}</dd>
+    <dd class="total-amount">$ {{ salida.total|floatformat:2|comma_decimal }}</dd>
     <dt>Número de referencia</dt>
     {% if salida.referencia_pago %}
 

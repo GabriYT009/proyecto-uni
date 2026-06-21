@@ -1,4 +1,5 @@
 ﻿{% load static %}
+{% load currency_filters %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -275,7 +276,7 @@
 
                                 {% endif %}
                             </div>
-                            <div class="order-total">$ {{ s.total|floatformat:2|replace:'.',',' }}</div>
+                            <div class="order-total">$ {{ s.total|floatformat:2|comma_decimal }}</div>
                             <!-- <div class="order-total">$ {{ s.total_bs }}</div> -->
                         </div>
 
