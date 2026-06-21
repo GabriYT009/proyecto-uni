@@ -101,13 +101,9 @@ class Servicio(models.Model):
 class Cliente(models.Model):
     # En el SQL, 'tipo_cliente' es una FK, no un Choice estático
     cedula = models.CharField(max_length=45, primary_key=True)
-    # Campos para registrar clientes ocasionales (sin registro formal)
-    cliente_documento = models.CharField(max_length=45, blank=True, null=True)
-    cliente_nombre = models.CharField(max_length=90, blank=True, null=True)
-    cliente_direccion = models.CharField(max_length=100, blank=True, null=True)
-
+    
     # documento = models.CharField(max_length=45, blank=True, null=True)
-    # rif_empresarial = models.CharField(max_length=45, blank=True, null=True ) 
+    # rif_empresarial = models.CharField(max_length=45, blank=True, null=True)
     nombre_cliente = models.CharField(max_length=45, blank=True, null=True)
     apellido_cliente = models.CharField(max_length=45, blank=True, null=True)
     direccion = models.CharField(max_length=100, blank=True, null=True)
