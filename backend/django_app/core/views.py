@@ -933,7 +933,7 @@ def reportes(request):
 
             clientes_qs = (
                 clientes_qs
-                .values('cedula', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
+                .values('cliente__cedula', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
                 .annotate(
                     total_descuento=Sum('descuento_monto'),
                     total_reembolsos=Sum(
@@ -1005,7 +1005,7 @@ def reportes(request):
 
             carrito_qs = (
                 carrito_qs
-                .values('cedula', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
+                .values('cliente__cedula', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
                 .annotate(
                     pending_carts=Count('id'),
                     total_monto=Sum('total'),
@@ -1295,7 +1295,7 @@ def descargar_reporte_clientes(request):
 
     clientes_qs = (
         clientes_qs
-        .values('cedula', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
+        .values('cliente__cedula', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
         .annotate(
             total_descuento=Sum('descuento_monto'),
             total_reembolsos=Sum(
@@ -1454,7 +1454,7 @@ def descargar_reporte_carrito(request):
 
     carrito_qs = (
         carrito_qs
-        .values('cedula', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
+        .values('cliente__cedula', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
         .annotate(
             pending_carts=Count('id'),
             total_monto=Sum('total'),
