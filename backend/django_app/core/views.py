@@ -2583,7 +2583,7 @@ def caja(request):
         Cliente.objects
         .exclude(id__isnull=True)
         .exclude(id__exact='')
-        .values('id', 'nombre_cliente', 'apellido_cliente', 'direccion', 'telefono_cliente')
+        .values('cedula', 'nombre_cliente', 'apellido_cliente', 'direccion', 'telefono_cliente')
     )
 
 
