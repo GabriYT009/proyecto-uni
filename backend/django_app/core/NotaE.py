@@ -55,7 +55,7 @@ class Generar_NE(FPDF):
             # Tomamos los datos 
             nombre = cliente.nombre_cliente 
             apellido = cliente.apellido_cliente
-            documento = cliente.id
+            documento = cliente.cedula
             telefono = (cliente.telefono_cliente or '').strip()
             
             self.cell(0, 8, f'Cliente: {nombre} {apellido}'.strip(), 0, 1, 'L')

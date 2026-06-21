@@ -100,8 +100,7 @@ class Servicio(models.Model):
 
 class Cliente(models.Model):
     # En el SQL, 'tipo_cliente' es una FK, no un Choice estático
-    id = models.CharField(max_length=45, primary_key=True)
-    tipo_cliente = models.ForeignKey(TipoCliente, on_delete=models.SET_NULL, null=True, blank=True)
+    cedula = models.CharField(max_length=45, primary_key=True)
     
     # documento = models.CharField(max_length=45, blank=True, null=True)
     # rif_empresarial = models.CharField(max_length=45, blank=True, null=True)
@@ -314,12 +313,12 @@ class Nota_Entrega(models.Model):
     
     bcv = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
     carrito_de_compras = models.ForeignKey(CarritoDeCompras, on_delete=models.SET_NULL, null=True, blank=True)
-    metodo_pago = models.ForeignKey(MetodoPago, on_delete=models.SET_NULL, null=True, blank=True)
+    
     cliente = models.ForeignKey(Cliente, on_delete=models.PROTECT, null=True, blank=True)
     # Snapshot de cliente para ventas en caja cuando no existe registro en Cliente.
-    cliente_documento = models.CharField(max_length=45, blank=True, null=True)
-    cliente_nombre = models.CharField(max_length=90, blank=True, null=True)
-    cliente_direccion = models.CharField(max_length=100, blank=True, null=True)
+    
+    
+    
     cliente_telefono = models.CharField(max_length=15, blank=True, null=True)
     comprobante_pago = models.ImageField(upload_to='payment_proofs/', blank=True, null=True)
 

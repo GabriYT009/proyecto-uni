@@ -933,7 +933,7 @@ def reportes(request):
 
             clientes_qs = (
                 clientes_qs
-                .values('cliente_id', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
+                .values('cliente__cedula', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
                 .annotate(
                     total_descuento=Sum('descuento_monto'),
                     total_reembolsos=Sum(
@@ -1005,7 +1005,7 @@ def reportes(request):
 
             carrito_qs = (
                 carrito_qs
-                .values('cliente_id', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
+                .values('cliente__cedula', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
                 .annotate(
                     pending_carts=Count('id'),
                     total_monto=Sum('total'),
@@ -1295,7 +1295,7 @@ def descargar_reporte_clientes(request):
 
     clientes_qs = (
         clientes_qs
-        .values('cliente_id', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
+        .values('cliente__cedula', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
         .annotate(
             total_descuento=Sum('descuento_monto'),
             total_reembolsos=Sum(
@@ -1454,7 +1454,7 @@ def descargar_reporte_carrito(request):
 
     carrito_qs = (
         carrito_qs
-        .values('cliente_id', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
+        .values('cliente__cedula', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
         .annotate(
             pending_carts=Count('id'),
             total_monto=Sum('total'),
@@ -2581,9 +2581,9 @@ def caja(request):
     from .models import Cliente
     clientes = list(
         Cliente.objects
-        .exclude(id__isnull=True)
-        .exclude(id__exact='')
-        .values('id', 'nombre_cliente', 'apellido_cliente', 'direccion', 'telefono_cliente')
+        .exclude(cedula__isnull=True)
+        .exclude(cedula__exact='')
+        .values('cedula', 'nombre_cliente', 'apellido_cliente', 'direccion', 'telefono_cliente')
     )
 
 
@@ -2656,7 +2656,7 @@ def cobrar_caja(request):
             cliente_datos = None
             if cliente_doc:
                 # Usamos documento=cliente_doc para buscar coincidencia exacta
-                cliente_datos = Cliente.objects.filter(id=cliente_doc).first() 
+                cliente_datos = Cliente.objects.filter(cedula=cliente_doc).first() 
 
             # Crear la Nota de Entrega
             nota_kwargs = {
@@ -3540,7 +3540,7 @@ def comprar_carrito(request):
                 bcv=valor_bcv,
                 tipo_pago='PAGO MOVIL',
                 metodo_pago=metodo_pago,
-                #cliente_id=documento[:45],
+                #cedula=documento[:45],
                 cliente_telefono=mobile_phone[:15],
                 referencia_pago=referencia,
             )
@@ -4130,7 +4130,7 @@ def todos_clientes(request):
     email = request.GET.get('email', '').strip()
 
     clientes_qs = Cliente.objects.only(
-        'id', 'nombre_cliente', 'apellido_cliente', 'telefono_cliente', 'email'
+        'cedula', 'nombre_cliente', 'apellido_cliente', 'telefono_cliente', 'email'
     )
 
     # Aplicar filtros
@@ -4139,7 +4139,7 @@ def todos_clientes(request):
     if apellido:
         clientes_qs = clientes_qs.filter(apellido_cliente__icontains=apellido)
     if documento:
-        clientes_qs = clientes_qs.filter(id__icontains=documento)
+        clientes_qs = clientes_qs.filter(cedula__icontains=documento)
     if telefono:
         clientes_qs = clientes_qs.filter(telefono_cliente__icontains=telefono)
     if email:
@@ -4177,8 +4177,8 @@ def todos_clientes(request):
 @login_required
 @admin_only
 @require_POST
-def eliminar_cliente(request, cliente_id):
-    cliente = get_object_or_404(Cliente, pk=cliente_id)
+def eliminar_cliente(request, cedula):
+    cliente = get_object_or_404(Cliente, pk=cedula)
     nombre_cliente = str(cliente)
     cliente.delete()
     messages.success(request, f'Cliente "{nombre_cliente}" eliminado correctamente.')
