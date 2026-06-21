@@ -49,7 +49,7 @@
                 <div class="order-meta small-label">
                     <div>Orden ID: <strong>#{{ salida.pk }}</strong></div>
                     <div>
-                        Documento: {% if salida.cliente %}{{ salida.cliente.id|default:'-' }}{% else %}{{ salida.cliente_documento|default:'-' }}{% endif %}
+                        Documento: {% if salida.cliente %}{{ salida.cliente.cedula|default:'-' }}{% else %}{{ salida.cliente_documento|default:'-' }}{% endif %}
                         | Tel: {% if salida.cliente %}{{ salida.cliente.telefono_cliente|default:salida.cliente_telefono|default:'-' }}{% else %}{{ salida.cliente_telefono|default:'-' }}{% endif %}
                     </div>
                 </div>
@@ -79,7 +79,7 @@
                 <dt>Documento / RIF</dt>
                 <dd>
                     {% if salida.cliente %}
-                        {{ salida.cliente.id|default:'No disponible' }}
+                        {{ salida.cliente.cedula|default:'No disponible' }}
                     {% else %}
                         {{ salida.cliente_documento|default:'No disponible' }}
                     {% endif %}
