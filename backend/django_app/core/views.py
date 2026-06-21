@@ -3333,10 +3333,6 @@ def aprobar_pagos(request):
         nuevo_estado = (request.POST.get('estado') or '').strip().upper()
         salida = get_object_or_404(Nota_Entrega, pk=salida_id, comprobante_pago__isnull=False)
 
-        if salida.estado_pago in ['APROBADO', 'RECHAZADO']:
-            messages.warning(request, f'El pago #{salida.pk} ya fue revisado y no puede modificarse.')
-            return redirect('aprobar_pagos')
-
         total_base = float(salida.total_bruto if salida.total_bruto is not None else salida.total or 0)
 
         if nuevo_estado not in ['APROBADO', 'RECHAZADO']:
