@@ -1258,7 +1258,7 @@ def descargar_reporte_producto(request, producto_id):
 @login_required
 @admin_only
 def descargar_reporte_productos(request):
-    """Exportar CSV con resumen de productos vendidos (agregado por producto)."""
+    """Exportar PDF con resumen de productos vendidos (agregado por producto)."""
     period = (request.GET.get('period') or 'dia').strip().lower()
     today = timezone.localtime(timezone.now()).date()
     if period == 'semana':
@@ -1308,25 +1308,39 @@ def descargar_reporte_productos(request):
             .order_by('-total_quantity')
         )
     except Exception:
-        logging.exception('Error construyendo consulta para CSV de productos')
+        logging.exception('Error construyendo consulta para el reporte de productos')
         ventas_qs = []
 
-    response = HttpResponse(content_type='text/csv; charset=utf-8')
-    response['Content-Disposition'] = 'attachment; filename="productos_vendidos.csv"'
-    response.write('\ufeff')
-
-    writer = csv.writer(response)
-    writer.writerow(['producto_id', 'producto', 'cantidad_vendida', 'ventas', 'ultima_venta'])
-
+    report_items = []
+    total_products = 0
+    total_sales = 0.0
     for item in ventas_qs:
-        producto_id = item.get('Producto_id')
-        producto = item.get('Producto__nombre_producto') or 'Producto desconocido'
         cantidad = item.get('total_quantity') or 0
         ventas = item.get('total_sales') or 0.0
-        ultima = item.get('last_sold')
-        ventas_str = f"{ventas:.2f}".replace('.', ',')
-        writer.writerow([producto_id, producto, cantidad, ventas_str, ultima])
+        report_items.append({
+            'producto': item.get('Producto__nombre_producto') or 'Producto desconocido',
+            'cantidad': cantidad,
+            'ventas': ventas,
+            'ultima_venta': item.get('last_sold'),
+        })
+        total_products += cantidad
+        total_sales += ventas
 
+    period_label = 'Hoy'
+    if period == 'semana':
+        period_label = 'Última semana'
+    elif period == 'mes':
+        period_label = 'Último mes'
+
+    from .NotaE import Generar_ReporteProductos
+    pdf = Generar_ReporteProductos(
+        report_items=report_items,
+        period_label=period_label,
+        total_products=total_products,
+        total_sales=total_sales,
+    )
+    response = pdf.generate_pdf()
+    response['Content-Disposition'] = 'attachment; filename="Descarga_General.pdf"'
     return response
 
 
