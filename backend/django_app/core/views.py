@@ -2581,8 +2581,8 @@ def caja(request):
     from .models import Cliente
     clientes = list(
         Cliente.objects
-        .exclude(id__isnull=True)
-        .exclude(id__exact='')
+        .exclude(cedula__isnull=True)
+        .exclude(cedula__exact='')
         .values('cedula', 'nombre_cliente', 'apellido_cliente', 'direccion', 'telefono_cliente')
     )
 
