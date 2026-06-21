@@ -988,6 +988,7 @@ def reportes(request):
             carrito_qs = (
                 Nota_Entrega.objects
                 .filter(detalles__status_carrito=True)
+                .filter(fecha__date__gte=start_date, fecha__date__lte=today)
                 .distinct()
             )
             if cliente_nombre:
@@ -1526,6 +1527,7 @@ def descargar_reporte_carrito(request):
     carrito_qs = (
         Nota_Entrega.objects
         .filter(detalles__status_carrito=True)
+        .filter(fecha__date__gte=start_date, fecha__date__lte=today)
         .distinct()
     )
     if cliente_nombre:
