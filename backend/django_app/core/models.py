@@ -107,7 +107,7 @@ class Cliente(models.Model):
     cliente_direccion = models.CharField(max_length=100, blank=True, null=True)
 
     # documento = models.CharField(max_length=45, blank=True, null=True)
-    # rif_empresarial = models.CharField(max_length=45, blank=True, null=True)
+    # rif_empresarial = models.CharField(max_length=45, blank=True, null=True ) 
     nombre_cliente = models.CharField(max_length=45, blank=True, null=True)
     apellido_cliente = models.CharField(max_length=45, blank=True, null=True)
     direccion = models.CharField(max_length=100, blank=True, null=True)
