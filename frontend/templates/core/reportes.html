@@ -15,7 +15,11 @@
         body { padding-top: 80px; background: #fff !important; font-family: 'Poppins', sans-serif; }
         .report-header { margin: 20px auto 0; max-width: 1180px; padding: 24px; background: #fff; border-radius: 18px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
         .report-header-top { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 16px; }
+        .report-header-top.center-actions { align-items: center; }
         .report-actions { display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
+        /* Cuando se active la vista 'Clientes con mas compras' centramos los botones/controles */
+        .report-header-top.center-actions .report-actions { align-items: center; justify-content: center; }
+        .report-header-top.center-actions .button-group { justify-content: center; }
         .button-group { display: flex; flex-wrap: wrap; gap: 10px; }
         .report-button,
         .period-button { border-radius: 999px; padding: 9px 16px; font-size: 13px; font-weight: 700; transition: all 0.18s ease; border: 1px solid #7b5cff; color: #5b33b5; background: rgba(123, 92, 255, 0.08); text-decoration: none; }
@@ -54,7 +58,7 @@
     {% include 'core/_topbar.html' %}
     <main class="container-fluid">
         <section class="report-header">
-            <div class="report-header-top">
+            <div class="report-header-top {% if selected_report_type == 'carrito' %}center-actions{% endif %}">
                 <div>
                     <h1 class="mb-1">Reportes de {% if selected_report_type == 'clientes' %}clientes{% elif selected_report_type == 'carrito' %}clientes con mas compras{% elif selected_report_type == 'reembolsos' %}reembolsos{% else %}productos{% endif %}</h1>
                     <p class="text-muted mb-0">Período seleccionado: <strong>{{ selected_period_label }}</strong></p>
@@ -135,8 +139,8 @@
                         <h2 class="mb-1">TOP 10 clientes con mayor monto pendiente</h2>
                         <p class="text-muted mb-0">Visualiza los clientes con mayor total en compras.</p>
                     {% elif selected_report_type == 'reembolsos' %}
-                        <h2 class="mb-1">TOP 10 notas rechazadas</h2>
-                        <p class="text-muted mb-0">Visualiza las notas con mayor monto de reembolso.</p>
+                        <h2 class="mb-1">TOP 10 reembolsos</h2>
+                        <p class="text-muted mb-0">Visualiza los reembolsos con mayor monto.</p>
                     {% else %}
                         <h2 class="mb-1">TOP 10 más vendidos</h2>
                         <p class="text-muted mb-0">Visualiza los productos con mayor cantidad de unidades vendidas.</p>
