@@ -3628,7 +3628,7 @@ def comprar_carrito(request):
                 total_bruto=0.0,
                 bcv=valor_bcv,
                 tipo_pago='PAGO MOVIL',
-                metodo_pago=metodo_pago,
+                #metodo_pago=metodo_pago,
                 #cedula=documento[:45],
                 cliente_telefono=mobile_phone[:15],
                 referencia_pago=referencia,
