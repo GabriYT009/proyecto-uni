@@ -2121,7 +2121,7 @@ def crear_usuario(request):
                     'email': email,
                 })
 
-            if cedula and Cliente.objects.filter(id=cedula).exists():
+            if cedula and Cliente.objects.filter(cedula=cedula).exists():
                 return render(request, 'core/crear_usuario.html', {
                     'error': 'La cédula ya está registrada.',
                     'security_questions': security_questions,
