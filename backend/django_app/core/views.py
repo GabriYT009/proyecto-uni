@@ -1319,27 +1319,141 @@ def descargar_reporte_clientes(request):
             clientes_qs = clientes_qs.filter(fecha__date=fecha_date)
         except (ValueError, TypeError):
             pass
+    if cliente_nombre:
+        clientes_qs = clientes_qs.filter(
+            Q(cliente__nombre_cliente__icontains=cliente_nombre)
+            | Q(cliente__apellido_cliente__icontains=cliente_nombre)
+            | Q(cliente_nombre__icontains=cliente_nombre)
+        )
+    if estado:
+        clientes_qs = clientes_qs.filter(estado_pago__iexact=estado)
+    if fecha:
+        try:
+            fecha_date = datetime.datetime.strptime(fecha, '%Y-%m-%d').date()
+            clientes_qs = clientes_qs.filter(fecha__date=fecha_date)
+        except (ValueError, TypeError):
+            pass
 
     clientes_qs = (
         clientes_qs
         .values('cliente__cedula', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
         .annotate(
             total_descuento=Sum('descuento_monto'),
-            total_reembolsos=Sum(
-                Case(
-                    When(estado_pago='RECHAZADO', then=F('total')),
-                    default=0.0,
-                    output_field=FloatField(),
-                )
-            ),
+            # Reembolsos ahora se consideran descuentos aplicados
+            total_reembolsos=Sum('descuento_monto'),
             total_ventas=Sum('total'),
             ultima_venta=Max('fecha'),
         )
         .order_by('-total_descuento')
     )
 
-    # Function removed: report for 'clientes' is no longer supported.
-    return HttpResponse(status=404)
+    # Construir lista para el generador de PDF
+    report_items = []
+    total_descuentos = 0.0
+    total_reembolsos = 0.0
+    total_ventas = 0.0
+    for item in clientes_qs:
+        nombre = (item.get('cliente__nombre_cliente') or '').strip()
+        apellido = (item.get('cliente__apellido_cliente') or '').strip()
+        cliente_label = ' '.join(filter(None, [nombre, apellido])).strip() or (item.get('cliente_nombre') or 'Cliente desconocido')
+        descuento = float(item.get('total_descuento') or 0.0)
+        reemb = float(item.get('total_reembolsos') or 0.0)
+        ventas = float(item.get('total_ventas') or 0.0)
+        ultima = item.get('ultima_venta')
+        report_items.append({
+            'cliente': cliente_label,
+            'descuento': descuento,
+            'reembolsos': reemb,
+            'ventas': ventas,
+            'ultima_venta': ultima,
+        })
+        total_descuentos += descuento
+        total_reembolsos += reemb
+        total_ventas += ventas
+
+    period_label = 'Hoy'
+    if period == 'semana':
+        period_label = 'Última semana'
+    elif period == 'mes':
+        period_label = 'Último mes'
+
+    from .NotaE import Generar_ReporteCliente
+    pdf = Generar_ReporteCliente(
+        report_items=report_items,
+        period_label=period_label,
+        total_descuentos=total_descuentos,
+        total_reembolsos=total_reembolsos,
+        total_ventas=total_ventas,
+    )
+    return pdf.generate_pdf()
+
+
+@login_required
+@admin_only
+def descargar_reporte_cliente(request, cliente_id):
+    """Genera un PDF de resumen para un cliente específico según filtros/periodo."""
+    period = (request.GET.get('period') or 'dia').strip().lower()
+    today = timezone.localtime(timezone.now()).date()
+    if period == 'semana':
+        start_date = today - datetime.timedelta(days=6)
+        period_label = 'Última semana'
+    elif period == 'mes':
+        start_date = today - datetime.timedelta(days=29)
+        period_label = 'Último mes'
+    else:
+        period = 'dia'
+        start_date = today
+        period_label = 'Hoy'
+
+    fecha = (request.GET.get('fecha') or '').strip()
+    estado = (request.GET.get('estado') or '').strip()
+
+    cliente = get_object_or_404(Cliente, pk=cliente_id)
+
+    notas_qs = (
+        Nota_Entrega.objects
+        .filter(fecha__date__gte=start_date, fecha__date__lte=today)
+        .filter(Q(cliente__pk=cliente_id) | Q(cliente__cedula=getattr(cliente, 'cedula', None)))
+    )
+    if estado:
+        notas_qs = notas_qs.filter(estado_pago__iexact=estado)
+    if fecha:
+        try:
+            fecha_date = datetime.datetime.strptime(fecha, '%Y-%m-%d').date()
+            notas_qs = notas_qs.filter(fecha__date=fecha_date)
+        except (ValueError, TypeError):
+            pass
+
+    totals = notas_qs.aggregate(
+        total_descuento=Sum('descuento_monto'),
+        total_reembolsos=Sum('descuento_monto'),
+        total_ventas=Sum('total'),
+    )
+
+    total_descuentos = float(totals.get('total_descuento') or 0.0)
+    total_reembolsos = float(totals.get('total_reembolsos') or 0.0)
+    total_ventas = float(totals.get('total_ventas') or 0.0)
+
+    cliente_label = f"{cliente.nombre_cliente or ''} {cliente.apellido_cliente or ''}".strip() or cliente.cedula or 'Cliente'
+    report_items = [{
+        'cliente': cliente_label,
+        'descuento': total_descuentos,
+        'reembolsos': total_reembolsos,
+        'ventas': total_ventas,
+        'ultima_venta': None,
+    }]
+
+    from .NotaE import Generar_ReporteCliente
+    pdf = Generar_ReporteCliente(
+        report_items=report_items,
+        period_label=period_label,
+        total_descuentos=total_descuentos,
+        total_reembolsos=total_reembolsos,
+        total_ventas=total_ventas,
+    )
+    response = pdf.generate_pdf()
+    response['Content-Disposition'] = f'attachment; filename="Reporte_Cliente_{cliente.pk}.pdf"'
+    return response
 
 
 @login_required
@@ -1362,9 +1476,10 @@ def descargar_reporte_reembolsos(request):
     fecha = (request.GET.get('fecha') or '').strip()
     nota_numero = (request.GET.get('nota') or '').strip()
 
+    # Reembolsos ahora se consideran descuentos aplicados a ventas.
     reembolsos_qs = (
         Nota_Entrega.objects
-        .filter(estado_pago='RECHAZADO')
+        .filter(descuento_monto__gt=0)
         .filter(fecha__date__gte=start_date)
         .filter(fecha__date__lte=today)
     )
@@ -1392,8 +1507,8 @@ def descargar_reporte_reembolsos(request):
         nombre = (getattr(nota.cliente, 'nombre_cliente', '') or '').strip() if nota.cliente else (nota.cliente_nombre or '')
         apellido = (getattr(nota.cliente, 'apellido_cliente', '') or '').strip() if nota.cliente else ''
         cliente_label = ' '.join(filter(None, [nombre, apellido])).strip() or (nota.cliente_nombre or 'Cliente ocasional')
-        monto = float(nota.total or 0.0)
-        motivo = (nota.motivo_rechazo or '')
+        monto = float(nota.descuento_monto or 0.0)
+        motivo = (nota.descuento_motivo or '')
         report_items.append({
             'nota': nota.pk,
             'fecha': nota.fecha,

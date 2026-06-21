@@ -166,14 +166,15 @@
                     </thead>
                     <tbody>
                         {% for cliente in clientes %}
-                        <tr> <td>{{ forloop.counter }}</td>
-                            
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
                             <td>{{ cliente.nombre_cliente }}</td>
                             <td>{{ cliente.apellido_cliente }}</td>
                             <td>{{ cliente.cedula}}</td>
                             <td>{{ cliente.telefono_cliente }}</td>
                             <td>{{ cliente.email }}</td>
-                            
+                            <td>
+                                <a class="btn" href="{% url 'descargar_reporte_cliente' cliente.pk %}?period=dia" style="background:#5b2b80;">Descargar PDF</a>
                             </td>
                         </tr>
                         {% empty %}
