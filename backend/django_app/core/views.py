@@ -2815,12 +2815,7 @@ def cobrar_caja(request):
             # PASO D: Actualizar el total final de la nota
             nota.total_bruto = total_acumulado
             nota.total = total_acumulado
-            nota = Nota_Entrega.objects.create(**nota_kwargs)
-
-            # Forzar guardado si el campo está vacío
-            if not nota.cliente_documento and cliente_doc:
-                nota.cliente_documento = cliente_doc
-                nota.save(update_fields=['cliente_documento'])            
+    
             nota.save()
 
         messages.success(request, 'Venta en caja procesada exitosamente.')
