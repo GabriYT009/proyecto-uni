@@ -4139,7 +4139,7 @@ def todos_clientes(request):
     if apellido:
         clientes_qs = clientes_qs.filter(apellido_cliente__icontains=apellido)
     if documento:
-        clientes_qs = clientes_qs.filter(id__icontains=documento)
+        clientes_qs = clientes_qs.filter(cedula__icontains=documento)
     if telefono:
         clientes_qs = clientes_qs.filter(telefono_cliente__icontains=telefono)
     if email:
