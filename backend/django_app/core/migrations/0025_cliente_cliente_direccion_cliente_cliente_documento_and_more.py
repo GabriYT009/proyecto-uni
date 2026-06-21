@@ -13,11 +13,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='cliente',
-            name='cliente_direccion',
-            field=models.CharField(blank=True, max_length=100, null=True),
-        ),
-        migrations.AddField(
-            model_name='cliente',
             name='cliente_documento',
             field=models.CharField(blank=True, max_length=45, null=True),
         ),
