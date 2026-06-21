@@ -174,7 +174,7 @@
                             <td>{{ cliente.telefono_cliente }}</td>
                             <td>{{ cliente.email }}</td>
                             <td>
-                                <a class="btn" href="{% url 'descargar_reporte_cliente' cliente.cedula %}?period=dia" style="background:#5b2b80;">Descargar PDF</a>
+                                <a class="btn" data-skip-page-loader="true" href="{% url 'descargar_reporte_cliente' cliente.cedula %}?period=dia" style="background:#5b2b80;">Descargar PDF</a>
                             </td>
                         </tr>
                         {% empty %}

@@ -45,6 +45,10 @@
     return e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0;
   }
 
+  function shouldSkipPageLoaderAttribute(link) {
+    return !!(link && link.dataset && (link.dataset.skipPageLoader === 'true' || link.dataset.skipPageLoader === '1'));
+  }
+
   function isPdfLink(link) {
     if (!link) return false;
     var href = (link.getAttribute('href') || '').split('?')[0].split('#')[0].trim().toLowerCase();
@@ -53,6 +57,7 @@
 
   function shouldSkipLink(link) {
     if (!link) return true;
+    if (shouldSkipPageLoaderAttribute(link)) return true;
     // Omitir enlaces gestionados por JS (abrir modal / agregar al carrito por AJAX).
     if (link.classList && (link.classList.contains('view') || link.classList.contains('add-cart'))) return true;
     if (link.closest && link.closest('.view, .add-cart')) return true;
@@ -78,8 +83,10 @@
     document.addEventListener('click', function (e) {
       if (isModifiedClick(e)) return;
       skipBeforeUnload = false;
-      var link = e.target && e.target.closest ? e.target.closest('a[href]') : null;
-      if (link && isPdfLink(link)) {
+      var target = e.target;
+      if (target && target.nodeType !== 1) target = target.parentElement;
+      var link = target && target.closest ? target.closest('a[href]') : null;
+      if (link && (isPdfLink(link) || shouldSkipPageLoaderAttribute(link))) {
         skipBeforeUnload = true;
         hideLoader();
         return;
