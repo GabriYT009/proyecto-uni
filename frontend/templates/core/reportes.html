@@ -70,7 +70,6 @@
                 <div class="report-actions">
                     <div class="button-group">
                         <a href="{% url 'reportes' %}?type=productos&period={{ selected_period }}{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if cliente_nombre %}&amp;cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}" class="report-button{% if selected_report_type == 'productos' %} active{% endif %}">Productos</a>
-                        <a href="{% url 'reportes' %}?type=clientes&period={{ selected_period }}{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if cliente_nombre %}&amp;cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}" class="report-button{% if selected_report_type == 'clientes' %} active{% endif %}">Clientes</a>
                         <a href="{% url 'reportes' %}?type=carrito&period={{ selected_period }}{% if producto_nombre %}&amp;producto={{ producto_nombre|urlencode }}{% endif %}{% if cliente_nombre %}&amp;cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&amp;estado={{ estado|urlencode }}{% endif %}" class="report-button{% if selected_report_type == 'carrito' %} active{% endif %}">Clientes con mas compras</a>
                         <a href="{% url 'reportes' %}?type=reembolsos&period={{ selected_period }}{% if cliente_nombre %}&amp;cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&amp;fecha={{ fecha|urlencode }}{% endif %}" class="report-button{% if selected_report_type == 'reembolsos' %} active{% endif %}">Reembolsos</a>
                     </div>
@@ -95,23 +94,7 @@
                     <h3>Monto total</h3>
                     <p>${{ total_monto|floatformat:2 }}</p>
                 </div>
-                {% elif selected_report_type == 'clientes' %}
-                <div class="report-card">
-                    <h3>Clientes con datos</h3>
-                    <p>{{ total_products }}</p>
-                </div>
-                <div class="report-card">
-                    <h3>Total ventas</h3>
-                    <p>${{ total_sales|floatformat:2 }}</p>
-                </div>
-                <div class="report-card">
-                    <h3>Total descuentos</h3>
-                    <p>${{ total_descuentos|floatformat:2 }}</p>
-                </div>
-                <div class="report-card">
-                    <h3>Total reembolsos</h3>
-                    <p>${{ total_reembolsos|floatformat:2 }}</p>
-                </div>
+                <!-- 'clientes' report removed; no summary cards for that type -->
                 {% elif selected_report_type == 'reembolsos' %}
                 <div class="report-card">
                     <h3>Total notas rechazadas</h3>
@@ -136,10 +119,7 @@
         <section class="report-chart">
             <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3">
                 <div>
-                    {% if selected_report_type == 'clientes' %}
-                        <h2 class="mb-1">TOP 10 clientes con mayor descuento</h2>
-                        <p class="text-muted mb-0">Visualiza los clientes que recibieron más descuentos.</p>
-                        {% elif selected_report_type == 'carrito' %}
+                    {% if selected_report_type == 'carrito' %}
                         <h2 class="mb-1">TOP 10 clientes con mayor monto total</h2>
                         <p class="text-muted mb-0">Visualiza los clientes con mayor total en compras.</p>
                     {% elif selected_report_type == 'reembolsos' %}
@@ -155,10 +135,10 @@
                 {% for item in top_products %}
                 <div class="chart-row">
                     <div>
-                        <div class="chart-label">{{ forloop.counter }}. {% if selected_report_type == 'clientes' or selected_report_type == 'carrito' %}{{ item.cliente }}{% elif selected_report_type == 'reembolsos' %}Nota {{ item.nota }} - {{ item.cliente }}{% else %}{{ item.producto }}{% endif %}</div>
+                        <div class="chart-label">{{ forloop.counter }}. {% if selected_report_type == 'carrito' %}{{ item.cliente }}{% elif selected_report_type == 'reembolsos' %}Nota {{ item.nota }} - {{ item.cliente }}{% else %}{{ item.producto }}{% endif %}</div>
                         <div class="chart-track"><div class="chart-bar" style="width: {{ item.bar_width }}%;"></div></div>
                     </div>
-                    <div class="chart-value">{% if selected_report_type == 'clientes' %}${{ item.descuento|floatformat:2 }}{% elif selected_report_type == 'carrito' or selected_report_type == 'reembolsos' %}${{ item.monto|floatformat:2 }}{% else %}{{ item.cantidad }}{% endif %}</div>
+                    <div class="chart-value">{% if selected_report_type == 'carrito' or selected_report_type == 'reembolsos' %}${{ item.monto|floatformat:2 }}{% else %}{{ item.cantidad }}{% endif %}</div>
                 </div>
                 {% endfor %}
             {% else %}
@@ -207,9 +187,7 @@
                     <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-start;">
                         <button type="submit" class="report-button" style="margin-top: 26px;">Filtrar</button>
                         <a href="{% url 'reportes' %}?type={{ selected_report_type }}&period={{ selected_period }}" class="report-button" style="margin-top: 26px; background:#f3eef9; color:#5b2b80; border-color:#d3c2f8;">Limpiar</a>
-                        {% if selected_report_type == 'clientes' %}
-                        <a href="{% url 'descargar_reporte_clientes' %}?period={{ selected_period }}{% if cliente_nombre %}&cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&estado={{ estado|urlencode }}{% endif %}" class="report-button" style="margin-top: 26px; background:#5b2b80; color:#fff;">Descargar PDF</a>
-                        {% elif selected_report_type == 'carrito' %}
+                        {% if selected_report_type == 'carrito' %}
                         <a href="{% url 'descargar_reporte_carrito' %}?period={{ selected_period }}{% if cliente_nombre %}&cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&estado={{ estado|urlencode }}{% endif %}" class="report-button" style="margin-top: 26px; background:#5b2b80; color:#fff;">Descargar PDF</a>
                         {% elif selected_report_type == 'reembolsos' %}
                         <a href="{% url 'descargar_reporte_reembolsos' %}?period={{ selected_period }}{% if cliente_nombre %}&cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&fecha={{ fecha|urlencode }}{% endif %}" class="report-button" style="margin-top: 26px; background:#5b2b80; color:#fff;">Descargar PDF</a>

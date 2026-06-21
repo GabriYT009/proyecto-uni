@@ -880,7 +880,8 @@ def home(request):
 def reportes(request):
     period = (request.GET.get('period') or 'dia').strip().lower()
     report_type = (request.GET.get('type') or 'productos').strip().lower()
-    if report_type not in ('clientes', 'productos', 'carrito', 'reembolsos'):
+    # 'clientes' report removed; supported types: productos, carrito, reembolsos
+    if report_type not in ('productos', 'carrito', 'reembolsos'):
         report_type = 'productos'
 
     today = timezone.localtime(timezone.now()).date()
@@ -911,79 +912,8 @@ def reportes(request):
     estado = (request.GET.get('estado') or '').strip()
     nota_numero = (request.GET.get('nota') or '').strip()
 
-    if report_type == 'clientes':
-        try:
-            clientes_qs = (
-                Nota_Entrega.objects
-                .filter(comprobante_pago__isnull=False, fecha__date__gte=start_date)
-                .filter(fecha__date__lte=today)
-            )
-            if cliente_nombre:
-                clientes_qs = clientes_qs.filter(
-                    Q(cliente__nombre_cliente__icontains=cliente_nombre)
-                    | Q(cliente__apellido_cliente__icontains=cliente_nombre)
-                    | Q(cliente_nombre__icontains=cliente_nombre)
-                )
-            if estado:
-                clientes_qs = clientes_qs.filter(estado_pago__iexact=estado)
-            if fecha:
-                try:
-                    fecha_date = datetime.datetime.strptime(fecha, '%Y-%m-%d').date()
-                    clientes_qs = clientes_qs.filter(fecha__date=fecha_date)
-                except (ValueError, TypeError):
-                    pass
-
-            clientes_qs = (
-                clientes_qs
-                .values('cliente__cedula', 'cliente__nombre_cliente', 'cliente__apellido_cliente', 'cliente_nombre')
-                .annotate(
-                    total_descuento=Sum('descuento_monto'),
-                    total_reembolsos=Sum(
-                        Case(
-                            When(estado_pago='RECHAZADO', then=F('total')),
-                            default=0.0,
-                            output_field=FloatField(),
-                        )
-                    ),
-                    total_ventas=Sum('total'),
-                    ultima_venta=Max('fecha'),
-                )
-                .order_by('-total_descuento')
-            )
-            for item in clientes_qs:
-                nombre = (item.get('cliente__nombre_cliente') or '').strip()
-                apellido = (item.get('cliente__apellido_cliente') or '').strip()
-                cliente_label = ' '.join(filter(None, [nombre, apellido])).strip()
-                if not cliente_label:
-                    cliente_label = item.get('cliente_nombre') or 'Cliente desconocido'
-
-                report_items.append({
-                    'cliente': cliente_label,
-                    'descuento': item.get('total_descuento') or 0.0,
-                    'reembolsos': item.get('total_reembolsos') or 0.0,
-                    'ventas': item.get('total_ventas') or 0.0,
-                    'ultima_venta': item.get('ultima_venta'),
-                })
-        except Exception:
-            logger.exception('Error al generar el reporte de clientes')
-            report_items = []
-
-        total_descuentos = sum(item['descuento'] for item in report_items)
-        total_reembolsos = sum(item['reembolsos'] for item in report_items)
-        total_products = len(report_items)
-        total_sales = sum(item['ventas'] for item in report_items)
-
-        if report_items:
-            max_descuento = max(item['descuento'] for item in report_items) or 1
-            top_products = [
-                {
-                    'cliente': item['cliente'],
-                    'descuento': item['descuento'],
-                    'bar_width': min(100, int((item['descuento'] / max_descuento) * 100)) if max_descuento else 0,
-                }
-                for item in report_items[:10]
-            ]
-    elif report_type == 'carrito':
+    # 'clientes' report removed — no server-side processing here.
+    if report_type == 'carrito':
         try:
             carrito_qs = (
                 Nota_Entrega.objects
@@ -1403,35 +1333,8 @@ def descargar_reporte_clientes(request):
         .order_by('-total_descuento')
     )
 
-    report_items = []
-    for item in clientes_qs:
-        nombre = (item.get('cliente__nombre_cliente') or '').strip()
-        apellido = (item.get('cliente__apellido_cliente') or '').strip()
-        cliente_label = ' '.join(filter(None, [nombre, apellido])).strip()
-        if not cliente_label:
-            cliente_label = item.get('cliente_nombre') or 'Cliente desconocido'
-
-        report_items.append({
-            'cliente': cliente_label,
-            'descuento': item.get('total_descuento') or 0.0,
-            'reembolsos': item.get('total_reembolsos') or 0.0,
-            'ventas': item.get('total_ventas') or 0.0,
-            'ultima_venta': item.get('ultima_venta'),
-        })
-
-    total_descuentos = sum(item['descuento'] for item in report_items)
-    total_reembolsos = sum(item['reembolsos'] for item in report_items)
-    total_ventas = sum(item['ventas'] for item in report_items)
-
-    from .NotaE import Generar_ReporteCliente
-    pdf = Generar_ReporteCliente(
-        report_items=report_items,
-        period_label=period_label,
-        total_descuentos=total_descuentos,
-        total_reembolsos=total_reembolsos,
-        total_ventas=total_ventas,
-    )
-    return pdf.generate_pdf()
+    # Function removed: report for 'clientes' is no longer supported.
+    return HttpResponse(status=404)
 
 
 @login_required
