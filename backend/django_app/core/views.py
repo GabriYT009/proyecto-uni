@@ -2148,7 +2148,7 @@ def crear_usuario(request):
                     # C. Crear el Cliente y ENLAZARLO
                     Cliente.objects.create(
                         user=nuevo_usuario,
-                        id=cedula,
+                        cedula=cedula,
                         nombre_cliente=nombre,
                         apellido_cliente=apellido,
                         direccion=direccion,
