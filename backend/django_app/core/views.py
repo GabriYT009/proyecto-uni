@@ -1037,12 +1037,12 @@ def reportes(request):
                 for item in report_items[:10]
             ]
 
-    # Nuevo: soporte para reporte de reembolsos listado (notas rechazadas)
+    # Reembolso = descuento aplicado a la venta.
     if report_type == 'reembolsos':
         try:
             reemb_qs = (
                 Nota_Entrega.objects
-                .filter(estado_pago='RECHAZADO')
+                .filter(descuento_monto__gt=0)
                 .filter(fecha__date__gte=start_date)
                 .filter(fecha__date__lte=today)
             )
@@ -1052,6 +1052,11 @@ def reportes(request):
                     | Q(cliente__apellido_cliente__icontains=cliente_nombre)
                     | Q(cliente_nombre__icontains=cliente_nombre)
                 )
+            if nota_numero:
+                try:
+                    reemb_qs = reemb_qs.filter(pk=int(nota_numero))
+                except (ValueError, TypeError):
+                    pass
             if fecha:
                 try:
                     fecha_date = datetime.datetime.strptime(fecha, '%Y-%m-%d').date()
@@ -1067,8 +1072,8 @@ def reportes(request):
                     'nota': nota.pk,
                     'fecha': nota.fecha,
                     'cliente': cliente_label,
-                    'monto': float(nota.total or 0.0),
-                    'motivo': nota.motivo_rechazo or '',
+                    'monto': float(nota.descuento_monto or 0.0),
+                    'motivo': nota.descuento_motivo or '',
                 })
         except Exception:
             logger.exception('Error generando listado de reembolsos')

@@ -97,7 +97,7 @@
                 <!-- 'clientes' report removed; no summary cards for that type -->
                 {% elif selected_report_type == 'reembolsos' %}
                 <div class="report-card">
-                    <h3>Total notas rechazadas</h3>
+                    <h3>Total descuentos aplicados</h3>
                     <p>{{ total_products }}</p>
                 </div>
                 <div class="report-card">
@@ -124,7 +124,7 @@
                         <p class="text-muted mb-0">Visualiza los clientes con mayor total en compras.</p>
                     {% elif selected_report_type == 'reembolsos' %}
                         <h2 class="mb-1">TOP 10 reembolsos</h2>
-                        <p class="text-muted mb-0">Visualiza los reembolsos con mayor monto.</p>
+                        <p class="text-muted mb-0">Visualiza los reembolsos (descuentos aplicados) con mayor monto.</p>
                     {% else %}
                         <h2 class="mb-1">TOP 10 más vendidos</h2>
                         <p class="text-muted mb-0">Visualiza los productos con mayor cantidad de unidades vendidas.</p>
@@ -311,7 +311,7 @@
                     </div>
                 {% endif %}
             {% elif selected_report_type == 'reembolsos' %}
-                <h2 class="h4 mb-3">Reembolsos (Notas rechazadas)</h2>
+                <h2 class="h4 mb-3">Reembolsos (Descuentos aplicados)</h2>
                 {% if report_items %}
                     <table class="report-table">
                         <thead>
@@ -364,7 +364,7 @@
                     {% endif %}
                 {% else %}
                     <div class="report-empty">
-                        <p>No hay reembolsos en este período.</p>
+                        <p>No hay reembolsos (descuentos aplicados) en este período.</p>
                     </div>
                 {% endif %}
             {% else %}
