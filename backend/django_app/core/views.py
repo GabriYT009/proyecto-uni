@@ -1295,46 +1295,39 @@ def descargar_reporte_productos(request):
             except (ValueError, TypeError):
                 pass
 
-            ventas_qs = (
-                CarritoDeCompras.objects
-                .filter(ventas_filter)
-                .select_related('Producto')
-                .values('Producto_id', 'Producto__nombre_producto')
-                .annotate(
-                    total_quantity=Sum('Cantidad'),
-                    total_sales=Sum(F('Cantidad') * F('precio_unitario'), output_field=FloatField()),
-                    last_sold=Max('Nota_Entrega__fecha'),
-                )
-                .order_by('-total_quantity')
+        ventas_qs = (
+            CarritoDeCompras.objects
+            .filter(ventas_filter)
+            .select_related('Producto')
+            .values('Producto_id', 'Producto__nombre_producto')
+            .annotate(
+                total_quantity=Sum('Cantidad'),
+                total_sales=Sum(F('Cantidad') * F('precio_unitario'), output_field=FloatField()),
+                last_sold=Max('Nota_Entrega__fecha'),
             )
-
-        except Exception:
-            logging.exception('Error construyendo consulta para PDF de productos')
-            ventas_qs = []
-
-        # Construir lista de items tal como hace la vista reportes
-        report_items = []
-        for item in ventas_qs:
-            report_items.append({
-                'producto_id': item.get('Producto_id'),
-                'producto': item.get('Producto__nombre_producto') or 'Producto desconocido',
-                'cantidad': item.get('total_quantity') or 0,
-                'ventas': item.get('total_sales') or 0.0,
-                'ultima_venta': item.get('last_sold'),
-            })
-
-        total_products = sum(it['cantidad'] for it in report_items)
-        total_sales = sum(it['ventas'] for it in report_items)
-
-        # Generar PDF usando el helper en NotaE
-        from .NotaE import Generar_ReporteProductos
-        pdf = Generar_ReporteProductos(
-            report_items=report_items,
-            period_label=(request.GET.get('period') or 'Hoy'),
-            total_products=total_products,
-            total_sales=total_sales,
+            .order_by('-total_quantity')
         )
-        return pdf.generate_pdf()
+    except Exception:
+        logging.exception('Error construyendo consulta para CSV de productos')
+        ventas_qs = []
+
+    response = HttpResponse(content_type='text/csv; charset=utf-8')
+    response['Content-Disposition'] = 'attachment; filename="productos_vendidos.csv"'
+    response.write('\ufeff')
+
+    writer = csv.writer(response)
+    writer.writerow(['producto_id', 'producto', 'cantidad_vendida', 'ventas', 'ultima_venta'])
+
+    for item in ventas_qs:
+        producto_id = item.get('Producto_id')
+        producto = item.get('Producto__nombre_producto') or 'Producto desconocido'
+        cantidad = item.get('total_quantity') or 0
+        ventas = item.get('total_sales') or 0.0
+        ultima = item.get('last_sold')
+        ventas_str = f"{ventas:.2f}".replace('.', ',')
+        writer.writerow([producto_id, producto, cantidad, ventas_str, ultima])
+
+    return response
 
 
 @login_required
