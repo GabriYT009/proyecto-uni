@@ -299,6 +299,7 @@ class CarritoDeCompras(models.Model):
         return f"{self.Cantidad} x {self.Producto.nombre} (Nota de Entrega {self.Nota_Entrega.id})"
 
 #paso 1
+
 class Nota_Entrega(models.Model):
 
     ESTADO_PAGO = [
@@ -316,7 +317,9 @@ class Nota_Entrega(models.Model):
     
     cliente = models.ForeignKey(Cliente, on_delete=models.PROTECT, null=True, blank=True,db_column='cliente_cedula')
     # Snapshot de cliente para ventas en caja cuando no existe registro en Cliente.
-    
+    cliente_documento = models.CharField(max_length=45, blank=True, null=True)
+    cliente_nombre = models.CharField(max_length=90, blank=True, null=True)
+    cliente_direccion = models.CharField(max_length=100, blank=True, null=True)
     
     
     cliente_telefono = models.CharField(max_length=15, blank=True, null=True)

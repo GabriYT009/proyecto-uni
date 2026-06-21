@@ -2024,7 +2024,7 @@ def crear_usuario(request):
                     'email': email,
                 })
 
-            if cedula and Cliente.objects.filter(id=cedula).exists():
+            if cedula and Cliente.objects.filter(cedula=cedula).exists():
                 return render(request, 'core/crear_usuario.html', {
                     'error': 'La cédula ya está registrada.',
                     'security_questions': security_questions,
@@ -2051,7 +2051,7 @@ def crear_usuario(request):
                     # C. Crear el Cliente y ENLAZARLO
                     Cliente.objects.create(
                         user=nuevo_usuario,
-                        id=cedula,
+                        cedula=cedula,
                         nombre_cliente=nombre,
                         apellido_cliente=apellido,
                         direccion=direccion,
@@ -2672,6 +2672,8 @@ def cobrar_caja(request):
                 nota_kwargs['cliente_direccion'] = cliente_direccion[:100] if cliente_direccion else ''
                 nota_kwargs['cliente_telefono'] = cliente_telefono[:15] if cliente_telefono else ''
 
+            
+                nota.save(update_fields=['cliente_documento'])
             nota = Nota_Entrega.objects.create(
                 **nota_kwargs,
             )
@@ -2716,6 +2718,7 @@ def cobrar_caja(request):
             # PASO D: Actualizar el total final de la nota
             nota.total_bruto = total_acumulado
             nota.total = total_acumulado
+    
             nota.save()
 
         messages.success(request, 'Venta en caja procesada exitosamente.')
@@ -3528,7 +3531,7 @@ def comprar_carrito(request):
                 total_bruto=0.0,
                 bcv=valor_bcv,
                 tipo_pago='PAGO MOVIL',
-                metodo_pago=metodo_pago,
+                #metodo_pago=metodo_pago,
                 #cedula=documento[:45],
                 cliente_telefono=mobile_phone[:15],
                 referencia_pago=referencia,
