@@ -2768,9 +2768,8 @@ def cobrar_caja(request):
                 nota_kwargs['cliente_nombre'] = cliente_nombre[:90] if cliente_nombre else 'Consumidor Final'
                 nota_kwargs['cliente_direccion'] = cliente_direccion[:100] if cliente_direccion else ''
                 nota_kwargs['cliente_telefono'] = cliente_telefono[:15] if cliente_telefono else ''
-                
-            if not nota.cliente_documento and cliente_doc:
-                nota.cliente_documento = cliente_doc
+
+            
                 nota.save(update_fields=['cliente_documento'])
             nota = Nota_Entrega.objects.create(
                 **nota_kwargs,
@@ -2816,6 +2815,8 @@ def cobrar_caja(request):
             # PASO D: Actualizar el total final de la nota
             nota.total_bruto = total_acumulado
             nota.total = total_acumulado
+            if not nota.cliente_documento and cliente_doc:
+                nota.cliente_documento = cliente_doc
             nota.save()
 
         messages.success(request, 'Venta en caja procesada exitosamente.')
