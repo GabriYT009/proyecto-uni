@@ -14,8 +14,10 @@
         html, body { min-height: 100%; background: #fff !important; color: #111; }
         body { padding-top: 80px; background: #fff !important; font-family: 'Poppins', sans-serif; }
         .report-header { margin: 20px auto 0; max-width: 1180px; padding: 24px; background: #fff; border-radius: 18px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
-        .report-header-top { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 16px; }
-        .report-header-top.center-actions { align-items: center; }
+          /* Alineamos verticalmente los elementos del header para que el título
+              y los botones queden en la misma línea en todas las vistas. */
+          .report-header-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
+          .report-header-top.center-actions { align-items: center; }
         .report-actions { display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
         /* Cuando se active la vista 'Clientes con mas compras' centramos los botones/controles */
         .report-header-top.center-actions .report-actions { align-items: center; justify-content: center; }
@@ -34,6 +36,8 @@
         .report-summary { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); margin-top: 20px; }
         .report-card { background: #fff; border: 1px solid #e6e6e6; border-radius: 14px; padding: 18px 22px; }
         .report-card h3 { margin: 0 0 10px; font-size: 16px; color: #5e3cff; }
+        /* Reducir tamaño del título principal para que quepa junto a los controles */
+        .report-header h1.mb-1 { font-size: 32px; font-weight: 700; margin: 0 0 6px; }
         .report-card p { margin: 0; font-size: 28px; font-weight: 700; color: #121212; }
         .report-chart { max-width: 1180px; margin: 24px auto; padding: 24px; background: #fff; border-radius: 18px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
         .chart-row { display: grid; grid-template-columns: 1fr 120px; align-items: center; gap: 16px; margin-bottom: 14px; }
