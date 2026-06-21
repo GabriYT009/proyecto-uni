@@ -206,7 +206,7 @@
                             <div>Documento: <input name="client-doc" type="text"  id="client-doc" list="clients-list" placeholder="Cédula" style="width:120px;padding:2px;" /></div>
                             <datalist id="clients-list">
                                 {% for c in clientes %}
-                                    <option value="{{ c.id }}">{{ c.nombre_cliente }} {{ c.apellido_cliente }}</option>
+                                    <option value="{{ c.cedula }}">{{ c.nombre_cliente }} {{ c.apellido_cliente }}</option>
                                 {% endfor %}
                             </datalist>
                             <div>Cliente: <strong id="client-name">Consumidor Final</strong></div>
@@ -327,7 +327,7 @@
 
             function syncSelectedClient() {
                 var doc = clientDoc.value.trim();
-                var client = clientsData.find(function (c) { return (c.id || '').toString() === doc; });
+                var client = clientsData.find(function (c) { return (c.cedula || '').toString() === doc; });
                 if (client) {
                     var fullName = ((client.nombre_cliente || '') + ' ' + (client.apellido_cliente || '')).trim() || 'Consumidor Final';
                     clientNameDisplay.textContent = fullName;
@@ -516,7 +516,7 @@
 
             function validateClientFields() {
                 var doc = clientDoc ? clientDoc.value.trim() : '';
-                var client = clientsData.find(function (c) { return (c.id || '').toString() === doc; });
+                var client = clientsData.find(function (c) { return (c.cedula || '').toString() === doc; });
                 // Si seleccionó cliente registrado, no validamos campos guest
                 if (client) {
                     clearFieldError(guestName); clearFieldError(guestDir); clearFieldError(guestPhone);
