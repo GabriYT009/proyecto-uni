@@ -21,12 +21,12 @@
             <h2 style="color:#9932CC">Detalles del pedido #{{ salida.pk }}</h2>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                 <div class="muted">Fecha: {{ salida.date }}</div>
-                <div style="font-weight:700; color:#333">Total: $ {{ salida.total }}</div>
+                <div style="font-weight:700; color:#333">Total: $ {{ salida.total|floatformat:2|replace:'.',',' }}</div>
             </div>
 
             {% if salida.descuento_monto %}
                 <div style="margin-bottom:18px; padding:12px 14px; border-radius:10px; background:#f8f1ff; border:1px solid #e3cff8; color:#5b2c86;">
-                    <div style="font-weight:700;">Descuento aplicado: -$ {{ salida.descuento_monto }}</div>
+                    <div style="font-weight:700;">Descuento aplicado: -$ {{ salida.descuento_monto|floatformat:2|replace:'.',',' }}</div>
                     <div class="muted" style="margin-top:4px;">Motivo: {% firstof salida.descuento_motivo "No" %}</div>
                 </div>
             {% endif %}
@@ -41,7 +41,7 @@
                             </div>
                             <div style="text-align:right; min-width:160px;">
                                 <div>Cantidad: {{ it.cantidad_item }}</div>
-                                <div>Subtotal: $ {{ it.sub_total_item }}</div>
+                                <div>Subtotal: $ {{ it.sub_total_item|floatformat:2|replace:'.',',' }}</div>
                             </div>
                         </div>
                     {% endfor %}

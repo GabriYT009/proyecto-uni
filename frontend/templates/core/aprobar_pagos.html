@@ -535,7 +535,7 @@
     <dd>{{ salida.fecha|default:salida.fecha_revision }}</dd>
 
     <dt class="total-label">Monto Total</dt>
-    <dd class="total-amount">$ {{ salida.total }}</dd>
+    <dd class="total-amount">$ {{ salida.total|floatformat:2|replace:'.',',' }}</dd>
     <dt>Número de referencia</dt>
     {% if salida.referencia_pago %}
 

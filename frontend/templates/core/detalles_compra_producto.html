@@ -30,7 +30,7 @@
                                 <div class="muted">Fecha: {{ c.salida.date }}</div>
                             </div>
                             <div style="text-align:right;">
-                                <div style="font-weight:700">Total: $ {{ c.salida.total }}</div>
+                                <div style="font-weight:700">Total: $ {{ c.salida.total|floatformat:2|replace:'.',',' }}</div>
                             </div>
                         </div>
                         {% else %}
@@ -39,7 +39,7 @@
 
                         <ul style="margin-top:8px;">
                             {% for it in c.items %}
-                                <li>{{ it.producto.nombre_producto }} — Cantidad: {{ it.cantidad_item }} — Subtotal: $ {{ it.sub_total_item }}</li>
+                                <li>{{ it.producto.nombre_producto }} — Cantidad: {{ it.cantidad_item }} — Subtotal: $ {{ it.sub_total_item|floatformat:2|replace:'.',',' }}</li>
                             {% endfor %}
                         </ul>
                     </div>

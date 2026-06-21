@@ -545,7 +545,7 @@
                                     <dd>{{ solicitud.nota_entrega.get_estado_pago_display }}</dd>
 
                                     <dt>Total de la orden</dt>
-                                    <dd>$ {{ solicitud.nota_entrega.total|default:0 }}</dd>
+                                    <dd>$ {{ solicitud.nota_entrega.total|default:0|floatformat:2|replace:'.',',' }}</dd>
                                 </dl>
 
                                 <div class="section-label" style="margin-top:14px;">Comentario</div>
