@@ -1408,7 +1408,16 @@ def descargar_reporte_cliente(request, cliente_id):
     fecha = (request.GET.get('fecha') or '').strip()
     estado = (request.GET.get('estado') or '').strip()
 
-    cliente = get_object_or_404(Cliente, pk=cliente_id)
+    # cliente_id may be numeric PK or a cedula string. Try PK first, then cedula.
+    cliente = None
+    try:
+        # attempt by integer PK
+        cliente = Cliente.objects.get(pk=int(cliente_id))
+    except (ValueError, TypeError, Cliente.DoesNotExist):
+        try:
+            cliente = Cliente.objects.get(cedula=str(cliente_id))
+        except Cliente.DoesNotExist:
+            cliente = get_object_or_404(Cliente, pk=cliente_id)
 
     notas_qs = (
         Nota_Entrega.objects

@@ -443,15 +443,71 @@ class Generar_ReporteReembolsos(FPDF):
 
         self.set_font('Arial', '', 9)
         self.set_fill_color(255, 255, 255)
+
+        def _nb_lines(cell_width, text):
+            # Estimate number of lines for text within a given cell width
+            if not text:
+                return 1
+            # Reduce a couple of units for cell padding
+            max_w = max(cell_width - 2, 1)
+            if self.get_string_width(text) <= max_w:
+                return 1
+            words = text.split(' ')
+            line = ''
+            lines = 0
+            for w in words:
+                test = (line + ' ' + w).strip() if line else w
+                if self.get_string_width(test) <= max_w:
+                    line = test
+                else:
+                    lines += 1
+                    line = w
+            if line:
+                lines += 1
+            return lines
+
+        # Column widths
+        w_nota = 25
+        w_fecha = 30
+        w_cliente = 60
+        w_monto = 30
+        w_motivo = 45
+        line_h = 6
+
         for item in self.report_items:
-            self.cell(25, 8, str(item.get('nota')) or '-', 1, 0, 'C', 1)
+            nota_txt = str(item.get('nota')) or '-'
             fecha = item.get('fecha')
-            self.cell(30, 8, fecha.strftime('%d/%m/%Y') if fecha else '-', 1, 0, 'C', 1)
+            fecha_txt = fecha.strftime('%d/%m/%Y') if fecha else '-'
             cliente = item.get('cliente') or '-'
-            self.cell(60, 8, cliente[:40], 1, 0, 'L', 1)
-            self.cell(30, 8, f'${item.get("monto", 0.0):.2f}', 1, 0, 'R', 1)
+            monto_txt = f'${item.get("monto", 0.0):.2f}'
             motivo = item.get('motivo') or '-'
-            self.cell(45, 8, motivo[:60], 1, 1, 'L', 1)
+
+            lines_cliente = _nb_lines(w_cliente, cliente)
+            lines_motivo = _nb_lines(w_motivo, motivo)
+            nlines = max(1, lines_cliente, lines_motivo)
+            row_h = line_h * nlines
+
+            x = self.get_x()
+            y = self.get_y()
+
+            # Nota
+            self.set_xy(x, y)
+            self.multi_cell(w_nota, line_h, nota_txt, border=1, align='C')
+            # Fecha
+            self.set_xy(x + w_nota, y)
+            self.multi_cell(w_fecha, line_h, fecha_txt, border=1, align='C')
+            # Cliente
+            self.set_xy(x + w_nota + w_fecha, y)
+            self.multi_cell(w_cliente, line_h, cliente, border=1, align='L')
+            # Monto
+            self.set_xy(x + w_nota + w_fecha + w_cliente, y)
+            self.multi_cell(w_monto, line_h, monto_txt, border=1, align='R')
+            # Motivo (puede ocupar varias líneas)
+            self.set_xy(x + w_nota + w_fecha + w_cliente + w_monto, y)
+            self.multi_cell(w_motivo, line_h, motivo, border=1, align='L')
+
+            # Mover cursor al final de la fila
+            self.set_xy(x, y + row_h)
 
         try:
             pdf_bytes = bytes(self.output())
