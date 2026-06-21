@@ -44,6 +44,7 @@ urlpatterns = [
     path('pagos/aprobar/', views.aprobar_pagos, name='aprobar_pagos'),
     path('pagos/sublimacion/', views.ordenes_sublimacion, name='ordenes_sublimacion'),
     path('reportes/', views.reportes, name='reportes'),
+    path('reportes/productos/csv/', views.descargar_reporte_productos, name='descargar_reporte_productos'),
     path('reportes/producto/<int:producto_id>/pdf/', views.descargar_reporte_producto, name='descargar_reporte_producto'),
     path('reportes/clientes/pdf/', views.descargar_reporte_clientes, name='descargar_reporte_clientes'),
     path('reportes/reembolsos/pdf/', views.descargar_reporte_reembolsos, name='descargar_reporte_reembolsos'),

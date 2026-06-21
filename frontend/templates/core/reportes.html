@@ -205,6 +205,8 @@
                         <a href="{% url 'descargar_reporte_carrito' %}?period={{ selected_period }}{% if cliente_nombre %}&cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&estado={{ estado|urlencode }}{% endif %}" class="report-button" style="margin-top: 26px; background:#5b2b80; color:#fff;">Descargar PDF</a>
                         {% elif selected_report_type == 'reembolsos' %}
                         <a href="{% url 'descargar_reporte_reembolsos' %}?period={{ selected_period }}{% if cliente_nombre %}&cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&fecha={{ fecha|urlencode }}{% endif %}" class="report-button" style="margin-top: 26px; background:#5b2b80; color:#fff;">Descargar PDF</a>
+                        {% elif selected_report_type == 'productos' %}
+                        <a href="{% url 'descargar_reporte_productos' %}?period={{ selected_period }}{% if producto_nombre %}&producto={{ producto_nombre|urlencode }}{% endif %}{% if cliente_nombre %}&cliente={{ cliente_nombre|urlencode }}{% endif %}{% if fecha %}&fecha={{ fecha|urlencode }}{% endif %}{% if estado %}&estado={{ estado|urlencode }}{% endif %}" class="report-button" style="margin-top: 26px; background:#5b2b80; color:#fff;">Descargar CSV</a>
                         {% endif %}
                     </div>
                 </div>

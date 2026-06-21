@@ -13,6 +13,7 @@ from django.contrib.auth.models import User, Group
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
+from django.http import HttpResponse
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.core.mail import get_connection
@@ -56,6 +57,7 @@ import string
 import datetime
 import unicodedata
 import secrets
+import csv
 # Flujo de códigos de restablecimiento de contraseña deshabilitado para verificación de registro
 from django.contrib.auth.forms import AuthenticationForm
 from .bcv import obtener_tasa_cambio
@@ -1251,6 +1253,85 @@ def descargar_reporte_producto(request, producto_id):
         last_sold=last_sold,
     )
     return pdf.generate_pdf()
+
+
+@login_required
+@admin_only
+def descargar_reporte_productos(request):
+    """Exportar CSV con resumen de productos vendidos (agregado por producto)."""
+    period = (request.GET.get('period') or 'dia').strip().lower()
+    today = timezone.localtime(timezone.now()).date()
+    if period == 'semana':
+        start_date = today - datetime.timedelta(days=6)
+    elif period == 'mes':
+        start_date = today - datetime.timedelta(days=29)
+    else:
+        start_date = today
+
+    producto_nombre = (request.GET.get('producto') or '').strip()
+    estado = (request.GET.get('estado') or '').strip()
+    fecha = (request.GET.get('fecha') or '').strip()
+    nota_numero = (request.GET.get('nota') or '').strip()
+
+    try:
+        ventas_filter = (
+            Q(Nota_Entrega__fecha__date__gte=start_date) &
+            Q(Nota_Entrega__fecha__date__lte=today)
+        )
+
+        if producto_nombre:
+            ventas_filter &= Q(Producto__nombre_producto__icontains=producto_nombre)
+
+        if estado:
+            ventas_filter &= Q(Nota_Entrega__estado_pago__iexact=estado)
+
+        if nota_numero:
+            ventas_filter &= Q(Nota_Entrega__pk__iexact=nota_numero)
+
+        if fecha:
+            try:
+                fecha_date = datetime.datetime.strptime(fecha, '%Y-%m-%d').date()
+                ventas_filter &= Q(Nota_Entrega__fecha__date=fecha_date)
+            except (ValueError, TypeError):
+                pass
+
+        ventas_qs = (
+            CarritoDeCompras.objects
+            .filter(ventas_filter)
+            .select_related('Producto')
+            .values('Producto_id', 'Producto__nombre_producto')
+            .annotate(
+                total_quantity=Sum('Cantidad'),
+                total_sales=Sum(F('Cantidad') * F('precio_unitario'), output_field=FloatField()),
+                last_sold=Max('Nota_Entrega__fecha'),
+            )
+            .order_by('-total_quantity')
+        )
+
+    except Exception:
+        logging.exception('Error construyendo consulta para CSV de productos')
+        ventas_qs = []
+
+    # Construir respuesta CSV
+    response = HttpResponse(content_type='text/csv; charset=utf-8')
+    response['Content-Disposition'] = 'attachment; filename="productos_vendidos.csv"'
+    # BOM para Excel UTF-8
+    response.write('\ufeff')
+
+    writer = csv.writer(response)
+    writer.writerow(['producto_id', 'producto', 'cantidad_vendida', 'ventas', 'ultima_venta'])
+
+    for item in ventas_qs:
+        producto_id = item.get('Producto_id')
+        producto = item.get('Producto__nombre_producto') or 'Producto desconocido'
+        cantidad = item.get('total_quantity') or 0
+        ventas = item.get('total_sales') or 0.0
+        ultima = item.get('last_sold')
+        # Formatear ventas con dos decimales y coma decimal para mejor compatibilidad local
+        ventas_str = f"{ventas:.2f}".replace('.', ',')
+        writer.writerow([producto_id, producto, cantidad, ventas_str, ultima])
+
+    return response
 
 
 @login_required
