@@ -315,8 +315,46 @@
                         if (!isCustom) customInput.value = '';
                     }
 
-                    questionSelect.addEventListener('change', toggleCustom);
+                    // Deshabilitar opciones seleccionadas en los otros selects
+                    function updateSelectOptions(){
+                        try{
+                            var selects = [
+                                document.getElementById('security_question_id_1'),
+                                document.getElementById('security_question_id_2'),
+                                document.getElementById('security_question_id_3')
+                            ];
+                            var selected = {};
+                            selects.forEach(function(s, idxS){
+                                if (!s) return;
+                                var v = s.value;
+                                if (v && v !== 'custom') selected[v] = (selected[v] || 0) + 1;
+                            });
+
+                            selects.forEach(function(s, idxS){
+                                if (!s) return;
+                                var ownVal = s.value;
+                                Array.prototype.forEach.call(s.options, function(opt){
+                                    if (!opt.value || opt.value === 'custom'){
+                                        opt.disabled = false;
+                                        return;
+                                    }
+                                    // permitir la opción si es la seleccionada en este select
+                                    if (opt.value === ownVal) {
+                                        opt.disabled = false;
+                                        return;
+                                    }
+                                    // si ya fue seleccionada en otro select, deshabilitar
+                                    opt.disabled = Boolean(selected[opt.value]);
+                                });
+                            });
+                        }catch(ex){console.error(ex);} 
+                    }
+
+                    questionSelect.addEventListener('change', function(){ toggleCustom(); updateSelectOptions(); });
+                    // Inicializar estado
                     toggleCustom();
+                    // asegurar opciones correctas al cargar
+                    updateSelectOptions();
                 })(i);
             }
         })();

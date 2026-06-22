@@ -2084,6 +2084,31 @@ def crear_usuario(request):
                             'email': email,
                         })
 
+                # Validar que las tres preguntas sean distintas entre sí (por id o por texto custom)
+                try:
+                    resolved = []
+                    for idx in (0,1,2):
+                        qid = security_q_ids[idx]
+                        qcustom = security_q_customs[idx]
+                        if qid and qid != 'custom':
+                            resolved.append(f'id:{qid}')
+                        else:
+                            # normalizar texto custom para comparación
+                            resolved.append('custom:' + (qcustom or '').strip().lower())
+
+                    # si hay duplicados, rechazar
+                    nonempty = [r for r in resolved if r and r != 'custom:']
+                    if len(set(nonempty)) != len(nonempty):
+                        return render(request, 'core/crear_usuario.html', {
+                            'error': 'Las preguntas de seguridad deben ser distintas entre sí.',
+                            'security_questions': security_questions,
+                            'security_feature_enabled': security_feature_enabled,
+                            'email': email,
+                        })
+                except Exception:
+                    # Si falla la validación por cualquier razón, continuar con el flujo
+                    logger.exception('Error validando unicidad de preguntas de seguridad')
+
             if not cedula_dni:
                 return render(request, 'core/crear_usuario.html', {
                     'error': 'La cédula es obligatoria.',
